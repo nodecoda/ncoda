@@ -1,0 +1,8 @@
+@language nodecoda/1
+// Standard library v1: Knowledge Retrieval -> LLM -> End
+
+@mode workflow
+
+function main(string query) -> string {
+    return std.v1.rag_answer(query, "ds-001,ds-002", "openai/gpt-4o");
+}

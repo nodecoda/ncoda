@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("A🚀A\U0001c600A\U0001c600A\U0001c600A\U0001c600A\U0001a000A🚀A🕀")

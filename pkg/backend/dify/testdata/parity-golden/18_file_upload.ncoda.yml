@@ -1,0 +1,74 @@
+app:
+  mode: workflow
+  name: ''
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  rag_pipeline_variables: []
+  features:
+    file_upload: {}
+    sensitive_word_avoidance:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+  graph:
+    nodes:
+    - id: start_1
+      type: custom
+      data:
+        type: start
+        title: User Input
+        variables:
+        - label: doc
+          type: file
+          variable: doc
+          required: true
+          allowed_file_types:
+          - document
+          - image
+          allowed_file_extensions:
+          - .pdf
+          - .docx
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+    - id: end_2
+      type: custom
+      data:
+        type: end
+        title: Output
+        outputs:
+        - variable: output
+          value_type: file
+          value_selector:
+          - start_1
+          - doc
+    edges:
+    - id: edge_1
+      source: start_1
+      sourceHandle: ''
+      target: end_2
+      targetHandle: target
+      type: custom
+      data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: end
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1
+dependencies: []

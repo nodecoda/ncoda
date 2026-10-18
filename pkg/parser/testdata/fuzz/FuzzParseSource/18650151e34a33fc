@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("=鈄\u07fcA\ue577=嬥݂\xc9A܄\xd7A0߿ش=՚=")

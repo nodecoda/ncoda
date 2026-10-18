@@ -1,0 +1,46 @@
+@language nodecoda/1
+// 14_conditional_parallel_code.ncoda
+// Dify YAML: examples/yaml/conditional_parallel_code_execution_workflow.yml
+//
+// Flow: Start(switch) → IF(switch==1) →
+//   true:  parallel { code1, code2 }
+//   false: parallel { code2, code3 }
+//   → End(outputs)
+//
+// Features: if-else with parallel Code branches
+
+@mode workflow
+
+function main(int sw) {
+    if (sw == 1) {
+        parallel {
+            {
+                let r1 = foreign code python3() -> string {
+                    source `def main() -> dict:
+    return {"result": "Code 1"}`;
+                };
+            }
+            {
+                let r2 = foreign code python3() -> string {
+                    source `def main() -> dict:
+    return {"result": "Code 2"}`;
+                };
+            }
+        }
+    } else {
+        parallel {
+            {
+                let r2 = foreign code python3() -> string {
+                    source `def main() -> dict:
+    return {"result": "Code 2"}`;
+                };
+            }
+            {
+                let r3 = foreign code python3() -> string {
+                    source `def main() -> dict:
+    return {"result": "Code 3"}`;
+                };
+            }
+        }
+    }
+}

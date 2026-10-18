@@ -1,0 +1,12 @@
+@language nodecoda/1
+// 32_answer_end_with_text.ncoda
+// Dify YAML: examples/yaml/answer_end_with_text.yml
+//
+// Flow: Start → Answer(prefix + sys.query + suffix)
+// Pattern: advanced-chat with template concatenation
+
+@mode advanced-chat
+
+function main(string query) {
+    return `prefix${query}suffix`;
+}

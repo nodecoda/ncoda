@@ -1,0 +1,24 @@
+@language nodecoda/1
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string article) -> string {
+    let response = llm(MODEL, {
+        "messages": [
+            {
+                "role": "system",
+                "content": "你是一个专业的文章摘要助手。请对用户提供的文章进行简洁、准确的汇总摘要，抓住核心要点。"
+            },
+            {
+                "role": "user",
+                "content": `请对以下文章进行汇总摘要：\n\n${article}`
+            }
+        ],
+        "temperature": 0.3
+    });
+
+    return response.text;
+}
+

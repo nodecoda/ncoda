@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("function A(){=while(A<0)let let =while(A<0)let =while(A<0)=0=0=while(A<0)=0=")

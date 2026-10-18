@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("\x00@A{99\x80B")

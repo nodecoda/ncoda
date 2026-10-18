@@ -1,0 +1,12 @@
+@language nodecoda/1
+// List-Operator closed-loop example.
+// Flow: Start(csv) -> Code(split) -> List-Operator(filter) -> List-Operator(limit) -> End
+
+function main(string csv) {
+    let items = split(csv, ",");
+    let selected = take(
+        filter(items, (item) -> item.contains("a")),
+        10
+    );
+    output(selected);
+}

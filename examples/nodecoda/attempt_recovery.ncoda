@@ -1,0 +1,15 @@
+// attempt_recovery.ncoda
+// Real-world corpus case (realcheck round, 2026-08-15): extracted verbatim
+// from the frozen oracle suite
+// 上游 Python 参考实现（nclang）/tests/nodecoda-suite/cases/attempt-recovery/source.ncoda.
+// Regression lock for Task 22 (attempt lowering): Go previously raised
+// "Structured statement AttemptStmt bypassed StructuredFlowLowerer".
+
+@mode workflow
+
+function main() -> string {
+    attempt http("GET", "https://httpbin.org/status/503", {}) as response {
+        success { return "unexpected-success:" + response.body; }
+        failure(error) { return "attempt-recovered:" + error.error_type; }
+    }
+}

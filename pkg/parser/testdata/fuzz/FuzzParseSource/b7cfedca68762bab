@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("A A#A-#A#A#ܳA#-A Ƞ#A#A A##A A A##A#A A A#A#A#A A A Aݫ#A#A A#-Ԝ#A\u07b2#A A A#000A#A##A A##A A#A#A \xc90ݏ#A A A#A#ٰA#A A#A#Aƶ щ A#A#A#A##A ū A A#A A##A ݝ A A A؉A\"\"A##A A#A A#A A-A#A#A A##A AǤ#A#A٬")

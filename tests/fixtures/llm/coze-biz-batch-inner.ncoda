@@ -1,0 +1,10 @@
+@language nodecoda/1
+@mode workflow
+type Answer = { string answer; };
+function main(array<string> prompts) -> string[] {
+    let values = parallel for (prompt in prompts, concurrency: 2, on_error: terminate) {
+        let r = llm<Answer>("model", {"messages": [{"role": "user", "content": prompt}]});
+        yield r.text.answer;
+    };
+    return values;
+}

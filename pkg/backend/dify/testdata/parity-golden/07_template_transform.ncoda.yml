@@ -1,0 +1,88 @@
+app:
+  mode: workflow
+  name: ''
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  rag_pipeline_variables: []
+  features:
+    file_upload: {}
+    sensitive_word_avoidance:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+  graph:
+    nodes:
+    - id: start_1
+      type: custom
+      data:
+        type: start
+        title: User Input
+        variables:
+        - label: name
+          type: text-input
+          variable: name
+          required: true
+        - label: score
+          type: number
+          variable: score
+          required: true
+    - id: template_2
+      type: custom
+      data:
+        type: template-transform
+        title: Template
+        template: 姓名：{{#start_1.name#}}\n分数：{{#start_1.score#}}\n等级：{% if (score >=
+          90) %}优秀{% elif (score >= 60) %}及格{% else %}不及格{% endif %}
+        variables: []
+    - id: end_3
+      type: custom
+      data:
+        type: end
+        title: Output
+        outputs:
+        - variable: output
+          value_type: string
+          value_selector:
+          - template_2
+          - output
+    edges:
+    - id: edge_1
+      source: start_1
+      sourceHandle: ''
+      target: template_2
+      targetHandle: target
+      type: custom
+      data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: template-transform
+    - id: edge_2
+      source: template_2
+      sourceHandle: ''
+      target: end_3
+      targetHandle: target
+      type: custom
+      data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: template-transform
+        targetType: end
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1
+dependencies: []

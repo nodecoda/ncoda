@@ -1,0 +1,27 @@
+@language nodecoda/1
+// 37_iteration_flatten_disabled.ncoda
+// Dify YAML: examples/yaml/iteration_flatten_output_disabled_workflow.yml
+//
+// Flow: Start → Code(generate [1,2,3]) → Iteration → Code(pair) → End
+// Pattern: Iteration with flatten_output=false (nested arrays)
+
+@mode workflow
+
+function main() {
+    let data = foreign code python3() -> array<int> {
+        source `def main() -> dict:
+    return {"result": [1, 2, 3]}`;
+    };
+
+    let results = for (item in data) {
+        let pair = foreign code python3(
+            int arg1 = item
+        ) -> array<int> {
+            source `def main(arg1: int) -> dict:
+    return {"result": [arg1, arg1 * 2]}`;
+        };
+        yield pair;
+    };
+
+    return results;
+}

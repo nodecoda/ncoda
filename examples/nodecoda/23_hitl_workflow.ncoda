@@ -1,0 +1,16 @@
+@language nodecoda/1
+// 23_hitl_workflow.ncoda
+// Dify YAML: examples/yaml/hitl-main.yml
+//
+// Flow: Start → Question → HITL → IF → End
+// Pattern: Human-in-the-loop with question
+
+@mode workflow
+
+function main(string feedback) {
+    if (feedback != "") {
+        return feedback;
+    } else {
+        return "No feedback provided";
+    }
+}

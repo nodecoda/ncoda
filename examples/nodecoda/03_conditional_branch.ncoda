@@ -1,0 +1,40 @@
+@language nodecoda/1
+// 03_conditional_branch.ncoda
+// Dify YAML: examples/yaml/03_conditional_branch.yml
+//
+// Flow: Start(language) → IF → LLM(zh/en) → Answer
+//
+// Mapping:
+//   if-else.conditions   → if (language == "中文" || language == "Chinese")
+//   两个 LLM 分支        → if/else 分支中的 llm() 调用
+//   answer 聚合          → return 在每个分支末尾
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+const FAST_MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query, string language = "中文") {
+    // 语言判断 (对应 YAML if-else 节点)
+    if (language == "中文" || language == "Chinese") {
+        // 中文回答 (对应 YAML llm-zh 节点)
+        let response = llm(MODEL, {
+            "messages": [
+                { "role": "user", "content": `请用中文回答：${query}` }
+            ],
+            "temperature": 0.5,
+            "max_tokens": 2048
+        });
+        return response.text;
+    } else {
+        // 英文回答 (对应 YAML llm-en 节点)
+        let response = llm(FAST_MODEL, {
+            "messages": [
+                { "role": "user", "content": `Please answer in English: ${query}` }
+            ],
+            "temperature": 0.5,
+            "max_tokens": 1024
+        });
+        return response.text;
+    }
+}

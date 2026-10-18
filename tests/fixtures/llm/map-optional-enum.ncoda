@@ -1,0 +1,8 @@
+@language nodecoda/1
+@mode workflow
+enum Verdict { approve, reject }
+type Envelope = { map<string, int> values; Verdict? verdict; };
+function main(string prompt) -> map<string, int> {
+    let r = llm<Envelope>("model", {"messages": [{"role": "user", "content": prompt}]});
+    return r.text.values;
+}

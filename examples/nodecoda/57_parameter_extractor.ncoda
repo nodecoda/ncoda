@@ -1,0 +1,29 @@
+@language nodecoda/1
+@mode workflow
+
+type TravelRequest = {
+    string city;
+    float days;
+    bool flexible;
+    string[] tags;
+}
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string text) -> TravelRequest {
+    let extracted = extract<TravelRequest>(MODEL, text, {
+        instruction: "Extract a travel request",
+        descriptions: {
+            city: "Destination city",
+            days: "Trip duration in days",
+            flexible: "Whether travel dates are flexible",
+            tags: "Travel preferences"
+        },
+        strategy: "prompt"
+    });
+
+    // Structured result return: the extraction value is the workflow result
+    // (heterogeneous fields via the named record type; extract's soft-failure
+    // channel leaves .value as the port default when .ok is false).
+    return extracted.value;
+}

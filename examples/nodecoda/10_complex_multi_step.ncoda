@@ -1,0 +1,44 @@
+@language nodecoda/1
+// 10_complex_multi_step.ncoda
+// Dify YAML: examples/yaml/10_complex_multi_step.yml
+//
+// Flow: Start(query) → IF(contains "知识") →
+//   true:  knowledge → http → llm-rag → answer
+//   false: code-format → llm-direct → answer (shared)
+//
+// Features: knowledge(), http(), llm(), typed Code, if-else, shared answer
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+const FAST_MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query, string context = "") {
+    if (query.contains("知识")) {
+        // RAG path: retrieve → call API → LLM synthesis
+        let docs = knowledge("ds-001", query, {});
+        let api_result = http("POST", "https://api.example.com/search", {
+            "body": { "query": query }
+        });
+        let answer_text = llm(MODEL, {
+            "messages": [
+                { "role": "system", "content": "你是一个知识助手，根据参考资料回答问题。" },
+                { "role": "user", "content": `参考资料：${docs.result}\n问题：${query}` }
+            ],
+            "temperature": 0.3,
+            "max_tokens": 4096
+        });
+        return answer_text.text;
+    } else {
+        // Direct path: format → LLM
+        var prompt = `问题：${query}` + (context != "" ? `\n上下文：${context}` : "");
+        let answer_text = llm(FAST_MODEL, {
+            "messages": [
+                { "role": "user", "content": prompt }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 2048
+        });
+        return answer_text.text;
+    }
+}

@@ -1,0 +1,23 @@
+@language nodecoda/1
+// 24_llm_with_knowledge_retrieval.ncoda
+// Dify YAML: examples/yaml/basic_llm_chat_workflow.yml
+//
+// Flow: Start → Knowledge Retrieval → LLM → Answer
+// Pattern: RAG with knowledge retrieval
+
+@mode advanced-chat
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query) {
+    let docs = knowledge("my-knowledge-base", query, {});
+
+    let response = llm(MODEL, {
+        "messages": [
+            { "role": "system", "content": "Answer based on the provided context." },
+            { "role": "user",   "content": `Context: ${docs.result}\n\nQuestion: ${query}` }
+        ]
+    });
+
+    return response.text;
+}

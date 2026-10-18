@@ -1,0 +1,9 @@
+@language nodecoda/1
+@mode workflow
+
+// 类型前缀变量声明:<type> <name> = expr。
+// 区别于 var/let 推断式声明。
+function main(string q) -> string {
+    string greeting = "你好";
+    return greeting + q;
+}

@@ -1,0 +1,31 @@
+@language nodecoda/1
+// 02_rag_workflow.ncoda
+// Dify YAML: examples/yaml/02_rag_workflow.yml
+//
+// Flow: Start → Knowledge Retrieval → LLM → Answer
+//
+// Mapping:
+//   knowledge-retrieval  → knowledge("dataset_id", query, opts)
+//   retrieval.result     → 变量引用
+//   LLM with context     → llm() with references in messages
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query) {
+    // 知识库检索 (对应 YAML knowledge-retrieval 节点)
+    let context = knowledge("ds-001,ds-002", query, {});
+
+    // 生成回答 (对应 YAML LLM 节点)
+    let response = llm(MODEL, {
+        "messages": [
+            { "role": "system", "content": "根据以下参考资料回答用户问题。" },
+            { "role": "user",   "content": `参考资料：${context.result}\n\n用户问题：${query}` }
+        ],
+        "temperature": 0.3,
+        "max_tokens": 4096
+    });
+
+    return response.text;
+}

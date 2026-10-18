@@ -1,0 +1,9 @@
+@language nodecoda/1
+// 99_echo_test.ncoda — Minimal deterministic workflow for E2E testing
+// No LLM, no code node — just pass-through
+
+@mode workflow
+
+function main(string text) {
+    return text;
+}

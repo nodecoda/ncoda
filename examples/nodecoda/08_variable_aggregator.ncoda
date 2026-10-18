@@ -1,0 +1,53 @@
+@language nodecoda/1
+// 08_variable_aggregator.ncoda
+// Dify YAML: examples/yaml/08_variable_aggregator.yml
+//
+// Flow: Start → Parallel { LLM(summary), LLM(keywords) } → Aggregator → LLM(final) → Answer
+//
+// Mapping:
+//   parallel execution   → parallel { ... }
+//   variable-aggregator  → 变量合并（在 DSL 中隐式处理）
+//   多源引用             → 同一作用域内访问
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+const FAST_MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string text) {
+    // 并行生成摘要和关键词 (对应 YAML llm-summary + llm-keywords)
+    parallel {
+        // 生成摘要
+        {
+        let summary = llm(FAST_MODEL, {
+            "messages": [
+                { "role": "user", "content": `请对以下文本生成摘要：\n${text}` }
+            ],
+            "temperature": 0.3,
+            "max_tokens": 256
+        });
+
+        // 提取关键词
+        }
+        {
+        let keywords = llm(FAST_MODEL, {
+            "messages": [
+                { "role": "user", "content": `请从以下文本中提取 5 个关键词：\n${text}` }
+            ],
+            "temperature": 0.1,
+            "max_tokens": 128
+        });
+        }
+    }
+
+    // 综合分析 (对应 YAML llm-final 节点)
+    let analysis = llm(MODEL, {
+        "messages": [
+            { "role": "user", "content": `摘要：${summary.text}\n\n关键词：${keywords.text}\n\n请基于以上信息写一段综合分析。` }
+        ],
+        "temperature": 0.5
+    });
+
+    // 输出 (对应 YAML answer 节点)
+    return analysis.text;
+}

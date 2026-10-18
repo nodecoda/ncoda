@@ -1,0 +1,26 @@
+// parallel_for_keep_null.ncoda
+// Real-world corpus case (realcheck round, 2026-08-15): extracted verbatim
+// from the frozen oracle suite
+// 上游 Python 参考实现（nclang）/tests/nodecoda-suite/cases/parallel-for-keep-null/main.ncoda.
+// Regression lock for the effect-pass gap: Go validateBlock only handled
+// *ast.ParallelExpr and *ast.ForExpr, so a parallel-for let initializer
+// fell into the generic rejectExpressionOperations scan and falsely
+// reported EFFECT_CONTEXT on the branch's foreign-code block.
+
+@mode workflow
+
+function main() {
+    let items = ["a", "bad", "c"];
+    let values = parallel for (
+        item in items, concurrency: 2, on_error: keep_null
+    ) {
+        let value = foreign code python3(string item = item) -> string {
+            source `def main(item: str) -> dict:
+    if item == "bad":
+        raise ValueError("intentional parallel-for probe failure")
+    return {"result": item}`;
+        };
+        yield value;
+    };
+    return values;
+}

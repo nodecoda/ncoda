@@ -1,0 +1,20 @@
+@language nodecoda/1
+// Runtime evidence fixture: statement For executes every item and discards body values.
+
+@mode workflow
+
+function main() -> string {
+    let values = foreign code python3() -> int[] {
+        source `def main() -> dict:
+    return {"result": [1, 2, 3]}`;
+    };
+
+    for (value in values) {
+        let observed = foreign code python3(int value = value) -> int {
+            source `def main(value: int) -> dict:
+    return {"result": value * 2}`;
+        };
+    }
+
+    return "done";
+}

@@ -1,0 +1,24 @@
+@language nodecoda/1
+// 19_http_request_json_tool.ncoda
+// Dify YAML: examples/yaml/http_request_with_json_tool_workflow.yml
+//
+// Flow: Start → HTTP Request → Code(parse JSON) → End
+// Pattern: HTTP request with JSON parsing
+
+@mode workflow
+
+function main() {
+    let response = http("GET", "https://api.example.com/data", {
+        "headers": { "Content-Type": "application/json" }
+    });
+
+    let parsed = foreign code python3(
+        string response = response.body
+    ) -> map<string, string> {
+        source `import json
+def main(response: str) -> dict:
+    return {"result": json.loads(response)}`;
+    };
+
+    return parsed;
+}

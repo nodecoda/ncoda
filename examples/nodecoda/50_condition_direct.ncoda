@@ -1,0 +1,11 @@
+@language nodecoda/1
+// Runtime evidence fixture: direct condition selector reaches both physical branches.
+
+@mode workflow
+
+function main(int value = 2) -> string {
+    if (value == 2) {
+        return "yes";
+    }
+    return "no";
+}

@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("˛Ľ ֟A\u07b3샫 Ӿ ژ ʬʽ \u07b2ۚȅ ㊣A\u074bםٕ֊")

@@ -1,0 +1,31 @@
+@language nodecoda/1
+// Runtime evidence fixture: isolated named branches and a real fan-in consumer.
+
+@mode workflow
+
+function main(string seed = "probe") -> string {
+    // v4: parallel 是纯控制流语句（栅栏），分支变量透明透出，不产生集合值
+    parallel {
+        left: {
+            let result_left = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"left:{seed}"}`;
+            };
+        }
+        right: {
+            let result_right = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"right:{seed}"}`;
+            };
+        }
+    };
+
+    let joined = foreign code python3(
+        string left = result_left,
+        string right = result_right
+    ) -> string {
+        source `def main(left: str, right: str) -> dict:
+    return {"result": f"{left}|{right}"}`;
+    };
+    return joined;
+}

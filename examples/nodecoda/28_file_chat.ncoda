@@ -1,0 +1,12 @@
+@language nodecoda/1
+// 28_file_chat.ncoda
+// Dify YAML: examples/yaml/file-chat.yml
+//
+// Flow: Start(file_input) → Answer("ok")
+// Pattern: advanced-chat with file upload
+
+@mode advanced-chat
+
+function main(file query) {
+    return "ok";
+}

@@ -1,0 +1,124 @@
+app:
+  mode: workflow
+  name: 08_variable_aggregator
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: llm-summary
+      type: custom
+    - id: e2
+      source: start
+      target: llm-keywords
+      type: custom
+    - id: e3
+      source: llm-summary
+      target: aggregator
+      type: custom
+    - id: e4
+      source: llm-keywords
+      target: aggregator
+      type: custom
+    - id: e5
+      source: aggregator
+      target: llm-final
+      type: custom
+    - id: e6
+      source: llm-final
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - label: 输入文本
+          required: true
+          type: string
+          variable: text
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        max_tokens: 256
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '请对以下文本生成摘要：
+
+            {{#conversation.text#}}'
+        temperature: 0.3
+        title: 生成摘要
+        type: llm
+      id: llm-summary
+      position:
+        x: 320
+        y: 120
+      type: custom
+    - data:
+        max_tokens: 128
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '请从以下文本中提取 5 个关键词：
+
+            {{#conversation.text#}}'
+        temperature: 0.1
+        title: 提取关键词
+        type: llm
+      id: llm-keywords
+      position:
+        x: 320
+        y: 440
+      type: custom
+    - data:
+        title: 合并结果
+        type: variable-aggregator
+        variables: '{{#llm-summary.text#}}'
+      id: aggregator
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '摘要：{{#llm-summary.text#}}
+
+            关键词：{{#llm-keywords.text#}}
+
+
+            请基于以上信息写一段综合分析。'
+        temperature: 0.5
+        title: 综合分析
+        type: llm
+      id: llm-final
+      position:
+        x: 960
+        y: 280
+      type: custom
+    - data:
+        answer: '{{#llm-final.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 1280
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

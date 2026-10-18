@@ -1,0 +1,12 @@
+@language nodecoda/1
+// 31_end_node_without_value_type.ncoda
+// Dify YAML: examples/yaml/end_node_without_value_type_field_workflow.yml
+//
+// Flow: Start(query) → End(query)
+// Pattern: End node without value_type field (edge case)
+
+@mode workflow
+
+function main(string query) {
+    return query;
+}

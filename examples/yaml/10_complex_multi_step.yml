@@ -1,0 +1,158 @@
+app:
+  mode: workflow
+  name: 10_complex_multi_step
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: classifier
+      type: custom
+    - id: e2
+      source: classifier
+      sourceHandle: 'true'
+      target: retrieval
+      type: custom
+    - id: e3
+      source: classifier
+      sourceHandle: 'false'
+      target: code-format
+      type: custom
+    - id: e4
+      source: retrieval
+      target: http
+      type: custom
+    - id: e5
+      source: http
+      target: llm-rag
+      type: custom
+    - id: e6
+      source: code-format
+      target: llm-direct
+      type: custom
+    - id: e7
+      source: llm-rag
+      target: answer
+      type: custom
+    - id: e8
+      source: llm-direct
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - default: ''
+          label: 额外上下文
+          type: string
+          variable: context
+      id: start
+      position:
+        x: 0
+        y: 400
+      type: custom
+    - data:
+        conditions:
+          conditions:
+          - comparison_operator: contains
+            value: 知识
+            variable_selector:
+            - start
+            - context
+          logical_operator: and
+        title: 需要检索？
+        type: if-else
+      id: classifier
+      position:
+        x: 280
+        y: 400
+      type: custom
+    - data:
+        dataset_ids:
+        - ds-001
+        query: '{{#sys.query#}}'
+        title: 知识库检索
+        type: knowledge-retrieval
+      id: retrieval
+      position:
+        x: 560
+        y: 240
+      type: custom
+    - data:
+        code: "def main(query: str, context: str) -> dict:\n    prompt = f\"问题：{query}\"\
+          \n    if context:\n        prompt += f\"\\n上下文：{context}\"\n    return {\"\
+          prompt\": prompt}"
+        language: python3
+        outputs:
+          prompt:
+            type: string
+        title: 格式化输入
+        type: code
+      id: code-format
+      position:
+        x: 560
+        y: 560
+      type: custom
+    - data:
+        method: POST
+        title: 调用外部API
+        type: http-request
+        url: https://api.example.com/search
+      id: http
+      position:
+        x: 840
+        y: 240
+      type: custom
+    - data:
+        max_tokens: 4096
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: system
+          text: 你是一个知识助手，根据参考资料回答问题。
+        - role: user
+          text: '参考资料：{{#retrieval.result#}}
+
+
+            问题：{{#sys.query#}}'
+        temperature: 0.3
+        title: RAG 回答
+        type: llm
+      id: llm-rag
+      position:
+        x: 840
+        y: 400
+      type: custom
+    - data:
+        max_tokens: 2048
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '{{#code-format.prompt#}}'
+        temperature: 0.7
+        title: 直接回答
+        type: llm
+      id: llm-direct
+      position:
+        x: 840
+        y: 560
+      type: custom
+    - data:
+        answer: '{{#llm-rag.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 1120
+        y: 400
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.5

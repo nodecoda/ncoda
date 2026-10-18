@@ -1,0 +1,18 @@
+@language nodecoda/1
+// 54_variable_assigner_e2e.ncoda
+// 端到端测试: conversation variables with literal values
+
+@mode advanced-chat
+
+@conversation string visitor = "anonymous";
+@conversation int visit_count = 0;
+
+function main(string query) {
+    // Literal assignment (set)
+    visitor = "hello";
+    
+    // Compound assignment (+=)
+    visit_count += 1;
+    
+    output(visitor);
+}

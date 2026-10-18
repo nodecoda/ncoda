@@ -1,0 +1,21 @@
+@language nodecoda/1
+// Runtime evidence fixture: ordered value-producing Iteration.
+
+@mode workflow
+
+function main() -> int[] {
+    let values = foreign code python3() -> int[] {
+        source `def main() -> dict:
+    return {"result": [1, 2, 3]}`;
+    };
+
+    let doubled = for (value in values) {
+        let result = foreign code python3(int value = value) -> int {
+            source `def main(value: int) -> dict:
+    return {"result": value * 2}`;
+        };
+        yield result;
+    };
+
+    return doubled;
+}

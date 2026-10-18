@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("type T={string A;int A;}function A()->T{int t={0:\"\",0:0};return 0;}")

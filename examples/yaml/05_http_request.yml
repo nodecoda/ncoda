@@ -1,0 +1,78 @@
+app:
+  mode: workflow
+  name: 05_http_request
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: http
+      type: custom
+    - id: e2
+      source: http
+      target: llm
+      type: custom
+    - id: e3
+      source: llm
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - label: 网址
+          required: true
+          type: string
+          variable: url
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        method: GET
+        title: 获取网页
+        type: http-request
+        url: '{{#conversation.url#}}'
+      id: http
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        max_tokens: 1024
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '请总结以下网页内容：
+
+            {{#http.body#}}'
+        temperature: 0.3
+        title: 总结内容
+        type: llm
+      id: llm
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        answer: '网页状态码：{{#http.status_code#}}
+
+
+          摘要：{{#llm.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 960
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

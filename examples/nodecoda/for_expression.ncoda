@@ -1,0 +1,16 @@
+@language nodecoda/1
+// for_expression.ncoda
+// Tests for-expression: var r = for (x in items) { ... }
+//
+// Flow: Start ──→ Iteration (for expr) ──→ End
+
+@mode workflow
+
+function main(string item) {
+    let items = [item];
+    var results = for (item in items) {
+        yield item;
+    };
+
+    return results;
+}

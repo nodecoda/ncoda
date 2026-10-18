@@ -1,0 +1,17 @@
+@language nodecoda/1
+// 15_conditional_hello_branching.ncoda
+// Dify YAML: examples/yaml/conditional_hello_branching_workflow.yml
+//
+// Flow: Start(query) → IF(query contains "hello") → End(true: query) / End(false: query)
+//
+// Pattern: Simple if-else with two EndNode outputs
+
+@mode workflow
+
+function main(string query) {
+    if (query == "hello" || query == "Hello") {
+        return query;
+    } else {
+        return query;
+    }
+}

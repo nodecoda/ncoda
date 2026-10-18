@@ -1,0 +1,22 @@
+@language nodecoda/1
+// 17_echo_workflow.ncoda
+// Dify YAML: examples/yaml/echo-workflow.yml
+//
+// Flow: Start(x, num, select, text) → Code(echo) → End
+// Pattern: Simple code execution with multiple inputs
+
+@mode workflow
+
+function main(string x, int num, string select, string text) {
+    let result = foreign code python3(
+        string x = x,
+        int num = num,
+        string select = select,
+        string text = text
+    ) -> string {
+        source `def main(x: str, num: int, select: str, text: str) -> dict:
+    return {"result": f"{x} {num} {select} {text}"}`;
+    };
+
+    return result;
+}

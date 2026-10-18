@@ -1,0 +1,54 @@
+app:
+  mode: workflow
+  name: 00_minimal_start_llm_end
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: edge-1
+      source: start-1
+      sourceHandle: source
+      target: llm-1
+      targetHandle: target
+      type: custom
+    - id: edge-2
+      source: llm-1
+      sourceHandle: source
+      target: answer-1
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        title: Start
+        type: start
+        variables: []
+      id: start-1
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        model:
+          name: gpt-4o
+          provider: openai
+        title: Analyze
+        type: llm
+      id: llm-1
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        answer: "{{#llm-1.text#}}"
+        title: Answer
+        type: answer
+      id: answer-1
+      position:
+        x: 640
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

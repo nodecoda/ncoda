@@ -1,0 +1,21 @@
+@language nodecoda/1
+// Batch 6 golden path: provider-free customer support routing.
+//
+// Stable runtime cases:
+//   category = "billing"   -> BILLING: <request>
+//   category = "technical" -> TECHNICAL: <request>
+//   any other category      -> GENERAL: <request>
+
+@mode workflow
+
+function main(string request, string category = "general") -> string {
+    if (category == "billing") {
+        return `BILLING: ${request}`;
+    } else {
+        if (category == "technical") {
+            return `TECHNICAL: ${request}`;
+        } else {
+            return `GENERAL: ${request}`;
+        }
+    }
+}

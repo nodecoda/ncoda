@@ -1,0 +1,37 @@
+@language nodecoda/1
+// 44_parallel_barrier.ncoda
+// Flow: Start(seed) -> parallel { Code(left), Code(right) } -> Code(join) -> End
+// Contract: the post-parallel node reads both branch results after all branches complete.
+
+@mode workflow
+
+function main(string seed) -> string {
+    parallel {
+        {
+            let left = foreign code python3(
+                string value = seed
+            ) -> string {
+                source `def main(value: str) -> dict:
+    return {"result": f"left:{value}"}`;
+            };
+        }
+        {
+            let right = foreign code python3(
+                string value = seed
+            ) -> string {
+                source `def main(value: str) -> dict:
+    return {"result": f"right:{value}"}`;
+            };
+        }
+    }
+
+    let joined = foreign code python3(
+        string left = left,
+        string right = right
+    ) -> string {
+        source `def main(left: str, right: str) -> dict:
+    return {"result": f"{left}|{right}"}`;
+    };
+
+    return joined;
+}

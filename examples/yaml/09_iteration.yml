@@ -1,0 +1,70 @@
+app:
+  mode: workflow
+  name: 09_iteration
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: iteration
+      type: custom
+    - id: e2
+      source: iteration
+      target: llm-item
+      type: custom
+    - id: e3
+      source: llm-item
+      target: end
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - label: 待处理列表
+          required: true
+          type: list
+          variable: items
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        title: 批量处理
+        type: iteration
+      id: iteration
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        max_tokens: 256
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: 请翻译以下内容为英文：{{#iteration.output#}}
+        temperature: 0.1
+        title: 处理单个元素
+        type: llm
+      id: llm-item
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        title: 结束
+        type: end
+      id: end
+      position:
+        x: 960
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

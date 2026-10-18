@@ -1,0 +1,72 @@
+app:
+  mode: workflow
+  name: 06_tool_use
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: tool
+      type: custom
+    - id: e2
+      source: tool
+      target: llm
+      type: custom
+    - id: e3
+      source: llm
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables: []
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        title: 网络搜索
+        tool_name: google_search
+        tool_parameters:
+          max_results: 5
+          query: '{{#sys.query#}}'
+        type: tool
+      id: tool
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '根据搜索结果整理一份摘要：
+
+            {{#tool.result#}}'
+        temperature: 0.3
+        title: 整理结果
+        type: llm
+      id: llm
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        answer: '{{#llm.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 960
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

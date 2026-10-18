@@ -1,0 +1,21 @@
+@language nodecoda/1
+// 07_template_transform.ncoda
+// Dify YAML: examples/yaml/07_template_transform.yml
+//
+// Flow: Start(name, score) → Template → Answer
+//
+// Mapping:
+//   template-transform  → 字符串模板 + 条件逻辑
+//   template.output     → 格式化结果
+
+@mode workflow
+
+function main(string name, int score) {
+    // 格式化输出 (对应 YAML template-transform 节点)
+    // 使用模板字符串和条件表达式
+    var grade = score >= 90 ? "优秀" : (score >= 60 ? "及格" : "不及格");
+    var result = `姓名：${name}\n分数：${score}\n等级：${grade}`;
+
+    // 输出 (对应 YAML answer 节点)
+    return result;
+}

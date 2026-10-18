@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("function main(){let A;}function main(){let A;}")

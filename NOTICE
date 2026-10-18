@@ -1,0 +1,15 @@
+ncoda — open core
+Copyright 2026 The ncoda Authors
+
+This product includes software developed by the ncoda project.
+
+Third-party components
+----------------------
+- gopkg.in/yaml.v3 — MIT License (Copyright (c) 2011-2019 Canonical Ltd.;
+  portions licensed under the Apache License 2.0). See NOTICE in the
+  upstream distribution.
+
+The open-core distribution (this repository) contains the ncoda language
+kernel and the Dify compile/decompile backend. Coze, Coze-Studio,
+Coze-Biz, the runtime and the foundry are distributed separately under a
+commercial license and are not part of this repository.

@@ -1,0 +1,20 @@
+@language nodecoda/1
+// 13_loop_with_answer.ncoda
+// Dify YAML: examples/yaml/loop_contains_answer.yml
+//
+// Flow: Start → Loop(init i=0, break when i >= 2) →
+//   body: assigner(i += 1) → output(i)
+//   → output(query + i)
+//
+// Features: loop body with answer, assigner, dual answer
+
+@mode advanced-chat
+
+function main(string query) {
+    var i = 0;
+    while (i < 2) limit 3 {
+        i += 1;
+        return i;
+    }
+    return `${query} + ${i}`;
+}

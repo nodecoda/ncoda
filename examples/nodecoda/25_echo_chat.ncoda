@@ -1,0 +1,13 @@
+@language nodecoda/1
+// 25_echo_chat.ncoda
+// Dify YAML: examples/yaml/echo-chat.yml
+//
+// Flow: Start(input) → Answer(echo:{{sys.query}})
+// Pattern: advanced-chat echo bot
+// NOTE: advanced-chat 入口首参固定为 query（对齐 dify chatflow sys.query）
+
+@mode advanced-chat
+
+function main(string query) {
+    return `echo:${query}`;
+}

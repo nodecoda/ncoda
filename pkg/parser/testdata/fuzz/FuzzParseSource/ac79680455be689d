@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("@mode\u2008\x88\u2008")

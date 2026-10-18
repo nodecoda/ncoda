@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("𨪢\U000d3a3c")

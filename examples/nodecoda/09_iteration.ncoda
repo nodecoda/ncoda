@@ -1,0 +1,33 @@
+@language nodecoda/1
+// 09_iteration.ncoda
+// Dify YAML: examples/yaml/09_iteration.yml
+//
+// Flow: Start(items) → Iteration → LLM; main then falls through without a Response node
+//
+// Mapping:
+//   iteration            → for (item in items)
+//   iteration.output     → 循环变量
+//   LLM inside iteration → for 循环体中的 llm()
+//   Natural fallthrough  → 循环结束后不生成 synthetic End/Answer
+
+@mode workflow
+
+const FAST_MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string item) {
+    let items = [item];
+    // 批量处理 (对应 YAML iteration 节点)
+    for (item in items) {
+        // 处理单个元素 (对应 YAML llm-item 节点)
+        let translated = llm(FAST_MODEL, {
+            "messages": [
+                { "role": "user", "content": `请翻译以下内容为英文：${item}` }
+            ],
+            "temperature": 0.1,
+            "max_tokens": 256
+        });
+
+        // 迭代器内部可选：累积结果或逐个输出
+        // 此处省略 output；自然 fallthrough 不生成 synthetic Response
+    }
+}

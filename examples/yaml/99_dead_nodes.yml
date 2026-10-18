@@ -1,0 +1,70 @@
+app:
+  mode: workflow
+  name: 99_dead_nodes
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: edge-1
+      source: start-1
+      sourceHandle: source
+      target: llm-1
+      targetHandle: target
+      type: custom
+    - id: edge-2
+      source: llm-1
+      sourceHandle: source
+      target: end-1
+      targetHandle: target
+      type: custom
+    nodes:
+    - data:
+        title: Start
+        type: start
+        variables: []
+      id: start-1
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o
+          provider: openai
+        title: Analyze
+        type: llm
+      id: llm-1
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        title: End
+        type: end
+      id: end-1
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4o
+          provider: openai
+        title: Dead Node
+        type: llm
+      id: dead-1
+      position:
+        x: 320
+        y: 500
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

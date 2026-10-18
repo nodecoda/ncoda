@@ -1,0 +1,87 @@
+app:
+  mode: workflow
+  name: 04_code_execution
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: code
+      type: custom
+    - id: e2
+      source: code
+      target: llm
+      type: custom
+    - id: e3
+      source: llm
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - label: 输入文本
+          required: true
+          type: string
+          variable: text
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        code: "def main(text: str) -> dict:\n    words = text.split()\n    word_count\
+          \ = len(words)\n    char_count = len(text)\n    return {\n        \"word_count\"\
+          : word_count,\n        \"char_count\": char_count,\n        \"summary\"\
+          : f\"文本包含 {word_count} 个词，{char_count} 个字符\"\n    }"
+        language: python3
+        outputs:
+          char_count:
+            type: number
+          summary:
+            type: string
+          word_count:
+            type: number
+        title: 文本处理
+        type: code
+      id: code
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: '根据以下统计信息写一段分析：
+
+            {{#code.summary#}}'
+        temperature: 0.3
+        title: 分析结果
+        type: llm
+      id: llm
+      position:
+        x: 640
+        y: 280
+      type: custom
+    - data:
+        answer: '统计：{{#code.summary#}}
+
+
+          分析：{{#llm.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 960
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

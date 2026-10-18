@@ -1,0 +1,22 @@
+@language nodecoda/1
+// 27_reasoning_chat.ncoda
+// Dify YAML: examples/yaml/reasoning-chat.yml
+//
+// Flow: Start → LLM(separated reasoning) → Answer
+// Pattern: advanced-chat with reasoning_format=separated
+
+@mode advanced-chat
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main() {
+    let response = llm(MODEL, {
+        "messages": [
+            { "role": "system", "content": "You are a helpful assistant. Always reason step by step INSIDE a single <think>...</think> block first, then write the final answer AFTER the closing </think> tag." }
+        ],
+        "temperature": 0.7,
+        "reasoning_format": "separated"
+    });
+
+    return response.text;
+}

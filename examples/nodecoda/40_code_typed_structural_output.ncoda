@@ -1,0 +1,23 @@
+@language nodecoda/1
+// 40_code_typed_structural_output.ncoda
+// Strongly typed Code FFI with multiple physical output ports.
+
+@mode workflow
+
+function main(string text = "Hello Dify") -> string {
+    let stats = foreign code python3(
+        string text = text
+    ) -> {
+        count: int;
+        normalized: string;
+    } {
+        source `def main(text: str) -> dict:
+    words = text.split()
+    return {
+        "count": len(words),
+        "normalized": " ".join(words).lower()
+    }`;
+    };
+
+    return `${stats.normalized} (${stats.count})`;
+}

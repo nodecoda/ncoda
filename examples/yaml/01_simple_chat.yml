@@ -1,0 +1,61 @@
+app:
+  mode: workflow
+  name: 01_simple_chat
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: llm
+      type: custom
+    - id: e2
+      source: llm
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - default: 中文
+          label: 语言
+          type: string
+          variable: language
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        max_tokens: 2048
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: system
+          text: 你是一个有用的助手，请用 {{#conversation.language#}} 回答。
+        - role: user
+          text: '{{#sys.query#}}'
+        temperature: 0.7
+        title: LLM 回答
+        type: llm
+      id: llm
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        answer: '{{#llm.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 640
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

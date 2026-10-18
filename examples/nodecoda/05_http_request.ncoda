@@ -1,0 +1,31 @@
+@language nodecoda/1
+// 05_http_request.ncoda
+// Dify YAML: examples/yaml/05_http_request.yml
+//
+// Flow: Start(url) → HTTP → LLM → Answer
+//
+// Mapping:
+//   http-request       → http("GET", url, opts)
+//   http.body          → response.body
+//   http.status_code   → response.status_code
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string url) {
+    // 获取网页 (对应 YAML http-request 节点)
+    let page = http("GET", url, {});
+
+    // 总结内容 (对应 YAML LLM 节点)
+    let summary = llm(MODEL, {
+        "messages": [
+            { "role": "user", "content": `请总结以下网页内容：\n${page.body}` }
+        ],
+        "temperature": 0.3,
+        "max_tokens": 1024
+    });
+
+    // 输出 (对应 YAML answer 节点)
+    return `网页状态码：${page.status_code}\n\n摘要：${summary.text}`;
+}

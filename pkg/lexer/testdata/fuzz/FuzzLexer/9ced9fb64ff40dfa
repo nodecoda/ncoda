@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("𗗗 𗟗 𗗗 𗗗\U0001a7d7𗗗 𗗗\U0001a5d7𗖗 𗗗")

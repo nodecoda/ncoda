@@ -1,0 +1,59 @@
+@language nodecoda/1
+// 04_code_execution.ncoda
+// Dify YAML: examples/yaml/04_code_execution.yml
+//
+// Flow: Start(text) → Code → LLM → Answer
+//
+// Mapping:
+//   typed Code        → 显式输入/输出契约 + Python source
+//   code.outputs       → 返回类型声明
+//   code → LLM 连接    → 变量引用
+//   answer 聚合        → return 拼接多源
+
+@mode workflow
+
+const FAST_MODEL = "openai_api_compatible/gpt-5.4";
+
+type TextStats = {
+    int word_count;
+    int char_count;
+    string summary;
+}
+
+// 文本处理函数 (对应 YAML code 节点)
+function analyze_text(string text) -> TextStats {
+    let result = foreign code python3(
+        string text = text
+    ) -> {
+        word_count: int;
+        char_count: int;
+        summary: string;
+    } {
+        source `def main(text: str) -> dict:
+    words = text.split()
+    word_count = len(words)
+    char_count = len(text)
+    return {
+        "word_count": word_count,
+        "char_count": char_count,
+        "summary": f"文本包含 {word_count} 个词，{char_count} 个字符"
+    }`;
+    };
+    return result;
+}
+
+function main(string text) {
+    // 文本处理
+    let stats = analyze_text(text);
+
+    // 分析结果 (对应 YAML LLM 节点)
+    let analysis = llm(FAST_MODEL, {
+        "messages": [
+            { "role": "user", "content": `根据以下统计信息写一段分析：\n${stats.summary}` }
+        ],
+        "temperature": 0.3
+    });
+
+    // 输出 (对应 YAML answer 节点，拼接两源)
+    return `统计：${stats.summary}\n\n分析：${analysis.text}`;
+}

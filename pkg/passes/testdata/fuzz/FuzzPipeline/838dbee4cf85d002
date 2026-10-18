@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("@language \n@mode \n@mode \n@mode")

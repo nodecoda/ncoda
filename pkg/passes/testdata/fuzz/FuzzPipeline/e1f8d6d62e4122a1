@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("function A8(){ let t = {B0:{B:{}} };t().Y.B+=1; }")

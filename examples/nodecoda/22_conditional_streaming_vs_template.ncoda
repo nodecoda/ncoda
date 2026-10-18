@@ -1,0 +1,25 @@
+@language nodecoda/1
+// 22_conditional_streaming_vs_template.ncoda
+// Dify YAML: examples/yaml/conditional_streaming_vs_template_workflow.yml
+//
+// Flow: Start → IF → LLM(streaming) / TemplateTransform → End
+// Pattern: Conditional with streaming vs template
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query, string name, string use_streaming) {
+    if (use_streaming == "true") {
+        let response = llm(MODEL, {
+            "messages": [
+                { "role": "user", "content": query }
+            ],
+            "stream": true
+        });
+        return response.text;
+    } else {
+        var result = `Hello, ${name}! Your query was: ${query}`;
+        return result;
+    }
+}

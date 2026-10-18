@@ -1,0 +1,7 @@
+@language nodecoda/1
+@mode workflow
+type Answer = { string answer; };
+function main(string prompt) -> string {
+    let r = llm<array<Answer>>("model", {"messages": [{"role": "user", "content": prompt}]});
+    return r.text[0].answer;
+}

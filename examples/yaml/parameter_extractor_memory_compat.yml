@@ -1,0 +1,68 @@
+version: "0.6.0"
+kind: app
+app:
+  name: Parameter Extractor Memory Compatibility
+  mode: workflow
+workflow:
+  graph:
+    nodes:
+      - id: start
+        type: custom
+        data:
+          type: start
+          title: Start
+          variables: []
+      - id: extract-structured
+        type: custom
+        data:
+          type: parameter-extractor
+          title: Extract structured memory
+          model:
+            provider: openai
+            name: gpt-4o
+          parameters:
+            - name: transport
+              type: select
+              description: Preferred transport
+              required: true
+              options:
+                - air
+                - rail
+          query:
+            - start
+            - request
+          instruction: Extract the preferred transport.
+          reasoning_mode: prompt
+          memory:
+            enabled: true
+            query_prompt_template: "{{#sys.query#}}"
+            window:
+              enabled: true
+              size: 5
+            role_prefix:
+              user: Human
+              assistant: Assistant
+      - id: extract-scalar
+        type: custom
+        data:
+          type: parameter-extractor
+          title: Extract scalar memory
+          model:
+            provider: openai
+            name: gpt-4o
+          parameters:
+            - name: destination
+              type: string
+              description: Destination city
+              required: true
+          query:
+            - start
+            - request
+          memory:
+            enabled: true
+            window: 7
+    edges: []
+    viewport:
+      x: 0
+      y: 0
+      zoom: 1

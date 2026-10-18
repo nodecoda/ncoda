@@ -1,0 +1,23 @@
+@language nodecoda/1
+// 11_dual_switch_variable_aggregator.ncoda
+// Dify YAML: examples/yaml/dual_switch_variable_aggregator_workflow.yml
+//
+// Flow: Start(switch1, switch2) →
+//   IF(switch1==1) → template "switch 1 on" / "switch 1 off" → agg Group1
+//   IF(switch2==1) → template "switch 2 on" / "switch 2 off" → agg Group2
+//   → End(group1, group2)
+//
+// Features: sequential if-else, template-transform, variable-aggregator groups
+//
+@mode workflow
+
+code switch_label(int value, string enabled, string disabled) -> string {
+    return value == 1 ? enabled : disabled;
+}
+
+function main(int switch1, int switch2) {
+    let g1 = switch_label(switch1, "switch 1 on", "switch 1 off");
+    let g2 = switch_label(switch2, "switch 2 on", "switch 2 off");
+
+    return { "g1": g1, "g2": g2 };
+}

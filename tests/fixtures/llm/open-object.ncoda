@@ -1,0 +1,6 @@
+@language nodecoda/1
+@mode workflow
+function main(string prompt) -> object {
+    let r = llm<object>("model", {"messages": [{"role": "user", "content": prompt}]});
+    return r.text;
+}

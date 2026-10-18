@@ -1,0 +1,17 @@
+@language nodecoda/1
+// 39_code_typed_direct_output.ncoda
+// Strongly typed Code FFI with one direct result port.
+
+@mode workflow
+
+function main(int value = 3) -> int {
+    let doubled = foreign code python3(
+        int value = value
+    ) -> int {
+        source `def main(value: int) -> dict:
+    return {"result": value * 2}`;
+    };
+
+    // A direct Code result is used as the value itself, without `.result`.
+    return doubled;
+}

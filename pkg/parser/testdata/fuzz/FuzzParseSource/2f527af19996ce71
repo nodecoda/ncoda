@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("\u07bdA֗Ї\u05ceқ ۲ ٓ0ڑ ػ\"\nAҖ 0Ց\"\n\"\nĻ Ǣ⑿\"\nAֹ")

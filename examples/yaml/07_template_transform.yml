@@ -1,0 +1,61 @@
+app:
+  mode: workflow
+  name: 07_template_transform
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: template
+      type: custom
+    - id: e2
+      source: template
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - label: 姓名
+          required: true
+          type: string
+          variable: name
+        - label: 分数
+          required: true
+          type: number
+          variable: score
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        template: '姓名：{{#conversation.name#}}
+
+          分数：{{#conversation.score#}}
+
+          等级：{% if start.score >= 90 %}优秀{% elif start.score >= 60 %}及格{% else %}不及格{%
+          endif %}'
+        title: 格式化输出
+        type: template-transform
+      id: template
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        answer: '{{#template.output#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 640
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

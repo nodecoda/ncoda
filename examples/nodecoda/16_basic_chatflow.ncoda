@@ -1,0 +1,21 @@
+@language nodecoda/1
+// 16_basic_chatflow.ncoda
+// Dify YAML: examples/yaml/basic_chatflow.yml
+//
+// Flow: Start → LLM → Answer
+// Pattern: Advanced-chat mode with AnswerNode
+
+@mode advanced-chat
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main() {
+    let response = llm(MODEL, {
+        "messages": [
+            { "role": "system", "content": "You are a helpful assistant." },
+            { "role": "user",   "content": "{{query}}" }
+        ]
+    });
+
+    return response.text;
+}

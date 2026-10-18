@@ -1,0 +1,23 @@
+@language nodecoda/1
+// 00_minimal_start_llm_end.ncoda
+// Dify YAML: examples/yaml/00_minimal_start_llm_end.yml
+//
+// Flow: Start ──→ LLM (Analyze) ──→ End
+//
+// Original YAML has no input variables and no prompt template.
+// This is the minimal DSL equivalent.
+
+@mode workflow
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main() {
+    let result = llm(MODEL, {
+        "messages": [
+            { "role": "system", "content": "You are a helpful assistant." },
+            { "role": "user",   "content": "Analyze the following input." }
+        ]
+    });
+
+    return result.text;
+}

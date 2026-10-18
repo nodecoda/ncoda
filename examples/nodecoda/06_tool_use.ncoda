@@ -1,0 +1,33 @@
+@language nodecoda/1
+// 06_tool_use.ncoda
+// Dify YAML: examples/yaml/06_tool_use.yml
+//
+// Flow: Start → Tool(google_search) → LLM → Answer
+//
+// Mapping:
+//   tool               → google_search.search({...})（限定名调用）
+//   tool.result         → result.result
+
+@mode workflow
+import "dify.google_search";
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query) {
+    // 网络搜索 (对应 YAML tool 节点)
+    let search = google_search.search({
+        "query": query,
+        "max_results": 5
+    });
+
+    // 整理结果 (对应 YAML LLM 节点)
+    let summary = llm(MODEL, {
+        "messages": [
+            { "role": "user", "content": `根据搜索结果整理一份摘要：\n${search.result}` }
+        ],
+        "temperature": 0.3
+    });
+
+    // 输出 (对应 YAML answer 节点)
+    return summary.text;
+}

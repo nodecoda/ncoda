@@ -1,0 +1,110 @@
+app:
+  mode: workflow
+  name: 03_conditional_branch
+kind: app
+version: 0.1.5
+workflow:
+  graph:
+    edges:
+    - id: e1
+      source: start
+      target: classifier
+      type: custom
+    - id: e2
+      source: classifier
+      sourceHandle: 'true'
+      target: llm-zh
+      type: custom
+    - id: e3
+      source: classifier
+      sourceHandle: 'false'
+      target: llm-en
+      type: custom
+    - id: e4
+      source: llm-zh
+      target: answer
+      type: custom
+    - id: e5
+      source: llm-en
+      target: answer
+      type: custom
+    nodes:
+    - data:
+        title: 开始
+        type: start
+        variables:
+        - default: 中文
+          label: 语言
+          type: string
+          variable: language
+      id: start
+      position:
+        x: 0
+        y: 280
+      type: custom
+    - data:
+        conditions:
+          conditions:
+          - comparison_operator: equals
+            value: 中文
+            variable_selector:
+            - start
+            - language
+          - comparison_operator: equals
+            value: Chinese
+            variable_selector:
+            - start
+            - language
+          logical_operator: or
+        title: 语言判断
+        type: if-else
+      id: classifier
+      position:
+        x: 320
+        y: 280
+      type: custom
+    - data:
+        max_tokens: 2048
+        model:
+          name: gpt-4o
+          provider: openai
+        prompt_template:
+        - role: user
+          text: 请用中文回答：{{#sys.query#}}
+        temperature: 0.5
+        title: 中文回答
+        type: llm
+      id: llm-zh
+      position:
+        x: 640
+        y: 120
+      type: custom
+    - data:
+        max_tokens: 1024
+        model:
+          name: gpt-4o-mini
+          provider: openai
+        prompt_template:
+        - role: user
+          text: 'Please answer in English: {{#sys.query#}}'
+        temperature: 0.5
+        title: 英文回答
+        type: llm
+      id: llm-en
+      position:
+        x: 640
+        y: 440
+      type: custom
+    - data:
+        answer: '{{#llm-zh.text#}}'
+        title: 输出
+        type: answer
+      id: answer
+      position:
+        x: 960
+        y: 280
+      type: custom
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

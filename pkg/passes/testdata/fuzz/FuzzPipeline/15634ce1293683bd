@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("즏·ײ]Ūθ]ʎ҉ꡆ`\n\n\n\n")

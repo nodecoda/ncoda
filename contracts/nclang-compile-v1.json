@@ -1,0 +1,101 @@
+{
+  "authority": {
+    "freeze_basis": "Frozen against the archived Python reference implementation via version + reference-file sha256 + output snapshots; see PROVENANCE.md",
+    "go": "internal/compiler/api.go (compileRaw / CompileToJSON / MarshalContractJSON) — mirror implementation",
+    "oracle_snapshots": "scripts/oracle/snapshots/ — 62 real frozen Python CLI outputs (mode raw | normalized; MANIFEST.json fingerprints)",
+    "python": "src/nclang/compile_cli.py compile_to_json (:57-154) — status/severity/field enumeration source of truth (read-only reference)"
+  },
+  "compiler_version": "0.4.0",
+  "contract": "nclang-compile-v1",
+  "frozen_at": "2026-08-22",
+  "golden_snapshots": [
+    {
+      "file": "contracts/snapshots/succeeded-00-minimal-start-llm-end.json",
+      "id": "succeeded-00-minimal-start-llm-end",
+      "kind": "SUCCEEDED",
+      "note": "byte-exact frozen Python CLI output; Go CLI reproduces byte-for-byte (task-30 byte-identical class)",
+      "oracle_snapshot": "scripts/oracle/snapshots/00_minimal_start_llm_end.json (mode raw)",
+      "sha256": "1a310ddd41a34b506a04bd1d3f1044951c5777e4cd6d4996bf5305fde545f9fd",
+      "source": "internal/compiler/testdata/examples/nodecoda/00_minimal_start_llm_end.ncoda"
+    },
+    {
+      "diagnostic_codes": [
+        "SYNTAX_ERROR",
+        "SYNTAX_ERROR"
+      ],
+      "file": "contracts/snapshots/compile-error-syntax.json",
+      "id": "compile-error-syntax",
+      "kind": "COMPILE_ERROR",
+      "note": "syntax error (EOF inside function body): Python and Go emit identical diagnostics (verified byte-identical at freeze)",
+      "oracle_snapshot": "frozen from Python CLI at contract freeze (not part of the 62-corpus oracle set)",
+      "sha256": "6e1bf445d7607dc24660af3ebc6fee22688b5f9b8225cfb4e5d88d5b96aba55e",
+      "source": "contracts/snapshots/sources/compile-error-syntax.dc"
+    },
+    {
+      "diagnostic_codes": [
+        "UNUSED_VAR",
+        "NO_END_NODE"
+      ],
+      "file": "contracts/snapshots/succeeded-09-iteration.json",
+      "id": "succeeded-09-iteration",
+      "kind": "SUCCEEDED",
+      "note": "byte-exact Go CLI output (2026-08-22 refresh: iteration node now emits explicit variables declaration value_1 <- iteration_3.item — dify contract for downstream iteration-variable refs; originally frozen Python CLI output, task-36 analyzer port)",
+      "oracle_snapshot": "scripts/oracle/snapshots/09_iteration.json (mode raw)",
+      "sha256": "38bce3fcc45236d04743349407f3adcf62f5ceb576cbd51dfb5d70dbd91fcde5",
+      "source": "internal/compiler/testdata/examples/nodecoda/09_iteration.ncoda"
+    }
+  ],
+  "schema": {
+    "diagnostic_field_categories": {
+      "go_emitted": [
+        "code",
+        "severity",
+        "message",
+        "location",
+        "node_id",
+        "path"
+      ],
+      "python_only": [
+        "file"
+      ]
+    },
+    "diagnostic_fields": {
+      "code": "string — compile diagnostics: enum code from lang.passes.base.Diagnostic; analysis diagnostics: analyzer string code; ADAPTER_ERROR / SERIALIZE_ERROR are diagnostic codes, never statuses",
+      "file": "python-side field — emitted by _normalize_compile_diag (compile_cli.py:38-39) only when Diagnostic.filename is truthy. The sole filename-carrying diagnostic is the LANGUAGE_IDENTITY gate (pipeline.py:113-126), which fires only when required_language_identity is passed — compile_cli.py never passes it, so `file` is unreachable in the CLI contract surface (verified: 0 'file' keys across all 62 oracle snapshots). Go never emits it.",
+      "location": "optional string — compile diagnostics only; span text 'file:line:col-file:line:col'; absent when the diagnostic carries no source span",
+      "message": "string",
+      "node_id": "optional string — analysis diagnostics only; Go emits the key always for analysis diagnostics (null when the node is unknown, mirroring _normalize_analysis_diag compile_cli.py:46-54); compile diagnostics never carry node_id (Task 36 ported the analyzer stage)",
+      "path": "optional string — analysis diagnostics only; Go emits the key always for analysis diagnostics (null when empty); compile diagnostics never carry path (Task 36 ported the analyzer stage)",
+      "severity": "enum string — 'error' | 'warning' (compile diagnostics are always 'error'; analysis may warn) (INFO is defined in the reference Severity enum — passes/base.py:41-44 — but no diagnostic in the codebase emits it, so it is not part of the frozen enum)"
+    },
+    "notes": [
+      "All 7 top-level fields are present on every response: Python compile_to_json always returns base + status/ok/yaml/yaml_sha256/diagnostics; Go CompileToJSON emits them unconditionally.",
+      "ADAPTER_ERROR and SERIALIZE_ERROR are diagnostic codes inside COMPILE_ERROR / YAML_VALIDATION_ERROR responses — Python never sets them as status (api.go Status* constants comment).",
+      "Go CLI byte shape mirrors Python json.dump(ensure_ascii=True, sort_keys=True, separators=(',', ':')) + trailing newline (api.go MarshalContractJSON).",
+      "yaml_sha256 is sha256 hex of the exact yaml bytes (Python hashlib.sha256(yaml_text.encode()).hexdigest()); Go sha256.Sum256 over the same bytes."
+    ],
+    "severity_enum": [
+      "error",
+      "warning"
+    ],
+    "status_enum": [
+      "SUCCEEDED",
+      "COMPILE_ERROR",
+      "ANALYSIS_ERROR",
+      "YAML_VALIDATION_ERROR",
+      "UNKNOWN_TARGET",
+      "CAPABILITY_BLOCKED"
+    ],
+    "top_level_fields": {
+      "compiler_version": "string — nclang __version__ ('0.4.0')",
+      "diagnostics": "array of diagnostic objects (may be empty)",
+      "ok": "boolean",
+      "status": "enum string — one of status_enum",
+      "target": "string — target profile id (default dify-1.16-graphon-0.6)",
+      "yaml": "string — serialized Dify workflow YAML; empty string on non-SUCCEEDED",
+      "yaml_sha256": "string — hex sha256 of the yaml bytes; empty string on non-SUCCEEDED"
+    }
+  },
+  "schema_version": "1",
+  "target_profile": "dify-1.16-graphon-0.6"
+}

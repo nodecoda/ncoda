@@ -1,0 +1,12 @@
+@language nodecoda/1
+// 29_ws2_workflow.ncoda
+// Dify YAML: examples/yaml/ws2-workflow.yml
+//
+// Flow: Start → End(empty)
+// Pattern: Minimal workflow with no output
+
+@mode workflow
+
+function main() {
+    return "";
+}

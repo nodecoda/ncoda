@@ -1,0 +1,19 @@
+@language nodecoda/1
+// 12_loop_with_break.ncoda
+// Dify YAML: examples/yaml/increment_loop_with_break_condition_workflow.yml
+//
+// Flow: Start → Loop(init num=1, break when num >= 5) →
+//   body: assigner(num += 1)
+//   → End(num=5)
+//
+// Features: while loop, break condition, assigner (+=)
+
+@mode workflow
+
+function main() {
+    var num = 1;
+    while (num < 5) limit 10 {
+        num += 1;
+    }
+    return num;
+}

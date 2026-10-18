@@ -1,0 +1,16 @@
+# build outputs (the root binaries produced by `go build ./cmd/...`)
+/nclang-compile
+/ncoda-migrate-switch
+/ncoda-migrate-llm
+/ncoda-pin-bindings
+/dump57
+/tokdump
+/rewrite-calls
+
+# Go workspace files
+go.work
+go.work.sum
+
+# editor / OS noise
+*.swp
+.DS_Store

@@ -1,0 +1,11 @@
+@language nodecoda/1
+// Runtime evidence fixture: calculated condition is materialized before branching.
+
+@mode workflow
+
+function main(int value = 2) -> string {
+    if (value + 1 > 2) {
+        return "yes";
+    }
+    return "no";
+}

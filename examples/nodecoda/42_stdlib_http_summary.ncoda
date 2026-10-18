@@ -1,0 +1,11 @@
+@language nodecoda/1
+// Standard library v1: HTTP GET -> LLM -> End
+
+@mode workflow
+
+function main() -> string {
+    return std.v1.fetch_and_summarize(
+        "https://example.com/article",
+        "openai/gpt-4o"
+    );
+}

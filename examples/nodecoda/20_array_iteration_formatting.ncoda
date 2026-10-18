@@ -1,0 +1,22 @@
+@language nodecoda/1
+// 20_array_iteration_formatting.ncoda
+// Dify YAML: examples/yaml/array_iteration_formatting_workflow.yml
+//
+// Flow: Start(items) → Iteration → Code(format) → End
+// Pattern: Array iteration with formatting
+
+@mode workflow
+
+function main(string item) {
+    let items = [item];
+    var results = for (item in items) {
+        let formatted = foreign code python3(
+            string item = item
+        ) -> string {
+            source `def main(item: str) -> dict:
+    return {"result": f"Processed: {item}"}`;
+        };
+        yield formatted;
+    };
+    return results;
+}

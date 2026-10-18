@@ -1,0 +1,21 @@
+@language nodecoda/1
+// Runtime evidence fixture: break, continue, and function return through Loop lowering.
+
+@mode workflow
+
+function select_value(int[] values) -> int {
+    for (value in values) {
+        if (value == 1) { continue; }
+        if (value == 4) { return value; }
+        if (value > 4) { break; }
+    }
+    return 0;
+}
+
+function main() -> int {
+    let values = foreign code python3() -> int[] {
+        source `def main() -> dict:
+    return {"result": [1, 2, 4, 6]}`;
+    };
+    return select_value(values);
+}

@@ -1,0 +1,35 @@
+@language nodecoda/1
+// 35_multilingual_parallel_llm.ncoda
+// Dify YAML: examples/yaml/multilingual_parallel_llm_streaming_workflow.yml
+//
+// Flow: Start → parallel { LLM1(English), LLM2(Chinese) } → Answer(combined)
+// Pattern: advanced-chat with parallel LLMs
+
+@mode advanced-chat
+
+const MODEL = "openai_api_compatible/gpt-5.4";
+
+function main(string query) {
+    parallel {
+        {
+            let en = llm(MODEL, {
+                "messages": [
+                    { "role": "system", "content": "Always speak English." },
+                    { "role": "user",   "content": query }
+                ],
+                "temperature": 0.7
+            });
+        }
+        {
+            let zh = llm(MODEL, {
+                "messages": [
+                    { "role": "system", "content": "Always speak Chinese." },
+                    { "role": "user",   "content": query }
+                ],
+                "temperature": 0.7
+            });
+        }
+    }
+
+    return `${zh.text}${en.text}`;
+}

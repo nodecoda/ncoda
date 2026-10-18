@@ -1,0 +1,17 @@
+@language nodecoda/1
+// 18_file_upload.ncoda
+// Dify YAML: examples/yaml/file-upload.yml
+//
+// Flow: Start(file) → End
+// Pattern: File upload handling
+//
+// Syntax: file<types; ext; upload>
+// - types: document, image, audio, video, custom
+// - ext: .pdf, .docx, etc (dot is optional)
+// - upload: local_file, remote_url
+
+@mode workflow
+
+function main(file<document, image; .pdf, .docx; local_file, remote_url> doc) {
+    return doc;
+}

@@ -1,0 +1,2055 @@
+schema_version: 1.0.0
+name: source
+id: 7711835619757883595
+description: source
+mode: workflow
+icon: plugin_icon/workflow.png
+nodes:
+    - id: "100001"
+      type: start
+      title: 开始
+      description: 工作流的起始节点，用于设定启动工作流需要的信息
+      position:
+        x: 0
+        y: 0
+      parameters:
+        node_outputs:
+            api_key:
+                type: string
+                value: null
+            app_token:
+                type: string
+                value: null
+            is_text_corr_on:
+                type: boolean
+                value: null
+            share_links:
+                type: string
+                value: null
+    - id: "100002"
+      type: plugin
+      title: datetime
+      description: 通过添加工具访问实时数据和执行外部操作
+      position:
+        x: 340
+        y: 0
+      parameters:
+        apiParam:
+            - input:
+                type: string
+                value: "7484140117972631586"
+              name: apiID
+            - input:
+                type: string
+                value: datetime
+              name: apiName
+            - input:
+                type: string
+                value: "7484140117972615202"
+              name: pluginID
+            - input:
+                type: string
+                value: 日期时间
+              name: pluginName
+            - input:
+                type: string
+                value: ""
+              name: pluginVersion
+            - input:
+                type: string
+                value: ""
+              name: tips
+            - input:
+                type: string
+                value: ""
+              name: outDocLink
+            - input:
+                type: integer
+                value: 0
+              name: pluginAuthMode
+        node_inputs: []
+        node_outputs:
+            date:
+                type: float
+                value: null
+            dateOnly:
+                type: string
+                value: null
+            dateTime:
+                type: string
+                value: null
+            filenameFriendly:
+                type: string
+                value: null
+            hour:
+                type: float
+                value: null
+            millisecond:
+                type: float
+                value: null
+            minute:
+                type: float
+                value: null
+            month:
+                type: float
+                value: null
+            prompt:
+                type: string
+                value: null
+            second:
+                type: float
+                value: null
+            timeOnly:
+                type: string
+                value: null
+            timestamp:
+                type: integer
+                value: null
+            year:
+                type: float
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 600000
+    - id: "100003"
+      type: text
+      title: 文本处理
+      description: 用于处理多个字符串类型变量的格式
+      position:
+        x: 680
+        y: 0
+      parameters:
+        concatParams:
+            - input:
+                type: string
+                value: W0001-{{dateTime}}
+              name: concatResult
+            - input:
+                type: string
+                value: ""
+              name: arrayItemConcatChar
+        method: concat
+        node_inputs:
+            - name: dateTime
+              input:
+                value:
+                    path: dateTime
+                    ref_node: "100002"
+        node_outputs:
+            output:
+                type: string
+                value: null
+    - id: "100004"
+      type: plugin
+      title: create_table
+      description: 通过添加工具访问实时数据和执行外部操作
+      position:
+        x: 1020
+        y: 0
+      parameters:
+        apiParam:
+            - input:
+                type: string
+                value: "7395047759797321755"
+              name: apiID
+            - input:
+                type: string
+                value: create_table
+              name: apiName
+            - input:
+                type: string
+                value: "7395047759797272603"
+              name: pluginID
+            - input:
+                type: string
+                value: 飞书多维表格
+              name: pluginName
+            - input:
+                type: string
+                value: ""
+              name: pluginVersion
+            - input:
+                type: string
+                value: ""
+              name: tips
+            - input:
+                type: string
+                value: ""
+              name: outDocLink
+            - input:
+                type: integer
+                value: 0
+              name: pluginAuthMode
+        node_inputs:
+            - name: app_token
+              input:
+                value:
+                    path: app_token
+                    ref_node: "100001"
+            - name: name
+              input:
+                value:
+                    path: output
+                    ref_node: "100003"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                properties:
+                    default_view_id:
+                        type: string
+                        value: null
+                    field_id_list:
+                        items:
+                            type: string
+                            value: null
+                        type: list
+                        value: null
+                    table_id:
+                        type: string
+                        value: null
+                type: object
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 600000
+    - id: "100005"
+      type: condition
+      title: 选择器
+      description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+      position:
+        x: 1360
+        y: 0
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: code
+                                ref_node: "100004"
+                      operator: 2
+                      right:
+                        input:
+                            type: integer
+                            value: 0
+                logic: 2
+    - id: "100006"
+      type: text
+      title: 文本处理_2
+      description: 用于处理多个字符串类型变量的格式
+      position:
+        x: 1700
+        y: 0
+      parameters:
+        concatParams:
+            - input:
+                type: string
+                value: '多维表格创建数据表失败 ；；；错误信息：[{{code}}] {{msg}}；；；请联系客服: shuidi_tech'
+              name: concatResult
+            - input:
+                type: string
+                value: ""
+              name: arrayItemConcatChar
+        method: concat
+        node_inputs:
+            - name: code
+              input:
+                value:
+                    path: code
+                    ref_node: "100004"
+            - name: msg
+              input:
+                value:
+                    path: msg
+                    ref_node: "100004"
+        node_outputs:
+            output:
+                type: string
+                value: null
+    - id: "100007"
+      type: plugin
+      title: throwError
+      description: 通过添加工具访问实时数据和执行外部操作
+      position:
+        x: 2040
+        y: 0
+      parameters:
+        apiParam:
+            - input:
+                type: string
+                value: "7483526971092516875"
+              name: apiID
+            - input:
+                type: string
+                value: throwError
+              name: apiName
+            - input:
+                type: string
+                value: "7483526971092500491"
+              name: pluginID
+            - input:
+                type: string
+                value: 抛出错误
+              name: pluginName
+            - input:
+                type: string
+                value: ""
+              name: pluginVersion
+            - input:
+                type: string
+                value: ""
+              name: tips
+            - input:
+                type: string
+                value: ""
+              name: outDocLink
+            - input:
+                type: integer
+                value: 0
+              name: pluginAuthMode
+        node_inputs:
+            - name: error_message
+              input:
+                value:
+                    path: output
+                    ref_node: "100006"
+        node_outputs:
+            error_message:
+                type: string
+                value: null
+            errorBody:
+                properties:
+                    errorCode:
+                        type: string
+                        value: null
+                    errorMessage:
+                        type: string
+                        value: null
+                type: object
+                value: null
+            prompt:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 600000
+    - id: "100008"
+      type: plugin
+      title: String2Array
+      description: 通过添加工具访问实时数据和执行外部操作
+      position:
+        x: 2380
+        y: 0
+      parameters:
+        apiParam:
+            - input:
+                type: string
+                value: "7493403320904826907"
+              name: apiID
+            - input:
+                type: string
+                value: String2Array
+              name: apiName
+            - input:
+                type: string
+                value: "7493403320904810523"
+              name: pluginID
+            - input:
+                type: string
+                value: 字符串转数组
+              name: pluginName
+            - input:
+                type: string
+                value: ""
+              name: pluginVersion
+            - input:
+                type: string
+                value: ""
+              name: tips
+            - input:
+                type: string
+                value: ""
+              name: outDocLink
+            - input:
+                type: integer
+                value: 0
+              name: pluginAuthMode
+        node_inputs:
+            - name: content
+              input:
+                value:
+                    path: share_links
+                    ref_node: "100001"
+        node_outputs:
+            code:
+                type: integer
+                value: null
+            data:
+                items:
+                    type: string
+                    value: null
+                type: list
+                value: null
+            message:
+                type: string
+                value: null
+            prompt:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 600000
+    - id: "100009"
+      type: batch
+      title: 批处理
+      position:
+        x: 14620
+        y: 0
+      parameters:
+        batchSize:
+            type: integer
+            value:
+                content: "100"
+                type: literal
+        concurrentSize:
+            type: integer
+            value:
+                content: "2"
+                type: literal
+        node_inputs:
+            - name: link
+              input:
+                items:
+                    type: string
+                    value: null
+                type: list
+                value:
+                    path: data
+                    ref_node: "100008"
+      nodes:
+        - id: "100010"
+          type: plugin
+          title: parse_video
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 2720
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7493172141890928691"
+                  name: apiID
+                - input:
+                    type: string
+                    value: parse_video
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7493172141890912307"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 抖音视频解析
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: api_key
+                  input:
+                    value:
+                        path: api_key
+                        ref_node: "100001"
+                - name: share_link
+                  input:
+                    value:
+                        path: link
+                        ref_node: "100009"
+            node_outputs:
+                code:
+                    type: integer
+                    value: null
+                data:
+                    properties:
+                        cover:
+                            type: string
+                            value: null
+                        title:
+                            type: string
+                            value: null
+                        video:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                errorBody:
+                    properties:
+                        errorCode:
+                            type: string
+                            value: null
+                        errorMessage:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                message:
+                    type: string
+                    value: null
+                prompt:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100011"
+          type: condition
+          title: 选择器_2
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 3060
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: code
+                                    ref_node: "100010"
+                          operator: 1
+                          right:
+                            input:
+                                type: integer
+                                value: 0
+                    logic: 2
+        - id: "100012"
+          type: plugin
+          title: voice_to_text
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 3400
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7492817685936455720"
+                  name: apiID
+                - input:
+                    type: string
+                    value: voice_to_text
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7492817685936439336"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 视频文案提取
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: api_key
+                  input:
+                    value:
+                        path: api_key
+                        ref_node: "100001"
+                - name: file_url
+                  input:
+                    value:
+                        path: data.video
+                        ref_node: "100010"
+            node_outputs:
+                data:
+                    type: string
+                    value: null
+                error_message:
+                    type: string
+                    value: null
+                errorBody:
+                    properties:
+                        errorCode:
+                            type: string
+                            value: null
+                        errorMessage:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                isSuccess:
+                    type: boolean
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100013"
+          type: condition
+          title: 选择器_3
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 3740
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: data
+                                    ref_node: "100012"
+                          operator: 10
+                        - left:
+                            input:
+                                value:
+                                    path: is_text_corr_on
+                                    ref_node: "100001"
+                          operator: 11
+                    logic: 2
+        - id: "100014"
+          type: plugin
+          title: content_check
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 4080
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7494153937088725027"
+                  name: apiID
+                - input:
+                    type: string
+                    value: content_check
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7494153937088708643"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 文案校对
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: api_key
+                  input:
+                    value:
+                        path: api_key
+                        ref_node: "100001"
+                - name: user_prompt
+                  input:
+                    value:
+                        path: data
+                        ref_node: "100012"
+                - name: model
+                  input:
+                    type: string
+                    value: gpt-4o-mini
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100015"
+          type: condition
+          title: 选择器_4
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 4420
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: output
+                                    ref_node: "100014"
+                          operator: 10
+                    logic: 2
+        - id: "100017"
+          type: code
+          title: 代码
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 4760
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(arg1) -> dict:
+                    return {"result": arg1}
+            language: 3
+            node_inputs:
+                - name: arg1
+                  input:
+                    type: string
+                    value:
+                        path: output
+                        ref_node: "100014"
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100016"
+          type: text
+          title: 文本处理_3
+          description: 用于处理多个字符串类型变量的格式
+          position:
+            x: 5100
+            y: 0
+          parameters:
+            concatParams:
+                - input:
+                    type: string
+                    value: '文案矫正失败，请联系客服微信: shuidi_tech'
+                  name: concatResult
+                - input:
+                    type: string
+                    value: ""
+                  name: arrayItemConcatChar
+            method: concat
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+        - id: "100018"
+          type: variable_merge
+          title: 变量聚合
+          description: 对多个分支的输出进行聚合处理
+          position:
+            x: 5440
+            y: 0
+          parameters:
+            mergeGroups:
+                - name: Group1
+                  variables:
+                    - type: string
+                      value:
+                        content:
+                            blockID: "100017"
+                            name: result
+                            source: block-output
+                        rawMeta:
+                            type: 1
+                        type: ref
+                    - type: string
+                      value:
+                        content:
+                            blockID: "100016"
+                            name: output
+                            source: block-output
+                        rawMeta:
+                            type: 1
+                        type: ref
+            node_outputs:
+                Group1:
+                    type: string
+                    value: null
+        - id: "100019"
+          type: code
+          title: 代码_2
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 5780
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(Group1, data_cover, data_title, link) -> dict:
+                    return {"内容": (Group1 if Group1 is not None else ""), "封面": (data_cover if data_cover is not None else ""), "标题": (data_title if data_title is not None else ""), "链接": (link if link is not None else "")}
+            language: 3
+            node_inputs:
+                - name: Group1
+                  input:
+                    type: string
+                    value:
+                        path: Group1
+                        ref_node: "100018"
+                - name: data_cover
+                  input:
+                    type: string
+                    value:
+                        path: data.cover
+                        ref_node: "100010"
+                - name: data_title
+                  input:
+                    type: string
+                    value:
+                        path: data.title
+                        ref_node: "100010"
+                - name: link
+                  input:
+                    value:
+                        path: link
+                        ref_node: "100009"
+            node_outputs:
+                result:
+                    type: object
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100020"
+          type: code
+          title: 代码_3
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 6120
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                import json
+                def main(arg1) -> dict:
+                    return {"result": json.dumps(arg1, ensure_ascii=False)}
+            language: 3
+            node_inputs:
+                - name: arg1
+                  input:
+                    type: object
+                    value:
+                        path: result
+                        ref_node: "100019"
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100021"
+          type: code
+          title: 代码_4
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 6460
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(result) -> dict:
+                    return {"result": [{"fields": result}]}
+            language: 3
+            node_inputs:
+                - name: result
+                  input:
+                    type: string
+                    value:
+                        path: result
+                        ref_node: "100020"
+            node_outputs:
+                result:
+                    items:
+                        properties:
+                            fields:
+                                type: string
+                                value: null
+                        type: object
+                        value: null
+                    type: list
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100022"
+          type: plugin
+          title: add_records
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 6800
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7395047759797288987"
+                  name: apiID
+                - input:
+                    type: string
+                    value: add_records
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7395047759797272603"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 飞书多维表格
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: app_token
+                  input:
+                    value:
+                        path: app_token
+                        ref_node: "100001"
+                - name: records
+                  input:
+                    value:
+                        path: result
+                        ref_node: "100021"
+                - name: table_id
+                  input:
+                    value:
+                        path: data.table_id
+                        ref_node: "100004"
+            node_outputs:
+                code:
+                    type: float
+                    value: null
+                data:
+                    properties:
+                        records:
+                            items:
+                                properties:
+                                    fields:
+                                        type: string
+                                        value: null
+                                    record_id:
+                                        type: string
+                                        value: null
+                                type: object
+                            type: list
+                            value: null
+                    type: object
+                    value: null
+                log_id:
+                    type: string
+                    value: null
+                msg:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100023"
+          type: condition
+          title: 选择器_5
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 7140
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: code
+                                    ref_node: "100022"
+                          operator: 2
+                          right:
+                            input:
+                                type: integer
+                                value: 0
+                    logic: 2
+        - id: "100024"
+          type: text
+          title: 文本处理_4
+          description: 用于处理多个字符串类型变量的格式
+          position:
+            x: 7480
+            y: 0
+          parameters:
+            concatParams:
+                - input:
+                    type: string
+                    value: '多维表格数据表中添加数据失败，请联系客服: shuidi_tech ；；；错误信息：[{{code}}] {{msg}}'
+                  name: concatResult
+                - input:
+                    type: string
+                    value: ""
+                  name: arrayItemConcatChar
+            method: concat
+            node_inputs:
+                - name: code
+                  input:
+                    value:
+                        path: code
+                        ref_node: "100022"
+                - name: msg
+                  input:
+                    value:
+                        path: msg
+                        ref_node: "100022"
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+        - id: "100025"
+          type: plugin
+          title: throwError_2
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 7820
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7483526971092516875"
+                  name: apiID
+                - input:
+                    type: string
+                    value: throwError
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7483526971092500491"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 抛出错误
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: error_message
+                  input:
+                    value:
+                        path: output
+                        ref_node: "100024"
+            node_outputs:
+                error_message:
+                    type: string
+                    value: null
+                errorBody:
+                    properties:
+                        errorCode:
+                            type: string
+                            value: null
+                        errorMessage:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                prompt:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100027"
+          type: code
+          title: 代码_5
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 8160
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main() -> dict:
+                    return {"result": ""}
+            language: 3
+            node_inputs: []
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100026"
+          type: condition
+          title: 选择器_6
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 8500
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: data
+                                    ref_node: "100012"
+                          operator: 10
+                    logic: 2
+        - id: "100028"
+          type: code
+          title: 代码_6
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 8840
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(arg1) -> dict:
+                    return {"result": arg1}
+            language: 3
+            node_inputs:
+                - name: arg1
+                  input:
+                    type: string
+                    value:
+                        path: data
+                        ref_node: "100012"
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100029"
+          type: variable_merge
+          title: 变量聚合_2
+          description: 对多个分支的输出进行聚合处理
+          position:
+            x: 9180
+            y: 0
+          parameters:
+            mergeGroups:
+                - name: Group1
+                  variables:
+                    - type: string
+                      value:
+                        content:
+                            blockID: "100028"
+                            name: result
+                            source: block-output
+                        rawMeta:
+                            type: 1
+                        type: ref
+                    - type: string
+                      value:
+                        content:
+                            blockID: "100027"
+                            name: result
+                            source: block-output
+                        rawMeta:
+                            type: 1
+                        type: ref
+            node_outputs:
+                Group1:
+                    type: string
+                    value: null
+        - id: "100030"
+          type: code
+          title: 代码_7
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 9520
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(Group1, data_cover, data_title, link) -> dict:
+                    return {"内容": (Group1 if Group1 is not None else ""), "封面": (data_cover if data_cover is not None else ""), "标题": (data_title if data_title is not None else ""), "链接": (link if link is not None else "")}
+            language: 3
+            node_inputs:
+                - name: Group1
+                  input:
+                    type: string
+                    value:
+                        path: Group1
+                        ref_node: "100029"
+                - name: data_cover
+                  input:
+                    type: string
+                    value:
+                        path: data.cover
+                        ref_node: "100010"
+                - name: data_title
+                  input:
+                    type: string
+                    value:
+                        path: data.title
+                        ref_node: "100010"
+                - name: link
+                  input:
+                    value:
+                        path: link
+                        ref_node: "100009"
+            node_outputs:
+                result:
+                    type: object
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100031"
+          type: code
+          title: 代码_8
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 9860
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                import json
+                def main(arg1) -> dict:
+                    return {"result": json.dumps(arg1, ensure_ascii=False)}
+            language: 3
+            node_inputs:
+                - name: arg1
+                  input:
+                    type: object
+                    value:
+                        path: result
+                        ref_node: "100030"
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100032"
+          type: code
+          title: 代码_9
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 10200
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(result) -> dict:
+                    return {"result": [{"fields": result}]}
+            language: 3
+            node_inputs:
+                - name: result
+                  input:
+                    type: string
+                    value:
+                        path: result
+                        ref_node: "100031"
+            node_outputs:
+                result:
+                    items:
+                        properties:
+                            fields:
+                                type: string
+                                value: null
+                        type: object
+                        value: null
+                    type: list
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100033"
+          type: plugin
+          title: add_records_2
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 10540
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7395047759797288987"
+                  name: apiID
+                - input:
+                    type: string
+                    value: add_records
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7395047759797272603"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 飞书多维表格
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: app_token
+                  input:
+                    value:
+                        path: app_token
+                        ref_node: "100001"
+                - name: records
+                  input:
+                    value:
+                        path: result
+                        ref_node: "100032"
+                - name: table_id
+                  input:
+                    value:
+                        path: data.table_id
+                        ref_node: "100004"
+            node_outputs:
+                code:
+                    type: float
+                    value: null
+                data:
+                    properties:
+                        records:
+                            items:
+                                properties:
+                                    fields:
+                                        type: string
+                                        value: null
+                                    record_id:
+                                        type: string
+                                        value: null
+                                type: object
+                            type: list
+                            value: null
+                    type: object
+                    value: null
+                log_id:
+                    type: string
+                    value: null
+                msg:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100034"
+          type: condition
+          title: 选择器_7
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 10880
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: code
+                                    ref_node: "100033"
+                          operator: 2
+                          right:
+                            input:
+                                type: integer
+                                value: 0
+                    logic: 2
+        - id: "100035"
+          type: text
+          title: 文本处理_5
+          description: 用于处理多个字符串类型变量的格式
+          position:
+            x: 11220
+            y: 0
+          parameters:
+            concatParams:
+                - input:
+                    type: string
+                    value: '多维表格数据表中添加数据失败，请联系客服: shuidi_tech ；；；错误信息：[{{code}}] {{msg}}'
+                  name: concatResult
+                - input:
+                    type: string
+                    value: ""
+                  name: arrayItemConcatChar
+            method: concat
+            node_inputs:
+                - name: code
+                  input:
+                    value:
+                        path: code
+                        ref_node: "100033"
+                - name: msg
+                  input:
+                    value:
+                        path: msg
+                        ref_node: "100033"
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+        - id: "100036"
+          type: plugin
+          title: throwError_3
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 11560
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7483526971092516875"
+                  name: apiID
+                - input:
+                    type: string
+                    value: throwError
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7483526971092500491"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 抛出错误
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: error_message
+                  input:
+                    value:
+                        path: output
+                        ref_node: "100035"
+            node_outputs:
+                error_message:
+                    type: string
+                    value: null
+                errorBody:
+                    properties:
+                        errorCode:
+                            type: string
+                            value: null
+                        errorMessage:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                prompt:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100037"
+          type: code
+          title: 代码_10
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 11900
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main() -> dict:
+                    return {"result": ""}
+            language: 3
+            node_inputs: []
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100038"
+          type: code
+          title: 代码_11
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 12240
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(result, link) -> dict:
+                    return {"内容": (result if result is not None else ""), "封面": (result if result is not None else ""), "标题": (result if result is not None else ""), "链接": (link if link is not None else "")}
+            language: 3
+            node_inputs:
+                - name: result
+                  input:
+                    type: string
+                    value:
+                        path: result
+                        ref_node: "100037"
+                - name: link
+                  input:
+                    value:
+                        path: link
+                        ref_node: "100009"
+            node_outputs:
+                result:
+                    type: object
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100039"
+          type: code
+          title: 代码_12
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 12580
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                import json
+                def main(arg1) -> dict:
+                    return {"result": json.dumps(arg1, ensure_ascii=False)}
+            language: 3
+            node_inputs:
+                - name: arg1
+                  input:
+                    type: object
+                    value:
+                        path: result
+                        ref_node: "100038"
+            node_outputs:
+                result:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100040"
+          type: code
+          title: 代码_13
+          description: 编写代码，处理输入变量来生成返回值
+          position:
+            x: 12920
+            y: 0
+          parameters:
+            code: |-
+                # ncoda:shim 1
+                def main(result) -> dict:
+                    return {"result": [{"fields": result}]}
+            language: 3
+            node_inputs:
+                - name: result
+                  input:
+                    type: string
+                    value:
+                        path: result
+                        ref_node: "100039"
+            node_outputs:
+                result:
+                    items:
+                        properties:
+                            fields:
+                                type: string
+                                value: null
+                        type: object
+                        value: null
+                    type: list
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                switch: false
+                timeoutMs: 60000
+        - id: "100041"
+          type: plugin
+          title: add_records_3
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 13260
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7395047759797288987"
+                  name: apiID
+                - input:
+                    type: string
+                    value: add_records
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7395047759797272603"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 飞书多维表格
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: app_token
+                  input:
+                    value:
+                        path: app_token
+                        ref_node: "100001"
+                - name: records
+                  input:
+                    value:
+                        path: result
+                        ref_node: "100040"
+                - name: table_id
+                  input:
+                    value:
+                        path: data.table_id
+                        ref_node: "100004"
+            node_outputs:
+                code:
+                    type: float
+                    value: null
+                data:
+                    properties:
+                        records:
+                            items:
+                                properties:
+                                    fields:
+                                        type: string
+                                        value: null
+                                    record_id:
+                                        type: string
+                                        value: null
+                                type: object
+                            type: list
+                            value: null
+                    type: object
+                    value: null
+                log_id:
+                    type: string
+                    value: null
+                msg:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+        - id: "100042"
+          type: condition
+          title: 选择器_8
+          description: 连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支
+          position:
+            x: 13600
+            y: 0
+          parameters:
+            branches:
+                - condition:
+                    conditions:
+                        - left:
+                            input:
+                                value:
+                                    path: code
+                                    ref_node: "100041"
+                          operator: 2
+                          right:
+                            input:
+                                type: integer
+                                value: 0
+                    logic: 2
+        - id: "100043"
+          type: text
+          title: 文本处理_6
+          description: 用于处理多个字符串类型变量的格式
+          position:
+            x: 13940
+            y: 0
+          parameters:
+            concatParams:
+                - input:
+                    type: string
+                    value: '多维表格数据表中添加数据失败，请联系客服: shuidi_tech ；；；错误信息：[{{code}}] {{msg}}'
+                  name: concatResult
+                - input:
+                    type: string
+                    value: ""
+                  name: arrayItemConcatChar
+            method: concat
+            node_inputs:
+                - name: code
+                  input:
+                    value:
+                        path: code
+                        ref_node: "100041"
+                - name: msg
+                  input:
+                    value:
+                        path: msg
+                        ref_node: "100041"
+            node_outputs:
+                output:
+                    type: string
+                    value: null
+        - id: "100044"
+          type: plugin
+          title: throwError_4
+          description: 通过添加工具访问实时数据和执行外部操作
+          position:
+            x: 14280
+            y: 0
+          parameters:
+            apiParam:
+                - input:
+                    type: string
+                    value: "7483526971092516875"
+                  name: apiID
+                - input:
+                    type: string
+                    value: throwError
+                  name: apiName
+                - input:
+                    type: string
+                    value: "7483526971092500491"
+                  name: pluginID
+                - input:
+                    type: string
+                    value: 抛出错误
+                  name: pluginName
+                - input:
+                    type: string
+                    value: ""
+                  name: pluginVersion
+                - input:
+                    type: string
+                    value: ""
+                  name: tips
+                - input:
+                    type: string
+                    value: ""
+                  name: outDocLink
+                - input:
+                    type: integer
+                    value: 0
+                  name: pluginAuthMode
+            node_inputs:
+                - name: error_message
+                  input:
+                    value:
+                        path: output
+                        ref_node: "100043"
+            node_outputs:
+                error_message:
+                    type: string
+                    value: null
+                errorBody:
+                    properties:
+                        errorCode:
+                            type: string
+                            value: null
+                        errorMessage:
+                            type: string
+                            value: null
+                    type: object
+                    value: null
+                prompt:
+                    type: string
+                    value: null
+            settingOnError:
+                processType: 1
+                retryTimes: 0
+                timeoutMs: 600000
+      edges:
+        - source_node: "100009"
+          target_node: "100010"
+          source_port: batch-function-inline-output
+        - source_node: "100010"
+          target_node: "100011"
+        - source_node: "100011"
+          target_node: "100012"
+          source_port: "true"
+        - source_node: "100012"
+          target_node: "100013"
+        - source_node: "100013"
+          target_node: "100014"
+          source_port: "true"
+        - source_node: "100014"
+          target_node: "100015"
+        - source_node: "100015"
+          target_node: "100017"
+          source_port: "true"
+        - source_node: "100015"
+          target_node: "100016"
+          source_port: "false"
+        - source_node: "100017"
+          target_node: "100018"
+        - source_node: "100016"
+          target_node: "100018"
+        - source_node: "100018"
+          target_node: "100019"
+        - source_node: "100019"
+          target_node: "100020"
+        - source_node: "100020"
+          target_node: "100021"
+        - source_node: "100021"
+          target_node: "100022"
+        - source_node: "100022"
+          target_node: "100023"
+        - source_node: "100023"
+          target_node: "100024"
+          source_port: "true"
+        - source_node: "100024"
+          target_node: "100025"
+        - source_node: "100013"
+          target_node: "100027"
+          source_port: "false"
+        - source_node: "100027"
+          target_node: "100026"
+        - source_node: "100026"
+          target_node: "100028"
+          source_port: "true"
+        - source_node: "100028"
+          target_node: "100029"
+        - source_node: "100026"
+          target_node: "100029"
+          source_port: "false"
+        - source_node: "100029"
+          target_node: "100030"
+        - source_node: "100030"
+          target_node: "100031"
+        - source_node: "100031"
+          target_node: "100032"
+        - source_node: "100032"
+          target_node: "100033"
+        - source_node: "100033"
+          target_node: "100034"
+        - source_node: "100034"
+          target_node: "100035"
+          source_port: "true"
+        - source_node: "100035"
+          target_node: "100036"
+        - source_node: "100011"
+          target_node: "100037"
+          source_port: "false"
+        - source_node: "100037"
+          target_node: "100038"
+        - source_node: "100038"
+          target_node: "100039"
+        - source_node: "100039"
+          target_node: "100040"
+        - source_node: "100040"
+          target_node: "100041"
+        - source_node: "100041"
+          target_node: "100042"
+        - source_node: "100042"
+          target_node: "100043"
+          source_port: "true"
+        - source_node: "100043"
+          target_node: "100044"
+        - source_node: "100025"
+          target_node: "100009"
+          target_port: batch-function-inline-input
+        - source_node: "100036"
+          target_node: "100009"
+          target_port: batch-function-inline-input
+        - source_node: "100044"
+          target_node: "100009"
+          target_port: batch-function-inline-input
+        - source_node: "100009"
+          target_node: "100019"
+          source_port: batch-function-inline-output
+        - source_node: "100009"
+          target_node: "100030"
+          source_port: batch-function-inline-output
+        - source_node: "100009"
+          target_node: "100038"
+          source_port: batch-function-inline-output
+        - source_node: "100023"
+          target_node: "100009"
+          source_port: "false"
+          target_port: batch-function-inline-input
+        - source_node: "100034"
+          target_node: "100009"
+          source_port: "false"
+          target_port: batch-function-inline-input
+        - source_node: "100042"
+          target_node: "100009"
+          source_port: "false"
+          target_port: batch-function-inline-input
+    - id: "900001"
+      type: end
+      title: 结束
+      description: 工作流的最终节点，用于返回工作流运行后的结果信息
+      position:
+        x: 14960
+        y: 0
+      parameters:
+        content:
+            type: string
+            value:
+                content: 结果输出到了填入的多维表格中，表格左侧会增加一个数据表，点进去查看
+                type: literal
+        streamingOutput: false
+        terminatePlan: useAnswerContent
+edges:
+    - source_node: "100001"
+      target_node: "100002"
+    - source_node: "100002"
+      target_node: "100003"
+    - source_node: "100003"
+      target_node: "100004"
+    - source_node: "100004"
+      target_node: "100005"
+    - source_node: "100005"
+      target_node: "100006"
+      source_port: "true"
+    - source_node: "100006"
+      target_node: "100007"
+    - source_node: "100005"
+      target_node: "100008"
+      source_port: "false"
+    - source_node: "100007"
+      target_node: "100008"
+    - source_node: "100008"
+      target_node: "100009"
+    - source_node: "100009"
+      target_node: "900001"
+      source_port: batch-output

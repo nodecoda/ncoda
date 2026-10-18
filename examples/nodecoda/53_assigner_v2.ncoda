@@ -1,0 +1,24 @@
+@language nodecoda/1
+// 53_assigner_v2.ncoda
+// DC state assignment lowered through assigner v2
+//
+// Flow: Start(query) → modify conversation vars → End
+
+@mode advanced-chat
+
+@conversation string username = "guest";
+@conversation int score = 0;
+@conversation array<string> tags = [];
+
+function main(string query, string new_tag) {
+    // Literal assignment (set)
+    username = "updated";
+
+    // Compound assignment (+=)
+    score += 10;
+
+    // Append to array (<<) - can reference node output
+    tags << new_tag;
+
+    output(username);
+}

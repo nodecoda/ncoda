@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("function f(int a)->int {0; } function C1() {let x=f(7); 0; }")

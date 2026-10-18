@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("ڹ\"\n\xc5A\ue7f9ŧٟڄ\"\"0챔Ѕ A A\"\nA A A A⎄ڐ A A A A A A A A A A A A A 褂 A A A<A A A A Ͱ A ܛ A A A;A Ȓ A<Ց A;A A A A A A A A A A A A A A A A A A A A A\u0604A A<A A A\"\nA A A A ʧ A A A A A֜<A A A A A A A A A A A''A A A A A A A A A A A A;A A Ʒ A\"\nτ A ƪ\u0a64;Έ A A A A؏A A A A A A A A A ǥ A A 쥥")
