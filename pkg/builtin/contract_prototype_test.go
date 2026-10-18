@@ -2,7 +2,7 @@
 //
 // # 它回答什么问题
 //
-// 契约表（examples/coze-reference/builtins/*.yaml → contracts_gen.go）声明的是
+// 契约表（examples/builtins/*.yaml → contracts_dify_gen.go）声明的是
 // **平台物理口 ↔ 语言字段名**的对应；语言字段的**类型**权威在语言结果原型
 // （pkg/binding/symbol.go）。两个权威必须描述同一个语言类型，否则
 // 反编译会发出「语言上不存在的字段」或「与原型不符的类型」——

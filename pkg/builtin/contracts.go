@@ -2,15 +2,16 @@ package builtin
 
 // contracts.go — 契约表的注册入口。
 //
-// 生成物按许可侧拆成两份（O2 开放内核拆分）：
+// 生成物按许可侧拆开（O2 开放内核拆分）：
 //
-//	contracts_dify_gen.go  开放侧（dify）—— 随开放仓发布
-//	contracts_coze_gen.go  闭源侧（coze 家族）—— //go:build !dify
+//	contracts_dify_gen.go  开放侧（dify）—— 本仓，init() 里注册
+//	（闭源家族）           闭源侧 —— 商业仓 internal/builtincoze/contracts.go，
+//	                       经本包的 RegisterContracts 在 init() 注册
 //
-// 两份文件都在 init() 里调用 registerContracts，合并成**同一张表**：查询
-// 入口（Contract / NodeOf / PortsOf / …）与语言层、各后端读到的仍是同一份
-// 数据。注册期查重 —— 同一 target 出现在两侧是生成器 bug，必须当场炸掉，
-// 而不是让后注册的一方静默覆盖（那会让闭源契约在开放构建里「意外存在」）。
+// 两侧合并成**同一张表**：查询入口（Contract / NodeOf / PortsOf / …）与语言
+// 层、各后端读到的仍是同一份数据。注册期查重 —— 同一 target 出现在两侧是
+// 生成器 bug，必须当场炸掉，而不是让后注册的一方静默覆盖（那会让闭源契约在
+// 开放构建里「意外存在」）。
 
 // contracts 是按目标平台索引的内建节点结果契约（由各生成物注册）。
 var contracts = map[string]map[string]NodeContract{}

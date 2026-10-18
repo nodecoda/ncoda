@@ -7,7 +7,7 @@ import "github.com/nodecoda/ncoda/pkg/builtin"
 // 一个内建节点的结果端口词汇表有两层权威，不可混用：
 //
 //	名字对应（口名 ⇄ 语言字段名） = 内建节点结果契约 pkg/builtin
-//	  （声明源 examples/coze-reference/builtins/<target>.yaml）；
+//	  （声明源：开放侧 examples/builtins/<target>.yaml；闭源侧由商业仓注入）；
 //	语言类型（语言字段名 → IR 中性类型） = 语言原型，即本文件。
 //
 // 为什么不把契约的 `ports[].type` 当语言类型用：契约里的 type 是**平台物理

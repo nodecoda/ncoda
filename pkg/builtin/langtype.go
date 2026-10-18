@@ -4,7 +4,7 @@ package builtin
 //
 // # 为什么类型要单独一条查询，而不复用契约表的 Type
 //
-// 契约表（contracts_gen.go / builtins/*.yaml）里的 `Type` 按定义是**平台物理口
+// 契约表（contracts_dify_gen.go / builtins/*.yaml）里的 `Type` 按定义是**平台物理口
 // 类型**（见 builtin.go 的 Port 注释：`http.headers = string`，② 语料 3/3 逐字
 // 如此）。同一字段两侧的类型可以不同——coze-biz 的 `headers` 物理口声明
 // `string`，而语言层 `HTTPResponse.headers` 是 `map<string, any>`。两者的桥
