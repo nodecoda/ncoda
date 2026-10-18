@@ -1,7 +1,7 @@
 # PARITY — 与 Python 参考编译器的行为对齐契约
 
 > 日期: 2026-08-22（落盘）| 范围: `本仓（拆分前）` 全链路
-> 背景: godcc（Go 生产编译器）逐函数移植自 Python 参考编译器
+> 背景: ncoda（Go 生产编译器）逐函数移植自 Python 参考编译器
 > （ncoda-py `src/nclang/` + ncoda-dify），移植纪律要求**可观察行为字节对齐**。
 > 2026-08-19 **Go 毕业**：双 CLI `golden_diff` 退役，字节一致性由
 > `scripts/shadow_parity.py`（Go/Python 双跑）与 `scripts/contract_test.sh`

@@ -373,5 +373,5 @@ def main(p1, p2, ...) -> dict:      ← 同步函数，唯一入口 main，注�
 
 ---
 
-*定稿：2026-09-03 · godcc · shim-python-subset 翻译模式规范 v2.0（语法 EBNF 定死 +
+*定稿：2026-09-03 · ncoda · shim-python-subset 翻译模式规范 v2.0（语法 EBNF 定死 +
 语义 + 前向/反向翻译表 + 互逆不变量 + 封闭契约）*
