@@ -44,6 +44,13 @@ printf 'workflow w { agent main { } }\n' | go run ./cmd/nclang-compile
 | `examples/` | example sources and Dify fixtures used by tests |
 | `tests/fixtures/` | shared test fixtures |
 
+## Releases
+
+`make dist VERSION=vX.Y.Z` builds the 6-platform binaries, a CycloneDX SBOM and
+checksums. Signing is opt-in (`NCODA_SIGN=true`); see
+`docs/RELEASE-SIGNING.md` for the artifact list, SBOM format and verification
+commands.
+
 ## Coverage boundary
 
 The private full corpus is not redistributable. Public tests use the examples

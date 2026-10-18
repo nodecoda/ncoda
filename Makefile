@@ -3,7 +3,7 @@
 #   check    seconds   build + vet + gofmt + unit tests
 #   push     minutes   full tests (uncached) + CLI contract smoke
 #   nightly  minutes   race detector + repeat run (full corpus stays private)
-#   release  minutes   6-platform binaries + SHA256SUMS + SBOM text
+#   release  minutes   6-platform binaries + SHA256SUMS + CycloneDX SBOM + SBOM text
 #
 # The private full corpus (870 workflows) is not redistributable; public tests
 # use examples/ and tests/fixtures. Full-corpus round-trip runs in the
@@ -14,7 +14,7 @@ VERSION  ?= dev
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist clean fmt fmt-check test
+.PHONY: check push nightly release dist sbom clean fmt fmt-check test
 
 check: fmt-check
 	$(GO) build ./...
@@ -44,9 +44,15 @@ dist:
 	  echo "build $$os/$$arch"; \
 	  GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-s -w" -o $$out ./cmd/nclang-compile; \
 	done
-	@cd $(DIST) && sha256sum nclang-* > SHA256SUMS
+	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
+	@cd $(DIST) && sha256sum nclang-* sbom.cdx.json SBOM.txt > SHA256SUMS
 	@echo "artifacts in $(DIST)"
+
+# CycloneDX SBOM only (the artifact needed when publishing an existing build).
+sbom:
+	@mkdir -p $(DIST)
+	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
 
 fmt:
 	@gofmt -w $$(find . -name '*.go' -not -path './.git/*')

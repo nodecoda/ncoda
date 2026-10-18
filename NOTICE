@@ -7,7 +7,13 @@ Third-party components
 ----------------------
 - gopkg.in/yaml.v3 — MIT License (Copyright (c) 2011-2019 Canonical Ltd.;
   portions licensed under the Apache License 2.0). See NOTICE in the
-  upstream distribution.
+  upstream distribution. This is the only module linked into release binaries.
+
+The module graph also references test-only modules that are **not** linked into
+release binaries and are not redistributed here:
+github.com/kr/pretty (MIT) · github.com/kr/text (MIT) · gopkg.in/check.v1
+(BSD-3-Clause). The generated SBOM marks them `scope: excluded` with the
+property `ncoda:linkage=test-or-module-graph`.
 
 The open-core distribution (this repository) contains the ncoda language
 kernel and the Dify compile/decompile backend. Coze, Coze-Studio,

@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write   # keyless cosign (only used when vars.NCODA_SIGN == 'true')
 
 jobs:
   release:
@@ -43,6 +44,22 @@ jobs:
         run: |
           BIN=/tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/nclang-${{ steps.ver.outputs.tag }}-linux-amd64
           printf '' | "$BIN" | grep -q '"status":"COMPILE_ERROR"'
+      - name: Validate SBOM
+        run: |
+          python3 scripts/gen_sbom.py --check             /tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/sbom.cdx.json
+      - name: Install cosign (opt-in)
+        if: ${{ vars.NCODA_SIGN == 'true' }}
+        uses: sigstore/cosign-installer@v3
+      - name: Sign and verify SHA256SUMS (keyless)
+        if: ${{ vars.NCODA_SIGN == 'true' }}
+        run: |
+          D=/tmp/ncoda-dist-${{ steps.ver.outputs.tag }}
+          cd "$D"
+          cosign sign-blob --yes --bundle SHA256SUMS.cosign.bundle SHA256SUMS
+          cosign verify-blob --bundle SHA256SUMS.cosign.bundle \
+            --certificate-identity-regexp '^https://github.com/${{ github.repository }}/' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
           name: nclang-${{ steps.ver.outputs.tag }}
