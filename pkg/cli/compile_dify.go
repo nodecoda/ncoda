@@ -18,6 +18,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/compiler"
 	"github.com/nodecoda/ncoda/pkg/target/codec"
 	"github.com/nodecoda/ncoda/pkg/toolpath"
+	"github.com/nodecoda/ncoda/pkg/version"
 )
 
 // CompileRun 解析参数、从 stdin 读源码，把 JSON 契约写到 stdout。
@@ -44,7 +45,13 @@ func CompileRun(stdin io.Reader, stdout io.Writer, args []string) int {
 		return 2
 	}
 	if *versionFlag {
-		fmt.Fprintf(stdout, "nclang-compile %s\n", compiler.CompilerVersion())
+		// Two dimensions on purpose: product version (release) and contract
+		// version (frozen wire schema). `dev` = build not stamped at link time.
+		fmt.Fprintf(stdout, "nclang-compile %s (contract %s", version.Version, compiler.CompilerVersion())
+		if version.Commit != "" {
+			fmt.Fprintf(stdout, ", commit %s", version.Commit)
+		}
+		fmt.Fprintln(stdout, ")")
 		return 0
 	}
 	// Python's main never reads args.json — JSON output is unconditional

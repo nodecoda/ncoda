@@ -11,12 +11,16 @@
 
 GO       ?= go
 VERSION  ?= dev
+COMMIT   ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
+LDFLAGS   = -s -w \
+            -X github.com/nodecoda/ncoda/pkg/version.Version=$(VERSION) \
+            -X github.com/nodecoda/ncoda/pkg/version.Commit=$(COMMIT)
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist sbom clean fmt fmt-check test
+.PHONY: check push nightly release dist sbom audit clean fmt fmt-check test
 
-check: fmt-check
+check: fmt-check audit
 	$(GO) build ./...
 	$(GO) vet ./...
 	$(GO) test ./...
@@ -42,7 +46,7 @@ dist:
 	  os=$${p%/*}; arch=$${p#*/}; out=$(DIST)/nclang-$(VERSION)-$$os-$$arch; \
 	  [ "$$os" = windows ] && out=$$out.exe; \
 	  echo "build $$os/$$arch"; \
-	  GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-s -w" -o $$out ./cmd/nclang-compile; \
+	  GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $$out ./cmd/nclang-compile; \
 	done
 	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
@@ -53,6 +57,11 @@ dist:
 sbom:
 	@mkdir -p $(DIST)
 	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
+
+# Open-core boundary (O2 split invariants), plus its own negative tests.
+audit:
+	@python3 scripts/audit_split.py
+	@python3 scripts/test_audit_split.py -q
 
 fmt:
 	@gofmt -w $$(find . -name '*.go' -not -path './.git/*')

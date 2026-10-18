@@ -26,6 +26,9 @@ func TestDifyBuildVersion(t *testing.T) {
 	if !strings.HasPrefix(out, "nclang-compile ") {
 		t.Fatalf("version output = %q", out)
 	}
+	if !strings.Contains(out, "(contract ") {
+		t.Fatalf("version output must carry the contract version: %q", out)
+	}
 }
 
 func TestDifyBuildEmptyInputIsCompileError(t *testing.T) {

@@ -14,3 +14,7 @@ go.work.sum
 # editor / OS noise
 *.swp
 .DS_Store
+
+# Python bytecode (never commit judge artifacts)
+__pycache__/
+*.pyc
