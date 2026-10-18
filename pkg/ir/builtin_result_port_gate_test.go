@@ -40,7 +40,7 @@ import (
 func httpResultPortNames(t *testing.T) []string {
 	t.Helper()
 	set := map[string]bool{}
-	for _, p := range builtin.PortsOf(IRPortVocabularyTarget, "http") {
+	for _, p := range builtin.PortsOf(IRPortVocabularyTarget(), "http") {
 		if p.Port != "" {
 			set[p.Port] = true
 		}
@@ -49,7 +49,7 @@ func httpResultPortNames(t *testing.T) []string {
 		}
 	}
 	if len(set) == 0 {
-		t.Fatalf("内建契约未声明 %s 的 http 口：IR 的端口词汇表以契约为权威", IRPortVocabularyTarget)
+		t.Fatalf("内建契约未声明 %s 的 http 口：IR 的端口词汇表以契约为权威", IRPortVocabularyTarget())
 	}
 	out := make([]string, 0, len(set))
 	for name := range set {
@@ -83,9 +83,9 @@ func sameIRShape(a, b *Type) bool {
 
 // ① 对账面：IR 的 http 端口解析面 == 契约声明面（正向 + 负向两侧）。
 func TestHTTPResultPortVocabularyMatchesContract(t *testing.T) {
-	ports := builtin.PortsOf(IRPortVocabularyTarget, "http")
+	ports := builtin.PortsOf(IRPortVocabularyTarget(), "http")
 	if len(ports) == 0 {
-		t.Fatalf("内建契约未声明 %s 的 http 口：IR 的端口词汇表以契约为权威", IRPortVocabularyTarget)
+		t.Fatalf("内建契约未声明 %s 的 http 口：IR 的端口词汇表以契约为权威", IRPortVocabularyTarget())
 	}
 	for _, p := range ports {
 		byLang, okLang := httpResultPortType(p.Lang)
@@ -99,9 +99,9 @@ func TestHTTPResultPortVocabularyMatchesContract(t *testing.T) {
 				p.Port, byPort, p.Lang, byLang)
 		}
 	}
-	// IR 端口名 = 契约的**物理口名**（IRPortVocabularyTarget 的口径）。
+	// IR 端口名 = 契约的**物理口名**（IRPortVocabularyTarget() 的口径）。
 	if got := httpResultPortName("body"); got != ports[0].Port {
-		if _, ok := builtin.PortOf(IRPortVocabularyTarget, "http", "body"); ok {
+		if _, ok := builtin.PortOf(IRPortVocabularyTarget(), "http", "body"); ok {
 			t.Fatalf("语言字段 body 的 IR 端口名必须取自契约，实得 %q", got)
 		}
 	}

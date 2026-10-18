@@ -49,19 +49,19 @@ func httpResultPortType(output string) (*Type, bool) {
 // httpResultLangField 把 http 结果端口的**口名或语言名**归一到契约的语言字段名。
 // 未声明 ⇒ false（不产生新名字，调用方保留既有行为）。
 func httpResultLangField(name string) (string, bool) {
-	for _, lang := range builtin.LangFields(IRPortVocabularyTarget, "http") {
+	for _, lang := range builtin.LangFields(IRPortVocabularyTarget(), "http") {
 		if name == lang {
 			return lang, true
 		}
 	}
-	return builtin.LangOf(IRPortVocabularyTarget, "http", name)
+	return builtin.LangOf(IRPortVocabularyTarget(), "http", name)
 }
 
 // httpResultPortName 返回 http 结果的**语言字段名**对应的 IR 端口名
 // （= 契约里的平台物理口名；IR 的端口词汇表口径见 IRPortVocabularyTarget）。
 // 契约未声明 ⇒ 原样返回（不发明名字，与 pkg/builtin 的缺省语义一致）。
 func httpResultPortName(lang string) string {
-	if p, ok := builtin.PortOf(IRPortVocabularyTarget, "http", lang); ok {
+	if p, ok := builtin.PortOf(IRPortVocabularyTarget(), "http", lang); ok {
 		return p.Port
 	}
 	return lang

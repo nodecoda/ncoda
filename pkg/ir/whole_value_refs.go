@@ -465,7 +465,7 @@ func (g *Builder) containerOutputWholeValueSites(id string) int {
 func (g *Builder) wholeValueFieldsOf(nd Node) ([]string, bool) {
 	switch n := nd.(type) {
 	case *HTTPCall:
-		return builtin.LangFields(IRPortVocabularyTarget, "http"), true
+		return builtin.LangFields(IRPortVocabularyTarget(), "http"), true
 	case *CodeRun:
 		return append([]string(nil), n.OutOrder...), true
 	case *ToolCall:

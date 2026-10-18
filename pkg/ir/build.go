@@ -1966,7 +1966,9 @@ func loopAggOutput(ref varRef, fields []string) string {
 //
 // 残余设计债（已登记，需独立切片）：IR 携带平台物理名本身违背「IR = 语义定锚」，
 // 目标形态是 **IR 只携带语言层名、平台名下沉到各后端**。本切片只做「契约声明化」。
-var IRPortVocabularyTarget = choosePortVocabularyTarget()
+// 用函数而非包级 var：闭源契约由下游模块在 init() 注册，包级 var 会在下游
+// init 之前定格 ⇒ 多平台构建会误选 dify。
+func IRPortVocabularyTarget() string { return choosePortVocabularyTarget() }
 
 // choosePortVocabularyTarget 选本构建里**实际存在**的端口词汇表目标：
 // 多平台构建（含 coze-biz 契约）仍取 coze-biz（历史口径不变）；开放仓只带
@@ -2011,7 +2013,7 @@ func fieldPort(ref varRef, field string) string {
 		// 端口权威 = **内建节点结果契约**（注册表声明，lowering/raising 双向共读，
 		// 见 internal/builtin）：语言字段 `result` ⇄ 物理口 `outputList`。
 		// 契约未声明该字段 ⇒ 保持既有缺省（ref.output），不发明名字。
-		if port, ok := builtin.PortOf(IRPortVocabularyTarget, "knowledge", field); ok {
+		if port, ok := builtin.PortOf(IRPortVocabularyTarget(), "knowledge", field); ok {
 			return port.Port
 		}
 		return ref.output
@@ -2020,7 +2022,7 @@ func fieldPort(ref varRef, field string) string {
 		// 见 internal/builtin）。语言字段名 → 平台物理口名由契约给出，
 		// 不在此处按名字形态猜、也不再各处手抄一份。
 		// 契约未声明该字段 ⇒ 保持既有缺省（ref.output），不发明名字。
-		if port, ok := builtin.PortOf(IRPortVocabularyTarget, "http", field); ok {
+		if port, ok := builtin.PortOf(IRPortVocabularyTarget(), "http", field); ok {
 			return port.Port
 		}
 		return ref.output

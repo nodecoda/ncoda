@@ -111,7 +111,7 @@ func (g *Builder) wholeValueAtReturn(ref varRef) (string, []string) {
 		if fields := g.wholeValueFields(ref, n); len(fields) > 0 {
 			return "", fields
 		}
-		if p, ok := builtin.PortOf(IRPortVocabularyTarget, "knowledge", "result"); ok {
+		if p, ok := builtin.PortOf(IRPortVocabularyTarget(), "knowledge", "result"); ok {
 			return g.returnCarrier(ref, p.Port), nil
 		}
 		return g.returnCarrier(ref, ref.output), nil
@@ -227,7 +227,7 @@ func wholeValueRecordType(n Node) *Type {
 		// 内建结果契约（不手抄副本）：字段名走 builtin.LangFields，字段类型走
 		// 既有 httpResultPortType —— 与 declaredWholeValueFields 同源同序。
 		props := map[string]*Type{}
-		for _, lang := range builtin.LangFields(IRPortVocabularyTarget, "http") {
+		for _, lang := range builtin.LangFields(IRPortVocabularyTarget(), "http") {
 			if t, ok := httpResultPortType(lang); ok {
 				props[lang] = t
 			}
@@ -252,10 +252,10 @@ func declaredWholeValueFields(n Node) []string {
 		// 语言层字段名来自**内建节点结果契约**（注册表声明；本处不手抄副本）。
 		// 声明顺序即语言字段顺序（body / status_code / headers），与共享原型
 		// HTTPResponse（pkg/binding/symbol.go）一致——原型是权威，门禁核对。
-		return builtin.LangFields(IRPortVocabularyTarget, "http")
+		return builtin.LangFields(IRPortVocabularyTarget(), "http")
 	case *KnowledgeCall:
 		// 同上（单字段 record：`result` ⇄ 物理口 `outputList`）。
-		return builtin.LangFields(IRPortVocabularyTarget, "knowledge")
+		return builtin.LangFields(IRPortVocabularyTarget(), "knowledge")
 	case *SubWorkflowCall:
 		return sortedKeys(nd.OutTypes)
 	case *QA:
