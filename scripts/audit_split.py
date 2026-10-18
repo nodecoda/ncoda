@@ -64,7 +64,8 @@ def check_mentions(root: str) -> list[str]:
 
 
 def check_absolute(root: str) -> list[str]:
-    proc = subprocess.run(["git", "grep", "-n", "/home/dev/", "--", "."],
+    proc = subprocess.run(["git", "grep", "-n", "/home/dev/", "--", ".",
+                              ":(exclude)scripts/audit_split.py"],
                           cwd=root, capture_output=True, text=True)
     if proc.returncode == 0:
         hits = [ln for ln in proc.stdout.splitlines() if ln.strip()]

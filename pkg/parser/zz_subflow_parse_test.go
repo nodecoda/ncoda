@@ -7,6 +7,9 @@ import (
 )
 
 // Subflow 顶层声明语法：subflow <name> = ("id", "version") { input/output 契约 }。
+//
+//@feature subflow — 子工作流声明（语言内核侧的解析/契约形状；平台 lowering 由各后端锁定）
+
 func TestParseSubflowDecl(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow

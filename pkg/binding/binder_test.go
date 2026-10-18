@@ -272,6 +272,10 @@ func TestSymbolRepr(t *testing.T) {
 
 // ── TestDSLBuiltinRegistry (test_dsl_symbol_table.py) ──────────────────
 
+//@feature empty-check — language builtin `empty(any) -> bool`; platform lowering
+// (op 9/10, native vs shim) is locked by the backend tests in this repository
+// and in the commercial backends.
+
 func TestRegisterAll(t *testing.T) {
 	chain := NewChain()
 	RegisterBuiltins(chain)
@@ -302,6 +306,9 @@ func TestRegisterAll(t *testing.T) {
 	}
 	if chain.ResolveSymbol("output") == nil {
 		t.Errorf("output not registered")
+	}
+	if empty := chain.ResolveSymbol("empty"); empty == nil || !empty.IsBuiltin {
+		t.Errorf("empty builtin not registered (EMPTY-CHECK-DESIGN)")
 	}
 }
 
