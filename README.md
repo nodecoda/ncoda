@@ -24,7 +24,17 @@ go vet ./...
 go test ./...
 ```
 
-Requirements: Go 1.26.5 or newer.
+Requirements: Go 1.26.5 or newer, plus Python 3 with PyYAML for the
+declaration/artifact gates (`pip install pyyaml`).
+
+The four-beat local gate (the same targets CI runs):
+
+```bash
+make check     # gofmt + split audit + builtin contracts + build/vet/test
+make push      # uncached tests + CLI contract smoke
+make nightly   # race detector + repeat run
+make release   # 6-platform binaries + SBOM + checksums
+```
 
 CLI smoke:
 
