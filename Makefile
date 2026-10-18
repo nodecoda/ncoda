@@ -18,9 +18,9 @@ LDFLAGS   = -s -w \
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist dist-check sbom audit contracts-check clean fmt fmt-check test
+.PHONY: check push nightly release dist dist-check sbom audit contracts-check notices-check clean fmt fmt-check test
 
-check: fmt-check audit contracts-check
+check: fmt-check audit contracts-check notices-check
 	$(GO) build ./...
 	$(GO) vet ./...
 	$(GO) test ./...
@@ -49,17 +49,17 @@ dist:
 	  GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $$out ./cmd/nclang-compile; \
 	done
 	@# Apache-2.0 §4(d): ship the License and the NOTICE with the binaries.
-	@cp LICENSE NOTICE $(DIST)/
+	@cp LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/
 	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
-	@cd $(DIST) && sha256sum nclang-* sbom.cdx.json SBOM.txt LICENSE NOTICE > SHA256SUMS
+	@cd $(DIST) && sha256sum nclang-* sbom.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md > SHA256SUMS
 	@echo "artifacts in $(DIST)"
 
 # A release directory is only publishable if every stated artifact is present
 # and the manifest actually verifies. Cheap, and catches "added a file but
 # forgot the checksum" before the tag is pushed.
 dist-check: dist
-	@cd $(DIST) && for f in LICENSE NOTICE sbom.cdx.json SBOM.txt SHA256SUMS; do \
+	@cd $(DIST) && for f in LICENSE NOTICE THIRD-PARTY-NOTICES.md sbom.cdx.json SBOM.txt SHA256SUMS; do \
 	  test -s "$$f" || { echo "dist-check: missing $$f"; exit 1; }; done
 	@cd $(DIST) && sha256sum -c SHA256SUMS --quiet
 	@echo "dist-check: ok ($(DIST))"
@@ -73,6 +73,11 @@ sbom:
 contracts-check:
 	@python3 scripts/builtin_contract_check.py --check
 	@python3 scripts/test_builtin_contract_check.py -q
+
+# Third-party attribution shipped with the binaries (Apache-2.0 §4(d), MIT/BSD notices).
+notices-check:
+	@python3 scripts/gen_third_party_notices.py --check THIRD-PARTY-NOTICES.md
+	@python3 scripts/test_gen_third_party_notices.py -q
 
 # Open-core boundary (O2 split invariants), plus its own negative tests.
 audit:
