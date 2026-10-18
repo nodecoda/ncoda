@@ -18,9 +18,9 @@ LDFLAGS   = -s -w \
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist sbom audit clean fmt fmt-check test
+.PHONY: check push nightly release dist sbom audit contracts-check clean fmt fmt-check test
 
-check: fmt-check audit
+check: fmt-check audit contracts-check
 	$(GO) build ./...
 	$(GO) vet ./...
 	$(GO) test ./...
@@ -57,6 +57,11 @@ dist:
 sbom:
 	@mkdir -p $(DIST)
 	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
+
+# Builtin result contracts: declaration source == generated artifact.
+contracts-check:
+	@python3 scripts/builtin_contract_check.py --check
+	@python3 scripts/test_builtin_contract_check.py -q
 
 # Open-core boundary (O2 split invariants), plus its own negative tests.
 audit:
