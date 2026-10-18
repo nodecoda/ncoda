@@ -47,6 +47,13 @@ jobs:
       - name: Validate SBOM
         run: |
           python3 scripts/gen_sbom.py --check             /tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/sbom.cdx.json
+      - name: Validate artifacts (license manifest)
+        run: |
+          D=/tmp/ncoda-dist-${{ steps.ver.outputs.tag }}
+          for f in LICENSE NOTICE sbom.cdx.json SBOM.txt SHA256SUMS; do
+            test -s "$D/$f" || { echo "missing $f"; exit 1; }
+          done
+          cd "$D" && sha256sum -c SHA256SUMS --quiet
       - name: Install cosign (opt-in)
         if: ${{ vars.NCODA_SIGN == 'true' }}
         uses: sigstore/cosign-installer@v3

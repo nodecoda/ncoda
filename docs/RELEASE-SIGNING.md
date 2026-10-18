@@ -5,7 +5,8 @@
 | File | What it is |
 | --- | --- |
 | `nclang-vX.Y.Z-<os>-<arch>[.exe]` | 6-platform `nclang-compile` binaries (linux/darwin/windows × amd64/arm64) |
-| `SHA256SUMS` | SHA-256 of every binary **plus** the two SBOM files |
+| `SHA256SUMS` | SHA-256 of every binary, the two SBOM files, `LICENSE` and `NOTICE` |
+| `LICENSE`, `NOTICE` | Apache-2.0 license and attribution shipped with the binaries (§4(d)) |
 | `sbom.cdx.json` | CycloneDX 1.5 SBOM (one component per Go module) |
 | `SBOM.txt` | `go version -m` build info of the linux/amd64 binary |
 | `SHA256SUMS.cosign.bundle` | keyless cosign bundle (only when signing is enabled) |
@@ -43,8 +44,9 @@ then:
    this repository's workflow);
 3. verifies the bundle immediately.
 
-Because `SHA256SUMS` covers the binaries and both SBOM files, one signature
-covers the whole artifact set.
+Because `SHA256SUMS` covers the binaries, both SBOM files, and the
+license/attribution files, one signature covers the whole artifact set.
+`make dist-check` re-verifies presence and checksums before publication.
 
 Verify a downloaded release:
 

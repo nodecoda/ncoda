@@ -56,8 +56,9 @@ printf 'workflow w { agent main { } }\n' | go run ./cmd/nclang-compile
 
 ## Releases
 
-`make dist VERSION=vX.Y.Z` builds the 6-platform binaries, a CycloneDX SBOM and
-checksums. Signing is opt-in (`NCODA_SIGN=true`); see
+`make dist VERSION=vX.Y.Z` builds the 6-platform binaries, a CycloneDX SBOM,
+the license/attribution files and checksums; `make dist-check` verifies the
+manifest before publication. Signing is opt-in (`NCODA_SIGN=true`); see
 `docs/RELEASE-SIGNING.md` for the artifact list, SBOM format and verification
 commands.
 
