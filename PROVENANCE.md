@@ -20,7 +20,7 @@ from the private governance repository `godcc`.
   3. Closed-side generated contract data (`contracts_coze_gen.go`) is removed;
      the open build registers only the Dify contract.
   4. Internal absolute paths were neutralised; the public tree contains no
-     `/home/dev/` references.
+     developer-machine paths.
   5. Cross-platform census tests skip directories/contracts that do not exist
      in this module (the commercial repository keeps the full scan surface).
 
