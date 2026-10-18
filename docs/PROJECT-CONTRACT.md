@@ -807,7 +807,7 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
      ⇒ AGENTS.md 的「**无开工闸门**」= 无**自动**开工闸门（该脚本头注第 7–11 行已就地写清）。
   2. **形态守卫债务：已收口（2026-09-29 一手核实）——本行此前误报为「尚未重造」，是
      判据已立而文字未跟，属**腐化**，就地更正** ——判据 = **R-P1**，实现 =
-     `scripts/lib_gates.sh::godcc_added_guard_lines`（:161）——判的是「shared 层新增的形态守卫行
+     治理脚本（不在本仓；规则 =「shared 层新增的形态守卫行
      必须就地标 `//@guard-exempt:`」；消费点 = `scripts/commit_gate.sh`
      （:18 声明 / :10 清单；`--pre-commit` 子集**含** R-P1，见该脚本头注 :37-38），
      入口 = `make gate-precommit` **秒级面**，锁 = `bash scripts/test_commit_gate.sh`
