@@ -22,6 +22,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # `secrets` 不能直接出现在步骤的 `if:` 里（GitHub 会判 workflow 文件无效：
+    # Unrecognized named-value: 'secrets'）。先落到 job 级 env，再用 env 判。
+    env:
+      PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -72,7 +76,7 @@ jobs:
           name: nclang-${{ steps.ver.outputs.tag }}
           path: /tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/*
       - name: Publish to nodecoda/ncoda-release
-        if: ${{ secrets.PUBLISH_TOKEN != '' }}
+        if: ${{ env.PUBLISH_TOKEN != '' }}
         uses: softprops/action-gh-release@v2
         with:
           repository: nodecoda/ncoda-release
