@@ -817,7 +817,16 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 					aggEdges = append(aggEdges, aggEdge{src: id, port: ""})
 				}
 			}
-			if s.Merge == nil {
+			if len(s.Branches) == 0 {
+				// 无动作形态（builder S1：`return []string{qaID}`）：
+				// ask 没有臂 ⇒ 没有 junction、没有汇聚、没有端口；控制
+				// **直通**宿主节点自身（平台 = 单条无标签推进口）。漏掉
+				// 这一条会让 merge-less 零臂 QaStmt 的 current 为空 ⇒ 后续
+				// 语句被 dead-path cut 当成不可达静默丢弃；若它位于 if 单臂
+				// 内，该臂出口消失 ⇒ 外层 merge 被 pass-through 跳过 ⇒ 下游
+				// ref 指向不存在的 merge（RDANGLING_REF，2026-10-20 实测）。
+				current = []string{s.ID}
+			} else if s.Merge == nil {
 				// junction 已被 IR 优化阶段删除（零候选：所有臂都不产出值
 				// ⇒ 本宿主**没有值**）⇒ 按 merge-less 投影，与 IfStmt 的
 				// `s.Merge == nil` 分支同型：真实臂尾透传给续接消费者，

@@ -520,3 +520,37 @@ func TestProjectNestedElseLessFalsePathFolded(t *testing.T) {
 		t.Fatal("missing inner else-less false path edge: inner --false--> after (folded junction)")
 	}
 }
+
+// Regression (2026-10-20, corpus 7574994076144779304_calendar_helper):
+// a no-action `ask` (builder S1: no arms => no ports => control passes
+// straight through the QA node) used to project an EMPTY exit junction.
+// The block's next statement was then cut as unreachable. When the ask sits
+// in one arm of an if, the arm loses its exit => the outer merge is
+// pass-through skipped => a downstream ref still names the unprojected merge
+// (runtime RDANGLING_REF). The IR builder already returns [qaID] for this
+// form; the projection must mirror it.
+func TestProjectNoActionQaPassesControlThrough(t *testing.T) {
+	qa := &ir.QaStmt{ID: "qa", QA: &ir.QA{ID: "qa", TextForm: true}}
+	p := mustProject(t, graph(qa, stmt("after")))
+	assertEdges(t, p.Edges, []flow.Edge{
+		{SourceNodeID: "start", TargetNodeID: "qa"},
+		{SourceNodeID: "qa", TargetNodeID: "after"},
+	})
+}
+
+// Same shape one level down: an empty then arm contributes its selector port,
+// the else arm ends in a no-action ask, and the surviving merge must be
+// materialized with BOTH branch ports declared.
+func TestProjectNoActionQaKeepsEnclosingMerge(t *testing.T) {
+	qa := &ir.QaStmt{ID: "qa", QA: &ir.QA{ID: "qa", TextForm: true}}
+	outer := ifStmt("outer", &ir.Block{}, &ir.Block{Stmts: []ir.Stmt{qa}}, "merge")
+
+	p := mustProject(t, graph(outer, stmt("after")))
+	assertEdges(t, p.Edges, []flow.Edge{
+		{SourceNodeID: "start", TargetNodeID: "outer"},
+		{SourceNodeID: "outer", TargetNodeID: "qa", SourcePortID: "false"},
+		{SourceNodeID: "outer", TargetNodeID: "merge", SourcePortID: "true"},
+		{SourceNodeID: "qa", TargetNodeID: "merge"},
+		{SourceNodeID: "merge", TargetNodeID: "after"},
+	})
+}
