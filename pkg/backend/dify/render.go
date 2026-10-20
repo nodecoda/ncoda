@@ -46,9 +46,30 @@ func RenderFromIR(irg *ir.Graph, mode string) (*WorkflowAST, error) {
 // calls through a closed Dify binding manifest. A nil manifest preserves the
 // legacy symbolic provider/tool fields.
 func RenderFromIRWithToolBindings(irg *ir.Graph, mode string, toolBindings *ToolBindingManifest, registry *tool.Registry) (*WorkflowAST, error) {
+	ast, _, err := render(irg, mode, toolBindings, registry)
+	return ast, err
+}
+
+// RenderFromIRWithAudit renders like RenderFromIR and additionally returns
+// the IR-node-id → Dify-node-id mapping the renderer used. The mapping is a
+// clone; mutating it does not affect the AST. It exists for obligation
+// reporting and must not alter rendered bytes.
+func RenderFromIRWithAudit(irg *ir.Graph, mode string) (*WorkflowAST, map[string]string, error) {
+	return render(irg, mode, nil, nil)
+}
+
+// RenderFromIRWithToolBindingsAndAudit is the audit variant of
+// RenderFromIRWithToolBindings.
+func RenderFromIRWithToolBindingsAndAudit(irg *ir.Graph, mode string, toolBindings *ToolBindingManifest, registry *tool.Registry) (*WorkflowAST, map[string]string, error) {
+	return render(irg, mode, toolBindings, registry)
+}
+
+// render is the implementation shared by the public entry points. The second
+// result is the audit id map; it is nil when rendering fails.
+func render(irg *ir.Graph, mode string, toolBindings *ToolBindingManifest, registry *tool.Registry) (*WorkflowAST, map[string]string, error) {
 	projection, err := flow.Project(irg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	llmPlan := llmprojection.Lower(projection, llmprojection.MetadataPolicy{
 		ReasoningContent: true,
@@ -160,7 +181,7 @@ func RenderFromIRWithToolBindings(irg *ir.Graph, mode string, toolBindings *Tool
 			continue
 		}
 		if err := r.emitNode(n); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		// A condition materializer emits its selector edge before its own
 		// incoming edges (legacy edge order: materializer→if, then
@@ -181,7 +202,7 @@ func RenderFromIRWithToolBindings(irg *ir.Graph, mode string, toolBindings *Tool
 			r.emitBranchEnd(be)
 		}
 		if err := r.emitInEdges(n.NodeID()); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		if edge, ok := r.extractionEdges[n.NodeID()]; ok {
 			edge.ID = r.nextEdgeID()
@@ -193,7 +214,7 @@ func RenderFromIRWithToolBindings(irg *ir.Graph, mode string, toolBindings *Tool
 		}
 		if loop, ok := n.(*flow.ProjectedLoop); ok {
 			if err := r.emitProjectedLoopEdges(loop); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 		// Decomposed branch returns: direct QA ends, per-producer ends, then
@@ -211,7 +232,11 @@ func RenderFromIRWithToolBindings(irg *ir.Graph, mode string, toolBindings *Tool
 			r.emitStructuredEntry(e)
 		}
 	}
-	return r.ast, nil
+	ids := make(map[string]string, len(r.difyIDs))
+	for k, v := range r.difyIDs {
+		ids[k] = v
+	}
+	return r.ast, ids, nil
 }
 
 // planImplicitEnds drops implicit terminal Ends: the IR marks an end
