@@ -17,6 +17,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/ast"
 	"github.com/nodecoda/ncoda/pkg/binding"
 	"github.com/nodecoda/ncoda/pkg/diag"
+	"github.com/nodecoda/ncoda/pkg/llm"
 	"github.com/nodecoda/ncoda/pkg/tool"
 	"github.com/nodecoda/ncoda/pkg/types"
 )
@@ -91,27 +92,17 @@ func (p *TypePass) visitArrayLit(n *ast.ArrayLit) *types.Descriptor {
 // aggregate rules (E1003 on incompatible joins). This is also the MapLit
 // panic-release point: every MapLit in a clean program receives a map or
 // record type, so binding.TypeBind's requireAggregates guard never fires.
-// llmConfigKnownKeyTypes 定义 llm() config 已知键的期望类型
-// （ANY-SHRINK L1-a）。可选性用 OptionalType 表达（键缺失合法），
-// 不塞进 any；int→float 拓宽由 IsAssignable 提供（temperature/top_p
-// 语料实证：0.8/1 都合法）。未知键保持开放（map<string,any>, L2 边界）。
-var llmConfigKnownKeyTypes = map[string]*types.Descriptor{
-	"temperature":      types.OptionalType(types.FloatType()),
-	"top_p":            types.OptionalType(types.FloatType()),
-	"max_tokens":       types.OptionalType(types.IntType()),
-	"timeout_ms":       types.OptionalType(types.IntType()),
-	"model":            types.OptionalType(types.StringType()),
-	"systemPrompt":     types.OptionalType(types.StringType()),
-	"userPrompt":       types.OptionalType(types.StringType()),
-	"reasoning_format": types.OptionalType(types.StringType()),
-	"stream":           types.OptionalType(types.BoolType()),
-	"model_name":       types.OptionalType(types.StringType()),
-	// R-73 (a) 余项（用户 2026-09-25 批准）：生成多样性旋钮**有载体**却不在这张表里
-	// ⇒ 它是开放键（any）⇒ `{"generation_diversity": 123}` 今天能编译，而 lowering
-	// 的 `cfg.Value.(string)` 判据失败 ⇒ 静默回落 `default_val`（作者取值丢失）。
-	// 纳入类型表 = 类型系统变更：非 string 值从「静默回落」变 **TYPE_MISMATCH**（拒收）。
-	"generation_diversity": types.OptionalType(types.StringType()),
-}
+// llmConfigKnownKeyTypes 从 pkg/llm.Vocabulary **派生**（一处定义，2026-10-20）。
+//
+// 可选性用 OptionalType 表达（键缺失合法）；int→float 拓宽由 IsAssignable
+// 提供（temperature/top_p 语料实证：0.8/1 都合法）；未知键保持开放
+// （map<string,any>, L2 边界）。
+//
+// 以前这张表是手写的，与 coze-biz lowering、gateway adapter 白名单三处独立
+// 演化（新增一个键要改三处，且可以静默分叉）。词表成为唯一权威后，这里只做
+// 「词表 → 类型检查表」的投影；别名（generation_diversity / model_name）也
+// 从词表带类型，旧源码继续受类型检查保护。
+var llmConfigKnownKeyTypes = llm.KnownKeyTypes()
 
 // checkLLMConfig 显式检查 llm() config 的已知键类型（ANY-SHRINK L1-a
 // 推广 checkLLMMessageContents 为通用 config 校验）。聚合路径在 Any
@@ -128,9 +119,27 @@ func (p *TypePass) checkLLMConfig(config *ast.MapLit) {
 			p.checkLLMMessageContents(config)
 			continue
 		}
-		expected, known := llmConfigKnownKeyTypes[key]
+		spec, known := llm.Lookup(key)
 		if !known {
-			continue // 未知键: L2 边界保持开放
+			continue // 未知名：L2 边界保持开放
+		}
+		if spec.Deprecated != "" {
+			p.emitWarning(diag.LLM_CONFIG_DEPRECATED,
+				fmt.Sprintf("llm config key '%s' is deprecated: %s", key, spec.Deprecated),
+				entry.Key.Span())
+		}
+		if len(spec.AllowedValues) > 0 {
+			// 枚举值检查是**值**层面的事（类型系统只有 string，没有 union /
+			// 字面量枚举）。旧数值码按 AllowLegacyInt 降级为 warning。
+			// 字面量已由本函数完整判定 ⇒ 跳过下面的通用类型检查（避免
+			// response_format: 9 同时报「枚举非法」和「int 不是 string」两条）。
+			if p.checkLLMConfigEnum(key, spec, entry.Value) {
+				continue
+			}
+		}
+		expected := spec.Type
+		if expected == nil {
+			continue
 		}
 		t := p.visit(entry.Value)
 		if t == nil || t.Kind == types.Null {
@@ -141,6 +150,36 @@ func (p *TypePass) checkLLMConfig(config *ast.MapLit) {
 				"llm config key '%s' expected %s, got %s", key, expected, t), entry.Value.Span())
 		}
 	}
+}
+
+// checkLLMConfigEnum 校验字符串枚举键（当前只有 response_format）。
+// 返回 true = 字面量已完整判定（调用方跳过通用类型检查）。
+//
+// 非字面量（变量 / 表达式）返回 false：类型检查仍然要求 string；运行期取值由
+// 目标绑定层校验（coze-biz：compile-side ledger；gateway：param_policy）。
+func (p *TypePass) checkLLMConfigEnum(key string, spec llm.KeySpec, expr ast.Expr) bool {
+	switch v := expr.(type) {
+	case *ast.StringLit:
+		for _, allowed := range spec.AllowedValues {
+			if v.Value() == allowed {
+				return true
+			}
+		}
+		p.emit(diag.TYPE_MISMATCH, fmt.Sprintf(
+			"llm config key '%s' expected one of %v, got %q", key, spec.AllowedValues, v.Value()), expr.Span())
+		return true
+	case *ast.IntLit:
+		if spec.AllowLegacyInt && v.Value() >= 0 && v.Value() <= 2 {
+			p.emitWarning(diag.LLM_CONFIG_DEPRECATED, fmt.Sprintf(
+				"llm config key '%s': numeric code %d is deprecated; use \"text\" / \"json\" / \"markdown\"",
+				key, v.Value()), expr.Span())
+			return true
+		}
+		p.emit(diag.TYPE_MISMATCH, fmt.Sprintf(
+			"llm config key '%s' expected one of %v, got %d", key, spec.AllowedValues, v.Value()), expr.Span())
+		return true
+	}
+	return false
 }
 
 // checkLLMMessageContents 显式检查 llm() config 的 messages 消息体:

@@ -114,6 +114,14 @@ const (
 	// 方向纪律：只许放宽，不许收紧（多值不许取首）。见
 	// pkg/passes/target_validation.go 的 fileContractCapacity。
 	TARGET_CONTRACT_DEGRADED Code = 2013
+	// LLM_CONFIG_DEPRECATED (2014, Go-native)：llm() config 的旧键 / 旧值形态
+	// 仍在迁移窗口内。可编译（warning），但作者应改用规范名：
+	//   generation_diversity → coze:generation_diversity
+	//   model_name           → coze:model_name
+	//   model / userPrompt / systemPrompt → 第一参数 / messages
+	//   response_format 数值码 → "text" / "json" / "markdown"
+	// 正本 = pkg/llm/vocabulary.go。
+	LLM_CONFIG_DEPRECATED Code = 2014
 )
 
 // names mirrors the Python enum member names for stable serialization.
@@ -158,6 +166,7 @@ var names = map[Code]string{
 	CROSS_TYPE_EQUALITY:             "CROSS_TYPE_EQUALITY",
 	REDUNDANT_COALESCE:              "REDUNDANT_COALESCE",
 	TARGET_CONTRACT_DEGRADED:        "TARGET_CONTRACT_DEGRADED",
+	LLM_CONFIG_DEPRECATED:           "LLM_CONFIG_DEPRECATED",
 }
 
 // String returns the Python-equivalent enum member name.

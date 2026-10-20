@@ -76,6 +76,80 @@ func TestLLMConfigKnownKeyTypes(t *testing.T) {
 	}
 }
 
+// runLLMConfigDiagCount 编译并返回指定 code 的**全部**诊断（含 warning）。
+func runLLMConfigDiagCount(t *testing.T, body string, code diag.Code, severity diag.Severity) int {
+	t.Helper()
+	src := `@language nodecoda/1
+@mode workflow
+function main() -> string {
+` + body + `
+    return "";
+}`
+	res := DefaultPipeline().Run(src, "llm-config-check.ncoda", nil)
+	n := 0
+	for _, d := range res.Diagnostics {
+		if d.Code == code && d.Severity == severity {
+			n++
+		}
+	}
+	return n
+}
+
+func TestLLMConfigSEEDAndResponseFormat(t *testing.T) {
+	cases := []struct {
+		name       string
+		body       string
+		wantErrors int
+	}{
+		{"seed-int", `let r = llm("m", { "seed": 42 });`, 0},
+		{"seed-string-bad", `let r = llm("m", { "seed": "42" });`, 1},
+		{"response-format-json", `let r = llm("m", { "response_format": "json" });`, 0},
+		{"response-format-markdown", `let r = llm("m", { "response_format": "markdown" });`, 0},
+		{"response-format-text", `let r = llm("m", { "response_format": "text" });`, 0},
+		{"response-format-bogus", `let r = llm("m", { "response_format": "xml" });`, 1},
+		{"response-format-legacy-code", `let r = llm("m", { "response_format": 2 });`, 0},
+		{"response-format-legacy-code-bad", `let r = llm("m", { "response_format": 9 });`, 1},
+		{"stop-open", `let r = llm("m", { "stop": ["END"] });`, 0},
+		{"frequency-penalty-float", `let r = llm("m", { "frequency_penalty": 0.5 });`, 0},
+		{"frequency-penalty-string-bad", `let r = llm("m", { "frequency_penalty": "0.5" });`, 1},
+		{"coze-extension-open", `let r = llm("m", { "coze:anything": "x" });`, 0},
+		{"generation-diversity-int-bad", `let r = llm("m", { "generation_diversity": 123 });`, 1},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := runLLMConfigTypeCheck(t, tc.body); got != tc.wantErrors {
+				t.Errorf("got %d TYPE_MISMATCH, want %d (body=%s)", got, tc.wantErrors, tc.body)
+			}
+		})
+	}
+}
+
+func TestLLMConfigDeprecatedKeysWarn(t *testing.T) {
+	cases := []string{
+		`let r = llm("m", { "generation_diversity": "balance" });`,
+		`let r = llm("m", { "model_name": "豆包" });`,
+		`let r = llm("m", { "model": "gpt-4o" });`,
+		`let r = llm("m", { "systemPrompt": "sys" });`,
+		`let r = llm("m", { "userPrompt": "usr" });`,
+		`let r = llm("m", { "response_format": 2 });`,
+	}
+	for _, body := range cases {
+		if n := runLLMConfigDiagCount(t, body, diag.LLM_CONFIG_DEPRECATED, diag.Warning); n != 1 {
+			t.Errorf("want 1 LLM_CONFIG_DEPRECATED warning, got %d (body=%s)", n, body)
+		}
+	}
+	// 规范名 / 新写法不产生 deprecation warning。
+	for _, body := range []string{
+		`let r = llm("m", { "coze:generation_diversity": "balance" });`,
+		`let r = llm("m", { "coze:model_name": "豆包" });`,
+		`let r = llm("m", { "response_format": "json" });`,
+	} {
+		if n := runLLMConfigDiagCount(t, body, diag.LLM_CONFIG_DEPRECATED, diag.Warning); n != 0 {
+			t.Errorf("canonical form must not warn, got %d (body=%s)", n, body)
+		}
+	}
+}
+
 func TestLLMConfigMessagesRoleEnforced(t *testing.T) {
 	// messages 元素 role 也必须是 string（与 content 同级）。
 	if n := runLLMConfigTypeCheck(t, `let r = llm("m", { "messages": [ { "role": 7, "content": "hi" } ] });`); n == 0 {
