@@ -72,7 +72,7 @@ func Semantics(g *ir.Graph) (*obligation.Semantics, error) {
 	if g.Root == nil {
 		return nil, fmt.Errorf("flow: semantics: graph has no structured root")
 	}
-	e := &semanticsExtractor{
+	s := &semSolver{
 		sem: &obligation.Semantics{
 			Constructs:  make([]obligation.Construct, 0),
 			Obligations: make([]obligation.Obligation, 0),
@@ -81,9 +81,11 @@ func Semantics(g *ir.Graph) (*obligation.Semantics, error) {
 		},
 		seenNodes: map[string]bool{},
 		seenMerge: map[string]bool{},
+		seenObl:   map[string]bool{},
+		seenRef:   map[string]bool{},
 	}
-	e.walkBlock(g.Root)
-	return e.sem, nil
+	s.block(g.Root)
+	return s.sem, nil
 }
 
 // ProjectFromPlan rebuilds the exact projection frozen by Plan: the same
@@ -139,127 +141,318 @@ func (v projectionView) Edges() []obligation.EdgeView {
 
 func (v projectionView) Refs() []obligation.RefView { return nil }
 
-// semanticsExtractor walks the structured tree in source order. It is
-// read-only and deterministic: no map iteration reaches the output.
-type semanticsExtractor struct {
+// blockFlow is the target-independent control-flow summary of one block.
+// It is derived from the structured IR only; no backend projection helper is
+// consulted (P1b: one solver, no owePort/drainPorts/recordSkippedMerge).
+type blockFlow struct {
+	entry    string
+	exits    []string
+	terminal string // flow | return | break | continue | none
+	empty    bool
+}
+
+// semSolver walks the IR in source order and records A-class facts. It is
+// deterministic: all collections are slices, and map iteration never reaches
+// the output.
+type semSolver struct {
 	sem       *obligation.Semantics
 	seenNodes map[string]bool
 	seenMerge map[string]bool
+	seenObl   map[string]bool
+	seenRef   map[string]bool
 }
 
-func (e *semanticsExtractor) walkBlock(b *ir.Block) {
-	if b == nil {
-		return
+func (s *semSolver) block(b *ir.Block) blockFlow {
+	if b == nil || len(b.Stmts) == 0 {
+		return blockFlow{empty: true, terminal: "none"}
 	}
-	for _, s := range b.Stmts {
-		e.walkStmt(s)
+	var entry string
+	var last blockFlow
+	for i, st := range b.Stmts {
+		next := nextStmtID(b.Stmts[i+1:])
+		f := s.stmt(st, next)
+		if entry == "" {
+			entry = f.entry
+		}
+		last = f
+		if f.terminal != "" && f.terminal != "flow" {
+			for _, rest := range b.Stmts[i+1:] {
+				s.unreachable(rest)
+			}
+			return blockFlow{entry: entry, exits: nil, terminal: f.terminal}
+		}
 	}
+	if last.terminal == "" {
+		last.terminal = "flow"
+	}
+	last.entry = entry
+	return last
 }
 
-func (e *semanticsExtractor) walkStmt(s ir.Stmt) {
-	switch st := s.(type) {
+func (s *semSolver) stmt(st ir.Stmt, next string) blockFlow {
+	switch st := st.(type) {
 	case *ir.NodeStmt:
-		if st.Node != nil {
-			e.addNode(st.Node.NodeID(), string(st.Node.Kind()))
+		if st.Node == nil {
+			return blockFlow{terminal: "flow"}
 		}
+		id := st.Node.NodeID()
+		s.addNode(id, string(st.Node.Kind()), true)
+		return blockFlow{entry: id, exits: []string{id}, terminal: "flow"}
+
 	case *ir.IfStmt:
-		e.addIf(st)
-	case *ir.LoopStmt:
-		e.addLoop(st)
+		return s.ifStmt(st, next)
+
 	case *ir.AttemptStmt:
-		e.addAttempt(st)
+		return s.attempt(st, next)
+
 	case *ir.QaStmt:
-		e.addQa(st)
+		return s.qa(st, next)
+
 	case *ir.SwitchStmt:
-		e.addSwitch(st)
+		return s.switchStmt(st, next)
+
+	case *ir.LoopStmt:
+		return s.loop(st, next)
+
 	case *ir.ParallelStmt:
-		e.addParallel(st)
-	case *ir.InlineStmt:
-		e.walkBlock(st.Body)
+		return s.parallel(st)
+
 	case *ir.ReturnStmt:
+		var id string
 		if st.End != nil {
-			e.addNode(st.End.ID, string(st.End.Kind()))
+			id = st.End.ID
+			s.addNode(id, "end", true)
 		}
+		return blockFlow{entry: id, terminal: "return"}
+
 	case *ir.BreakStmt:
 		if st.Node != nil {
-			e.addNode(st.Node.ID, string(st.Node.Kind()))
+			s.addNode(st.Node.ID, "break", true)
+			return blockFlow{entry: st.Node.ID, terminal: "break"}
 		}
+		return blockFlow{terminal: "break"}
+
 	case *ir.ContinueStmt:
 		if st.Node != nil {
-			e.addNode(st.Node.ID, string(st.Node.Kind()))
+			s.addNode(st.Node.ID, "continue", true)
+			return blockFlow{entry: st.Node.ID, terminal: "continue"}
 		}
+		return blockFlow{terminal: "continue"}
+
+	case *ir.InlineStmt:
+		return s.block(st.Body)
 	}
+	return blockFlow{terminal: "flow"}
 }
 
-func (e *semanticsExtractor) addIf(st *ir.IfStmt) {
+func (s *semSolver) ifStmt(st *ir.IfStmt, next string) blockFlow {
+	thenF := s.block(st.Then)
+	elseF := s.block(st.Else)
+
 	c := obligation.Construct{
 		ID:    st.ID,
 		Kind:  "if",
 		Arms:  make([]obligation.ArmPlan, 0, 2+len(st.ChainArms)),
-		Merge: e.mergePlan(st.Merge),
+		Merge: s.mergePlan(st.Merge),
 	}
 	c.Arms = append(c.Arms,
-		e.armPlan("then", "true", st.Then),
-		e.armPlan("else", "false", st.Else),
+		s.armPlanFromFlow("then", "true", thenF),
+		s.armPlanFromFlow("else", "false", elseF),
 	)
 	for i, chain := range st.ChainArms {
 		if chain == nil {
 			continue
 		}
-		c.Arms = append(c.Arms, e.armPlan(fmt.Sprintf("elif_%d", i+1), fmt.Sprintf("true_%d", i+1), chain.Block))
+		cf := s.block(chain.Block)
+		c.Arms = append(c.Arms, s.armPlanFromFlow(
+			fmt.Sprintf("elif_%d", i+1), fmt.Sprintf("true_%d", i+1), cf))
 	}
 	var cond ir.Node
 	if st.Cond != nil {
 		cond = st.Cond
 	}
-	e.addConstruct(c, cond)
-	e.addEmptyArmObligations(st)
-	e.walkBlock(st.Then)
-	e.walkBlock(st.Else)
-	for _, chain := range st.ChainArms {
-		if chain != nil {
-			e.walkBlock(chain.Block)
+	s.addConstruct(c, cond)
+	s.addMergeRefs(st.Merge)
+
+	group := "Group1"
+	if st.Merge != nil {
+		if name, _ := firstClosure(st.Merge); name != "" {
+			group = name
 		}
+	}
+	if st.Merge != nil {
+		s.addObligation(st.ID, "true", group, st.Merge.ID, "merge", true)
+		if st.Else != nil || len(st.ChainArms) > 0 {
+			s.addObligation(st.ID, "false", group, st.Merge.ID, "merge", true)
+		}
+		for i := range st.ChainArms {
+			s.addObligation(st.ID, fmt.Sprintf("true_%d", i+1), group, st.Merge.ID, "merge", true)
+		}
+	} else {
+		s.addObligation(st.ID, "true", group, next, "flow", next != "")
+		s.addObligation(st.ID, "false", group, next, "flow", next != "")
+		for i := range st.ChainArms {
+			s.addObligation(st.ID, fmt.Sprintf("true_%d", i+1), group, next, "flow", next != "")
+		}
+	}
+
+	switch {
+	case st.Merge != nil && len(thenF.exits) > 0 && len(elseF.exits) > 0:
+		return blockFlow{entry: st.ID, exits: []string{st.Merge.ID}, terminal: "flow"}
+	case st.Merge != nil && len(thenF.exits) > 0:
+		return blockFlow{entry: st.ID, exits: thenF.exits, terminal: "flow"}
+	case st.Merge != nil && len(elseF.exits) > 0:
+		return blockFlow{entry: st.ID, exits: elseF.exits, terminal: "flow"}
+	case st.Merge == nil:
+		exits := unionIDs(thenF.exits, elseF.exits)
+		if st.Else == nil && next == "" && st.ID != "" {
+			exits = appendUnique(exits, st.ID)
+		}
+		return blockFlow{entry: st.ID, exits: exits, terminal: "flow"}
+	default:
+		term := "none"
+		if thenF.terminal != "flow" || elseF.terminal != "flow" {
+			term = "return"
+		}
+		return blockFlow{entry: st.ID, terminal: term}
 	}
 }
 
-func (e *semanticsExtractor) addEmptyArmObligations(st *ir.IfStmt) {
-	if st.Merge == nil {
-		return
+func (s *semSolver) attempt(st *ir.AttemptStmt, next string) blockFlow {
+	succF := s.block(st.Success)
+	failF := s.block(st.Failure)
+	c := obligation.Construct{
+		ID:    st.ID,
+		Kind:  "attempt",
+		Arms:  []obligation.ArmPlan{s.armPlanFromFlow("ok", "success", succF), s.armPlanFromFlow("err", "fail-branch", failF)},
+		Merge: s.mergePlan(st.Exit),
 	}
-	group, candidates := firstClosure(st.Merge)
-	for _, arm := range []struct {
-		name string
-		port string
-		body *ir.Block
-	}{
-		{name: "then", port: "true", body: st.Then},
-		{name: "else", port: "false", body: st.Else},
-	} {
-		if arm.body != nil && len(arm.body.Stmts) > 0 {
-			continue
+	var op ir.Node
+	if st.Op != nil {
+		op = st.Op
+	}
+	s.addConstruct(c, op)
+	s.addMergeRefs(st.Exit)
+
+	group := "Group1"
+	if st.Exit != nil {
+		if name, _ := firstClosure(st.Exit); name != "" {
+			group = name
 		}
-		e.sem.Obligations = append(e.sem.Obligations, obligation.Obligation{
-			Selector:   st.ID,
-			Port:       arm.port,
-			Group:      group,
-			Target:     st.Merge.ID,
-			TargetKind: "merge",
-			Candidates: candidates,
-			Status:     obligation.ObligationClosed,
-		})
 	}
+	target := next
+	kind := "flow"
+	if st.Exit != nil {
+		target = st.Exit.ID
+		kind = "merge"
+	}
+	closed := target != ""
+	s.addObligation(st.ID, "success", group, target, kind, closed)
+	s.addObligation(st.ID, "fail-branch", group, target, kind, closed)
+
+	if st.Exit != nil && len(succF.exits) > 0 && len(failF.exits) > 0 {
+		return blockFlow{entry: st.ID, exits: []string{st.Exit.ID}, terminal: "flow"}
+	}
+	return blockFlow{entry: st.ID, exits: unionIDs(succF.exits, failF.exits), terminal: "flow"}
 }
 
-func (e *semanticsExtractor) addLoop(st *ir.LoopStmt) {
+func (s *semSolver) qa(st *ir.QaStmt, next string) blockFlow {
+	flows := make([]blockFlow, 0, len(st.Branches))
+	c := obligation.Construct{
+		ID:    st.ID,
+		Kind:  "ask",
+		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
+		Merge: s.mergePlan(st.Merge),
+	}
+	for _, b := range st.Branches {
+		f := s.block(b.Body)
+		flows = append(flows, f)
+		c.Arms = append(c.Arms, s.armPlanFromFlow(b.Port, b.Port, f))
+	}
+	var qa ir.Node
+	if st.QA != nil {
+		qa = st.QA
+	}
+	s.addConstruct(c, qa)
+	s.addMergeRefs(st.Merge)
+
+	if len(st.Branches) == 0 {
+		return blockFlow{entry: st.ID, exits: []string{st.ID}, terminal: "flow"}
+	}
+	group := "Group1"
+	if st.Merge != nil {
+		if name, _ := firstClosure(st.Merge); name != "" {
+			group = name
+		}
+	}
+	target := next
+	kind := "flow"
+	if st.Merge != nil {
+		target = st.Merge.ID
+		kind = "merge"
+	}
+	for _, b := range st.Branches {
+		s.addObligation(st.ID, b.Port, group, target, kind, target != "")
+	}
+	exits := unionFlows(flows)
+	if st.Merge != nil && len(exits) > 0 {
+		exits = []string{st.Merge.ID}
+	}
+	return blockFlow{entry: st.ID, exits: exits, terminal: "flow"}
+}
+
+func (s *semSolver) switchStmt(st *ir.SwitchStmt, next string) blockFlow {
+	flows := make([]blockFlow, 0, len(st.Branches))
+	c := obligation.Construct{
+		ID:    st.ID,
+		Kind:  "switch",
+		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
+		Merge: s.mergePlan(st.Merge),
+	}
+	for _, b := range st.Branches {
+		f := s.block(b.Body)
+		flows = append(flows, f)
+		c.Arms = append(c.Arms, s.armPlanFromFlow(b.Port, b.Port, f))
+	}
+	var sw ir.Node
+	if st.Switch != nil {
+		sw = st.Switch
+	}
+	s.addConstruct(c, sw)
+	s.addMergeRefs(st.Merge)
+
+	group := "Group1"
+	if st.Merge != nil {
+		if name, _ := firstClosure(st.Merge); name != "" {
+			group = name
+		}
+	}
+	target := next
+	kind := "flow"
+	if st.Merge != nil {
+		target = st.Merge.ID
+		kind = "merge"
+	}
+	for _, b := range st.Branches {
+		s.addObligation(st.ID, b.Port, group, target, kind, target != "")
+	}
+	exits := unionFlows(flows)
+	if st.Merge != nil && len(exits) > 0 {
+		exits = []string{st.Merge.ID}
+	}
+	return blockFlow{entry: st.ID, exits: exits, terminal: "flow"}
+}
+
+func (s *semSolver) loop(st *ir.LoopStmt, next string) blockFlow {
+	bodyF := s.block(st.Body)
 	c := obligation.Construct{
 		ID:   st.ID,
 		Kind: "loop",
 		Arms: make([]obligation.ArmPlan, 0),
 		Loop: &obligation.LoopPlan{
-			Entry: blockEntry(st.Body),
-			Back:  make([]string, 0), // G004 solver computes real back edges.
-			Exit:  "",
+			Entry: bodyF.entry,
+			Back:  collectContinues(st.Body),
+			Exit:  next,
 			Body:  blockIDs(st.Body),
 		},
 	}
@@ -267,151 +460,248 @@ func (e *semanticsExtractor) addLoop(st *ir.LoopStmt) {
 	if st.Container != nil {
 		container = st.Container
 	}
-	e.addConstruct(c, container)
-	e.walkBlock(st.Body)
+	s.addConstruct(c, container)
+	return blockFlow{entry: st.ID, exits: []string{st.ID}, terminal: "flow"}
 }
 
-func (e *semanticsExtractor) addAttempt(st *ir.AttemptStmt) {
-	c := obligation.Construct{
-		ID:    st.ID,
-		Kind:  "attempt",
-		Arms:  []obligation.ArmPlan{e.armPlan("ok", "success", st.Success), e.armPlan("err", "error", st.Failure)},
-		Merge: e.mergePlan(st.Exit),
+func (s *semSolver) parallel(st *ir.ParallelStmt) blockFlow {
+	id := st.ID
+	if id == "" {
+		id = "parallel"
+		if len(st.Branches) > 0 {
+			if e := blockEntry(st.Branches[0]); e != "" {
+				id = "parallel-" + e
+			}
+		}
 	}
-	var op ir.Node
-	if st.Op != nil {
-		op = st.Op
-	}
-	e.addConstruct(c, op)
-	e.walkBlock(st.Success)
-	e.walkBlock(st.Failure)
-}
-
-func (e *semanticsExtractor) addQa(st *ir.QaStmt) {
-	c := obligation.Construct{
-		ID:    st.ID,
-		Kind:  "ask",
-		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
-		Merge: e.mergePlan(st.Merge),
-	}
-	for _, b := range st.Branches {
-		c.Arms = append(c.Arms, e.armPlan(b.Port, b.Port, b.Body))
-	}
-	var qa ir.Node
-	if st.QA != nil {
-		qa = st.QA
-	}
-	e.addConstruct(c, qa)
-	for _, b := range st.Branches {
-		e.walkBlock(b.Body)
-	}
-}
-
-func (e *semanticsExtractor) addSwitch(st *ir.SwitchStmt) {
-	c := obligation.Construct{
-		ID:    st.ID,
-		Kind:  "switch",
-		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
-		Merge: e.mergePlan(st.Merge),
-	}
-	for _, b := range st.Branches {
-		c.Arms = append(c.Arms, e.armPlan(b.Port, b.Port, b.Body))
-	}
-	var sw ir.Node
-	if st.Switch != nil {
-		sw = st.Switch
-	}
-	e.addConstruct(c, sw)
-	for _, b := range st.Branches {
-		e.walkBlock(b.Body)
-	}
-}
-
-func (e *semanticsExtractor) addParallel(st *ir.ParallelStmt) {
-	c := obligation.Construct{
-		ID:   st.ID,
-		Kind: "parallel",
-		Arms: make([]obligation.ArmPlan, 0, len(st.Branches)),
-	}
+	flows := make([]blockFlow, 0, len(st.Branches))
+	c := obligation.Construct{ID: id, Kind: "parallel", Arms: make([]obligation.ArmPlan, 0, len(st.Branches))}
 	for i, b := range st.Branches {
-		c.Arms = append(c.Arms, e.armPlan(fmt.Sprintf("branch_%d", i), fmt.Sprintf("branch_%d", i), b))
+		f := s.block(b)
+		flows = append(flows, f)
+		c.Arms = append(c.Arms, s.armPlanFromFlow(fmt.Sprintf("branch_%d", i), fmt.Sprintf("branch_%d", i), f))
 	}
-	e.addConstruct(c, nil)
-	for _, b := range st.Branches {
-		e.walkBlock(b)
-	}
+	s.addConstruct(c, nil)
+	return blockFlow{entry: id, exits: unionFlows(flows), terminal: "flow"}
 }
 
-func (e *semanticsExtractor) addConstruct(c obligation.Construct, node ir.Node) {
-	e.sem.Constructs = append(e.sem.Constructs, c)
-	e.addNode(c.ID, c.Kind)
+func (s *semSolver) armPlanFromFlow(name, port string, f blockFlow) obligation.ArmPlan {
+	arm := obligation.ArmPlan{
+		Name:     name,
+		Port:     port,
+		Exits:    append([]string(nil), f.exits...),
+		Empty:    f.empty,
+		Terminal: "none",
+	}
+	if !f.empty && f.entry != "" {
+		entry := f.entry
+		arm.Entry = &entry
+	}
+	if !f.empty {
+		arm.Terminal = f.terminal
+		if arm.Terminal == "" {
+			arm.Terminal = "flow"
+		}
+	}
+	return arm
+}
+
+func (s *semSolver) addConstruct(c obligation.Construct, node ir.Node) {
+	s.sem.Constructs = append(s.sem.Constructs, c)
+	if c.ID != "" {
+		s.addNode(c.ID, c.Kind, true)
+	}
 	if node != nil {
-		e.addNode(node.NodeID(), string(node.Kind()))
+		s.addNode(node.NodeID(), string(node.Kind()), true)
 	}
 	if c.Merge != nil {
-		e.addMergeNode(c.Merge.ID)
+		s.addMergeNode(c.Merge.ID)
 	}
 }
 
-func (e *semanticsExtractor) addNode(id, kind string) {
-	if id == "" || e.seenNodes[id] {
+func (s *semSolver) addNode(id, kind string, reachable bool) {
+	if id == "" {
 		return
 	}
-	e.seenNodes[id] = true
-	e.sem.Nodes = append(e.sem.Nodes, obligation.NodeFact{ID: id, Kind: kind, Reachable: true})
-}
-
-func (e *semanticsExtractor) addMergeNode(id string) {
-	if id == "" || e.seenMerge[id] {
+	if _, ok := s.seenNodes[id]; ok {
+		if reachable {
+			for i := range s.sem.Nodes {
+				if s.sem.Nodes[i].ID == id {
+					s.sem.Nodes[i].Reachable = true
+					break
+				}
+			}
+		}
 		return
 	}
-	e.seenMerge[id] = true
-	e.addNode(id, "merge")
+	s.seenNodes[id] = true
+	s.sem.Nodes = append(s.sem.Nodes, obligation.NodeFact{ID: id, Kind: kind, Reachable: reachable})
 }
 
-func (e *semanticsExtractor) mergePlan(a *ir.Aggregate) *obligation.MergePlan {
+func (s *semSolver) addMergeNode(id string) {
+	if id == "" || s.seenMerge[id] {
+		return
+	}
+	s.seenMerge[id] = true
+	s.addNode(id, "merge", true)
+}
+
+func (s *semSolver) addObligation(selector, port, group, target, targetKind string, closed bool) {
+	key := selector + "\x00" + port + "\x00" + group
+	if s.seenObl[key] {
+		return
+	}
+	s.seenObl[key] = true
+	status := obligation.ObligationOpen
+	if closed {
+		status = obligation.ObligationClosed
+	}
+	s.sem.Obligations = append(s.sem.Obligations, obligation.Obligation{
+		Selector:   selector,
+		Port:       port,
+		Group:      group,
+		Target:     target,
+		TargetKind: targetKind,
+		Status:     status,
+	})
+}
+
+func (s *semSolver) addMergeRefs(a *ir.Aggregate) {
+	if a == nil {
+		return
+	}
+	for _, nc := range closures(a) {
+		for _, cand := range nc.closure.Candidates {
+			key := a.ID + "\x00" + cand.Producer + "\x00" + cand.Output
+			if s.seenRef[key] {
+				continue
+			}
+			s.seenRef[key] = true
+			s.sem.Refs = append(s.sem.Refs, obligation.RefFact{
+				Producer: cand.Producer,
+				Output:   cand.Output,
+				Consumer: a.ID,
+				Resolved: []obligation.ValueCandidate{cand},
+			})
+		}
+	}
+}
+
+func (s *semSolver) unreachable(st ir.Stmt) {
+	switch st := st.(type) {
+	case *ir.NodeStmt:
+		if st.Node != nil {
+			s.addNode(st.Node.NodeID(), string(st.Node.Kind()), false)
+		}
+	case *ir.IfStmt:
+		if st.ID != "" {
+			s.addNode(st.ID, "if", false)
+		}
+		if st.Cond != nil {
+			s.addNode(st.Cond.NodeID(), string(st.Cond.Kind()), false)
+		}
+		s.unreachableBlock(st.Then)
+		s.unreachableBlock(st.Else)
+		for _, c := range st.ChainArms {
+			if c != nil {
+				s.unreachableBlock(c.Block)
+			}
+		}
+	case *ir.AttemptStmt:
+		if st.ID != "" {
+			s.addNode(st.ID, "attempt", false)
+		}
+		if st.Op != nil {
+			s.addNode(st.Op.NodeID(), string(st.Op.Kind()), false)
+		}
+		s.unreachableBlock(st.Success)
+		s.unreachableBlock(st.Failure)
+	case *ir.QaStmt:
+		if st.ID != "" {
+			s.addNode(st.ID, "ask", false)
+		}
+		for _, b := range st.Branches {
+			s.unreachableBlock(b.Body)
+		}
+	case *ir.SwitchStmt:
+		if st.ID != "" {
+			s.addNode(st.ID, "switch", false)
+		}
+		for _, b := range st.Branches {
+			s.unreachableBlock(b.Body)
+		}
+	case *ir.LoopStmt:
+		if st.ID != "" {
+			s.addNode(st.ID, "loop", false)
+		}
+		s.unreachableBlock(st.Body)
+	case *ir.ParallelStmt:
+		for _, b := range st.Branches {
+			s.unreachableBlock(b)
+		}
+	case *ir.InlineStmt:
+		s.unreachableBlock(st.Body)
+	case *ir.ReturnStmt:
+		if st.End != nil {
+			s.addNode(st.End.ID, "end", false)
+		}
+	}
+}
+
+func (s *semSolver) unreachableBlock(b *ir.Block) {
+	if b == nil {
+		return
+	}
+	for _, st := range b.Stmts {
+		s.unreachable(st)
+	}
+}
+
+func (s *semSolver) mergePlan(a *ir.Aggregate) *obligation.MergePlan {
 	if a == nil {
 		return nil
 	}
 	mp := &obligation.MergePlan{ID: a.ID, ValueClosure: map[string]obligation.ValueClosure{}}
+	for _, nc := range closures(a) {
+		mp.ValueClosure[nc.name] = nc.closure
+	}
+	return mp
+}
+
+type namedClosure struct {
+	name    string
+	closure obligation.ValueClosure
+}
+
+func closures(a *ir.Aggregate) []namedClosure {
+	if a == nil {
+		return nil
+	}
+	out := make([]namedClosure, 0, 1+len(a.Groups))
 	if len(a.Groups) > 0 {
 		for _, g := range a.Groups {
-			mp.ValueClosure[g.Name] = closureOf(g.Refs)
+			out = append(out, namedClosure{name: g.Name, closure: closureOf(g.Refs)})
 		}
-		return mp
+		return out
 	}
 	name := a.RefName
 	if name == "" {
 		name = a.SingleGroupName()
 	}
-	mp.ValueClosure[name] = closureOf(a.Refs)
-	return mp
+	refs := a.Refs
+	if len(refs) == 0 && len(a.ValueSources) > 0 {
+		refs = a.ValueSources
+	}
+	out = append(out, namedClosure{name: name, closure: closureOf(refs)})
+	return out
 }
 
-func (e *semanticsExtractor) armPlan(name, port string, b *ir.Block) obligation.ArmPlan {
-	arm := obligation.ArmPlan{
-		Name:     name,
-		Port:     port,
-		Exits:    make([]string, 0),
-		Empty:    b == nil || len(b.Stmts) == 0,
-		Terminal: "none",
+func firstClosure(a *ir.Aggregate) (string, []obligation.ValueCandidate) {
+	cs := closures(a)
+	if len(cs) == 0 {
+		return "", nil
 	}
-	if arm.Empty {
-		return arm
-	}
-	if entry := blockEntry(b); entry != "" {
-		arm.Entry = &entry
-	}
-	if exits := blockExits(b); len(exits) > 0 {
-		arm.Exits = exits
-	}
-	arm.Terminal = "flow"
-	if last := b.Stmts[len(b.Stmts)-1]; last != nil {
-		if _, ok := last.(*ir.ReturnStmt); ok {
-			arm.Terminal = "return"
-		}
-	}
-	return arm
+	return cs[0].name, cs[0].closure.Candidates
 }
 
 func closureOf(refs []ir.Ref) obligation.ValueClosure {
@@ -421,55 +711,107 @@ func closureOf(refs []ir.Ref) obligation.ValueClosure {
 	}
 	kind := obligation.ClosureDead
 	switch len(cands) {
+	case 0:
+		kind = obligation.ClosureDead
 	case 1:
 		kind = obligation.ClosureAlias
 	default:
-		if len(cands) > 1 {
-			kind = obligation.ClosurePhi
-		}
+		kind = obligation.ClosurePhi
 	}
 	return obligation.ValueClosure{Kind: kind, Candidates: cands}
 }
 
-func firstClosure(a *ir.Aggregate) (string, []obligation.ValueCandidate) {
-	if a == nil {
-		return "", make([]obligation.ValueCandidate, 0)
+func unionIDs(groups ...[]string) []string {
+	var out []string
+	for _, g := range groups {
+		for _, id := range g {
+			out = appendUnique(out, id)
+		}
 	}
-	if len(a.Groups) > 0 {
-		g := a.Groups[0]
-		return g.Name, closureOf(g.Refs).Candidates
-	}
-	name := a.RefName
-	if name == "" {
-		name = a.SingleGroupName()
-	}
-	return name, closureOf(a.Refs).Candidates
+	return out
 }
 
-// blockEntry returns the id of the first statement that owns a node.
-func blockEntry(b *ir.Block) string {
-	if b == nil {
-		return ""
+func appendUnique(out []string, id string) []string {
+	if id == "" {
+		return out
 	}
-	for _, s := range b.Stmts {
-		if id := stmtID(s); id != "" {
+	for _, x := range out {
+		if x == id {
+			return out
+		}
+	}
+	return append(out, id)
+}
+
+func unionFlows(flows []blockFlow) []string {
+	var out []string
+	for _, f := range flows {
+		out = unionIDs(out, f.exits)
+	}
+	return out
+}
+
+func nextStmtID(stmts []ir.Stmt) string {
+	for _, st := range stmts {
+		if id := stmtID(st); id != "" {
 			return id
 		}
 	}
 	return ""
 }
 
-// blockExits returns the syntactic tail id of a block. The real A-class
-// solver owns terminal-aware exits; this placeholder keeps the schema
-// serializable for P1.
-func blockExits(b *ir.Block) []string {
-	if b == nil || len(b.Stmts) == 0 {
-		return nil
+func collectContinues(b *ir.Block) []string {
+	var out []string
+	var walk func(*ir.Block)
+	walk = func(b *ir.Block) {
+		if b == nil {
+			return
+		}
+		for _, st := range b.Stmts {
+			switch st := st.(type) {
+			case *ir.ContinueStmt:
+				if st.Node != nil {
+					out = appendUnique(out, st.Node.ID)
+				}
+			case *ir.IfStmt:
+				walk(st.Then)
+				walk(st.Else)
+				for _, c := range st.ChainArms {
+					if c != nil {
+						walk(c.Block)
+					}
+				}
+			case *ir.AttemptStmt:
+				walk(st.Success)
+				walk(st.Failure)
+			case *ir.QaStmt:
+				for _, br := range st.Branches {
+					walk(br.Body)
+				}
+			case *ir.SwitchStmt:
+				for _, br := range st.Branches {
+					walk(br.Body)
+				}
+			case *ir.LoopStmt:
+				walk(st.Body)
+			case *ir.ParallelStmt:
+				for _, br := range st.Branches {
+					walk(br)
+				}
+			case *ir.InlineStmt:
+				walk(st.Body)
+			}
+		}
 	}
-	if id := stmtID(b.Stmts[len(b.Stmts)-1]); id != "" {
-		return []string{id}
+	walk(b)
+	return out
+}
+
+func blockEntry(b *ir.Block) string {
+	if b == nil {
+		return ""
 	}
-	return nil
+	return nextStmtID(b.Stmts)
 }
 
 func blockIDs(b *ir.Block) []string {
