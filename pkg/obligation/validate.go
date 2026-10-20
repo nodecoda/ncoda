@@ -379,6 +379,8 @@ func validateReport(report *Report, sem *Semantics) []Violation {
 		}
 	}
 
+	out = append(out, validateIDMapUniverse(report, sem, productIDs)...)
+
 	seenEdges := map[string]bool{}
 	for _, e := range report.Edges {
 		if e.Selector == "" || e.Port == "" {
@@ -435,6 +437,163 @@ func validateReport(report *Report, sem *Semantics) []Violation {
 				Port:        le.Port,
 				Message:     "loop-entry observation has no canonical landing",
 			})
+		}
+	}
+	return out
+}
+
+// validateIDMapUniverse enforces docs v2 §8.3: the id_map domain covers the
+// Semantics universe (constructs, nodes, ref endpoints, candidate producers),
+// extras are limited to declared lowered nodes, emitted_nodes are synthetic
+// and disjoint from mapped product ids, and every observed endpoint resolves.
+func validateIDMapUniverse(report *Report, sem *Semantics, productIDs map[string]string) []Violation {
+	var out []Violation
+	universe := map[string]bool{}
+	add := func(id string) {
+		if id != "" {
+			universe[id] = true
+		}
+	}
+	for _, c := range sem.Constructs {
+		add(c.ID)
+		if c.Merge != nil {
+			add(c.Merge.ID)
+		}
+		for _, a := range c.Arms {
+			if a.Entry != nil {
+				add(*a.Entry)
+			}
+			for _, id := range a.Exits {
+				add(id)
+			}
+		}
+		if c.Loop != nil {
+			add(c.Loop.Entry)
+			add(c.Loop.Exit)
+			for _, id := range c.Loop.Back {
+				add(id)
+			}
+			for _, id := range c.Loop.Body {
+				add(id)
+			}
+		}
+	}
+	for _, n := range sem.Nodes {
+		add(n.ID)
+	}
+	for _, r := range sem.Refs {
+		add(r.Producer)
+		add(r.Consumer)
+		for _, c := range r.Resolved {
+			add(c.Producer)
+		}
+	}
+	for _, ob := range sem.Obligations {
+		add(ob.Selector)
+		add(ob.Target)
+		for _, c := range ob.Candidates {
+			add(c.Producer)
+		}
+	}
+
+	mappedCount := 0
+	for _, id := range sortedKeys(report.IDMap) {
+		entry := report.IDMap[id]
+		if entry.State == IDMapped {
+			mappedCount++
+		}
+		if universe[id] {
+			continue
+		}
+		// An id outside Semantics is legal only as a declared lowering
+		// (Relay and similar non-semantic IR nodes).
+		if entry.State != IDLowered || entry.Reason == "" || entry.RewriteRef == "" {
+			out = append(out, Violation{
+				Code:        CodeIDMapInvalid,
+				ConstructID: id,
+				Message:     fmt.Sprintf("id_map[%q] is outside the Semantics universe but is not a declared lowering", id),
+			})
+		}
+	}
+	for _, id := range sortedKeys(universe) {
+		if _, ok := report.IDMap[id]; !ok {
+			out = append(out, Violation{
+				Code:        CodeIDMapInvalid,
+				ConstructID: id,
+				Message:     fmt.Sprintf("id_map does not cover Semantics id %q", id),
+			})
+		}
+	}
+
+	emitted := map[string]bool{}
+	for _, n := range report.EmittedNodes {
+		if n.ProductID == "" {
+			out = append(out, Violation{Code: CodeIDMapInvalid, Message: "emitted node has no product_id"})
+			continue
+		}
+		if emitted[n.ProductID] {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: n.ProductID,
+				Message: fmt.Sprintf("emitted product_id %q declared more than once", n.ProductID)})
+		}
+		emitted[n.ProductID] = true
+		if _, clash := productIDs[n.ProductID]; clash {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: n.ProductID,
+				Message: fmt.Sprintf("emitted product_id %q collides with a mapped id", n.ProductID)})
+		}
+		if !n.Synthetic {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: n.ProductID,
+				Message: fmt.Sprintf("emitted node %q is not marked synthetic", n.ProductID)})
+		}
+		if n.Provenance == "" {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: n.ProductID,
+				Message: fmt.Sprintf("emitted node %q has no provenance", n.ProductID)})
+		}
+		if n.RewriteRef == "" {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: n.ProductID,
+				Message: fmt.Sprintf("emitted node %q has no rewrite_ref", n.ProductID)})
+		}
+	}
+	if len(productIDs) != mappedCount {
+		out = append(out, Violation{Code: CodeIDMapInvalid,
+			Message: fmt.Sprintf("inverse mapping size %d does not match mapped entries %d", len(productIDs), mappedCount)})
+	}
+
+	resolvable := func(id string) bool {
+		if id == "" {
+			return false
+		}
+		if _, ok := report.IDMap[id]; ok {
+			return true
+		}
+		if _, ok := productIDs[id]; ok {
+			return true
+		}
+		return emitted[id]
+	}
+	for _, e := range report.Edges {
+		if !resolvable(e.Selector) {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: e.Selector, Port: e.Port,
+				Message: fmt.Sprintf("edge selector %q is not resolvable", e.Selector)})
+		}
+		if !resolvable(e.Target) {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: e.Selector, Port: e.Port,
+				Message: fmt.Sprintf("edge target %q is not resolvable", e.Target)})
+		}
+	}
+	for _, r := range report.Refs {
+		if !resolvable(r.Producer) {
+			out = append(out, Violation{Code: CodeRefUnresolved, ConstructID: r.Consumer,
+				Message: fmt.Sprintf("report ref producer %q is not resolvable", r.Producer)})
+		}
+		if !resolvable(r.Consumer) {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: r.Consumer,
+				Message: fmt.Sprintf("report ref consumer %q is not resolvable", r.Consumer)})
+		}
+	}
+	for _, le := range report.LoopEdges {
+		if !resolvable(le.Construct) {
+			out = append(out, Violation{Code: CodeIDMapInvalid, ConstructID: le.Construct, Port: le.Port,
+				Message: fmt.Sprintf("loop edge construct %q is not resolvable", le.Construct)})
 		}
 	}
 	return out

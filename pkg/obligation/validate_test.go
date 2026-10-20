@@ -187,3 +187,51 @@ func TestGraphViewInterface(t *testing.T) {
 		t.Fatal("empty fakeView should expose nil edges/refs")
 	}
 }
+
+func TestValidateIDMapCoversRefEndpoints(t *testing.T) {
+	plan := cleanPlan()
+	plan.Semantics.Refs = []RefFact{{Producer: "100099", Output: "v", Consumer: "100021"}}
+	got := Validate(nil, plan, cleanReport())
+	if !hasCode(got, CodeIDMapInvalid) {
+		t.Fatalf("missing %s for uncovered ref producer: %#v", CodeIDMapInvalid, got)
+	}
+}
+
+func TestValidateIDMapAllowsDeclaredLoweringExtra(t *testing.T) {
+	report := cleanReport()
+	report.IDMap["relay_1"] = IDMap{State: IDLowered, Reason: "relay elided", RewriteRef: "R1"}
+	report.Rewrites = []Rewrite{{Kind: "lowering", Name: "relay-elision"}}
+	got := Validate(nil, cleanPlan(), report)
+	if len(got) != 0 {
+		t.Fatalf("declared lowering extra should be legal, got %#v", got)
+	}
+}
+
+func TestValidateIDMapRejectsMappedExtra(t *testing.T) {
+	report := cleanReport()
+	report.IDMap["ghost"] = mapped("ghost")
+	got := Validate(nil, cleanPlan(), report)
+	if !hasCode(got, CodeIDMapInvalid) {
+		t.Fatalf("missing %s for mapped id outside Semantics: %#v", CodeIDMapInvalid, got)
+	}
+}
+
+func TestValidateIDMapRejectsEmittedCollision(t *testing.T) {
+	report := cleanReport()
+	report.EmittedNodes = []EmittedNode{{
+		ProductID: "100012", Synthetic: true, Provenance: "runtime:x", RewriteRef: "R1",
+	}}
+	got := Validate(nil, cleanPlan(), report)
+	if !hasCode(got, CodeIDMapInvalid) {
+		t.Fatalf("missing %s for emitted/mapped collision: %#v", CodeIDMapInvalid, got)
+	}
+}
+
+func TestValidateIDMapRejectsUnresolvableEdge(t *testing.T) {
+	report := cleanReport()
+	report.Edges[0].Target = "999999"
+	got := Validate(nil, cleanPlan(), report)
+	if !hasCode(got, CodeIDMapInvalid) {
+		t.Fatalf("missing %s for unresolvable edge target: %#v", CodeIDMapInvalid, got)
+	}
+}
