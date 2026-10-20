@@ -34,6 +34,17 @@ func Validate(view GraphView, plan *Plan, report *Report) []Violation {
 	}
 
 	sem := plan.Semantics
+	// graphNodes are ids the projection keeps but the Semantics domain does
+	// not own (the entry Start node and IR plumbing). A value closure or ref
+	// may legally read the entry node (a function parameter), so producer
+	// resolution must accept them; validateView still keeps the stricter
+	// "every product node is in Semantics" contract.
+	graphNodes := map[string]bool{}
+	if view != nil {
+		for _, id := range view.NodeIDs() {
+			graphNodes[id] = true
+		}
+	}
 	constructIDs := map[string]int{}
 	mergeIDs := map[string]bool{}
 	nodeIDs := map[string]bool{}
@@ -199,7 +210,7 @@ func Validate(view GraphView, plan *Plan, report *Report) []Violation {
 				if cand.Producer == "" {
 					continue
 				}
-				if !known[cand.Producer] {
+				if !known[cand.Producer] && !graphNodes[cand.Producer] {
 					out = append(out, Violation{
 						Code:        CodeMergeAliasUnresolved,
 						ConstructID: c.ID,

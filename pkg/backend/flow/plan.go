@@ -84,7 +84,7 @@ func Semantics(g *ir.Graph) (*obligation.Semantics, error) {
 		seenObl:   map[string]bool{},
 		seenRef:   map[string]bool{},
 	}
-	s.block(g.Root)
+	s.block(g.Root, "")
 	return s.sem, nil
 }
 
@@ -162,7 +162,11 @@ type semSolver struct {
 	seenRef   map[string]bool
 }
 
-func (s *semSolver) block(b *ir.Block) blockFlow {
+// block walks one structured block. tail is the id the block falls through to
+// when its last statement has no sibling (docs §6 A2 drain points: the
+// enclosing merge, the enclosing block continuation, or the document tail).
+// "" means no known landing.
+func (s *semSolver) block(b *ir.Block, tail string) blockFlow {
 	if b == nil || len(b.Stmts) == 0 {
 		return blockFlow{empty: true, terminal: "none"}
 	}
@@ -170,7 +174,10 @@ func (s *semSolver) block(b *ir.Block) blockFlow {
 	var last blockFlow
 	for i, st := range b.Stmts {
 		next := nextStmtID(b.Stmts[i+1:])
-		f := s.stmt(st, next)
+		if next == "" && i == len(b.Stmts)-1 {
+			next = tail
+		}
+		f := s.stmt(st, next, tail)
 		if entry == "" {
 			entry = f.entry
 		}
@@ -189,7 +196,7 @@ func (s *semSolver) block(b *ir.Block) blockFlow {
 	return last
 }
 
-func (s *semSolver) stmt(st ir.Stmt, next string) blockFlow {
+func (s *semSolver) stmt(st ir.Stmt, next, tail string) blockFlow {
 	switch st := st.(type) {
 	case *ir.NodeStmt:
 		if st.Node == nil {
@@ -200,22 +207,22 @@ func (s *semSolver) stmt(st ir.Stmt, next string) blockFlow {
 		return blockFlow{entry: id, exits: []string{id}, terminal: "flow"}
 
 	case *ir.IfStmt:
-		return s.ifStmt(st, next)
+		return s.ifStmt(st, next, tail)
 
 	case *ir.AttemptStmt:
-		return s.attempt(st, next)
+		return s.attempt(st, next, tail)
 
 	case *ir.QaStmt:
-		return s.qa(st, next)
+		return s.qa(st, next, tail)
 
 	case *ir.SwitchStmt:
-		return s.switchStmt(st, next)
+		return s.switchStmt(st, next, tail)
 
 	case *ir.LoopStmt:
 		return s.loop(st, next)
 
 	case *ir.ParallelStmt:
-		return s.parallel(st)
+		return s.parallel(st, next)
 
 	case *ir.ReturnStmt:
 		var id string
@@ -240,14 +247,21 @@ func (s *semSolver) stmt(st ir.Stmt, next string) blockFlow {
 		return blockFlow{terminal: "continue"}
 
 	case *ir.InlineStmt:
-		return s.block(st.Body)
+		return s.block(st.Body, next)
 	}
 	return blockFlow{terminal: "flow"}
 }
 
-func (s *semSolver) ifStmt(st *ir.IfStmt, next string) blockFlow {
-	thenF := s.block(st.Then)
-	elseF := s.block(st.Else)
+func (s *semSolver) ifStmt(st *ir.IfStmt, next, tail string) blockFlow {
+	armTail := next
+	if armTail == "" {
+		armTail = tail
+	}
+	if st.Merge != nil {
+		armTail = st.Merge.ID
+	}
+	thenF := s.block(st.Then, armTail)
+	elseF := s.block(st.Else, armTail)
 
 	c := obligation.Construct{
 		ID:    st.ID,
@@ -263,7 +277,7 @@ func (s *semSolver) ifStmt(st *ir.IfStmt, next string) blockFlow {
 		if chain == nil {
 			continue
 		}
-		cf := s.block(chain.Block)
+		cf := s.block(chain.Block, armTail)
 		c.Arms = append(c.Arms, s.armPlanFromFlow(
 			fmt.Sprintf("elif_%d", i+1), fmt.Sprintf("true_%d", i+1), cf))
 	}
@@ -318,9 +332,19 @@ func (s *semSolver) ifStmt(st *ir.IfStmt, next string) blockFlow {
 	}
 }
 
-func (s *semSolver) attempt(st *ir.AttemptStmt, next string) blockFlow {
-	succF := s.block(st.Success)
-	failF := s.block(st.Failure)
+func (s *semSolver) attempt(st *ir.AttemptStmt, next, tail string) blockFlow {
+	target := next
+	kind := "flow"
+	if st.Exit != nil {
+		target = st.Exit.ID
+		kind = "merge"
+	}
+	armTail := target
+	if armTail == "" {
+		armTail = tail
+	}
+	succF := s.block(st.Success, armTail)
+	failF := s.block(st.Failure, armTail)
 	c := obligation.Construct{
 		ID:    st.ID,
 		Kind:  "attempt",
@@ -340,12 +364,6 @@ func (s *semSolver) attempt(st *ir.AttemptStmt, next string) blockFlow {
 			group = name
 		}
 	}
-	target := next
-	kind := "flow"
-	if st.Exit != nil {
-		target = st.Exit.ID
-		kind = "merge"
-	}
 	closed := target != ""
 	s.addObligation(st.ID, "success", group, target, kind, closed)
 	s.addObligation(st.ID, "fail-branch", group, target, kind, closed)
@@ -356,7 +374,7 @@ func (s *semSolver) attempt(st *ir.AttemptStmt, next string) blockFlow {
 	return blockFlow{entry: st.ID, exits: unionIDs(succF.exits, failF.exits), terminal: "flow"}
 }
 
-func (s *semSolver) qa(st *ir.QaStmt, next string) blockFlow {
+func (s *semSolver) qa(st *ir.QaStmt, next, tail string) blockFlow {
 	flows := make([]blockFlow, 0, len(st.Branches))
 	c := obligation.Construct{
 		ID:    st.ID,
@@ -364,8 +382,16 @@ func (s *semSolver) qa(st *ir.QaStmt, next string) blockFlow {
 		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
 		Merge: s.mergePlan(st.Merge),
 	}
+	target := next
+	if st.Merge != nil {
+		target = st.Merge.ID
+	}
+	armTail := target
+	if armTail == "" {
+		armTail = tail
+	}
 	for _, b := range st.Branches {
-		f := s.block(b.Body)
+		f := s.block(b.Body, armTail)
 		flows = append(flows, f)
 		c.Arms = append(c.Arms, s.armPlanFromFlow(b.Port, b.Port, f))
 	}
@@ -385,10 +411,8 @@ func (s *semSolver) qa(st *ir.QaStmt, next string) blockFlow {
 			group = name
 		}
 	}
-	target := next
 	kind := "flow"
 	if st.Merge != nil {
-		target = st.Merge.ID
 		kind = "merge"
 	}
 	for _, b := range st.Branches {
@@ -401,7 +425,7 @@ func (s *semSolver) qa(st *ir.QaStmt, next string) blockFlow {
 	return blockFlow{entry: st.ID, exits: exits, terminal: "flow"}
 }
 
-func (s *semSolver) switchStmt(st *ir.SwitchStmt, next string) blockFlow {
+func (s *semSolver) switchStmt(st *ir.SwitchStmt, next, tail string) blockFlow {
 	flows := make([]blockFlow, 0, len(st.Branches))
 	c := obligation.Construct{
 		ID:    st.ID,
@@ -409,8 +433,16 @@ func (s *semSolver) switchStmt(st *ir.SwitchStmt, next string) blockFlow {
 		Arms:  make([]obligation.ArmPlan, 0, len(st.Branches)),
 		Merge: s.mergePlan(st.Merge),
 	}
+	target := next
+	if st.Merge != nil {
+		target = st.Merge.ID
+	}
+	armTail := target
+	if armTail == "" {
+		armTail = tail
+	}
 	for _, b := range st.Branches {
-		f := s.block(b.Body)
+		f := s.block(b.Body, armTail)
 		flows = append(flows, f)
 		c.Arms = append(c.Arms, s.armPlanFromFlow(b.Port, b.Port, f))
 	}
@@ -427,10 +459,8 @@ func (s *semSolver) switchStmt(st *ir.SwitchStmt, next string) blockFlow {
 			group = name
 		}
 	}
-	target := next
 	kind := "flow"
 	if st.Merge != nil {
-		target = st.Merge.ID
 		kind = "merge"
 	}
 	for _, b := range st.Branches {
@@ -444,14 +474,23 @@ func (s *semSolver) switchStmt(st *ir.SwitchStmt, next string) blockFlow {
 }
 
 func (s *semSolver) loop(st *ir.LoopStmt, next string) blockFlow {
-	bodyF := s.block(st.Body)
+	// A body statement falls through to the loop-back edge, so the container
+	// is the drain point for a body ending without an explicit back/exit.
+	bodyF := s.block(st.Body, st.ID)
+	// A7: the body tail returns to the container through a loop-back edge
+	// (cozebiz EdgeLoopBack: "body tail → container"); explicit continues are
+	// additional back-edge sources. A body that only breaks/returns has none.
+	back := collectContinues(st.Body)
+	for _, exit := range bodyF.exits {
+		back = appendUnique(back, exit)
+	}
 	c := obligation.Construct{
 		ID:   st.ID,
 		Kind: "loop",
 		Arms: make([]obligation.ArmPlan, 0),
 		Loop: &obligation.LoopPlan{
 			Entry: bodyF.entry,
-			Back:  collectContinues(st.Body),
+			Back:  back,
 			Exit:  next,
 			Body:  blockIDs(st.Body),
 		},
@@ -464,7 +503,7 @@ func (s *semSolver) loop(st *ir.LoopStmt, next string) blockFlow {
 	return blockFlow{entry: st.ID, exits: []string{st.ID}, terminal: "flow"}
 }
 
-func (s *semSolver) parallel(st *ir.ParallelStmt) blockFlow {
+func (s *semSolver) parallel(st *ir.ParallelStmt, next string) blockFlow {
 	id := st.ID
 	if id == "" {
 		id = "parallel"
@@ -477,7 +516,7 @@ func (s *semSolver) parallel(st *ir.ParallelStmt) blockFlow {
 	flows := make([]blockFlow, 0, len(st.Branches))
 	c := obligation.Construct{ID: id, Kind: "parallel", Arms: make([]obligation.ArmPlan, 0, len(st.Branches))}
 	for i, b := range st.Branches {
-		f := s.block(b)
+		f := s.block(b, next)
 		flows = append(flows, f)
 		c.Arms = append(c.Arms, s.armPlanFromFlow(fmt.Sprintf("branch_%d", i), fmt.Sprintf("branch_%d", i), f))
 	}
@@ -847,6 +886,12 @@ func stmtID(s ir.Stmt) string {
 		return st.ID
 	case *ir.ParallelStmt:
 		return st.ID
+	case *ir.ReturnStmt:
+		// A2: a terminal return is a drain point (document tail); the
+		// obligation of a preceding branch lands on the shared End.
+		if st.End != nil {
+			return st.End.ID
+		}
 	case *ir.BreakStmt:
 		if st.Node != nil {
 			return st.Node.ID
