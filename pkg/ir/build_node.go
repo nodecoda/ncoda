@@ -582,7 +582,10 @@ func (g *Builder) llmConfig(call *ast.CallExpr, prevIDs []string, firstPort stri
 			}
 			continue
 		case "response_format":
-			if v := literalValue(e.Value); v != nil {
+			// 值形有三类：抽象枚举字符串 / 旧数值码 / provider 原生结构化对象
+			// （{"type": "json_object"}，标准 LANGUAGE-REFERENCE 与示例 62）。
+			// 用值树承载，否则对象形在 IR 层静默消失（编译通过 = 语义丢了）。
+			if v := literalValueTree(e.Value); v != nil {
 				cfg = append(cfg, ConfigPair{Key: "response_format", Value: v})
 			}
 			continue
