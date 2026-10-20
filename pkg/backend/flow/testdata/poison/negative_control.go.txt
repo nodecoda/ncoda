@@ -1,0 +1,8 @@
+// Negative control for the plan*.go poison AST check (TC-28 C2).
+// This file is deliberately NOT compiled: it calls the legacy helper and the
+// detector must flag it. If the detector misses this, the guard is dead.
+package poisoncontrol
+
+func borrowLegacy(d interface{ owePort(string, string) }) {
+	d.owePort("selector", "true")
+}
