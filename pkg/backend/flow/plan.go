@@ -85,7 +85,43 @@ func Semantics(g *ir.Graph) (*obligation.Semantics, error) {
 		seenRef:   map[string]bool{},
 	}
 	s.block(g.Root, "")
+	s.populateObligationCandidates()
 	return s.sem, nil
+}
+
+// populateObligationCandidates mirrors each merge obligation's ordered value
+// closure onto the obligation (docs v2 §5.1: obligations[].candidates). The
+// closure is the semantic source of A4/A6; reports compare their observed
+// candidate lists against it.
+func (s *semSolver) populateObligationCandidates() {
+	closures := map[string]map[string]obligation.ValueClosure{}
+	for _, c := range s.sem.Constructs {
+		if c.Merge == nil {
+			continue
+		}
+		closures[c.Merge.ID] = c.Merge.ValueClosure
+	}
+	for i := range s.sem.Obligations {
+		ob := &s.sem.Obligations[i]
+		if ob.TargetKind != "merge" {
+			continue
+		}
+		groups, ok := closures[ob.Target]
+		if !ok || len(groups) == 0 {
+			continue
+		}
+		vc, ok := groups[ob.Group]
+		if !ok && (ob.Group == "" || len(groups) == 1) {
+			for _, only := range groups {
+				vc, ok = only, true
+				break
+			}
+		}
+		if !ok {
+			continue
+		}
+		ob.Candidates = append([]obligation.ValueCandidate(nil), vc.Candidates...)
+	}
 }
 
 // ProjectFromPlan rebuilds the exact projection frozen by Plan: the same
