@@ -177,6 +177,19 @@ func Project(g *ir.Graph) (*Projection, error) {
 				if tid == entry || tid == endID {
 					continue
 				}
+				if d.isSelector(tid) {
+					// A dangling else-less selector's false path is a branch
+					// port edge (A1/A2). It reaches the tail without a
+					// consumer, so record the obligation and let the drain
+					// below attach it with an explicit port. A top-level
+					// dangling if already wired its selector above; owing it
+					// again would duplicate the edge (X238/S11).
+					if d.hasEdge(tid, entry) {
+						continue
+					}
+					d.owePort(tid, "false")
+					continue
+				}
 				if d.reachesFrom(entry, []string{tid}) {
 					continue
 				}
@@ -468,6 +481,16 @@ func (d *deriveCtx) connect(prevIDs []string, target, firstPort string, portOnLa
 	}
 }
 
+// branchPort stamps the selector's default port on a branch tail. A
+// dangling else-less if folds its selector into the junction; the selector's
+// unmatched path is its false port (A1/A2: branch ports stay explicit).
+func (d *deriveCtx) branchPort(id string) string {
+	if d.isSelector(id) {
+		return "false"
+	}
+	return ""
+}
+
 // deriveBlock derives one ordered block. It returns the block's junction
 // (activity tails), the thread port, and whether any node was produced.
 // A trailing dangling else-less if is left in d.pendingIf for the caller
@@ -549,6 +572,12 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			if terr != nil {
 				return nil, port, true, terr
 			}
+			// A3: a dangling else-less if at the tail of this arm belongs to
+			// this arm. Fold it here — before deriving Else — or it leaks
+			// into the sibling arm and hijacks its entry edge (measured:
+			// S200 selector 100004 lost its false edge to 100026).
+			thenDangling := d.pendingIf != nil
+			thenExits = d.foldPendingIf(thenExits)
 			if s.Else == nil {
 				// else-less: the unmatched path waits for the next
 				// statement (or the enclosing block's consumer).
@@ -564,6 +593,12 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				// （Z17:msg!=success → 无后继边 → 运行时 $branch "false"
 				// no declared target）。
 				thenExits = d.foldPendingIf(thenExits)
+				// A1/A2: an empty then arm still owes its true port edge; the
+				// landing (next statement / enclosing consumer / flow exit) is
+				// unknown here, so record the obligation and drain it later.
+				if !thenHad && s.Relay == nil {
+					d.owePort(s.ID, "true")
+				}
 				d.pendingIf = &pendingIfState{ifStmt: s, thenExits: thenExits}
 				current = thenExits
 				port = "false"
@@ -573,6 +608,8 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			if eerr != nil {
 				return nil, port, true, eerr
 			}
+			elseDangling := d.pendingIf != nil
+			elseExits = d.foldPendingIf(elseExits)
 			thenPort, elsePort := "", ""
 			thenSrcs, elseSrcs := thenExits, elseExits
 			if !thenHad {
@@ -618,6 +655,9 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 					elseSrcs = nil
 				}
 				current = append(append([]string{}, thenSrcs...), elseSrcs...)
+				if thenDangling || elseDangling {
+					port = "false"
+				}
 			} else if len(thenSrcs) > 0 && len(elseSrcs) > 0 {
 				d.addNode(s.Merge)
 				for _, tid := range thenSrcs {
@@ -658,6 +698,8 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			if serr != nil {
 				return nil, port, true, serr
 			}
+			succDangling := d.pendingIf != nil
+			succExits = d.foldPendingIf(succExits)
 			// 臂端 End（`SuccessEnd`）是**控制流载体**：只有「臂里真有节点渲染
 			// 出来」时才物化它（臂尾 → 臂端）。渲染不出节点的臂**不物化**臂端：
 			//   ① 没有任何路径进入它 ⇒ runtime 静态检查 `RUNREACHABLE_NODE`
@@ -670,13 +712,13 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				d.addNode(s.SuccessEnd)
 				tails = append(tails, s.SuccessEnd.ID)
 				for _, tid := range succExits {
-					d.edges = append(d.edges, Edge{SourceNodeID: tid, TargetNodeID: s.SuccessEnd.ID})
-					aggEdges = append(aggEdges, aggEdge{src: tid})
+					d.edges = append(d.edges, Edge{SourceNodeID: tid, TargetNodeID: s.SuccessEnd.ID, SourcePortID: d.branchPort(tid)})
+					aggEdges = append(aggEdges, aggEdge{src: tid, port: d.branchPort(tid)})
 				}
 			} else if succHad {
 				tails = append(tails, succExits...)
 				for _, tid := range succExits {
-					aggEdges = append(aggEdges, aggEdge{src: tid})
+					aggEdges = append(aggEdges, aggEdge{src: tid, port: d.branchPort(tid)})
 				}
 			} else if s.Exit == nil {
 				// merge-less（无出口 φ）：端口边没有落点 ⇒ 记义务（同 if/Qa/switch）。
@@ -688,17 +730,19 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			if ferr != nil {
 				return nil, port, true, ferr
 			}
+			failDangling := d.pendingIf != nil
+			failExits = d.foldPendingIf(failExits)
 			if s.FailureEnd != nil && failHad {
 				d.addNode(s.FailureEnd)
 				tails = append(tails, s.FailureEnd.ID)
 				for _, tid := range failExits {
-					d.edges = append(d.edges, Edge{SourceNodeID: tid, TargetNodeID: s.FailureEnd.ID})
-					aggEdges = append(aggEdges, aggEdge{src: tid})
+					d.edges = append(d.edges, Edge{SourceNodeID: tid, TargetNodeID: s.FailureEnd.ID, SourcePortID: d.branchPort(tid)})
+					aggEdges = append(aggEdges, aggEdge{src: tid, port: d.branchPort(tid)})
 				}
 			} else if failHad {
 				tails = append(tails, failExits...)
 				for _, tid := range failExits {
-					aggEdges = append(aggEdges, aggEdge{src: tid})
+					aggEdges = append(aggEdges, aggEdge{src: tid, port: d.branchPort(tid)})
 				}
 			} else if s.Exit == nil {
 				d.owePort(s.ID, "fail-branch")
@@ -714,6 +758,9 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			// SC177 / SC193 / SC194 / SC197 / S225；节点 id 相邻两号、5 条引用）。
 			if s.Exit == nil {
 				current = tails
+				if succDangling || failDangling {
+					port = "false"
+				}
 			} else if len(aggEdges) > 0 {
 				d.addNode(s.Exit)
 				for _, e := range aggEdges {
@@ -737,11 +784,16 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			_ = ex
 		case *ir.ParallelStmt:
 			junction := []string{}
+			parDangling := false
 			for _, br := range s.Branches {
 				brExits, _, _, berr := d.deriveBlockDepth(br, current, port, depth+1)
 				if berr != nil {
 					return nil, port, true, berr
 				}
+				if d.pendingIf != nil {
+					parDangling = true
+				}
+				brExits = d.foldPendingIf(brExits)
 				// P5 #4: a branch that ends in a flow-end return (FlowEnd)
 				// already wired its tail straight to the canonical end via
 				// the ReturnStmt.End node; it must NOT re-enter the junction
@@ -763,15 +815,25 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 			// llm 发 $branch 而它不发 → run-err）。分支入口端口不受影响
 			// （deriveBlockDepth(br, current, port) 已正确带入）。
 			port = ""
+			if parDangling {
+				// A dangling else-less if inside a branch joins this barrier;
+				// its selector keeps the explicit false port (A1/A2).
+				port = "false"
+			}
 		case *ir.QaStmt:
 			d.addNode(s.QA)
 			d.connect(current, s.ID, port, false)
 			aggEdges := []aggEdge{}
+			qaDangling := false
 			for _, br := range s.Branches {
 				brExits, _, brHad, berr := d.deriveBlockDepth(br.Body, []string{s.ID}, br.Port, depth+1)
 				if berr != nil {
 					return nil, port, true, berr
 				}
+				if d.pendingIf != nil {
+					qaDangling = true
+				}
+				brExits = d.foldPendingIf(brExits)
 				if len(brExits) == 0 {
 					// FlowEnd 终止分支（void return / throw）：直连 end，
 					// 不汇入 merge（end 是叶子；无出口分支不参与汇聚）。
@@ -790,7 +852,7 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 					continue
 				}
 				for _, id := range brExits {
-					aggEdges = append(aggEdges, aggEdge{src: id, port: ""})
+					aggEdges = append(aggEdges, aggEdge{src: id, port: d.branchPort(id)})
 				}
 			}
 			if len(s.Branches) == 0 {
@@ -821,17 +883,25 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				current = []string{}
 			}
 			port = ""
+			if s.Merge == nil && qaDangling {
+				port = "false"
+			}
 		case *ir.SwitchStmt:
 			// 与 QaStmt 同构：IntentDetector 节点 + branch_N/default 扇出 +
 			// VariableAggregator 汇聚（结构化 intent 的隐含汇聚点）。
 			d.addNode(s.Switch)
 			d.connect(current, s.ID, port, false)
 			iaggEdges := []aggEdge{}
+			swDangling := false
 			for _, br := range s.Branches {
 				brExits, _, brHad, berr := d.deriveBlockDepth(br.Body, []string{s.ID}, br.Port, depth+1)
 				if berr != nil {
 					return nil, port, true, berr
 				}
+				if d.pendingIf != nil {
+					swDangling = true
+				}
+				brExits = d.foldPendingIf(brExits)
 				if len(brExits) == 0 {
 					// FlowEnd 终止分支（主流程分支 return / throw）：
 					// 直连 end 900001，不汇入 merge（end 是叶子，且
@@ -854,7 +924,7 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 					continue
 				}
 				for _, id := range brExits {
-					iaggEdges = append(iaggEdges, aggEdge{src: id, port: ""})
+					iaggEdges = append(iaggEdges, aggEdge{src: id, port: d.branchPort(id)})
 				}
 			}
 			if s.Merge == nil {
@@ -874,6 +944,9 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				current = []string{}
 			}
 			port = ""
+			if s.Merge == nil && swDangling {
+				port = "false"
+			}
 		case *ir.ReturnStmt:
 			if s.Implicit {
 				// synthesized trailing return: wires the full junction
@@ -1108,6 +1181,16 @@ func (d *deriveCtx) isBreakish(id string) bool {
 }
 
 // isSelector reports whether the node id belongs to a ir.Selector.
+// hasEdge reports whether an edge src -> dst is already materialized.
+func (d *deriveCtx) hasEdge(src, dst string) bool {
+	for _, e := range d.edges {
+		if e.SourceNodeID == src && e.TargetNodeID == dst {
+			return true
+		}
+	}
+	return false
+}
+
 func (d *deriveCtx) isSelector(id string) bool {
 	n, ok := d.idToNode[id]
 	if !ok {

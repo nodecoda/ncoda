@@ -554,3 +554,81 @@ func TestProjectNoActionQaKeepsEnclosingMerge(t *testing.T) {
 		{SourceNodeID: "merge", TargetNodeID: "after"},
 	})
 }
+
+// Regression (P2 A1/A2): an else-less if with an empty then arm still owes
+// its true port. Before P2 only the false edge was projected, so the runtime
+// saw a selector with a single declared target.
+func TestProjectEmptyElseLessThenDeclaresTruePort(t *testing.T) {
+	s := ifStmt("s", &ir.Block{}, nil, "")
+	p := mustProject(t, graph(s, stmt("after")))
+	assertEdges(t, p.Edges, []flow.Edge{
+		{SourceNodeID: "start", TargetNodeID: "s"},
+		{SourceNodeID: "s", TargetNodeID: "after", SourcePortID: "true"},
+		{SourceNodeID: "s", TargetNodeID: "after", SourcePortID: "false"},
+	})
+}
+
+// Regression (P2 A1/A2, X238/S11): a top-level else-less if whose then arm
+// returns leaves its selector in the document-tail junction. The false path
+// must be attached exactly once, with the explicit false port; wiring it both
+// directly and through the port drain duplicated the edge.
+func TestProjectDanglingElseLessSelectorSingleFalseEdge(t *testing.T) {
+	ifs := &ir.IfStmt{
+		ID:   "s",
+		Cond: &ir.Selector{ID: "s"},
+		Then: &ir.Block{Stmts: []ir.Stmt{
+			&ir.ReturnStmt{End: &ir.End{ID: "900001"}, SharedEnd: true},
+		}},
+	}
+	p := mustProject(t, graph(ifs))
+	var falseEdges, trueEdges int
+	for _, e := range p.Edges {
+		if e.SourceNodeID != "s" {
+			continue
+		}
+		switch e.SourcePortID {
+		case "false":
+			falseEdges++
+			if e.TargetNodeID != "900001" {
+				t.Fatalf("false edge target = %q, want 900001", e.TargetNodeID)
+			}
+		case "true":
+			trueEdges++
+		}
+	}
+	if falseEdges != 1 || trueEdges != 1 {
+		for _, e := range p.Edges {
+			t.Logf("  edge %+v", e)
+		}
+		t.Fatalf("selector s ports: true=%d false=%d, want 1/1 (no duplicate false edge)", trueEdges, falseEdges)
+	}
+}
+
+// Regression (P2 A3, S200): a dangling else-less if at the tail of an if-arm
+// belongs to that arm. It must not leak into the sibling arm and steal its
+// entry edge; its false path joins the enclosing merge on the default port.
+func TestProjectPendingIfScopedToThenArm(t *testing.T) {
+	inner := ifStmt("inner", &ir.Block{Stmts: []ir.Stmt{stmt("it")}}, nil, "")
+	outer := ifStmt("outer",
+		&ir.Block{Stmts: []ir.Stmt{stmt("ot"), inner}},
+		&ir.Block{Stmts: []ir.Stmt{stmt("oe")}}, "m")
+	p := mustProject(t, graph(outer, stmt("after")))
+	var innerFalse, innerHijack bool
+	for _, e := range p.Edges {
+		if e.SourceNodeID != "inner" || e.SourcePortID != "false" {
+			continue
+		}
+		switch e.TargetNodeID {
+		case "m":
+			innerFalse = true
+		case "oe":
+			innerHijack = true
+		}
+	}
+	if innerHijack || !innerFalse {
+		for _, e := range p.Edges {
+			t.Logf("  edge %+v", e)
+		}
+		t.Fatalf("inner false edge: hijacked_else=%v merged=%v, want merged only", innerHijack, innerFalse)
+	}
+}
