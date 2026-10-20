@@ -108,6 +108,7 @@ func TestLLMConfigSEEDAndResponseFormat(t *testing.T) {
 		{"response-format-text", `let r = llm("m", { "response_format": "text" });`, 0},
 		{"response-format-bogus", `let r = llm("m", { "response_format": "xml" });`, 1},
 		{"response-format-legacy-code", `let r = llm("m", { "response_format": 2 });`, 0},
+		{"response-format-provider-object", `let r = llm("m", { "response_format": { "type": "json_object" } });`, 0},
 		{"response-format-legacy-code-bad", `let r = llm("m", { "response_format": 9 });`, 1},
 		{"stop-open", `let r = llm("m", { "stop": ["END"] });`, 0},
 		{"frequency-penalty-float", `let r = llm("m", { "frequency_penalty": 0.5 });`, 0},

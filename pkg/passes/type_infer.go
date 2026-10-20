@@ -178,6 +178,13 @@ func (p *TypePass) checkLLMConfigEnum(key string, spec llm.KeySpec, expr ast.Exp
 		p.emit(diag.TYPE_MISMATCH, fmt.Sprintf(
 			"llm config key '%s' expected one of %v, got %d", key, spec.AllowedValues, v.Value()), expr.Span())
 		return true
+	case *ast.MapLit:
+		// provider 原生的结构化对象形（标准 LANGUAGE-REFERENCE 与示例
+		// 62_llm_open_object 都写 {"type": "json_object"}）。标准把
+		// response_format 当开放性扩展，并未列入已知键类型表 ⇒ 对象形必须
+		// 继续可编译；具体承载（coze-biz → JSON 数值码 / runtime 原生对象）
+		// 由目标绑定层判定，而不是在语言层拒收。
+		return true
 	}
 	return false
 }

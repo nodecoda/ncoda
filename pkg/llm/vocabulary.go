@@ -74,6 +74,9 @@ var vocabulary = []KeySpec{
 	// messages 的类型检查由 checkLLMMessageContents 单独完成（role/content
 	// 必须是 string），所以这里的 Type 留空。
 	{Name: "messages", Tier: TierStructural},
+	// 语言写抽象枚举 text/json/markdown；provider 原生的结构化对象形
+	// （{"type": "json_object"}，标准 LANGUAGE-REFERENCE 与示例 62 采用）
+	// 与旧数值码 0/1/2 在迁移窗口内继续接受（type_infer 对 MapLit 放行）。
 	{
 		Name:           "response_format",
 		Tier:           TierStructural,
