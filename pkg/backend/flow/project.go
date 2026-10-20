@@ -106,6 +106,10 @@ type Projection struct {
 // Project rebuilds the backend projection from the structured tree. It
 // reuses builder-created node objects (stable ids) and replays the legacy
 // edge construction in tree order.
+//
+// Deprecated: migrate to Plan followed by ProjectFromPlan (P1 graph
+// obligation plan); Project is kept as a behavior-compatible wrapper until
+// the dify/coze/run/rt-l3 call sites move. Its derivation logic is frozen.
 func Project(g *ir.Graph) (*Projection, error) {
 	if g.Root == nil {
 		return nil, fmt.Errorf("ir: derive: graph has no structured root")
