@@ -782,6 +782,15 @@ func portTypeOfNode(n Node, output string) *Type {
 				return t
 			}
 			if t, ok := nd.OutTypes[output[:i]]; ok {
+				// 首段是**已声明口**且类型是记录时，余下各段是它下方的成员
+				// 路径（`otherInfos.font_size`）⇒ 必须下钻到字段类型。直接
+				// 返回 `t`（整条记录）会把 calc-builtin shim 的输入声明成
+				// object，运行期把数字包成 {value:n}，`int()` 恒失败
+				// （一手：mryy_douyin 的 `int(otherInfos.font_size)`，
+				// 2026-10-21；与 tool 成员同一根因的另一条产出方通路）。
+				if ft := portFieldType(t, output[i+1:]); ft != nil {
+					return ft
+				}
 				return t
 			}
 		}

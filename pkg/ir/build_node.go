@@ -1045,6 +1045,18 @@ func (g *Builder) refType(ref varRef, expr ast.Expr) (*Type, error) {
 		}
 	}
 	if ref.typ != nil {
+		// tool 绑定：ref.typ 是**整条结果记录**（callBindRef 为成员路径还原
+		// 携带的字段表），ref.output 是该记录下的端口/成员路径（`duration`、
+		// `data.url`）。此时整段都是字段路径，必须按记录下钻取**字段类型**；
+		// dottedRefType 把无点的名字当「整个端口」（返回 base），会把
+		// `int(r.duration)` 的 shim 参数声明成 `object{...}` 而不是 number
+		// （一手：语料 3 份 S122/S132/mryy 的 `int(v.duration)` 因此恒失败——
+		// 运行期 object 声明把数字包成 {value:n}，`int()` 收不到标量）。
+		if ref.kind == "tool" && ref.output != "" {
+			if t := portFieldType(ref.typ, ref.output); t != nil {
+				return t, nil
+			}
+		}
 		if t := dottedRefType(ref.typ, ref.output); t != nil {
 			return t, nil
 		}
