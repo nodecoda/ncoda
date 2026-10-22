@@ -445,6 +445,17 @@ type HTTPHeader struct {
 	Value string
 }
 
+// HTTPParam is one query-parameter entry. It is the same template slot as
+// HTTPHeader (`{name: value}`, value may hold a {{block_output_…}} placeholder)
+// because the platform reads both channels through the same `vo.Param` shape
+// (`{name, input:{type,value}}`): headers from `inputs.Headers`, query from
+// `inputs.Params` (coze-studio httprequester/http_requester.go:428). Order is
+// the author's order, never a map order.
+type HTTPParam struct {
+	Name  string
+	Value string
+}
+
 // HTTPCall performs an HTTP request.
 type HTTPCall struct {
 	ID     string
@@ -456,6 +467,7 @@ type HTTPCall struct {
 	// template text; every placeholder has a matching Source in Inputs.
 	Body      string
 	Headers   []HTTPHeader
+	Params    []HTTPParam
 	Exception *ExceptionConfig
 }
 

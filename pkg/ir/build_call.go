@@ -943,8 +943,9 @@ func (g *Builder) buildHTTP(id string, call *ast.CallExpr, prevIDs []string, fir
 		if ok {
 			// The "body" key carries a RAW_TEXT template whose ${expr}
 			// placeholders are emitted as {{block_output_<id>.<port>}}
-			// and registered as input sources; "headers" carries the
-			// header map the same way. **Both are template slots (P12).**
+			// and registered as input sources; "headers" and "params"
+			// carry their name→value maps the same way. **All three are
+			// template slots (P12).**
 			//
 			// A key outside that vocabulary is a hard error, never a
 			// silent no-op: the old code fell through to the generic ref
@@ -957,11 +958,10 @@ func (g *Builder) buildHTTP(id string, call *ast.CallExpr, prevIDs []string, fir
 			//
 			// Carrying an undeclared key instead is not an option either:
 			// the language's http() option vocabulary is a language
-			// decision, and the platform `params` channel (the only
-			// candidate key) has **zero** non-empty corpus instances ⇒
-			// there is no first-hand wire shape to copy. Fail loud now;
-			// whether `params` joins the vocabulary is a registered
-			// open question (docs/five-step/rules/C2-http-call.yaml C2-H3).
+			// decision. `params` joined it on 2026-10-22 (user ruling, PRD
+			// v1.8 P2): the wire shape comes from platform code, and the
+			// corpus has zero non-empty `parameters.params` instances — a
+			// boundary recorded in ir.HTTPConfigKeys's doc and ES-115.
 			for _, entry := range opts.Entries() {
 				key, ok := staticMapKeyName(entry.Key)
 				if !ok {
@@ -977,6 +977,10 @@ func (g *Builder) buildHTTP(id string, call *ast.CallExpr, prevIDs []string, fir
 				case "headers":
 					if herr := g.httpHeaders(entry.Value, node, seen); herr != nil {
 						return nil, herr
+					}
+				case "params":
+					if perr := g.httpParams(entry.Value, node, seen); perr != nil {
+						return nil, perr
 					}
 				default:
 					return nil, &UnsupportedError{Construct: fmt.Sprintf(
@@ -1085,31 +1089,59 @@ func (g *Builder) noteHTTPInput(ref varRef, inputs *[]Source, seen map[string]bo
 	*inputs = append(*inputs, Source{BlockID: ref.nodeID, Name: ref.output})
 }
 
-// httpHeaders renders the `headers` config value: `{name: value}` where every
-// value is the same template slot as `body` (httpConfigValue). The header
-// NAME is a static platform key — the wire has no dynamic keys — so a
-// non-static name is the fail-loud diagnostic (dynamicMapKeyError), never a
-// silently skipped header.
-func (g *Builder) httpHeaders(expr ast.Expr, node *HTTPCall, seen map[string]bool) error {
+// httpPairs renders a `{name: value}` config map into ordered (name, template)
+// pairs. Both request channels the platform reads share this one shape — the
+// static key is the wire name, the value is a template slot (httpConfigValue).
+// A non-static name is the fail-loud diagnostic (dynamicMapKeyError), never a
+// silently skipped entry.
+func (g *Builder) httpPairs(expr ast.Expr, inputs *[]Source, seen map[string]bool, channel, item string) ([][2]string, error) {
 	m, ok := expr.(*ast.MapLit)
 	if !ok {
-		return &UnsupportedError{Construct: fmt.Sprintf(
-			"http() headers value %s is not a map literal (the platform header list is a static {name: value} map)",
-			exprLabel(expr))}
+		return nil, &UnsupportedError{Construct: fmt.Sprintf(
+			"http() %s value %s is not a map literal (the platform %s list is a static {name: value} map)",
+			channel, exprLabel(expr), channel)}
 	}
+	out := make([][2]string, 0, len(m.Entries()))
 	for _, entry := range m.Entries() {
 		name, ok := staticMapKeyName(entry.Key)
 		if !ok {
-			return dynamicMapKeyError("http header name", entry.Key)
+			return nil, dynamicMapKeyError("http "+item+" name", entry.Key)
 		}
 		if name == "" {
-			return &UnsupportedError{Construct: "http header name must not be empty"}
+			return nil, &UnsupportedError{Construct: "http " + item + " name must not be empty"}
 		}
-		value, verr := g.httpConfigValue(entry.Value, &node.Inputs, seen, "header "+strconv.Quote(name))
+		value, verr := g.httpConfigValue(entry.Value, inputs, seen, item+" "+strconv.Quote(name))
 		if verr != nil {
-			return verr
+			return nil, verr
 		}
-		node.Headers = append(node.Headers, HTTPHeader{Name: name, Value: value})
+		out = append(out, [2]string{name, value})
+	}
+	return out, nil
+}
+
+// httpHeaders renders the `headers` config value.
+func (g *Builder) httpHeaders(expr ast.Expr, node *HTTPCall, seen map[string]bool) error {
+	pairs, err := g.httpPairs(expr, &node.Inputs, seen, "headers", "header")
+	if err != nil {
+		return err
+	}
+	for _, p := range pairs {
+		node.Headers = append(node.Headers, HTTPHeader{Name: p[0], Value: p[1]})
+	}
+	return nil
+}
+
+// httpParams renders the `params` config value (query parameters). Order is
+// the author's order; the runtime appends each entry to the URL query only when
+// the rendered URL does not already carry that key (same canonical rule the
+// decompiler uses when the platform kept a query in the URL template).
+func (g *Builder) httpParams(expr ast.Expr, node *HTTPCall, seen map[string]bool) error {
+	pairs, err := g.httpPairs(expr, &node.Inputs, seen, "params", "param")
+	if err != nil {
+		return err
+	}
+	for _, p := range pairs {
+		node.Params = append(node.Params, HTTPParam{Name: p[0], Value: p[1]})
 	}
 	return nil
 }

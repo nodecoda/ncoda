@@ -10,15 +10,20 @@ package ir
 // the dify renderer reads ⇒ on the coze targets the entry AND its data
 // reference vanished while the compile reported SUCCEEDED; C2-H3 一手实测).
 //
-// 为什么是删表外键而不是补 `params`：`params` 是平台自己的查询参数通道
-// （coze-studio `http_requester.go` 读 `inputs.Params []*vo.Param`，与
-// `inputs.Headers` 同一机制、同一 `{name, input:{type,value}}` 条目形状），
-// 但 ncoda 把查询参数写在 url 模板里 ⇒ 它是平台物理通道，不是语言选项；
-// 且**语料 3/3 `params: []`** ⇒ 非空参数行的 wire 形状无一手先例，
-// 凭空造形状是本仓明令禁止的。`params` 是否进入语言词表 = 待用户裁定
-// （docs/five-step/rules/C2-http-call.yaml 的 C2-H3）。
+// `params`（查询参数）于 **2026-10-22 由用户裁定进入词表**（PRD
+// `.omx/plans/prd-ncoda-exec-semantics.md` v1.8 的 P2 切片：
+// `HTTPCall.Params` + `HTTPConfig.Headers/Params`）。证据分两层，必须分清：
 //
-// 本文件与 build_call.go 分开是**判据要求**，不是风格：repair 记录的 undo
-// 只退回 build_call.go（撤掉「表外键报错」这一条规则），本声明仍在 ⇒
-// 契约测试仍可编译 ⇒ 撤实现后的 RED 精确落在规则面上，而不是编译失败。
-var HTTPConfigKeys = []string{"body", "headers"}
+//   - **行形状 = 代码一手**：平台读 `inputs.Params []*vo.Param`
+//     （`oss:backend/domain/workflow/internal/nodes/httprequester/http_requester.go:428`），
+//     与 `inputs.Headers` 同一 `{name, input:{type,value}}` 条目；本仓 parser
+//     已按该形状把查询参数登记为 `__params_<md5>` 输入源
+//     （`platforms/cozestudio/parser/adaptorhelpers.go:357`）。
+//   - **语料先例 = 0**：869 份导出里 http 节点的 `parameters.params` 全部为空数组
+//     ⇒ 非空行的**语料**先例不存在。这不是造形状（形状取自代码），但也不是
+//     语料实证；ES-115 台账须保留这一诚实边界。
+//
+// 否决 `params` 的旧理由（“平台物理通道不是语言选项”）已不成立：query 是
+// 请求语义的一部分，ncoda 若不承载它，反编译就只能把查询条件冻进 URL 字符串、
+// 让数据引用无处可去（ES-031 的「只保留字面量」红灯）。
+var HTTPConfigKeys = []string{"body", "headers", "params"}
