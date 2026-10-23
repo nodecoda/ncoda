@@ -60,6 +60,7 @@ const (
 	KW_TRUE
 	KW_FALSE
 	KW_NULL
+	KW_LIBRARY
 
 	// Type keywords
 	KW_STRING
@@ -115,6 +116,7 @@ const (
 	AT_MODE         // @mode declaration
 	AT_CONVERSATION // @conversation declaration
 	AT_AGENT        // @agent declaration
+	AT              // bare '@' (library version separator)
 
 	// Special
 	EOF
@@ -139,7 +141,7 @@ var names = map[Type]string{
 	KW_ATTEMPT: "KW_ATTEMPT", KW_SUCCESS: "KW_SUCCESS", KW_FAILURE: "KW_FAILURE",
 	KW_WITH: "KW_WITH", KW_RETRY: "KW_RETRY", KW_TIMEOUT: "KW_TIMEOUT",
 	KW_DEFAULT: "KW_DEFAULT", KW_AS: "KW_AS", KW_REQUEST_INPUT: "KW_REQUEST_INPUT",
-	KW_ACTION: "KW_ACTION", KW_IMPORT: "KW_IMPORT", KW_SUBFLOW: "KW_SUBFLOW", KW_INTENT: "KW_INTENT", KW_SWITCH: "KW_SWITCH",
+	KW_ACTION: "KW_ACTION", KW_IMPORT: "KW_IMPORT", KW_SUBFLOW: "KW_SUBFLOW", KW_INTENT: "KW_INTENT", KW_SWITCH: "KW_SWITCH", KW_LIBRARY: "KW_LIBRARY",
 	KW_TRUE: "KW_TRUE", KW_FALSE: "KW_FALSE",
 	KW_NULL:   "KW_NULL",
 	KW_STRING: "KW_STRING", KW_INT: "KW_INT", KW_FLOAT: "KW_FLOAT",
@@ -156,8 +158,8 @@ var names = map[Type]string{
 	LBRACKET: "LBRACKET", RBRACKET: "RBRACKET", COMMA: "COMMA",
 	COLON: "COLON", SEMICOLON: "SEMICOLON", QUESTION: "QUESTION", NULL_COALESCE: "NULL_COALESCE",
 	AT_LANGUAGE: "AT_LANGUAGE", AT_MODE: "AT_MODE", AT_CONVERSATION: "AT_CONVERSATION",
-	AT_AGENT: "AT_AGENT",
-	EOF:      "EOF", ERROR: "ERROR",
+	AT_AGENT: "AT_AGENT", AT: "AT",
+	EOF: "EOF", ERROR: "ERROR",
 }
 
 // String returns the Python-equivalent enum member name.
@@ -186,7 +188,7 @@ var keywords = map[string]Type{
 	"intent":        KW_INTENT,
 	"switch":        KW_SWITCH,
 	"action":        KW_ACTION, "import": KW_IMPORT, "subflow": KW_SUBFLOW, "true": KW_TRUE, "false": KW_FALSE,
-	"null":   KW_NULL,
+	"null": KW_NULL, "library": KW_LIBRARY,
 	"string": KW_STRING, "int": KW_INT, "float": KW_FLOAT,
 	"bool": KW_BOOL, "file": KW_FILE, "void": KW_VOID,
 	"map": KW_MAP, "array": KW_ARRAY, "object": KW_OBJECT, "any": KW_ANY,

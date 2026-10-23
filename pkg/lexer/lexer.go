@@ -274,6 +274,10 @@ func (l *Lexer) scanAtDeclaration() {
 	case "agent":
 		l.add(token.AT_AGENT, token.Literal{}, "")
 	default:
+		if keyword == "" {
+			l.add(token.AT, token.Literal{}, "@")
+			return
+		}
 		l.error("Unknown @-declaration: @" + keyword)
 	}
 }

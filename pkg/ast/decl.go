@@ -96,6 +96,28 @@ func (n *ImportDecl) Provider() string { return n.provider }
 
 func (n *ImportDecl) String() string { return reprNode(n) }
 
+// LibraryDecl is the library-unit identity: library <name> @ <semver>;
+// It carries no IR and no ABI input; it names the declaration unit so a file
+// is auditable as one library without relying on the file path alone.
+type LibraryDecl struct {
+	base
+	name    string
+	version string
+}
+
+// NewLibraryDecl constructs a LibraryDecl.
+func NewLibraryDecl(name, version string) *LibraryDecl {
+	return &LibraryDecl{base: newBase(), name: name, version: version}
+}
+
+// Name returns the declared library name.
+func (n *LibraryDecl) Name() string { return n.name }
+
+// Version returns the declared semantic version.
+func (n *LibraryDecl) Version() string { return n.version }
+
+func (n *LibraryDecl) String() string { return reprNode(n) }
+
 // TypeDecl is a type definition: type <Name> = { <fields> };.
 type TypeDecl struct {
 	base
@@ -390,6 +412,7 @@ type Program struct {
 	typeDecls         []*TypeDecl
 	conversationDecls []*ConversationVarDecl
 	agentDecl         *AgentDecl
+	libraryDecl       *LibraryDecl
 	codeFunctions     []*CodeFunctionDef
 	subflowDecls      []*SubflowDecl
 	functions         []*FunctionDef
@@ -409,6 +432,11 @@ func NewProgram(opts ...ProgramOption) *Program {
 // WithLanguageIdentity sets the program language identity.
 func WithLanguageIdentity(identity string) ProgramOption {
 	return func(p *Program) { p.languageIdentity = identity }
+}
+
+// WithLibraryDecl sets the top-level library declaration (nil = none).
+func WithLibraryDecl(d *LibraryDecl) ProgramOption {
+	return func(p *Program) { p.libraryDecl = d }
 }
 
 // WithAgentDecl sets the top-level @agent declaration (nil = none).
@@ -478,6 +506,9 @@ func WithEntry(entry *FunctionDef) ProgramOption {
 
 // LanguageIdentity returns the declared language identity ("" if none).
 func (p *Program) LanguageIdentity() string { return p.languageIdentity }
+
+// Library returns the top-level library declaration, or nil.
+func (p *Program) Library() *LibraryDecl { return p.libraryDecl }
 
 // Mode returns the program mode.
 func (p *Program) Mode() string { return p.mode }

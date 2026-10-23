@@ -11,12 +11,19 @@ package parser
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/nodecoda/ncoda/pkg/ast"
 	"github.com/nodecoda/ncoda/pkg/diag"
 	"github.com/nodecoda/ncoda/pkg/lexer"
 	"github.com/nodecoda/ncoda/pkg/token"
 )
+
+// libraryVersionRe validates the MAJOR.MINOR.PATCH version of a library
+// declaration. The lexer splits "0.1.0" into FLOAT("0.1") DOT INT("0"), so
+// parseLibraryDecl re-joins the lexemes before matching here.
+var libraryVersionRe = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+$`)
 
 // Parser is a recursive-descent parser over a token stream. It collects
 // multiple parse errors without aborting on the first one, mirroring
@@ -147,6 +154,7 @@ func (p *Parser) parseProgram() (*ast.Program, []*ParseError) {
 	// Block body is a map literal; semantic field extraction happens here
 	// (parser-level validation for friendlier errors).
 	var agentDecl *ast.AgentDecl
+	var library *ast.LibraryDecl
 	for p.check(token.AT_AGENT) {
 		if agentDecl != nil {
 			p.error("Duplicate @agent declaration: only one agent application per program")
@@ -169,6 +177,15 @@ func (p *Parser) parseProgram() (*ast.Program, []*ParseError) {
 	for !p.isAtEnd() {
 		var declErr *ParseError
 		switch p.peek().Type {
+		case token.KW_LIBRARY:
+			if library != nil {
+				declErr = p.error("Duplicate library declaration")
+				break
+			}
+			var d *ast.LibraryDecl
+			if d, declErr = p.parseLibraryDecl(); declErr == nil {
+				library = d
+			}
 		case token.KW_IMPORT:
 			var d *ast.ImportDecl
 			if d, declErr = p.parseImportDecl(); declErr == nil {
@@ -256,6 +273,7 @@ func (p *Parser) parseProgram() (*ast.Program, []*ParseError) {
 		ast.WithTypeDecls(types),
 		ast.WithConversationDecls(convs),
 		ast.WithAgentDecl(agentDecl),
+		ast.WithLibraryDecl(library),
 		ast.WithCodeFunctions(codeFns),
 		ast.WithSubflowDecls(subflows),
 		ast.WithFunctions(fns),
@@ -476,4 +494,39 @@ func isWordToken(tok token.Token) bool {
 		return true
 	}
 	return tok.Type >= token.KW_FUNCTION && tok.Type <= token.KW_ANY
+}
+
+// parseLibraryDecl parses `library <name> @ <major>.<minor>.<patch> ;`.
+// The version is collected token-by-token because the lexer splits "0.1.0"
+// into a float, a dot and an int. The declaration is identity only: it never
+// reaches the IR and never participates in the ABI hash.
+func (p *Parser) parseLibraryDecl() (*ast.LibraryDecl, *ParseError) {
+	if _, err := p.consume(token.KW_LIBRARY, "Expected 'library'"); err != nil {
+		return nil, err
+	}
+	nameTok, err := p.consume(token.IDENTIFIER, "Expected library name after 'library'")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := p.consume(token.AT, "Expected '@' before library version"); err != nil {
+		return nil, err
+	}
+	var parts []string
+	for !p.isAtEnd() && !p.check(token.SEMICOLON) {
+		tok := p.advance()
+		switch tok.Type {
+		case token.INT_LITERAL, token.FLOAT_LITERAL, token.IDENTIFIER, token.DOT:
+			parts = append(parts, tok.Lexeme)
+		default:
+			return nil, p.error(fmt.Sprintf("Unexpected %s in library version", tok.Type))
+		}
+	}
+	version := strings.Join(parts, "")
+	if !libraryVersionRe.MatchString(version) {
+		return nil, p.error(fmt.Sprintf("Library version %q must be MAJOR.MINOR.PATCH", version))
+	}
+	if _, err := p.consume(token.SEMICOLON, "Expected ';' after library declaration"); err != nil {
+		return nil, err
+	}
+	return ast.NewLibraryDecl(nameTok.Lexeme, version), nil
 }

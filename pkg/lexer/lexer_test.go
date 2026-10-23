@@ -289,13 +289,18 @@ func TestWhitespaceAndLocation(t *testing.T) {
 }
 
 func TestErrors(t *testing.T) {
-	for _, src := range []string{"&", "|", "@", `"hello`} {
+	for _, src := range []string{"&", "|", "@bogus", `"hello`} {
 		lx := New(src, "")
 		lx.Tokenize()
 		if len(lx.Errors()) == 0 {
 			t.Fatalf("want errors for %q", src)
 		}
 	}
+	// a bare '@' is the library-version sigil, not an error; it is the
+	// parser's job to reject a misplaced one.
+	wantTypes(t, "library adjustment @ 0.1.0;", token.KW_LIBRARY, token.IDENTIFIER, token.AT,
+		token.FLOAT_LITERAL, token.DOT, token.INT_LITERAL, token.SEMICOLON)
+
 	// empty source -> single EOF
 	toks := New("", "").Tokenize()
 	if len(toks) != 1 || toks[0].Type != token.EOF {

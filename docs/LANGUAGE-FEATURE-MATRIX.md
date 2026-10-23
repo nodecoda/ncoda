@@ -67,6 +67,7 @@
 | `dollar-escape` | NCODA-DOLLAR-ESCAPE-SPEC / DOLLAR-ESCAPE-DESIGN | ✓ | · | · | · | N/A | ✓ | ✓ | · | N/A |
 | `qualified-call` | TOOL-DIRECT-CALL-FORM（ideas-todo） | ✓ | ✓ | ✓ | ✓ | N/A | ✓ | ✓ | ✓ | N/A |
 | `import` | TOOL-REGISTRY-LAYOUT | ✓ | · | ✓ | · | N/A | ✓ | ✓ | · | N/A |
+| `library` | lib-semantics-language-change（库单元身份：`library <name> @ <semver>;`；只是声明单元的名字与版本，不进 IR / ABI / 绑定） | ✓ | - | - | - | - | - | - | - | N/A |
 | `function-inline` | AGENTS.md return 分层（子函数） | ✓ | · | · | · | N/A | ✓ | ~ | ✓ | N/A |
 | `subflow` | SUBWORKFLOW-DECLARATION（coze 子工作流声明） | ✓ | ✗ | - | ✓ | ✓ | ✓ | ✓ | ✓ | N/A |
 | `env-const` | WORKFLOW-IR | ✓ | · | · | · | N/A | - | - | · | N/A |
