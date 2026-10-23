@@ -38,7 +38,6 @@ package binding
 import (
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/nodecoda/ncoda/pkg/ast"
@@ -483,24 +482,19 @@ func (b *binder) run() {
 	// the three discriminants (binder / type pass / IR) agreeing by
 	// construction.
 	for _, imp := range b.program.Imports() {
-		// Platform-qualified imports ("coze-biz.web_search") register the
-		// bare provider as the source-level namespace — the qualifier only
-		// selects the platform binding (docs/PLATFORM-MECHANISM.md §5.1).
-		// A bare import is invalid: bindings are platform-specific, so the
-		// import must declare its platform (no backward-compat target
-		// derivation). Unknown qualifiers are rejected the same way — the
-		// rule lives here (language layer) so it holds even without
+		// Both forms register the bare provider as the source-level
+		// namespace: "coze-biz.web_search" and plain "web_search" define the
+		// same symbol. The platform qualifier (when present) only narrows
+		// which backend binding may satisfy the import; it is a build-time
+		// concern (--target), never a language concept
+		// (docs/SYMBOL-SPEC.md: ncoda does not know about bindings).
+		// Unknown qualifiers are still rejected so a typo cannot silently
+		// misroute bindings; validation lives here so it holds even without
 		// --tool-path.
 		raw := imp.Provider()
-		platform, name, serr := importns.Split(raw)
+		_, name, serr := importns.Split(raw)
 		if serr != nil {
 			b.emit(diag.IMPORT_PLATFORM_REQUIRED, serr.Error(), imp.Span())
-			continue
-		}
-		if platform == "" {
-			b.emit(diag.IMPORT_PLATFORM_REQUIRED,
-				"import must specify a platform: "+strconv.Quote(raw)+
-					" (allowed: "+strings.Join(importns.PlatformNames, ", ")+")", imp.Span())
 			continue
 		}
 		if existing := b.chain.Scope(b.chain.Global()).ResolveSymbolLocal(name); existing != nil && existing.Kind == SymbolNamespace {

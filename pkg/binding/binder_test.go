@@ -786,22 +786,24 @@ function main() { return "ok"; }`
 	}
 }
 
-// Platform mechanism v2 (docs/PLATFORM-MECHANISM.md §4-5): a bare import is
-// a compile error — bindings are platform-specific, so the import must
-// declare its platform. Unknown platform qualifiers are rejected the same
-// way. The rule lives in the binder (language layer) so it holds even
-// without --tool-path.
-func TestBareImportRequiresPlatform(t *testing.T) {
+// Symbol spec v1 (docs/SYMBOL-SPEC.md): a bare import is legal — the
+// platform is a build-time concern (--target selects the binding), not a
+// language concept. Unknown qualifiers are still rejected so a typo cannot
+// silently misroute bindings.
+func TestBareImportIsLegal(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
 import "tts";
-function main() { return "ok"; }`
-	errs, _ := errorDiagnostics(t, src)
-	if !hasCode(errs, diag.IMPORT_PLATFORM_REQUIRED) {
-		t.Fatalf("expected IMPORT_PLATFORM_REQUIRED for bare import, got %v", errs)
+function main() { return tts.say("ok"); }`
+	prog, perrs := parser.ParseSource(src, "bare.ncoda")
+	if len(perrs) > 0 {
+		t.Fatalf("parse: %v", perrs[0].Message)
 	}
-	if !hasMessage(errs, "import must specify a platform") {
-		t.Fatalf("expected platform-required message, got %v", errs)
+	_, diags := Bind(prog)
+	for _, d := range diags {
+		if d.Code == diag.IMPORT_PLATFORM_REQUIRED || d.Code == diag.UNDEFINED_VAR {
+			t.Fatalf("bare import must be legal, got: %v", d)
+		}
 	}
 }
 
