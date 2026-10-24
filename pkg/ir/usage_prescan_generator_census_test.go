@@ -37,10 +37,10 @@ func TestPrescanGeneratorCensus(t *testing.T) {
 	}
 	base := passes.DefaultTargetProfile()
 	profile := &passes.TargetProfile{
-		Name:                                 "coze-biz-1.0",
+		Name:                                 "native-fixture",
 		Operations:                           base.Operations,
 		MaxParallelism:                       base.MaxParallelism,
-		Capabilities:                         passes.CapabilityManifestForTarget("coze-biz-1.0"),
+		Capabilities:                         passes.DefaultCapabilityManifest(),
 		AgentProfiles:                        base.AgentProfiles,
 		ParameterExtractorFunctionCallModels: base.ParameterExtractorFunctionCallModels,
 		ParameterExtractorMemoryMaxTurns:     base.ParameterExtractorMemoryMaxTurns,

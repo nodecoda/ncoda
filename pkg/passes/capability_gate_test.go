@@ -183,14 +183,28 @@ func TestNewCapabilityManifestWithStateOverrides(t *testing.T) {
 	}
 }
 
-func TestAdapterManifestRejectsExtractionVision(t *testing.T) {
-	m := CapabilityManifestForTarget("coze-biz-1.0")
+// The kernel declares only the default manifest. A target that cannot carry a
+// shape declares the rejection in its adapter (D8); the kernel must not know
+// which platform that is.
+func TestDefaultManifestDoesNotRejectPerPlatformShapes(t *testing.T) {
+	m := DefaultCapabilityManifest()
+	if got := m.Lookup(CapabilityShapeStructuredExtractionVision).State; got == CapabilityStateRejected {
+		t.Fatalf("default manifest rejects extraction vision (%s): that is an adapter fact, not a language default", got)
+	}
+}
+
+// An adapter-supplied manifest still drives the verdict, so the injection point
+// is real: REJECTED maps to TARGET_NOT_LOWERABLE.
+func TestInjectedManifestDrivesVerdict(t *testing.T) {
+	m := NewCapabilityManifestWithState(map[CapabilityShape]CapabilityState{
+		CapabilityShapeStructuredExtractionVision: CapabilityStateRejected,
+	})
 	entry := m.Lookup(CapabilityShapeStructuredExtractionVision)
 	if entry.State != CapabilityStateRejected {
-		t.Fatalf("coze-biz extraction vision state = %s, want REJECTED", entry.State)
+		t.Fatalf("injected state = %s, want REJECTED", entry.State)
 	}
 	if entry.Diagnostic() != diag.TARGET_NOT_LOWERABLE {
-		t.Fatalf("coze-biz extraction vision diagnostic = %d, want TARGET_NOT_LOWERABLE", entry.Diagnostic())
+		t.Fatalf("injected diagnostic = %d, want TARGET_NOT_LOWERABLE", entry.Diagnostic())
 	}
 }
 
