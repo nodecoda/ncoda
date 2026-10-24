@@ -16,6 +16,7 @@ import (
 
 	"github.com/nodecoda/ncoda/pkg/backend/dify"
 	"github.com/nodecoda/ncoda/pkg/compiler"
+	"github.com/nodecoda/ncoda/pkg/irdump"
 	"github.com/nodecoda/ncoda/pkg/target/codec"
 	"github.com/nodecoda/ncoda/pkg/toolpath"
 	"github.com/nodecoda/ncoda/pkg/version"
@@ -40,6 +41,7 @@ func CompileRun(stdin io.Reader, stdout io.Writer, args []string) int {
 	placementReport := fs.Bool("placement-report", false, "Emit native-vs-materialize lowering decision log (placement)")
 	strictFlag := fs.Bool("strict", false, "Strict mode: keep warning-severity diagnostics (2xxx) in the result (audit mode; default suppresses them)")
 	versionFlag := fs.Bool("version", false, "Print the compiler version and exit")
+	emitIR := fs.Bool("emit-ir", false, "Emit the canonical ncoda-ir/v1 dump (language lane; requires --target __none__)")
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 2
@@ -57,12 +59,23 @@ func CompileRun(stdin io.Reader, stdout io.Writer, args []string) int {
 	// Python's main never reads args.json — JSON output is unconditional
 	// (compile_cli.py:156-175); the flag exists for CLI-shape parity only.
 	_ = *jsonFlag
+	// 语言 lane（L1）：`--target __none__` 只回答「这门程序在语言里有没有
+	// 意义」，产物只有 ncoda-ir/v1。它不做平台承载判定，因此必须与
+	// --emit-ir 成对出现（docs/language/CLI-CONTRACT.md）。
+	if *target == compiler.TargetLanguageOnly && !*emitIR {
+		fmt.Fprintf(os.Stderr, "nclang-compile: --target %s is the language lane and requires --emit-ir\n", compiler.TargetLanguageOnly)
+		return 2
+	}
+	if *emitIR && *target != compiler.TargetLanguageOnly {
+		fmt.Fprintf(os.Stderr, "nclang-compile: --emit-ir requires --target %s\n", compiler.TargetLanguageOnly)
+		return 2
+	}
 	source, err := io.ReadAll(stdin)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "nclang-compile: reading stdin:", err)
 		return 1
 	}
-	opts := compiler.Options{Target: *target, Filename: *filename, ShowPlacements: *placementReport, Strict: *strictFlag}
+	opts := compiler.Options{Target: *target, Filename: *filename, ShowPlacements: *placementReport, Strict: *strictFlag, EmitIR: *emitIR}
 	opts.ToolPaths = ResolveToolPaths(toolPaths)
 	if *difyBindingsPath != "" {
 		if *target != codec.TargetName {
@@ -81,6 +94,31 @@ func CompileRun(stdin io.Reader, stdout io.Writer, args []string) int {
 		}
 	}
 	result := compiler.CompileToJSONWithOptions(string(source), opts)
+	if *emitIR {
+		irValue, ok := result["ir"].(*irdump.IRDump)
+		if !ok || irValue == nil {
+			status, _ := result["status"].(string)
+			fmt.Fprintf(os.Stderr, "nclang-compile: --emit-ir: no IR produced (status %s)\n", status)
+			if diags, ok := result["diagnostics"].([]any); ok {
+				for _, d := range diags {
+					if m, ok := d.(map[string]any); ok {
+						fmt.Fprintf(os.Stderr, "  %v: %v\n", m["code"], m["message"])
+					}
+				}
+			}
+			return 1
+		}
+		data, merr := irValue.Marshal()
+		if merr != nil {
+			fmt.Fprintln(os.Stderr, "nclang-compile: encoding IR:", merr)
+			return 2
+		}
+		if _, werr := stdout.Write(data); werr != nil {
+			fmt.Fprintln(os.Stderr, "nclang-compile: writing stdout:", werr)
+			return 2
+		}
+		return 0
+	}
 	data, err := compiler.MarshalContractJSON(result)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "nclang-compile: encoding result:", err)

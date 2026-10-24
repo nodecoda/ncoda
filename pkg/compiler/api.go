@@ -25,6 +25,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/backend/dify/verifier"
 	"github.com/nodecoda/ncoda/pkg/capability"
 	"github.com/nodecoda/ncoda/pkg/ir"
+	"github.com/nodecoda/ncoda/pkg/irdump"
 	"github.com/nodecoda/ncoda/pkg/parser"
 	"github.com/nodecoda/ncoda/pkg/passes"
 	"github.com/nodecoda/ncoda/pkg/target/codec"
@@ -57,6 +58,11 @@ const (
 	StatusCapabilityBlocked = "CAPABILITY_BLOCKED"
 	DiagCodeAdapterError    = "ADAPTER_ERROR"
 	DiagCodeSerializeError  = "SERIALIZE_ERROR"
+	// P6 foreign-code syntax projection (see code_syntax.go). CODE_SYNTAX is
+	// an error; CODE_SYNTAX_UNVERIFIED is a warning (no interpreter = cannot
+	// judge, never a fake pass).
+	DiagCodeCodeSyntax           = "CODE_SYNTAX"
+	DiagCodeCodeSyntaxUnverified = "CODE_SYNTAX_UNVERIFIED"
 )
 
 // Options selects the compilation target, source label, and optional Tool
@@ -83,6 +89,10 @@ type Options struct {
 	// status. Strict keeps them in the diagnostics array for auditing.
 	// Errors are always reported. Zero value = warnings suppressed.
 	Strict bool
+	// EmitIR requests the canonical ncoda-ir/v1 dump (L0'). The compile
+	// pipeline is unchanged; the result carries the platform-neutral
+	// projection as well. Zero value = no dump.
+	EmitIR bool
 }
 
 // DiagJSON is the wire shape of one diagnostic. Compile diagnostics mirror
@@ -143,6 +153,10 @@ type Result struct {
 	// (PLACEMENT-PASS §5). Populated when the caller requests it via
 	// Options.ShowPlacements; nil when omitted.
 	Placements []ir.Placement
+	// IR is the canonical ncoda-ir/v1 dump (L0'): the language lane's only
+	// product, and an optional projection for target lanes. Populated only
+	// when Options.EmitIR is set; nil otherwise.
+	IR *irdump.IRDump
 }
 
 // Compile runs the full pipeline (frontend → IR → backend render → serialize) and
@@ -200,7 +214,7 @@ func Compile(source string, opts Options) *Result {
 			}},
 		}
 	}
-	r := compileRaw(source, target, filename, registry, difyBindings, opts.ShowPlacements)
+	r := compileRaw(source, target, filename, registry, difyBindings, opts.ShowPlacements, opts.EmitIR)
 	r.Diagnostics = ApplyStrictFilter(opts.Strict, r.Diagnostics)
 	return r
 }
@@ -289,7 +303,7 @@ func resolvePackageBindings(imports, toolPaths []string, target string, registry
 // compileRaw is the un-coerced core shared by Compile and CompileToJSON:
 // the target gate, frontend, IR/backend rendering, and serialize steps mirroring
 // compile_cli.py compile_to_json. target/filename are used verbatim.
-func compileRaw(source, target, filename string, toolRegistry *tool.Registry, difyToolBindings *dify.ToolBindingManifest, includePlacements bool) *Result {
+func compileRaw(source, target, filename string, toolRegistry *tool.Registry, difyToolBindings *dify.ToolBindingManifest, includePlacements, emitIR bool) *Result {
 	base := func(status string, ok bool, yamlText string, diags []DiagJSON) *Result {
 		sha := ""
 		if ok {
@@ -313,7 +327,8 @@ func compileRaw(source, target, filename string, toolRegistry *tool.Registry, di
 	// directly (semantic separation — language semantics upstream, platform
 	// structure in internal/backend/coze), so the difycodec gate is relaxed
 	// for coze.TargetName only.
-	if target != codec.TargetName {
+	languageOnly := target == TargetLanguageOnly
+	if !languageOnly && target != codec.TargetName {
 		return base(StatusUnknownTarget, false, "", []DiagJSON{{
 			Code:     StatusUnknownTarget,
 			Severity: "error",
@@ -324,7 +339,11 @@ func compileRaw(source, target, filename string, toolRegistry *tool.Registry, di
 	// ── Steps 2-3: compile_nodecoda_result (frontend, then IR/backend
 	// rendering). The Go frontend short-circuits on lexer/parser/validation
 	// errors; post-render verification reports LOWERING_INVARIANT diagnostics.
-	frontend := passes.DefaultPipeline().WithToolRegistry(toolRegistry).Run(source, filename, nil)
+	frontendProfile := passes.DefaultTargetProfile()
+	if languageOnly {
+		frontendProfile = neutralLanguageProfile()
+	}
+	frontend := passes.DefaultPipeline().WithToolRegistry(toolRegistry).Run(source, filename, frontendProfile)
 	diags := make([]DiagJSON, 0, len(frontend.Diagnostics))
 	for _, d := range frontend.Diagnostics {
 		diags = append(diags, NormalizeCompileDiag(d))
@@ -334,13 +353,45 @@ func compileRaw(source, target, filename string, toolRegistry *tool.Registry, di
 		return base(StatusCompileError, false, "", diags)
 	}
 
+	// P6: foreign code is a user-owned payload outside the typed IR. Its
+	// well-formedness is judged here as a projection (early feedback) and
+	// authoritatively at runtime load (SEM-CODE-001).
+	codeDiags := CodeSyntaxDiags(frontend.Program)
+	if len(codeDiags) > 0 {
+		AttachDiagTarget(codeDiags, target)
+		diags = append(diags, codeDiags...)
+		for _, d := range codeDiags {
+			if strings.EqualFold(d.Severity, "error") {
+				return base(StatusCompileError, false, "", diags)
+			}
+		}
+	}
+
 	// Both backends consume the same platform-neutral IR instance. When a
 	// Tool registry is supplied, it closes the otherwise open-world Tool
 	// namespace before either target performs platform-specific rendering.
-	irg, err := ir.Build(frontend.Program, ir.WithCapabilities(capability.For(target)))
+	var irOpts []ir.BuildOption
+	if !languageOnly {
+		irOpts = append(irOpts, ir.WithCapabilities(capability.For(target)))
+	}
+	irg, err := ir.Build(frontend.Program, irOpts...)
 	var placements []ir.Placement
 	if err == nil && includePlacements {
 		placements = irg.Placements
+	}
+	if err == nil && emitIR {
+		imports := make([]string, 0, len(frontend.Program.Program.Imports()))
+		for _, imp := range frontend.Program.Program.Imports() {
+			imports = append(imports, imp.Provider())
+		}
+		r := base("ok", true, "", diags)
+		r.IR = irdump.BuildIRDump(irg, toolRegistry, imports, filename, compilerVersion)
+		return r
+	}
+	if err == nil && languageOnly {
+		// The language lane ends at the IR: no registry validation, no
+		// bindings, no backend. Those are platform facts.
+		return base("ok", true, "", diags)
 	}
 	if err != nil {
 		adapterDiag := DiagJSON{
@@ -492,7 +543,7 @@ func CompileToJSONWithOptions(source string, opts Options) map[string]any {
 		}
 		return resultToJSON(r)
 	}
-	r := compileRaw(source, opts.Target, opts.Filename, registry, difyBindings, opts.ShowPlacements)
+	r := compileRaw(source, opts.Target, opts.Filename, registry, difyBindings, opts.ShowPlacements, opts.EmitIR)
 	r.Diagnostics = ApplyStrictFilter(opts.Strict, r.Diagnostics)
 	return resultToJSON(r)
 }
@@ -552,6 +603,9 @@ func resultToJSON(r *Result) map[string]any {
 		m["zip_sha256"] = r.ZipSHA256
 		m["zip_filename"] = r.ZipFilename
 		m["workflow_name"] = r.WorkflowName
+	}
+	if r.IR != nil {
+		m["ir"] = r.IR
 	}
 	if len(r.Placements) > 0 {
 		pa := make([]any, 0, len(r.Placements))
