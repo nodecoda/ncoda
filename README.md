@@ -115,7 +115,9 @@ make dist      # 6-platform binaries + SBOM + checksums
 ```
 
 `make dist` writes to `DIST` (default `/tmp/ncoda-dist-<VERSION>`) and builds
-both lanes: `nclang` (language) and `ncoda-run` (runtime).
+both lanes: `nclang` (language) and `ncoda-run` (runtime). It also ships
+`libraries/` next to the binaries, so `ncoda-run` resolves `import "<lib>"`
+from `<exe>/libraries` without any extra flag.
 
 ## Repository layout
 

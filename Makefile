@@ -44,6 +44,11 @@ push:
 	@# offline with --local-plugins, and must fail honestly without it.
 	@/tmp/ncoda-run-smoke-$(VERSION) --local-plugins --tool-path ./libraries examples/nodecoda/62_local_library_roundtrip.ncoda | grep -q '"k":"hello"'
 	@/tmp/ncoda-run-smoke-$(VERSION) --tool-path ./libraries examples/nodecoda/62_local_library_roundtrip.ncoda >/dev/null 2>&1; test $$? -eq 1
+	@# distribution layout: headers next to the binary, no --tool-path
+	@mkdir -p /tmp/ncoda-dist-smoke-$(VERSION)/libraries
+	@cp /tmp/ncoda-run-smoke-$(VERSION) /tmp/ncoda-dist-smoke-$(VERSION)/ncoda-run
+	@cp libraries/*.ncoda /tmp/ncoda-dist-smoke-$(VERSION)/libraries/
+	@cd /tmp && /tmp/ncoda-dist-smoke-$(VERSION)/ncoda-run --local-plugins $(CURDIR)/examples/nodecoda/62_local_library_roundtrip.ncoda | grep -q '"k":"hello"'
 	@echo "runtime_smoke: ok"
 
 nightly:
@@ -68,12 +73,17 @@ dist:
 	done
 	@# Apache-2.0 §4(d): ship the License and the NOTICE with the binaries.
 	@# install (not cp) so a rerun can overwrite read-only LICENSE (0444).
+	@# Public capability headers: ncoda-run resolves `import "<lib>"` from
+	@# <exe>/libraries, so a distribution that omits them cannot run a source
+	@# that imports a public library.
+	@install -d $(DIST)/libraries
+	@install -m 0644 libraries/*.ncoda $(DIST)/libraries/
 	@install -m 0644 LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/
 	@python3 scripts/gen_sbom.py --version $(VERSION) --package ./cmd/nclang-compile --out $(DIST)/sbom-nclang.cdx.json
 	@python3 scripts/gen_sbom.py --version $(VERSION) --package ./cmd/ncoda-run --out $(DIST)/sbom-ncoda-run.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
 	@$(GO) version -m $(DIST)/ncoda-run-$(VERSION)-linux-amd64 >> $(DIST)/SBOM.txt
-	@cd $(DIST) && sha256sum nclang-* ncoda-run-* sbom-*.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md > SHA256SUMS
+	@cd $(DIST) && sha256sum nclang-* ncoda-run-* sbom-*.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md libraries/*.ncoda > SHA256SUMS
 	@echo "artifacts in $(DIST)"
 
 # A release directory is only publishable if every stated artifact is present
@@ -82,6 +92,9 @@ dist:
 dist-check: dist
 	@cd $(DIST) && for f in LICENSE NOTICE THIRD-PARTY-NOTICES.md sbom-nclang.cdx.json sbom-ncoda-run.cdx.json SBOM.txt SHA256SUMS; do \
 	  test -s "$$f" || { echo "dist-check: missing $$f"; exit 1; }; done
+	@test -d $(DIST)/libraries || { echo "dist-check: missing libraries/"; exit 1; }
+	@n=$$(ls $(DIST)/libraries/*.ncoda | wc -l); test "$$n" -eq 174 || { echo "dist-check: libraries/ has $$n headers, want 174"; exit 1; }
+	@cd $(DIST) && sha256sum -c SHA256SUMS >/dev/null || { echo "dist-check: SHA256SUMS does not verify"; exit 1; }
 	@cd $(DIST) && sha256sum -c SHA256SUMS --quiet
 	@echo "dist-check: ok ($(DIST))"
 
