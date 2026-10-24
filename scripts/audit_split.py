@@ -4,7 +4,7 @@
 The split is only durable if its invariants are checked, not remembered. Each
 check below corresponds to an acceptance criterion of the O2 split:
 
-  S1 structure     no `internal/` tree, no `platforms/coze*` (private backends)
+  S1 structure     no `internal/` tree, no `platforms/*` (private backends)
   S2 dependencies  nclang-compile (the open distribution's only binary) never
                    reaches a platform adapter (dify/coze/coze-biz), the closed
                    tree, eino, or ncoda-commercial
@@ -180,8 +180,7 @@ def check_structure(root: str) -> list[str]:
     platforms = os.path.join(root, "platforms")
     if os.path.isdir(platforms):
         for name in sorted(os.listdir(platforms)):
-            if name.startswith("coze"):
-                problems.append(f"S1 开放树出现 platforms/{name}（闭源平台）")
+            problems.append(f"S1 开放树出现 platforms/{name}（平台适配器）")
     return problems
 
 
