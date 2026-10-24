@@ -13,7 +13,6 @@ package compiler
 import (
 	"strconv"
 
-	"github.com/nodecoda/ncoda/pkg/backend/dify/analyzer"
 	"github.com/nodecoda/ncoda/pkg/diag"
 	"github.com/nodecoda/ncoda/pkg/token"
 )
@@ -93,28 +92,6 @@ func ApplyStrictFilter(strict bool, diags []DiagJSON) []DiagJSON {
 		}
 	}
 	return filtered
-}
-
-// NormalizeAnalysisDiag maps an analyzer diagnostic to the JSON wire shape
-// (compile_cli.py _normalize_analysis_diag :46-54): code/severity/message
-// plus node_id and path, with empty values becoming JSON null (nil pointer)
-// on the wire.
-func NormalizeAnalysisDiag(d analyzer.Diagnostic) DiagJSON {
-	out := DiagJSON{
-		Code:         d.Code,
-		Severity:     d.Severity,
-		Message:      d.Message,
-		FromAnalysis: true,
-	}
-	if d.NodeID != "" {
-		id := d.NodeID
-		out.NodeID = &id
-	}
-	if d.Path != "" {
-		p := d.Path
-		out.Path = &p
-	}
-	return out
 }
 
 // SpanString renders the Python SourceSpan string for a diagnostic. The

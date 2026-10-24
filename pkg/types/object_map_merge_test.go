@@ -1,3 +1,5 @@
+//@feature open-object — `object` 与 `map<string, any>` 是同一个 open-object Descriptor（双向可赋值）
+
 package types
 
 // object_map_merge_test.go —— 「`object` 并入 `map<string, any>`」的契约（撤实现必红）。

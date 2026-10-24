@@ -26,7 +26,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/ast"
 	"github.com/nodecoda/ncoda/pkg/binding"
 	"github.com/nodecoda/ncoda/pkg/diag"
-	"github.com/nodecoda/ncoda/pkg/target/codec"
+	"github.com/nodecoda/ncoda/pkg/target"
 	"github.com/nodecoda/ncoda/pkg/tool"
 	"github.com/nodecoda/ncoda/pkg/types"
 )
@@ -2332,8 +2332,8 @@ func TestExtractionStaticMapBranches(t *testing.T) {
 // ── I3: target codec face through the profile ─────────────────────────
 
 // The extraction EXACT-loss certification reads the target codec through
-// TargetProfile.Codec (the shared internal/target layer), not a backend
-// package default. DefaultTargetProfile wires the real dify codec; a
+// TargetProfile.Codec (the platform-neutral pkg/target face), not a backend
+// package default. DefaultTargetProfile wires the canonical language codec; a
 // hand-built profile with a stub codec flips the certification outcome,
 // proving the pass consults the profile's face.
 func TestDefaultTargetProfileCarriesCodecFace(t *testing.T) {
@@ -2342,17 +2342,17 @@ func TestDefaultTargetProfileCarriesCodecFace(t *testing.T) {
 		t.Fatal("DefaultTargetProfile must carry the target codec face (I3)")
 	}
 	shape := profile.Codec.ToParameterExtractorField(types.StringType())
-	if shape.Loss != codec.LossExact {
+	if shape.Loss != target.LossExact {
 		t.Fatalf("string field loss = %v, want exact", shape.Loss)
 	}
 }
 
-// stubUnsupportedCodec implements codec.Interface with an all-unsupported
+// stubUnsupportedCodec implements target.Codec with an all-unsupported
 // mapping: the profile-injected face must change the certification outcome.
 type stubUnsupportedCodec struct{}
 
-func (stubUnsupportedCodec) ToParameterExtractorField(d *types.Descriptor) *codec.Shape {
-	return &codec.Shape{Loss: codec.LossUnsupported}
+func (stubUnsupportedCodec) ToParameterExtractorField(d *types.Descriptor) *target.Shape {
+	return &target.Shape{Loss: target.LossUnsupported}
 }
 
 func TestExtractionValidationReadsProfileCodecFace(t *testing.T) {

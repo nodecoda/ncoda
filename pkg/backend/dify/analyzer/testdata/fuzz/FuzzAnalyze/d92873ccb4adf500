@@ -1,2 +1,0 @@
-go test fuzz v1
-[]byte("s\x11[\x00\x00y\x80n09")

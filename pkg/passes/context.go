@@ -11,7 +11,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/ast"
 	"github.com/nodecoda/ncoda/pkg/binding"
 	"github.com/nodecoda/ncoda/pkg/diag"
-	"github.com/nodecoda/ncoda/pkg/target/codec"
+	"github.com/nodecoda/ncoda/pkg/target"
 	"github.com/nodecoda/ncoda/pkg/token"
 	"github.com/nodecoda/ncoda/pkg/tool"
 	"github.com/nodecoda/ncoda/pkg/types"
@@ -98,15 +98,12 @@ type TargetProfile struct {
 
 	// Codec is the target's physical-type mapping face (I3): the
 	// parameter-extractor codec target validation consults for EXACT-loss
-	// extraction-field certification. It used to be resolved through the
-	// package default (codec.Default()) inside the pass — a frontend→backend
-	// layer crossing. The codec now lives in the shared internal/target
-	// layer and the profile carries it, so target validation reads the
-	// target's physical contract through the profile like every other
-	// capability. DefaultTargetProfile wires codec.Default() (the single
-	// locked target dify-1.16-graphon-0.6); a nil Codec falls back to the
-	// same default defensively (the Capabilities nil-guard precedent).
-	Codec codec.Interface
+	// extraction-field certification. It is platform-neutral (pkg/target);
+	// a platform adapter supplies its own implementation through this field.
+	// DefaultTargetProfile wires target.DefaultCodec(), the canonical language
+	// mapping; a nil Codec falls back to it defensively (the Capabilities
+	// nil-guard precedent).
+	Codec target.Codec
 }
 
 // DefaultTargetProfile returns the identity of the reference default target
@@ -125,7 +122,7 @@ func DefaultTargetProfile() *TargetProfile {
 		AgentProfiles:                        map[string]*binding.AgentTargetProfile{},
 		ParameterExtractorFunctionCallModels: map[string]bool{"deepseek/deepseek-chat": true},
 		ParameterExtractorMemoryMaxTurns:     99,
-		Codec:                                codec.Default(),
+		Codec:                                target.DefaultCodec(),
 	}
 }
 

@@ -21,9 +21,8 @@ func TestSemanticsMigrationBoundary(t *testing.T) {
 	root := filepath.Clean(filepath.Join(filepath.Dir(file), "..", "..", ".."))
 
 	projectAllow := map[string]bool{
-		"pkg/backend/dify/render.go": true, // dify renderer: P4b pending
-		"pkg/tool/registry.go":       true, // capability registry: P4b pending
-		"cmd/ncoda-dualrun/main.go":  true, // frozen baseline replay
+		"pkg/tool/registry.go":      true, // capability registry: P4b pending
+		"cmd/ncoda-dualrun/main.go": true, // frozen baseline replay
 	}
 	fromPlanAllow := map[string]bool{
 		"cmd/ncoda-dualrun/plan_compare.go": true,

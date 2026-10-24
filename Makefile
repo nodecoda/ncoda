@@ -27,14 +27,18 @@ check: fmt-check audit contracts-check notices-check
 
 push:
 	$(GO) test -count=1 ./...
-	@echo "── CLI contract smoke ──"
-	@printf '' | $(GO) run ./cmd/nclang-compile | grep -q '"status":"COMPILE_ERROR"'
-	@cat examples/nodecoda/00_minimal_start_llm_end.ncoda | $(GO) run ./cmd/nclang-compile | grep -q '"status":"SUCCEEDED"'
+	@echo "── language-lane smoke ──"
+	@# `go run` collapses every non-zero exit into 1, so the rc contract must
+	@# be checked against a real binary; otherwise rc=2 is indistinguishable.
+	@$(GO) build -o /tmp/nclang-smoke-$(VERSION) ./cmd/nclang-compile
+	@printf '' | /tmp/nclang-smoke-$(VERSION) >/dev/null 2>&1; test $$? -eq 1
+	@cat examples/nodecoda/00_minimal_start_llm_end.ncoda | /tmp/nclang-smoke-$(VERSION) | grep -q '"schema": "ncoda-ir/v1"'
+	@printf '' | /tmp/nclang-smoke-$(VERSION) --target dify-1.16-graphon-0.6 >/dev/null 2>&1; test $$? -eq 2
 	@echo "cli_smoke: ok"
 
 nightly:
 	$(GO) test -count=1 ./...
-	$(GO) test -race -count=1 ./pkg/ir/... ./pkg/passes/... ./pkg/compiler/... ./platforms/dify/decompile/...
+	$(GO) test -race -count=1 ./pkg/ir/... ./pkg/passes/... ./pkg/compiler/...
 	@echo "note: full-corpus round-trip regression is a private/commercial CI surface"
 
 release: dist-check

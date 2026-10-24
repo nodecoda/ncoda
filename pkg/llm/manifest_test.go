@@ -1,3 +1,5 @@
+//@feature llm-unified-envelope — 统一 LLM 信封的参数/输出清单（manifest 锚点；平台 lowering 在适配器仓）
+
 package llm
 
 import (

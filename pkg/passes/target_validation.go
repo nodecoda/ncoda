@@ -101,7 +101,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/ast"
 	"github.com/nodecoda/ncoda/pkg/binding"
 	"github.com/nodecoda/ncoda/pkg/diag"
-	"github.com/nodecoda/ncoda/pkg/target/codec"
+	"github.com/nodecoda/ncoda/pkg/target"
 	"github.com/nodecoda/ncoda/pkg/types"
 )
 
@@ -1631,16 +1631,16 @@ func (p *TargetValidationPass) validateExtractionFields(schema *binding.Extracti
 			continue
 		}
 		// I3: the target codec is read through the profile's codec face
-		// (TargetProfile.Codec — the internal/target shared layer), not a
-		// backend package default. DefaultTargetProfile wires the
-		// DIFY_116_GRAPHON_06 codec; the nil fallback keeps hand-built
-		// profiles working (the Capabilities nil-guard precedent).
+		// (TargetProfile.Codec — the platform-neutral pkg/target face), not a
+		// backend package default. DefaultTargetProfile wires the canonical
+		// language codec; the nil fallback keeps hand-built profiles working
+		// (the Capabilities nil-guard precedent).
 		typeCodec := ctx.Profile.Codec
 		if typeCodec == nil {
-			typeCodec = codec.Default()
+			typeCodec = target.DefaultCodec()
 		}
 		graphonShape := typeCodec.ToParameterExtractorField(field.TypeInfo)
-		if graphonShape.Loss != codec.LossExact {
+		if graphonShape.Loss != target.LossExact {
 			shape := unsupportedExtractionShape(field.TypeInfo)
 			p.rejectAt(
 				fmt.Sprintf("Extraction field '%s' has unsupported %s NodeCoda type for target '%s'; supported field types: %s",

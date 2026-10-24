@@ -51,6 +51,30 @@ class AuditSplit(unittest.TestCase):
         os.remove(os.path.join(self.tmp, "NOTICE"))
         self.assertTrue(any("NOTICE" in p for p in self.mod.check_license(self.tmp)))
 
+    def test_deps_flags_a_platform_adapter(self):
+        # The rule is "the open binary links no adapter", not a hand-kept list:
+        # a dify/coze package reappearing in the tree must fail by construction.
+        self.mod.go_deps = lambda root, pkg: {
+            "fmt",
+            "internal/abi",  # stdlib internal: must NOT be flagged
+            "github.com/nodecoda/ncoda/pkg/ir",
+            "github.com/nodecoda/ncoda/pkg/backend/dify/render",
+        }
+        self.mod.DEP_PACKAGES = ("./cmd/nclang-compile",)
+        problems = self.mod.check_deps(self.tmp)
+        self.assertTrue(any("backend/dify" in p for p in problems), problems)
+        self.assertFalse(any("internal/abi" in p for p in problems), problems)
+
+    def test_deps_clean_tree_passes(self):
+        self.mod.go_deps = lambda root, pkg: {
+            "fmt",
+            "internal/abi",
+            "github.com/nodecoda/ncoda/pkg/ir",
+            "github.com/nodecoda/ncoda/pkg/irdump",
+        }
+        self.mod.DEP_PACKAGES = ("./cmd/nclang-compile",)
+        self.assertEqual(self.mod.check_deps(self.tmp), [])
+
     def test_clean_tree_has_no_structure_or_mention_problems(self):
         self.touch("LICENSE", "Apache License 2.0\n")
         self.touch("NOTICE", "ncoda\n")

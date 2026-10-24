@@ -5,8 +5,9 @@ The split is only durable if its invariants are checked, not remembered. Each
 check below corresponds to an acceptance criterion of the O2 split:
 
   S1 structure     no `internal/` tree, no `platforms/coze*` (private backends)
-  S2 dependencies  dify decompile + nclang-compile never reach coze/cozebiz/
-                   cozestudio/eino/ncoda-commercial
+  S2 dependencies  nclang-compile (the open distribution's only binary) never
+                   reaches a platform adapter (dify/coze/coze-biz), the closed
+                   tree, eino, or ncoda-commercial
   S3 mentions      no Go source references the commercial module
   S4 absolute      no tracked `/home/dev/` path (publishable tree)
   S5 license       LICENSE + NOTICE present
@@ -24,8 +25,13 @@ import os
 import subprocess
 import sys
 
-FORBIDDEN_DEPS = ("ncoda-commercial", "platforms/cozebiz", "platforms/cozestudio", "eino")
-DEP_PACKAGES = ("./platforms/dify/decompile", "./cmd/nclang-compile")
+# Global needles: any dependency path containing one of these is a violation.
+FORBIDDEN_DEPS = ("ncoda-commercial", "eino")
+# Module-owned package prefixes that belong to an adapter, not the language.
+FORBIDDEN_MODULE_SEGMENTS = ("/internal/", "/platforms/", "/pkg/backend/dify",
+                             "/pkg/backend/llmprovider", "/pkg/backend/llmprojection")
+MODULE_PREFIX = "github.com/nodecoda/ncoda/"
+DEP_PACKAGES = ("./cmd/nclang-compile",)
 
 
 class CannotJudge(Exception):
@@ -90,6 +96,13 @@ def go_deps(root: str, package: str) -> set[str]:
 
 
 def check_deps(root: str) -> list[str]:
+    """The open binary must link no platform adapter and no closed tree.
+
+    Stdlib packages legitimately live under `internal/` (internal/abi, …), so
+    the segment rules only apply to this module's own packages. A new platform
+    adapter in the open repo therefore fails here by construction, not by
+    someone remembering to update a list.
+    """
     problems = []
     for package in DEP_PACKAGES:
         deps = go_deps(root, package)
@@ -97,6 +110,12 @@ def check_deps(root: str) -> list[str]:
             hit = sorted(d for d in deps if needle in d)
             if hit:
                 problems.append(f"S2 {package} → {needle}：{hit[:3]}")
+        owned = sorted(d for d in deps if d.startswith(MODULE_PREFIX))
+        for d in owned:
+            for seg in FORBIDDEN_MODULE_SEGMENTS:
+                if seg in d:
+                    problems.append(f"S2 {package} → 平台适配器/闭源树 {d}")
+                    break
     return problems
 
 

@@ -1,13 +1,9 @@
-// Command nclang-compile (DIFY-ONLY build) is the JSON contract CLI for the
-// NodeCoda→Dify compiler: reads source from stdin, writes one versioned
-// JSON result to stdout. Exit code 0 means a result was produced (including
-// COMPILE_ERROR); non-zero means the CLI itself failed.
+// Command nclang-compile is the language-lane CLI of the open ncoda
+// distribution: stdin source → ncoda-ir/v1 on stdout.
 //
-// This variant is produced by `go build -tags dify` for the open/free local
-// distribution (the nclang binary consumed by @nodecoda/skill): it excludes
-// Coze / Coze-biz / runtime code entirely. The implementation lives in
-// pkg/cli.CompileRun (open side); the complete multi-target variant lives in
-// main.go (//go:build !dify).
+// It links no platform backend on purpose (ASSET-BOUNDARY): the targets
+// (dify / coze / coze-biz) are commercial adapters. `--target` therefore
+// accepts only `__none__`; anything else is a usage error (rc=2).
 package main
 
 import (

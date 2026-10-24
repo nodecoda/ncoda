@@ -1,2 +1,0 @@
-go test fuzz v1
-[]byte("{X\xa4B\xf8\xf8\xe3\xe3)C8AB")

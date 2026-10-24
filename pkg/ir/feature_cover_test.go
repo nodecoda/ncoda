@@ -2,6 +2,7 @@
 //@feature ternary — 三元表达式值位置降级条件 shim（TestBuildInlineCodeTernary / loop_ternary_regress）
 //@feature record-type — 命名 record 类型声明（type X = { ... }，TestBuildJSONParseRecord）
 //@feature enum — enum 类型（TestBuildEnumMemberValue + parser TestGrammarEnumDecl）
+//@feature qualified-call — 限定调用 p.op({...}) 经 import 解析后落成 ToolCall（TestBuildToolCallParams / TestBuildToolStructuredParam）
 
 package ir_test
 

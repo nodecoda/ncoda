@@ -1,2 +1,0 @@
-go test fuzz v1
-[]byte("sta\x01t-en7")
