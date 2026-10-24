@@ -66,7 +66,7 @@ func (p *pathsFlag) Set(v string) error {
 
 func main() {
 	var toolPaths pathsFlag
-	corpus := flag.String("corpus", "/home/dev/ncoda-corpus-stress/decompiled", "corpus root containing *.ncoda files")
+	corpus := flag.String("corpus", os.Getenv("NCODA_CORPUS"), "corpus root containing *.ncoda files (default: $NCODA_CORPUS; the corpus lives in its own repo)")
 	out := flag.String("out", "", "snapshot output path (snapshot mode)")
 	compare := flag.String("compare", "", "snapshot path to verify (compare mode)")
 	limit := flag.Int("limit", 0, "optional file limit for debugging")
