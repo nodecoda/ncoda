@@ -1,5 +1,5 @@
 // Package builtin 是**内建节点结果契约**的唯一查询入口（数据源 = 注册表
-// examples/builtins/*.yaml，编译产物 = contracts_dify_gen.go；闭源目标经
+// examples/builtins/*.yaml，编译产物 = contracts_language_gen.go；平台目标经
 // RegisterContracts 注入）。
 //
 // # 它回答什么问题

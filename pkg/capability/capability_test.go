@@ -9,16 +9,6 @@ func TestForCoze(t *testing.T) {
 	}
 }
 
-func TestForDifyConservative(t *testing.T) {
-	tb := For("dify-1.16-graphon-0.6")
-	if tb == nil || !tb.Condition.RefLiteral {
-		t.Fatalf("dify table = %+v, want ref×literal native", tb)
-	}
-	if tb.Condition.RefRef || tb.JSONSerial || tb.TextConcat || tb.TextSplit {
-		t.Fatalf("dify must stay conservative (ref×ref/JSON/concat not confirmed): %+v", tb)
-	}
-}
-
 func TestForUnknownConservative(t *testing.T) {
 	tb := For("future-platform-9")
 	if tb == nil || !tb.Condition.RefLiteral || tb.Condition.RefRef || tb.JSONSerial {

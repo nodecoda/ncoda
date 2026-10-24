@@ -48,7 +48,9 @@ func jsonStringifyShim() *CodeRun {
 
 func TestRecordJSONBuiltinPlacementFollowsCapabilityAndPayload(t *testing.T) {
 	cozeBiz := capability.For("coze-biz-1.0")
-	dify := capability.For("dify-1.16-graphon-0.6")
+	// A target with no native JSON node: the conservative table is the same
+	// surface an adapter must declare when its platform lacks the node.
+	conservative := capability.For("uncertified-platform")
 	cases := []struct {
 		name         string
 		caps         *capability.Table
@@ -75,9 +77,9 @@ func TestRecordJSONBuiltinPlacementFollowsCapabilityAndPayload(t *testing.T) {
 			PlacementShim, PlacementCauseNoNativeNode,
 		},
 		{
-			// 事实①单独生效：载荷再干净，dify 没有承载面 ⇒ shim（这正是「平台只有
+			// 事实①单独生效：载荷再干净，目标没有承载面 ⇒ shim（这正是「平台只有
 			// 恰巧才有这个节点」的反面）。
-			"dify · parse · 平台无承载面 ⇒ shim", dify, "parse",
+			"无承载面 · parse ⇒ shim", conservative, "parse",
 			jsonParseShimFor(map[string]*Type{"title": T("string")}),
 			PlacementShim, PlacementCauseNoNativeNode,
 		},

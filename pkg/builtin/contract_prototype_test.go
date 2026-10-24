@@ -2,8 +2,8 @@
 //
 // # 它回答什么问题
 //
-// 契约表（examples/builtins/*.yaml → contracts_dify_gen.go）声明的是
-// **平台物理口 ↔ 语言字段名**的对应；语言字段的**类型**权威在语言结果原型
+// 契约表（examples/builtins/*.yaml → contracts_language_gen.go）声明的是
+// **结果口 ↔ 语言字段名**的对应（语言目标两侧同名；平台目标注入物理口名）；语言字段的**类型**权威在语言结果原型
 // （pkg/binding/symbol.go）。两个权威必须描述同一个语言类型，否则
 // 反编译会发出「语言上不存在的字段」或「与原型不符的类型」——
 // 前者再编译 FIELD_NOT_FOUND、后者 TYPE_MISMATCH（A12-H13 一手实测）。

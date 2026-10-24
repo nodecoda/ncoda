@@ -14,8 +14,8 @@
 //   - coze TextProcessor (type 15) is the native concat node; coze
 //     JsonSerialization (type 58) is the native JSON-serialize node (G7).
 //
-//   - neither coze nor dify defines general variables (VariableAssigner is
-//     a session-variable system, not `let x = <any>`), and neither has a
+//   - no supported platform defines general variables (VariableAssigner is
+//     a session-variable system, not `let x = <any>`), and none has a
 //     native object-constructor node — intermediate values must be
 //     materialized as producing nodes. (There used to be an `ObjectLit` axis
 //     for the latter; it was **deleted** 2026-09-27 — it read `false` on all
@@ -36,10 +36,9 @@ package capability
 type Condition struct {
 	// RefLiteral: ref × operator × literal is native.
 	RefLiteral bool
-	// RefRef: ref × operator × ref is native (coze Selector: yes — both
-	// operands resolve as runtime values; dify if-else: no — its condition
-	// carries only left variable_selector + scalar value, no right-side
-	// variable selector, so ref×ref must materialize).
+	// RefRef: ref × operator × ref is native. Platforms whose branch node
+	// only carries a left selector + scalar value must materialize ref×ref;
+	// their adapter declares that in its own table.
 	RefRef bool
 }
 
@@ -79,18 +78,6 @@ func For(target string) *Table {
 			TextSplit:    true,
 			JSONSerial:   true,
 			JSONDeserial: true,
-		}
-	case "dify-1.16-graphon-0.6":
-		// dify if-else condition: variable_selector (left) + comparison_operator
-		// + scalar value (entities.py) — no right-side variable selector, so
-		// ref×ref is confirmed NOT native; keep RefRef=false (materialize).
-		return &Table{
-			Target:       target,
-			Condition:    Condition{RefLiteral: true, RefRef: false},
-			TextSplit:    false,
-			TextConcat:   false,
-			JSONSerial:   false,
-			JSONDeserial: false,
 		}
 	default:
 		return &Table{

@@ -4,7 +4,7 @@ package builtin
 //
 // 生成物按许可侧拆开（O2 开放内核拆分）：
 //
-//	contracts_dify_gen.go  开放侧（dify）—— 本仓，init() 里注册
+//	contracts_language_gen.go  语言层（ncoda-language）—— 本仓，init() 里注册
 //	（闭源家族）           闭源侧 —— 商业仓 internal/builtincoze/contracts.go，
 //	                       经本包的 RegisterContracts 在 init() 注册
 //

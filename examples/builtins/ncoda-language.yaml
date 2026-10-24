@@ -1,0 +1,22 @@
+# 内建节点结果契约 —— 语言层 ncoda-language
+# 口径见本目录 README.md。
+#
+# 这里声明的是**语言层**的结果口词汇：HTTPResponse 的字段名就是 IR 口名。
+# 平台物理口（dify 的 status_code、coze 的 statusCode …）由各适配器在商业仓
+# 声明并经 pkg/builtin.RegisterContracts 注入；开源仓不认识任何平台。
+schema_version: 1
+target: ncoda-language
+builtins:
+  http:
+    # 语言层结果原型（权威 = pkg/binding/symbol.go）。
+    result: HTTPResponse
+    ports:
+      - port: body
+        lang: body
+        type: string
+      - port: status_code
+        lang: status_code
+        type: integer
+      - port: headers
+        lang: headers
+        type: object

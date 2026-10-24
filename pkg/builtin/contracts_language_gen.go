@@ -3,7 +3,7 @@
 // 声明源 = examples/builtins/<target>.yaml（唯一权威，含 ② 证据口径）。
 // 门禁校验「重新生成 == 本文件」；手工修改会在下一次门禁运行时报红。
 //
-// 本文件 = **开放侧**（dify target）。闭源 target 的契约在商业仓经
+// 本文件 = **语言层**（ncoda-language）。平台 target 的契约在商业仓经
 // pkg/builtin.RegisterContracts 注入；开放模块从不链接闭源代码。
 //
 // 契约回答一个问题：**某个内建节点在某个目标平台上，语言层字段与平台物理口
@@ -14,10 +14,10 @@
 
 package builtin
 
-// contractsDify 是开放侧（dify）的内建节点结果契约。
-var contractsDify = map[string]map[string]NodeContract{
+// contractsLanguage 是语言层的内建节点结果契约。
+var contractsLanguage = map[string]map[string]NodeContract{
 
-	"dify-1.16-graphon-0.6": {
+	"ncoda-language": {
 		"http": {Result: "HTTPResponse", Ports: []Port{
 			{Port: "body", Lang: "body", Type: "string"},
 			{Port: "status_code", Lang: "status_code", Type: "integer"},
@@ -26,4 +26,4 @@ var contractsDify = map[string]map[string]NodeContract{
 	},
 }
 
-func init() { registerContracts(contractsDify) }
+func init() { registerContracts(contractsLanguage) }

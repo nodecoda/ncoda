@@ -11,7 +11,7 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(HERE, "builtin_contract_check.py")
 YAML = """schema_version: 1
-target: dify-1.16-graphon-0.6
+target: ncoda-language
 builtins:
   http:
     result: HTTPResponse
@@ -27,7 +27,7 @@ class BuiltinContract(unittest.TestCase):
         os.makedirs(os.path.join(self.root, "examples", "builtins"))
         with open(os.path.join(self.root, "go.mod"), "w", encoding="utf-8") as fh:
             fh.write("module example.com/x\n\ngo 1.26.5\n")
-        self.yaml = os.path.join(self.root, "examples", "builtins", "dify.yaml")
+        self.yaml = os.path.join(self.root, "examples", "builtins", "language.yaml")
         with open(self.yaml, "w", encoding="utf-8") as fh:
             fh.write(YAML)
 
@@ -41,7 +41,7 @@ class BuiltinContract(unittest.TestCase):
 
     def test_tampered_artifact_is_red(self):
         self.assertEqual(self.run_script("--write"), 0)
-        path = os.path.join(self.root, "pkg", "builtin", "contracts_dify_gen.go")
+        path = os.path.join(self.root, "pkg", "builtin", "contracts_language_gen.go")
         with open(path, "a", encoding="utf-8") as fh:
             fh.write("// hand edit\n")
         self.assertEqual(self.run_script("--check"), 1)
@@ -52,7 +52,7 @@ class BuiltinContract(unittest.TestCase):
 
     def test_missing_required_target_is_red(self):
         with open(self.yaml, "w", encoding="utf-8") as fh:
-            fh.write(YAML.replace("dify-1.16-graphon-0.6", "some-other-target"))
+            fh.write(YAML.replace("ncoda-language", "some-other-target"))
         self.assertEqual(self.run_script("--check"), 1)
 
 
