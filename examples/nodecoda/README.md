@@ -4,6 +4,7 @@
 `39` 至 `44` 是语言和 lowering 契约样例，`45` 起是部署能力与 reviewed contract 示例。完整语法见 [nodecoda-spec `spec/grammar.ebnf`](https://github.com/nodecoda/nodecoda-spec/blob/main/spec/grammar.ebnf)(单一事实源)。
 
 > 验收语料（869 例）是独立仓 `ncoda-corpus`；本目录只放语言样例，不放平台夹具。
+> 能力头文件在仓根 `libraries/`（`import "database";` 由它解析）。
 >
 > **平台无关（2026-10-25）**：本目录全部示例只使用语言构造。需要能力头时写**裸
 > provider 名**（`import "google_search";`）—— 平台限定符由适配器在构建时解析，
@@ -34,6 +35,7 @@
 | 50_condition_direct | direct condition | ✓ | ✓ | 原生 condition operator |
 | 51_condition_calculation | calculated condition | ✓ | ✓ | typed Code materialization 后判断 |
 | 57_parameter_extractor | schema-dependent extraction | ✓ | ✓ | flat required prompt shape；必须检查 `.ok` |
+| 62_local_library_roundtrip | database insert → select | ✓ | ✓ | 只用公共库；`ncoda-run --local-plugins --tool-path ../../libraries` |
 
 **已实现语义功能**：
 1. ✓ Start 输入映射为 `function main(...)` 的强类型参数

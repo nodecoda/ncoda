@@ -26,6 +26,12 @@ from the private governance repository `godcc`.
   5. Cross-platform census tests skip directories/contracts that do not exist
      in this module (the commercial repository keeps the full scan surface).
 
+The public library surface moved into the open core in P2i (2026-10-25):
+`libraries/` holds the 174 capability headers (language-level symbols only) and
+`pkg/localtools` the deterministic offline implementations. Platform physical
+ids and their aliases stay in the commercial adapter's bindings table; the open
+runtime never registers them.
+
 The commercial repository (`ncoda-commercial`) depends on this module and adds
 the closed backends (compilation to platform artifacts, round-trip oracles,
 platform capability tables). The runtime moved into the open core in P2h

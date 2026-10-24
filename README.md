@@ -7,8 +7,8 @@ kernel and the language-level verdicts. Platform adapters are not here.
 - **L1 spec + language frontend**: lexer → parser → binding → types → passes
 - **IR**: the canonical `ncoda-ir/v1` dump (`--emit-ir`)
 - **Language CLI**: `cmd/nclang-compile` (stdin → `ncoda-ir/v1` on stdout)
-- **Public libraries / capability headers**: `libraries/`,
-  `examples/coze-reference/capabilities-ncoda/`
+- **Public libraries / capability headers**: `libraries/` (174 headers,
+  plus deterministic offline implementations in `pkg/localtools`)
 - **Runtime (L2)**: `pkg/runtime` — the target-free executor. It turns
   `spec.v1` into an executable graph (node semantics, loop state, error
   policy, trace) and ships as `cmd/ncoda-run`.
@@ -59,7 +59,20 @@ go build -o ncoda-run ./cmd/ncoda-run
 # entry input, then a failure mode: language error rc=1, usage error rc=2
 ./ncoda-run examples/nodecoda/03_conditional_branch.ncoda -p x=5
 ./ncoda-run --model-factory acme examples/nodecoda/01_simple_chat.ncoda   # rc=2
+
+# local language libraries: deterministic, offline, no platform provider
+./ncoda-run --local-plugins --tool-path ./libraries \
+  examples/nodecoda/62_local_library_roundtrip.ncoda
+# {"output":[{"k":"hello"}]}
 ```
+
+`--local-plugins` registers only the language libraries (`database`, `matting`,
+`image_scale`, `image_generate`). Platform tool ids are adapter facts and are
+never registered here; a source that needs one returns `RBINDING_MISSING`
+instead of pretending the platform exists.
+
+Capability headers are resolved like C headers: `--tool-path` > `NCLANG_TOOL_PATH`
+> `<dir of the executable>/libraries` > `~/.nodecoda/tools`.
 
 The default model backend is `echo` (offline, deterministic). Real model
 backends are host capabilities and live with the adapters — the language
@@ -101,8 +114,8 @@ make nightly   # race detector + repeat run
 make dist      # 6-platform binaries + SBOM + checksums
 ```
 
-`make dist` writes to `DIST` (default `/tmp/ncoda-dist-<VERSION>`); the
-language lane is the only binary it builds.
+`make dist` writes to `DIST` (default `/tmp/ncoda-dist-<VERSION>`) and builds
+both lanes: `nclang` (language) and `ncoda-run` (runtime).
 
 ## Repository layout
 
@@ -113,7 +126,11 @@ language lane is the only binary it builds.
 | `pkg/compiler/` | language lane: frontend → IR (+ wire rules); no render/serialize |
 | `pkg/cli/` | `nclang-compile` language-lane CLI |
 | `cmd/nclang-compile/` | language-lane entry point |
-| `libraries/` | public library implementations (language-level) |
+| `libraries/` | public capability headers (language-level symbols) |
+| `pkg/runtime/` | L2 executor: spec.v1 → node graph (target-free) |
+| `pkg/localtools/` | deterministic offline implementations of the public libraries |
+| `pkg/toolbridge/` `pkg/toolpath/` | plugin→semantic projection; capability search path |
+| `pkg/runner/` `cmd/ncoda-run/` | runtime lane entry point (`ncoda-run`) |
 | `examples/` | example sources, capability headers, language fixtures |
 | `contracts/` | language contracts (wire shapes), no platform contracts |
 | `tools/` | open developer tools (grammar enumeration, surface/depth/map-key census) |

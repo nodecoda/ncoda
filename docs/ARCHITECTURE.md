@@ -71,6 +71,10 @@
 | `pkg/runtime/...` | 执行器（L2）：spec.v1 → eino 图 → 运行；含节点语义、状态、trace |
 | `pkg/observation` | 反向抽取视图（产物节点/边 → 义务报告），与目标无关 |
 | `pkg/runner` `cmd/ncoda-run` | 运行时 lane：`.ncoda` 源码 → 执行结果（离线 echo 模型） |
+| `pkg/localtools` | 公共库的本地确定性实现（database/matting/image_scale/image_generate），产物落 `--artifact-dir` |
+| `pkg/toolbridge` | 插件注册表 → 语义注册表的投影（避免 `pkg/tool` ↔ `pkg/runtime/plugin` 成环） |
+| `pkg/toolpath` | 能力头搜索路径：`--tool-path` > `NCLANG_TOOL_PATH` > `<exe>/libraries` > `~/.nodecoda/tools` |
+| `libraries/` | 174 个公共能力头（语言级符号；不含平台物理 id） |
 | `pkg/diag` | 诊断码与线格式契约 |
 
 ## 5. 执行引擎
