@@ -634,6 +634,10 @@ func (g *Builder) build() (*Graph, error) {
 		if !ok || call.Result == nil || !call.Result.WholeEnvelopeConsumed || g.caps == nil {
 			continue
 		}
+		// The placement decision is still keyed by target identity because the
+		// open kernel cannot add a capability axis without breaking the
+		// commercial module's v0.6.0 pin (cross-repo release lag, §5.1).
+		// Moving this to a Table axis is a P2f follow-up.
 		switch g.caps.Target {
 		case "dify-1.16-graphon-0.6", "coze-studio-flow-1.0", "coze-1.0", "coze-biz-1.0":
 			g.recordPlacement(call.ID, placementConstruct("llm", "whole-envelope"), PlacementShim, placementReason(PlacementCauseContract, "target assembles LLMResponse<T> from native payload/metadata paths and literal nulls"))
