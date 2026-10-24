@@ -27,11 +27,11 @@ import (
 
 const recordFoldHeader = "@language nodecoda/1\n@mode workflow\n"
 
-// buildIRCozeBiz 走 **coze-biz** 前端 profile 建 IR：本文件的夹具用 `file<...>`
+// buildIRForNativeTarget 走 **coze-biz** 前端 profile 建 IR：本文件的夹具用 `file<...>`
 // （A 轴的代表形状就是文件族的单叶记录），dify 前端会以
 // 「single-file Code input is not JSON-safe for the Dify target」拒收 —— 那是
 // dify 的目标能力边界（本仓已裁定搁置），不是本契约的形状问题。
-func buildIRCozeBiz(t *testing.T, src string) *ir.Graph {
+func buildIRForNativeTarget(t *testing.T, src string) *ir.Graph {
 	t.Helper()
 	base := passes.DefaultTargetProfile()
 	profile := &passes.TargetProfile{
@@ -247,8 +247,8 @@ func irShapeSignature(g *ir.Graph) string {
 // TestRecordFoldLeafUnitCanonicalForm：A 轴正例 —— 单叶字段记录 + 只成员读 +
 // 只字面量写 ⇒ **不物化容器**，且**两条拼写同形**（§42.3 等价判据的 IR 面）。
 func TestRecordFoldLeafUnitCanonicalForm(t *testing.T) {
-	recGraph := buildIRCozeBiz(t, recordFoldHeader+recordFoldSrc)
-	leafGraph := buildIRCozeBiz(t, recordFoldHeader+recordFoldLeafSpellingSrc)
+	recGraph := buildIRForNativeTarget(t, recordFoldHeader+recordFoldSrc)
+	leafGraph := buildIRForNativeTarget(t, recordFoldHeader+recordFoldLeafSpellingSrc)
 
 	if got := recordCarriers(recGraph); len(got) != 0 {
 		t.Fatalf("整值语义不可观察的记录不得物化容器（A 轴）；got %d 个记录载体：%v", len(got), shimBodies(got))
@@ -264,7 +264,7 @@ func TestRecordFoldLeafUnitCanonicalForm(t *testing.T) {
 // TestRecordFoldWholeValueReadKeepsRecord：**反向锁** —— 整值被观察（`return r1;`）
 // ⇒ 必须仍物化整值记录（R-13 形态）。撤这条锁 = 功能倒退。
 func TestRecordFoldWholeValueReadKeepsRecord(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`type FF = { file<audio> slot; };
+	g := buildIRForNativeTarget(t, recordFoldHeader+`type FF = { file<audio> slot; };
 function main(int n = 3, file<audio> fp1 = file("")) {
     FF r1;
     r1 = { "slot": fp1 };
@@ -282,7 +282,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
 // TestRecordFoldMultiFieldNotFolded：前置 S1（单字段）—— 多字段记录的**命名**
 // 属 C 轴未决项，本刀不折（登记，不静默）。
 func TestRecordFoldMultiFieldNotFolded(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`type FF = { file<audio> slot; string tag; };
+	g := buildIRForNativeTarget(t, recordFoldHeader+`type FF = { file<audio> slot; string tag; };
 function main(int n = 3, file<audio> fp1 = file("")) {
     FF r1;
     r1 = { "slot": fp1, "tag": "t" };
@@ -297,7 +297,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
 // TestRecordFoldNonLeafFieldNotFolded：前置 S2（字段是叶类型）—— 嵌套容器由它
 // 自己那一层决定，本刀不折。
 func TestRecordFoldNonLeafFieldNotFolded(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`type FF = { array<file<audio>> slots; };
+	g := buildIRForNativeTarget(t, recordFoldHeader+`type FF = { array<file<audio>> slots; };
 function main(int n = 3, file<audio> fp1 = file("")) {
     FF r1;
     r1 = { "slots": [fp1] };
@@ -312,7 +312,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
 // TestRecordFoldNonLiteralWriteNotFolded：前置 P2（写全是记录字面量或成员写）
 // —— 写来自调用返回值时不折（值形态不可静态观察）。
 func TestRecordFoldNonLiteralWriteNotFolded(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`type FF = { file<audio> slot; };
+	g := buildIRForNativeTarget(t, recordFoldHeader+`type FF = { file<audio> slot; };
 function mk(file<audio> v) -> FF {
     return { "slot": v };
 }
@@ -330,7 +330,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
 // TestRecordFoldOptionalRecordNotFolded：Optional 记录不折（折掉叶单元会丢
 // `T?` 标记）—— 与 record_fold.go 的「本刀不做」一致。
 func TestRecordFoldOptionalRecordNotFolded(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`type FF = { file<audio> slot; };
+	g := buildIRForNativeTarget(t, recordFoldHeader+`type FF = { file<audio> slot; };
 function main(int n = 3, file<audio> fp1 = file("")) {
     FF? r1;
     r1 = { "slot": fp1 };
@@ -350,7 +350,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
 // 旧行为铸出**无消费者**的 `text {{v}}` 中继 ⇒ `c0` 4 节点、`c1` 3 节点 ⇒ `C∘R` 无不动点。
 // 撤实现（去掉 armNoOp 那条）⇒ 本测试红（中继回来）。
 func TestArmNoOpTailRelayNotMaterialized(t *testing.T) {
-	noop := buildIRCozeBiz(t, recordFoldHeader+`function main(file<audio> fp1, bool c) {
+	noop := buildIRForNativeTarget(t, recordFoldHeader+`function main(file<audio> fp1, bool c) {
     file<audio> v = fp1;
     if (c) {
         v = fp1;
@@ -358,7 +358,7 @@ func TestArmNoOpTailRelayNotMaterialized(t *testing.T) {
     return v;
 }
 `)
-	empty := buildIRCozeBiz(t, recordFoldHeader+`function main(file<audio> fp1, bool c) {
+	empty := buildIRForNativeTarget(t, recordFoldHeader+`function main(file<audio> fp1, bool c) {
     file<audio> v = fp1;
     if (c) {
     }
@@ -381,7 +381,7 @@ func TestArmNoOpTailRelayNotMaterialized(t *testing.T) {
 // TestArmRebindingKeepsMergeCandidates：存活侧锚点 —— 臂**真的重绑定**时，
 // 汇聚必须保住两条臂的候选（不得被 no-op 豁免误伤；数据丢失守卫）。
 func TestArmRebindingKeepsMergeCandidates(t *testing.T) {
-	g := buildIRCozeBiz(t, recordFoldHeader+`function main(file<audio> fp1, file<audio> fp2, bool c) {
+	g := buildIRForNativeTarget(t, recordFoldHeader+`function main(file<audio> fp1, file<audio> fp2, bool c) {
     file<audio> v = fp2;
     if (c) {
         v = fp1;
@@ -417,7 +417,7 @@ function main(int n = 3, file<audio> fp1 = file("")) {
     return a1[0];
 }
 `
-	g2 := buildIRCozeBiz(t, src)
+	g2 := buildIRForNativeTarget(t, src)
 	var arr *ir.CodeRun
 	for _, cr := range walkCodeRuns(g2) {
 		if strings.Contains(cr.Code, "[arg") || strings.Contains(cr.Code, "[fp1]") {

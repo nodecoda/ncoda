@@ -11,6 +11,8 @@ check below corresponds to an acceptance criterion of the O2 split:
   S3 mentions      no Go source references the commercial module
   S4 absolute      no tracked `/home/dev/` path (publishable tree)
   S5 license       LICENSE + NOTICE present
+  S6 identity      no platform name in a kernel identifier, except the
+                   registered residuals in docs/PLATFORM-IDENTITY-RESIDUALS.yaml
 
 Exit codes (same four-state convention as the governance repo):
   0 pass · 1 violation (named) · 2 usage · 3 cannot judge (go list / git failed)
@@ -22,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 
@@ -34,8 +37,84 @@ MODULE_PREFIX = "github.com/nodecoda/ncoda/"
 DEP_PACKAGES = ("./cmd/nclang-compile",)
 
 
+# Platform tokens that must not appear in an open-kernel identifier.
+# Case-insensitive substring match after comments and literals are stripped:
+# `cozeOnErrorMode`, `isDifyProfile`, `platformDify` are all hits.
+PLATFORM_IDENT_TOKENS = ("dify", "coze")
+IDENTITY_LEDGER = os.path.join("docs", "PLATFORM-IDENTITY-RESIDUALS.yaml")
+IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
 class CannotJudge(Exception):
     pass
+
+
+def _strip_go_comments_and_literals(src: str) -> str:
+    """Drop comments and string/rune literals so only code identifiers remain.
+
+    A platform name inside a comment or a message string is prose, not a
+    dependency; an identifier is the dependency (it is what links the kernel
+    to a platform's semantics).
+    """
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    src = re.sub(r"//[^\n]*", " ", src)
+    src = re.sub(r'`[^`]*`', '""', src)
+    src = re.sub(r'"(?:[^"\\\n]|\\.)*"', '""', src)
+    src = re.sub(r"'(?:[^'\\\n]|\\.)*'", "''", src)
+    return src
+
+
+def load_identity_ledger(root: str) -> dict[str, dict]:
+    try:
+        import yaml  # noqa: PLC0415 — optional at import time, required for S6
+    except ImportError as exc:  # pragma: no cover
+        raise CannotJudge(f"S6 需要 PyYAML：{exc}") from exc
+    path = os.path.join(root, IDENTITY_LEDGER)
+    if not os.path.isfile(path):
+        raise CannotJudge(f"S6 缺台账 {IDENTITY_LEDGER}")
+    with open(path, encoding="utf-8") as fh:
+        doc = yaml.safe_load(fh) or {}
+    allowed: dict[str, dict] = {}
+    for item in doc.get("items") or []:
+        for ident in item.get("identifiers") or []:
+            allowed[ident] = item
+    return allowed
+
+
+def check_platform_identity(root: str) -> list[str]:
+    """S6: the kernel names no platform, except registered residuals.
+
+    Two-way check: an unregistered platform identifier fails (new leak), and a
+    registered identifier that no longer exists fails too (stale ledger). The
+    ledger therefore shrinks with the code instead of rotting.
+    """
+    allowed = load_identity_ledger(root)
+    found: dict[str, str] = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in (".git", "vendor")]
+        for fn in filenames:
+            if not fn.endswith(".go"):
+                continue
+            path = os.path.join(dirpath, fn)
+            try:
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    code = _strip_go_comments_and_literals(fh.read())
+            except OSError:
+                continue
+            rel = os.path.relpath(path, root)
+            for ident in set(IDENT_RE.findall(code)):
+                low = ident.lower()
+                if any(tok in low for tok in PLATFORM_IDENT_TOKENS):
+                    found.setdefault(ident, rel)
+    problems = []
+    for ident, rel in sorted(found.items()):
+        if ident not in allowed:
+            problems.append(f"S6 {rel}: 标识符 {ident} 拼进平台名（未登记）")
+    for ident, item in sorted(allowed.items()):
+        if ident not in found:
+            problems.append(
+                f"S6 台账过期：{item.get('id', '?')} 登记的 {ident} 已不在代码里（删掉该条）")
+    return problems
 
 
 def check_structure(root: str) -> list[str]:
@@ -126,7 +205,8 @@ def main() -> int:
     args = ap.parse_args()
     try:
         problems = (check_structure(args.root) + check_mentions(args.root)
-                    + check_absolute(args.root) + check_license(args.root))
+                    + check_absolute(args.root) + check_license(args.root)
+                    + check_platform_identity(args.root))
         if not args.skip_deps:
             problems += check_deps(args.root)
     except CannotJudge as exc:
@@ -137,7 +217,7 @@ def main() -> int:
         for p in problems:
             print(f"    {p}", file=sys.stderr)
         return 1
-    print("[audit-split] ✓ S1 结构 · S2 依赖 · S3 引用 · S4 绝对路径 · S5 许可")
+    print("[audit-split] ✓ S1 结构 · S2 依赖 · S3 引用 · S4 绝对路径 · S5 许可 · S6 平台身份")
     return 0
 
 

@@ -183,7 +183,7 @@ func TestNewCapabilityManifestWithStateOverrides(t *testing.T) {
 	}
 }
 
-func TestCozeBizManifestRejectsExtractionVision(t *testing.T) {
+func TestAdapterManifestRejectsExtractionVision(t *testing.T) {
 	m := CapabilityManifestForTarget("coze-biz-1.0")
 	entry := m.Lookup(CapabilityShapeStructuredExtractionVision)
 	if entry.State != CapabilityStateRejected {

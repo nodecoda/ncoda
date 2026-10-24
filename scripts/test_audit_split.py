@@ -44,6 +44,40 @@ class AuditSplit(unittest.TestCase):
         self.assertEqual(len(problems), 1, problems)
         self.assertIn("pkg/x.go:1", problems[0])
 
+    def write_ledger(self, idents: list[str]) -> None:
+        body = "schema: ncoda.open.platform-identity-residuals/v1\nitems:\n"
+        body += "  - id: OI-T\n    file: pkg/x.go\n    what: test\n    why: test\n    unblock: test\n    identifiers:\n"
+        for ident in idents:
+            body += f"      - {ident}\n"
+        self.touch("docs/PLATFORM-IDENTITY-RESIDUALS.yaml", body)
+
+    def test_platform_identity_flags_an_unregistered_identifier(self):
+        self.write_ledger([])
+        self.touch("pkg/x.go", "package x\n\nfunc difyHelper() {}\n")
+        problems = self.mod.check_platform_identity(self.tmp)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("difyHelper", problems[0])
+
+    def test_platform_identity_ignores_comments_and_literals(self):
+        # Prose and message strings are not dependencies; identifiers are.
+        self.write_ledger([])
+        self.touch("pkg/x.go", 'package x\n\n// coze is mentioned here\nfunc f() string { return "dify" }\n')
+        self.assertEqual(self.mod.check_platform_identity(self.tmp), [])
+
+    def test_platform_identity_accepts_a_registered_residual(self):
+        self.write_ledger(["cozeAxes"])
+        self.touch("pkg/x.go", "package x\n\nvar cozeAxes = 1\n")
+        self.assertEqual(self.mod.check_platform_identity(self.tmp), [])
+
+    def test_platform_identity_flags_a_stale_ledger_entry(self):
+        # The ledger must shrink with the code, else it silently becomes a
+        # blanket permission for the next platform-named identifier.
+        self.write_ledger(["cozeGone"])
+        self.touch("pkg/x.go", "package x\n")
+        problems = self.mod.check_platform_identity(self.tmp)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("台账过期", problems[0])
+
     def test_license(self):
         self.touch("LICENSE", "Apache License 2.0\n")
         self.touch("NOTICE", "ncoda\n")

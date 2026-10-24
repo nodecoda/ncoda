@@ -807,17 +807,34 @@ function main() { return tts.say("ok"); }`
 	}
 }
 
-func TestUnknownImportPlatformRejected(t *testing.T) {
+// A qualifier the open distribution does not serve is still a legal import:
+// the binding is a build-time concern and the target adapter decides whether
+// it can satisfy it (ASSET-BOUNDARY D8). Rejecting it here would turn
+// "platform unsupported" into a language error.
+func TestAdapterOwnedImportPlatformIsLegal(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
 import "windows.tts";
 function main() { return "ok"; }`
 	errs, _ := errorDiagnostics(t, src)
-	if !hasCode(errs, diag.IMPORT_PLATFORM_REQUIRED) {
-		t.Fatalf("expected IMPORT_PLATFORM_REQUIRED for unknown platform, got %v", errs)
+	if hasCode(errs, diag.IMPORT_PLATFORM_REQUIRED) {
+		t.Fatalf("shape-valid qualifier must be legal, got %v", errs)
 	}
-	if !hasMessage(errs, "unknown import platform") {
-		t.Fatalf("expected unknown-platform message, got %v", errs)
+}
+
+// The *shape* is the language's business: a malformed qualifier is a source
+// error at any layer.
+func TestMalformedImportPlatformRejected(t *testing.T) {
+	src := `@language nodecoda/1
+@mode workflow
+import "Windows.tts";
+function main() { return "ok"; }`
+	errs, _ := errorDiagnostics(t, src)
+	if !hasCode(errs, diag.IMPORT_PLATFORM_REQUIRED) {
+		t.Fatalf("expected IMPORT_PLATFORM_REQUIRED for malformed qualifier, got %v", errs)
+	}
+	if !hasMessage(errs, "invalid import platform qualifier") {
+		t.Fatalf("expected malformed-qualifier message, got %v", errs)
 	}
 }
 

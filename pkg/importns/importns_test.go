@@ -64,6 +64,34 @@ func TestSplitAcceptsValidProviders(t *testing.T) {
 	}
 }
 
+// The kernel validates qualifier *shape* only: an import may name a platform
+// the open distribution does not ship, because target support is an adapter
+// question (ASSET-BOUNDARY D8) and must not surface as a language error.
+func TestSplitAcceptsShapeValidQualifier(t *testing.T) {
+	cases := []struct{ provider, platform, name string }{
+		{"acme.web_search", "acme", "web_search"},
+		{"acme-2.tts", "acme-2", "tts"},
+	}
+	for _, c := range cases {
+		platform, name, err := Split(c.provider)
+		if err != nil {
+			t.Fatalf("Split(%q): %v", c.provider, err)
+		}
+		if platform != c.platform || name != c.name {
+			t.Fatalf("Split(%q) = (%q, %q), want (%q, %q)", c.provider, platform, name, c.platform, c.name)
+		}
+	}
+}
+
+func TestSplitRejectsMalformedQualifier(t *testing.T) {
+	cases := []string{".web_search", "Acme.web_search", "a_b.web_search", "-acme.web_search"}
+	for _, provider := range cases {
+		if _, _, err := Split(provider); err == nil {
+			t.Fatalf("Split(%q): want malformed-qualifier error", provider)
+		}
+	}
+}
+
 func TestValidProviderName(t *testing.T) {
 	for _, ok := range []string{"tts", "web_search", "a.b", "a-b", "x1"} {
 		if !ValidProviderName(ok) {

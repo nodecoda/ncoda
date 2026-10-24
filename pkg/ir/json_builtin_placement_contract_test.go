@@ -47,10 +47,10 @@ func jsonStringifyShim() *CodeRun {
 }
 
 func TestRecordJSONBuiltinPlacementFollowsCapabilityAndPayload(t *testing.T) {
-	cozeBiz := capability.For("coze-biz-1.0")
+	native := nativeCapabilityFixture("native-fixture")
 	// A target with no native JSON node: the conservative table is the same
 	// surface an adapter must declare when its platform lacks the node.
-	conservative := capability.For("uncertified-platform")
+	conservative := capability.Conservative("uncertified-platform")
 	cases := []struct {
 		name         string
 		caps         *capability.Table
@@ -60,19 +60,19 @@ func TestRecordJSONBuiltinPlacementFollowsCapabilityAndPayload(t *testing.T) {
 		wantCause    string
 	}{
 		{
-			"coze-biz · parse · 载荷可承载 ⇒ 原生", cozeBiz, "parse",
+			"native target · parse · payload hostable ⇒ native node", native, "parse",
 			jsonParseShimFor(map[string]*Type{"title": T("string")}),
 			PlacementNative, PlacementCauseCapability,
 		},
 		{
-			"coze-biz · stringify · 载荷可承载 ⇒ 原生", cozeBiz, "stringify",
+			"native target · stringify · payload hostable ⇒ native node", native, "stringify",
 			jsonStringifyShim(),
 			PlacementNative, PlacementCauseCapability,
 		},
 		{
 			// 事实②单独生效：平台有节点，但这个载荷放不进去（成员名不是平台标识符，
 			// 声明出去会被平台静默丢字段）⇒ 必须留 shim，不许发一个丢字段的原生节点。
-			"coze-biz · parse · 成员名不可声明 ⇒ 留 shim", cozeBiz, "parse",
+			"native target · parse · member name undeclarable ⇒ keep shim", native, "parse",
 			jsonParseShimFor(map[string]*Type{"题": T("string")}),
 			PlacementShim, PlacementCauseNoNativeNode,
 		},

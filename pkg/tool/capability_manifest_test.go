@@ -156,9 +156,11 @@ aliases:
 			want: `duplicate alias+operation "coze-biz.video_audio_extractor"/"extract"`,
 		},
 		{
-			name: "unknown platform alias",
-			data: strings.Replace(valid, "  coze-biz:\n  - alias: coze-biz.video_audio_extractor", "  hologram:\n  - alias: hologram.video_audio_extractor", 1),
-			want: `unknown alias platform "hologram"`,
+			// Qualifier *shape* is the kernel's business; which platforms exist
+			// is the adapter's (D8). An uppercase key is malformed at any layer.
+			name: "malformed platform qualifier",
+			data: strings.Replace(valid, "  coze-biz:\n  - alias: coze-biz.video_audio_extractor", "  Hologram:\n  - alias: Hologram.video_audio_extractor", 1),
+			want: `invalid alias platform qualifier "Hologram"`,
 		},
 		{
 			name: "unknown kind",

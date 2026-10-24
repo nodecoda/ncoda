@@ -49,8 +49,8 @@ func TestCheckNeverExecutes(t *testing.T) {
 	}
 }
 
-func TestCheckJSSyntaxWithCozeSignature(t *testing.T) {
-	// The coze template is TypeScript-shaped; the checker must apply the same
+func TestCheckJSSyntaxWithPlatformSignature(t *testing.T) {
+	// The platform template is TypeScript-shaped; the checker must apply the same
 	// strip rule as the executor, or every node would be a false positive.
 	ok, vs, err := CheckOne(Item{ID: "j1", Lang: "javascript",
 		Code: "async function main({ params }: Args): Promise<Output> {\n  return { a: 1 };\n}\n"})
@@ -58,7 +58,7 @@ func TestCheckJSSyntaxWithCozeSignature(t *testing.T) {
 		t.Fatalf("check: %v", err)
 	}
 	if !ok.OK {
-		t.Fatalf("valid coze JS rejected: %s", ok.Err)
+		t.Fatalf("valid platform JS rejected: %s", ok.Err)
 	}
 	if vs.Node == "" {
 		t.Fatal("node version not observed")

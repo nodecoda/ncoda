@@ -1,8 +1,10 @@
 package tool
 
-// Platform-qualified imports (docs/PLATFORM-MECHANISM.md §4-5): SplitImport
-// splits "platform.provider" while keeping bare providers untouched; unknown
-// qualifiers are a hard error so bindings never silently misroute.
+// Platform-qualified imports: SplitImport splits "qualifier.provider" while
+// keeping bare providers untouched. The qualifier is validated by shape, not
+// against a platform list — the open kernel does not know which platforms
+// exist (ASSET-BOUNDARY D8); adapters reject qualifiers they do not serve at
+// build time (UNSUPPORTED_BY_TARGET), never as a language error.
 
 import "testing"
 
@@ -25,6 +27,9 @@ func TestSplitImportPlatformQualified(t *testing.T) {
 		{"coze-biz.web_search", "coze-biz", "web_search"},
 		{"dify.google_search", "dify", "google_search"},
 		{"coze-studio.feishu_bitable", "coze-studio", "feishu_bitable"},
+		// A qualifier the open repo does not serve is still a legal import:
+		// whether the target can satisfy it is an adapter decision.
+		{"windows.web_search", "windows", "web_search"},
 	}
 	for _, tc := range cases {
 		platform, name, err := SplitImport(tc.provider)
@@ -37,17 +42,16 @@ func TestSplitImportPlatformQualified(t *testing.T) {
 	}
 }
 
-func TestSplitImportRejectsUnknownPlatform(t *testing.T) {
-	_, _, err := SplitImport("windows.web_search")
-	if err == nil {
-		t.Fatal("SplitImport: want error for unknown platform")
+func TestSplitImportRejectsMalformedQualifier(t *testing.T) {
+	cases := []string{
+		".web_search",     // empty qualifier
+		"Acme.web_search", // uppercase qualifier
+		"a_b.web_search",  // underscore is not a qualifier character
 	}
-	pe, ok := err.(*ImportPlatformError)
-	if !ok {
-		t.Fatalf("error type = %T, want *ImportPlatformError", err)
-	}
-	if pe.Platform != "windows" || pe.Provider != "windows.web_search" {
-		t.Fatalf("ImportPlatformError = %#v", pe)
+	for _, provider := range cases {
+		if _, _, err := SplitImport(provider); err == nil {
+			t.Fatalf("SplitImport(%q): want error for malformed qualifier", provider)
+		}
 	}
 }
 
@@ -65,7 +69,8 @@ func TestPlatformOf(t *testing.T) {
 		{"web_search", ""},
 		{"coze-biz.web_search", "coze-biz"},
 		{"dify.google_search", "dify"},
-		{"windows.web_search", ""}, // unknown qualifier is not a platform
+		{"windows.web_search", "windows"}, // shape-valid ⇒ a qualifier
+		{"a/b.web_search", ""},            // malformed ⇒ no qualifier
 	}
 	for _, tc := range cases {
 		if got := PlatformOf(tc.provider); got != tc.want {
@@ -74,15 +79,15 @@ func TestPlatformOf(t *testing.T) {
 	}
 }
 
-func TestIsPlatformName(t *testing.T) {
-	for _, p := range PlatformNames {
-		if !IsPlatformName(p) {
-			t.Fatalf("IsPlatformName(%q) = false, want true", p)
+func TestValidPlatformQualifier(t *testing.T) {
+	for _, ok := range []string{"dify", "coze-biz", "coze-studio", "acme2", "x"} {
+		if !ValidPlatformQualifier(ok) {
+			t.Fatalf("ValidPlatformQualifier(%q) = false, want true", ok)
 		}
 	}
-	for _, p := range []string{"windows", "coze", ""} {
-		if IsPlatformName(p) {
-			t.Fatalf("IsPlatformName(%q) = true, want false", p)
+	for _, bad := range []string{"", "-acme", ".acme", "acme.x", "a/b", "ACME", "a_b"} {
+		if ValidPlatformQualifier(bad) {
+			t.Fatalf("ValidPlatformQualifier(%q) = true, want false", bad)
 		}
 	}
 }

@@ -8,7 +8,7 @@ import (
 
 const validLoweringYAML = `schema: ncoda.obligations-lowering-registry/v1
 entries:
-  - target: dify
+  - target: adapter
     rewrite: emitProjectedWhile
     input: ["while"]
     output: ["iteration"]
@@ -24,7 +24,7 @@ entries:
 `
 
 func TestParseLoweringRegistryValid(t *testing.T) {
-	reg, err := ParseLoweringRegistry([]byte(validLoweringYAML))
+	reg, err := ParseLoweringRegistryFor([]byte(validLoweringYAML), TargetRuntime, "adapter")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,30 +34,30 @@ func TestParseLoweringRegistryValid(t *testing.T) {
 	if !reg.Declared("runtime", "elseLessJunctionMerge") {
 		t.Fatal("runtime/elseLessJunctionMerge not declared")
 	}
-	if reg.Declared("dify", "missing") {
+	if reg.Declared("adapter", "missing") {
 		t.Fatal("undeclared lowering reported as declared")
 	}
 }
 
 func TestParseLoweringRegistryRejectsUnknownField(t *testing.T) {
 	bad := strings.Replace(validLoweringYAML, "    test-id: TC-17", "    test-id: TC-17\n    surprise: true", 1)
-	assertRegistryCode(t, bad, CodeLoweringRegistryInvalid)
+	assertRegistryCodeFor(t, bad, CodeLoweringRegistryInvalid)
 }
 
 func TestParseLoweringRegistryRejectsSuccessorOutsideOutput(t *testing.T) {
 	bad := strings.Replace(validLoweringYAML, `canonical_successor: "T"`, `canonical_successor: "N"`, 1)
-	assertRegistryCode(t, bad, CodeLoweringRegistryInvalid)
+	assertRegistryCodeFor(t, bad, CodeLoweringRegistryInvalid)
 }
 
 func TestParseLoweringRegistryAllowsMissingSuccessor(t *testing.T) {
-	if _, err := ParseLoweringRegistry([]byte(validLoweringYAML)); err != nil {
+	if _, err := ParseLoweringRegistryFor([]byte(validLoweringYAML), TargetRuntime, "adapter"); err != nil {
 		t.Fatalf("omitted canonical_successor must be legal: %v", err)
 	}
 }
 
 func TestParseLoweringRegistryRejectsDuplicateRewrite(t *testing.T) {
-	dup := strings.Replace(validLoweringYAML, "  - target: runtime", "  - target: dify\n    rewrite: emitProjectedWhile\n    input: [\"x\"]\n    output: [\"y\"]\n    why-not-upstream: \"dup\"\n    test-id: TC-1\n  - target: runtime", 1)
-	assertRegistryCode(t, dup, CodeLoweringRegistryInvalid)
+	dup := strings.Replace(validLoweringYAML, "  - target: runtime", "  - target: adapter\n    rewrite: emitProjectedWhile\n    input: [\"x\"]\n    output: [\"y\"]\n    why-not-upstream: \"dup\"\n    test-id: TC-1\n  - target: runtime", 1)
+	assertRegistryCodeFor(t, dup, CodeLoweringRegistryInvalid)
 }
 
 const validQuirksYAML = `schema: ncoda.obligations-quirks/v1
@@ -86,7 +86,7 @@ entries:
     evidence: "e"
     max_entries: 2
 `
-	assertRegistryCode(t, bad, CodeQuirkWhitelistExpired)
+	assertRegistryCodeFor(t, bad, CodeQuirkWhitelistExpired)
 }
 
 func TestParseQuirkRegistryRejectsUnknownField(t *testing.T) {
@@ -95,14 +95,16 @@ max_total: 5
 entries: []
 surprise: 1
 `
-	assertRegistryCode(t, bad, CodeQuirkWhitelistExpired)
+	assertRegistryCodeFor(t, bad, CodeQuirkWhitelistExpired)
 }
 
-func assertRegistryCode(t *testing.T, data, code string) {
+// assertRegistryCodeFor validates a lowering document against the test target
+// set (runtime + the neutral adapter target); quirk documents take no set.
+func assertRegistryCodeFor(t *testing.T, data, code string) {
 	t.Helper()
 	var err error
 	if strings.HasPrefix(data, "schema: ncoda.obligations-lowering-registry") {
-		_, err = ParseLoweringRegistry([]byte(data))
+		_, err = ParseLoweringRegistryFor([]byte(data), TargetRuntime, "adapter")
 	} else {
 		_, err = ParseQuirkRegistry([]byte(data))
 	}
@@ -112,5 +114,34 @@ func assertRegistryCode(t *testing.T, data, code string) {
 	var rerr *RegistryError
 	if !errors.As(err, &rerr) || rerr.Code != code {
 		t.Fatalf("error = %v, want code %s", err, code)
+	}
+}
+
+// TestParseLoweringRegistryDefaultsToRuntimeOnly locks the kernel default: a
+// registry naming an adapter target is rejected unless the caller declares
+// that target. Platform identities belong to adapters (ASSET-BOUNDARY D8).
+func TestParseLoweringRegistryDefaultsToRuntimeOnly(t *testing.T) {
+	_, err := ParseLoweringRegistry([]byte(validLoweringYAML))
+	if err == nil {
+		t.Fatal("default parse must reject an adapter-owned target")
+	}
+	var rerr *RegistryError
+	if !errors.As(err, &rerr) || rerr.Code != CodeLoweringRegistryInvalid {
+		t.Fatalf("got %v, want %s", err, CodeLoweringRegistryInvalid)
+	}
+	if !strings.Contains(rerr.Message, "unknown target") {
+		t.Fatalf("message = %q, want it to name the unknown target", rerr.Message)
+	}
+}
+
+// TestParseLoweringRegistryForAcceptsDeclaredAdapterTarget is the positive
+// half: once the caller declares the target, the same document parses.
+func TestParseLoweringRegistryForAcceptsDeclaredAdapterTarget(t *testing.T) {
+	reg, err := ParseLoweringRegistryFor([]byte(validLoweringYAML), TargetRuntime, "adapter")
+	if err != nil {
+		t.Fatalf("declared target must parse: %v", err)
+	}
+	if !reg.Declared("adapter", "emitProjectedWhile") {
+		t.Fatal("adapter/emitProjectedWhile not declared")
 	}
 }

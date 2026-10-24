@@ -1,0 +1,59 @@
+schema: ncoda.open.platform-identity-residuals/v1
+#
+# 开源内核里**仍然拼着平台名**的代码位置（ASSET-BOUNDARY D8 / P2f）。
+#
+# 判据：scripts/audit_split.py S6 扫内核 Go 标识符（去注释、去字符串后），
+# 任何含 dify/coze 的标识符都必须在本台账登记；反之，台账登记了但代码里
+# 已不存在也判红（台账必须随代码一起缩小）。所以本文件是**完整、已审阅**的
+# 平台身份残留清单，不是快照。
+#
+# 登记门槛：必须写清 what（残留是什么）/ why（为什么这轮搬不走）/ unblock
+# （什么条件能搬）。缺一不进台账。
+items:
+  - id: OI-1
+    file: pkg/passes/target_validation.go
+    identifiers:
+      - isDifyProfile
+      - isCozeBizProfile
+      - isCozeStudioProfile
+      - isCozeModelProtocolString
+      - cozeAxes
+    what: >-
+      目标画像校验层（1575 行 Python 移植）按平台家族分档：dify 的 chatflow
+      入口/显式 null、coze 的 settingOnError 载体、coze 模型协议串
+      `coze:<digits>`、ask 节点的 question 参数轴。
+    why: >-
+      这一层决定 869 语料里 frontend_ok 的判定，不是"改名"能解决的：分档
+      依据是平台能力事实，属适配器；但 kernel 的 passes 管线今日没有适配器
+      句柄（DefaultPipeline().Run(src, file, toolPaths) 无 target 参数），
+      先搬会同时改 passes/binding/ir 三处 API 与商业仓调用点，必须与发版
+      批量走。R-185（DefaultTargetProfile 名）同族。
+    unblock: >-
+      passes 管线接受适配器注入（profile 分档表由适配器提供）后，把本文件
+      的 coze/dify 分支搬进商业仓 internal/backend/<platform>/validation.go。
+  - id: OI-2
+    file: pkg/ir/on_error_mode.go
+    identifiers:
+      - cozeOnErrorMode
+      - cozeOnErrorModeByNcoda
+    what: >-
+      语言级 on_error 模式 → 平台拼写的映射表（IR 节点字段值）。
+    why: >-
+      on_error 的落点是 IR 节点字段，而 IR 节点形状今日由 kernel 统一物化
+      （商业仓消费同一份 IR）。映射表搬走需要 IR 增加"目标字段值"轴，
+      属跨仓 API 变更（与 whole-envelope 落点同族，P2f-3）。
+    unblock: >-
+      IR 增加平台字段值注入点（BuildOption），适配器提供 on_error 拼写表。
+  - id: OI-3
+    file: pkg/ir/loop_return_materialize.go
+    identifiers:
+      - cozeBizLoopReturnTarget
+    what: >-
+      M17（循环体内带值 return）的物化门控：按 target 名判断是否走
+      coze-biz 的「状态对 + break + 循环后门控」形状。
+    why: >-
+      与 OI-2 同一病灶：物化形状是平台事实，但物化代码在 kernel 的 IR
+      builder 里，按 target 名开关。搬走需要 IR 形状描述由适配器提供。
+    unblock: >-
+      IR builder 接受"循环早退形状"策略（适配器实现），本文件降为语言级
+      默认形状。

@@ -1097,7 +1097,7 @@ function main() -> string {
 	if res.HasErrors() || res.Program == nil {
 		t.Fatal("frontend pipeline failed")
 	}
-	g, err := ir.Build(res.Program, ir.WithCapabilities(capability.For("coze-1.0")))
+	g, err := ir.Build(res.Program, ir.WithCapabilities(nativeCapabilities()))
 	if err != nil {
 		t.Fatalf("ir.Build with capabilities: %v", err)
 	}
@@ -1207,7 +1207,7 @@ function main(string x) -> string {
 	if res.HasErrors() || res.Program == nil {
 		t.Fatal("frontend pipeline failed")
 	}
-	g, err := ir.Build(res.Program, ir.WithCapabilities(capability.For("coze-1.0")))
+	g, err := ir.Build(res.Program, ir.WithCapabilities(nativeCapabilities()))
 	if err != nil {
 		t.Fatalf("ir.Build: %v", err)
 	}
@@ -1651,5 +1651,19 @@ function main(string outer, string inner) {
 	}
 	if got := len(nodes[ir.KindSelector]); got != 2 {
 		t.Fatalf("selector count = %d, want nested outer/inner selectors", got)
+	}
+}
+
+// nativeCapabilities declares every native axis for IR tests. The fixture is
+// platform-agnostic on purpose: per-platform tables belong to adapters
+// (ASSET-BOUNDARY D8), not to the kernel or its tests.
+func nativeCapabilities() *capability.Table {
+	return &capability.Table{
+		Target:       "native-fixture",
+		Condition:    capability.Condition{RefLiteral: true, RefRef: true},
+		TextConcat:   true,
+		TextSplit:    true,
+		JSONSerial:   true,
+		JSONDeserial: true,
 	}
 }

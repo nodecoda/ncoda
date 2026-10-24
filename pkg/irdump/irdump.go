@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/nodecoda/ncoda/pkg/ir"
 	"github.com/nodecoda/ncoda/pkg/tool"
@@ -181,27 +180,6 @@ func (d *IRDump) Marshal() ([]byte, error) {
 		return nil, err
 	}
 	return append(data, '\n'), nil
-}
-
-// PlatformIDHits scans the dump for physical platform identity markers.
-// The scan only reads the canonical dump; callers must not fall back to
-// scanning source text (LL-065).
-func PlatformIDHits(d *IRDump) []string {
-	data, err := json.Marshal(d)
-	if err != nil {
-		return nil
-	}
-	text := string(data)
-	var hits []string
-	for _, marker := range []string{"plugin_", "api_id", "plugin_id", "coze-biz", "coze-studio"} {
-		if strings.Contains(text, marker) {
-			hits = append(hits, marker)
-		}
-	}
-	if strings.Contains(text, "\"dify\"") {
-		hits = append(hits, "dify")
-	}
-	return hits
 }
 
 func dedupe(in []string) []string {

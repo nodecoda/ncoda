@@ -124,8 +124,8 @@ func NewCapabilityManifest(
 	}
 
 	for platform, platformAliases := range aliases {
-		if !IsPlatformName(platform) {
-			return nil, fmt.Errorf("capability manifest: unknown alias platform %q", platform)
+		if !ValidPlatformQualifier(platform) {
+			return nil, fmt.Errorf("capability manifest: invalid alias platform qualifier %q (must match [a-z0-9][a-z0-9-]*)", platform)
 		}
 		manifest.aliases[platform] = make(map[string][]capabilityAliasEntry, len(platformAliases))
 		for i, alias := range platformAliases {

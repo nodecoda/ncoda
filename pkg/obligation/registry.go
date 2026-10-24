@@ -27,14 +27,11 @@ const (
 	QuirkRegistrySchemaV1    = "ncoda.obligations-quirks/v1"
 )
 
-// Target names accepted by the registry. They match the CLI target names,
-// not backend profile ids.
-const (
-	TargetRuntime    = "runtime"
-	TargetDify       = "dify"
-	TargetCozeStudio = "coze-studio"
-	TargetCozeBiz    = "coze-biz"
-)
+// TargetRuntime is the only target the open kernel names: the runtime ships
+// in this repository, so "runtime" is a language-level identity. Platform
+// targets are adapter-owned (ASSET-BOUNDARY D8): a caller that serves them
+// passes its own list to LoadLoweringRegistryFor.
+const TargetRuntime = "runtime"
 
 // LoweringRegistry is the parsed lowering-registry document.
 type LoweringRegistry struct {
@@ -88,17 +85,32 @@ func quirkErr(format string, args ...any) error {
 	return &RegistryError{Code: CodeQuirkWhitelistExpired, Message: fmt.Sprintf(format, args...)}
 }
 
-// LoadLoweringRegistry reads and validates a lowering-registry YAML file.
+// LoadLoweringRegistry reads and validates a lowering-registry YAML file
+// whose entries target only the runtime.
 func LoadLoweringRegistry(path string) (*LoweringRegistry, error) {
+	return LoadLoweringRegistryFor(path, TargetRuntime)
+}
+
+// LoadLoweringRegistryFor reads and validates a lowering-registry YAML file
+// for the given target set. Adapters pass their own target names; the kernel
+// itself knows only TargetRuntime.
+func LoadLoweringRegistryFor(path string, targets ...string) (*LoweringRegistry, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, registryErr("reading lowering registry: %v", err)
 	}
-	return ParseLoweringRegistry(data)
+	return ParseLoweringRegistryFor(data, targets...)
 }
 
-// ParseLoweringRegistry strictly decodes and validates a registry document.
+// ParseLoweringRegistry strictly decodes and validates a registry document
+// whose entries target only the runtime.
 func ParseLoweringRegistry(data []byte) (*LoweringRegistry, error) {
+	return ParseLoweringRegistryFor(data, TargetRuntime)
+}
+
+// ParseLoweringRegistryFor strictly decodes and validates a registry document
+// against the given target set.
+func ParseLoweringRegistryFor(data []byte, targets ...string) (*LoweringRegistry, error) {
 	var reg LoweringRegistry
 	if err := strictYAML(data, &reg); err != nil {
 		return nil, registryErr("%v", err)
@@ -108,8 +120,8 @@ func ParseLoweringRegistry(data []byte) (*LoweringRegistry, error) {
 	}
 	seen := map[string]bool{}
 	for i, e := range reg.Entries {
-		if !validTarget(e.Target) {
-			return nil, registryErr("entries[%d]: unknown target %q", i, e.Target)
+		if !validTarget(e.Target, targets) {
+			return nil, registryErr("entries[%d]: unknown target %q (accepted: %s)", i, e.Target, strings.Join(targets, ", "))
 		}
 		if strings.TrimSpace(e.Rewrite) == "" {
 			return nil, registryErr("entries[%d]: rewrite is required", i)
@@ -221,10 +233,11 @@ func (r *QuirkRegistry) Matches(edge string) bool {
 	return false
 }
 
-func validTarget(target string) bool {
-	switch target {
-	case TargetRuntime, TargetDify, TargetCozeStudio, TargetCozeBiz:
-		return true
+func validTarget(target string, targets []string) bool {
+	for _, t := range targets {
+		if t == target {
+			return true
+		}
 	}
 	return false
 }
