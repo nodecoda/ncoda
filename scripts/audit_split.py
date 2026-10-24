@@ -4,7 +4,8 @@
 The split is only durable if its invariants are checked, not remembered. Each
 check below corresponds to an acceptance criterion of the O2 split:
 
-  S1 structure     no `internal/` tree, no `platforms/*` (private backends)
+  S1 structure     no `internal/` tree, no `platforms/*` (private backends),
+                   no `pkg/ncoda` (adapter render/type support surface)
   S2 dependencies  no open binary reaches a platform adapter or the closed
                    tree; the language lane (nclang-compile) additionally never
                    links the runtime graph engine (eino)
@@ -185,6 +186,11 @@ def check_structure(root: str) -> list[str]:
     if os.path.isdir(platforms):
         for name in sorted(os.listdir(platforms)):
             problems.append(f"S1 开放树出现 platforms/{name}（平台适配器）")
+    # P2j: pkg/ncoda was the adapter-facing render/type surface (canvas
+    # AssistType table, platform type spellings). Neither open binary ever
+    # linked it; it now lives in the commercial tree. Keep it from coming back.
+    if os.path.isdir(os.path.join(root, "pkg", "ncoda")):
+        problems.append("S1 开放树出现 pkg/ncoda（适配器支撑面，已在 P2j 迁商业）")
     return problems
 
 

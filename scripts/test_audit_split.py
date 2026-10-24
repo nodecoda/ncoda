@@ -35,10 +35,12 @@ class AuditSplit(unittest.TestCase):
         self.touch("internal/secret.go", "package secret\n")
         self.touch("platforms/cozebiz/x.go", "package x\n")
         self.touch("platforms/dify/x.go", "package x\n")
+        self.touch("pkg/ncoda/render/x.go", "package render\n")
         problems = self.mod.check_structure(self.tmp)
         self.assertTrue(any("internal/" in p for p in problems), problems)
         self.assertTrue(any("cozebiz" in p for p in problems), problems)
         self.assertTrue(any("platforms/dify" in p for p in problems), problems)
+        self.assertTrue(any("pkg/ncoda" in p for p in problems), problems)
 
     def test_mentions(self):
         self.touch("pkg/x.go", 'import _ "github.com/nodecoda/ncoda-commercial/internal/x"\n')

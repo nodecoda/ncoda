@@ -66,7 +66,7 @@
 | `pkg/ir` `pkg/irdump` | 中立 IR 与审计 dump（`ncoda-ir/v1`） |
 | `pkg/capability` `pkg/target` `pkg/obligation` | 能力轴、类型映射面、lowering 义务注册表 |
 | `pkg/codeparse` `pkg/pyast` `pkg/pygen` | code 节点的解析、生成、翻译 |
-| `pkg/ncoda` `pkg/builtin` | 内建节点、库单元、公共渲染面 |
+| `pkg/builtin` | 内建节点结果契约与语言类型面（平台契约由适配器注入） |
 | `pkg/compiler` `pkg/cli` `cmd/nclang-compile` | 语言 lane：`--emit-ir --target __none__` |
 | `pkg/runtime/...` | 执行器（L2）：spec.v1 → eino 图 → 运行；含节点语义、状态、trace |
 | `pkg/observation` | 反向抽取视图（产物节点/边 → 义务报告），与目标无关 |
@@ -76,6 +76,10 @@
 | `pkg/toolpath` | 能力头搜索路径：`--tool-path` > `NCLANG_TOOL_PATH` > `<exe>/libraries` > `~/.nodecoda/tools` |
 | `libraries/` | 174 个公共能力头（语言级符号；不含平台物理 id） |
 | `pkg/diag` | 诊断码与线格式契约 |
+
+适配器渲染面（canvas AssistType 表、平台类型拼写、AST4 渲染/反解）不在本仓：
+它们是目标产物的事实，随平台适配器住在商业仓。开源两个二进制
+（`nclang-compile`、`ncoda-run`）都不依赖它们（S1 闸门禁止 `pkg/ncoda` 回流）。
 
 ## 5. 执行引擎
 
