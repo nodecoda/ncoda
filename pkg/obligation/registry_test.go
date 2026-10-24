@@ -12,7 +12,7 @@ entries:
     rewrite: emitProjectedWhile
     input: ["while"]
     output: ["iteration"]
-    why-not-upstream: "Dify has no while node."
+    why-not-upstream: "the reference carrier has no while node."
     test-id: TC-17
   - target: runtime
     rewrite: elseLessJunctionMerge

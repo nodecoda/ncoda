@@ -814,7 +814,7 @@ func (p *Parser) parseAgentDecl() (*ast.AgentDecl, *ParseError) {
 				tools = append(tools, sl.Value())
 			}
 		case "knowledge":
-			// 对齐 dify agent-chat 数据集检索:knowledge: {dataset_ids: [...],
+			// 对齐参考目标 agent-chat 数据集检索:knowledge: {dataset_ids: [...],
 			// top_k: n}。空 dataset_ids 视为未配置。
 			kl, ok := e.Value.(*ast.MapLit)
 			if !ok {

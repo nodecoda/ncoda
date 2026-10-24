@@ -183,7 +183,7 @@ func TestAllLoweringsCompile(t *testing.T) {
 }
 
 // TestTemplateMatchesPyast locks the P5.3 parity contract: the string
-// template form (Template, consumed by the IR fallback and the dify legacy
+// template form (Template, consumed by the IR fallback and the reference target legacy
 // renderer) must stay byte-identical to the pyast form (LowerBuiltin) for
 // every builtin. A builtin change must touch both forms in lockstep; this
 // test fails otherwise (parity by construction).

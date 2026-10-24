@@ -535,7 +535,7 @@ func renderConditionPython(e ast.Expr, g *Builder, bindings *[]textBinding) (str
 			// Python-subset AST instead of the string template. Any shape
 			// the current pyast node set cannot express falls back to the
 			// shared string template (pygen.Template — P5.3, one definition
-			// for the IR fallback and the dify legacy renderer); byte
+			// for the IR fallback and the reference target legacy renderer); byte
 			// equivalence is the gate (§ PYTHON-SUBSET-GENERATOR P5.1).
 			if pa, ok2, err := lowerCalcBuiltin(x, g, bindings); err != nil {
 				return "", err
@@ -887,9 +887,9 @@ func portTypeOfNode(n Node, output string) *Type {
 	case *TextProcess:
 		if nd.Method == "split" {
 			// split materializes an array<string> (coze TextProcessor
-			// split / dify code node): the port type must match, or a
+			// split / reference code node): the port type must match, or a
 			// downstream Python index shim (r[0]) declares a mismatched
-			// input type and dify's type-invariant check fails.
+			// input type and the reference target's type-invariant check fails.
 			return TList(T("string"))
 		}
 		return T("string")

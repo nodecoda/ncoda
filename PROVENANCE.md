@@ -12,13 +12,12 @@ from the private governance repository `godcc`.
 - `PROVENANCE`-relevant extraction transformations:
   1. Go module path rewritten from `nodecoda.com/lang/compiler` to
      `github.com/nodecoda/ncoda`.
-  2. Only the open substrate is included: `pkg/**`, `platforms/dify/**`,
-     the Dify-only CLI (`cmd/nclang-compile`) and open developer tools.
-     Closed-side packages (`internal/backend/{coze,cozebiz}`, `internal/runtime`,
-     `platforms/{cozestudio,cozebiz}`, the multi-target CLI, foundry) are not
-     part of this tree.
-  3. Closed-side generated contract data is not part of this tree. The demo
-     declares the Dify contract only; closed targets are generated in the
+  2. Only the open substrate is included: `pkg/**`, the language-lane CLI
+     (`cmd/nclang-compile`) and open developer tools. Platform adapters
+     (`internal/backend/*`, `platforms/*`), the multi-target CLI, the foundry
+     and the corpus repository are not part of this tree.
+  3. Platform contract data is not part of this tree. The open build declares
+     the language's own contract only; adapter contracts are generated in the
      commercial repository (`internal/builtincoze/contracts.go`) and injected
      through `pkg/builtin.RegisterContracts`.
   4. Internal absolute paths were neutralised; the public tree contains no

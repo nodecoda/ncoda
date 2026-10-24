@@ -540,7 +540,7 @@ func dumpCallTargets(s *Snapshot) string {
 func TestNamespaceShadowingError(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() {
     let tts = 1;
     return "ok";
@@ -567,7 +567,7 @@ function main() {
 func TestNamespaceSymbolRegistered(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { return "ok"; }`
 	prog, _ := parser.ParseSource(src, "ns.ncoda")
 	snap, diags := Bind(prog)
@@ -596,28 +596,28 @@ func TestNamespaceShadowingAllDeclarationPaths(t *testing.T) {
 	}{
 		{"let", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { let tts = 1; return "ok"; }`},
 		{"var", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { var tts = 1; return "ok"; }`},
 		{"param", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function helper(string tts) { return "ok"; }
 function main() { return helper("x"); }`},
 		{"entry-input", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main(string tts) { return "ok"; }`},
 		{"loop-var", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { for (var tts in items) { } return "ok"; }`},
 		{"parallel-let", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { parallel { { let tts = 1; } { } } return "ok"; }`},
 	}
 	for _, tc := range cases {
@@ -636,7 +636,7 @@ function main() { parallel { { let tts = 1; } { } } return "ok"; }`},
 func TestRequestInputResultBindingNamespaceShadow(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 enum ReviewAction { approve }
 type ReviewForm = { string comment; }
 function main() -> string {
@@ -695,15 +695,15 @@ func TestNamespaceNotShadowedByFunctionOrType(t *testing.T) {
 	}{
 		{"function", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function tts() { return "ok"; }`},
 		{"type", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 type tts = { string s; }`},
 		{"enum", `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 enum tts { a, b }`},
 	}
 	for _, tc := range cases {
@@ -729,7 +729,7 @@ enum tts { a, b }`},
 // import-namespace set still contained it (divergent lowering); rejecting
 // it keeps the three discriminants agreeing by construction.
 func TestImportConflictsWithBuiltinNamespace(t *testing.T) {
-	for _, provider := range []string{"dify.std", "dify.json"} {
+	for _, provider := range []string{"acme.std", "acme.json"} {
 		t.Run(provider, func(t *testing.T) {
 			src := "@language nodecoda/1\n@mode workflow\nimport \"" + provider + "\";\nfunction main() { return \"ok\"; }"
 			errs, _ := errorDiagnostics(t, src)
@@ -749,7 +749,7 @@ func TestImportConflictsWithBuiltinNamespace(t *testing.T) {
 func TestNamespaceSymbolKindDiscriminatesBuiltinVsImport(t *testing.T) {
 	src := `@language nodecoda/1
 @mode workflow
-import "dify.tts";
+import "acme.tts";
 function main() { return "ok"; }`
 	errs, snap := errorDiagnostics(t, src)
 	if len(errs) > 0 {

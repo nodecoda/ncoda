@@ -43,7 +43,7 @@ func toolMemberShimGraph(t *testing.T) *ir.Graph {
 	src := `@language nodecoda/1
 @mode workflow
 
-import "dify.p";
+import "acme.p";
 
 function main(string q) -> int {
     let r = p.op({ q: q });

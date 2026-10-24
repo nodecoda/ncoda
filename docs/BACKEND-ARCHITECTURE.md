@@ -442,7 +442,7 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
     两阶段责任（先证明语言语义正确、再证明适配正确）不变。
 - **语言先自洽，平台后适配**：ncoda 的语法、类型、控制流、null/Optional
   和表达式语义是第一性的，必须先作为一门独立语言定义并验证自洽；不能因为
-  coze-biz / dify / coze-studio 的节点形状、merge 机制或运行时限制，反向修改
+  coze-biz / 参考目标 / coze-studio 的节点形状、merge 机制或运行时限制，反向修改
   ncoda 的既有语义。
 - **语义不向平台妥协**：平台与 ncoda 语义不匹配时，优先修复所属平台的
   lowering/raising（适配、编码、解码、结构投影）边界；不得把平台物理机制伪装
@@ -552,7 +552,7 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
   结构投影，不能依赖过滤兜底。
 - 目标架构：两阶段投影——先由 IR 结构树构建逻辑控制流图（边带语义分类），
   再映射到平台 YAML（端口名 + 容器嵌套）。见 `docs/EDGE-CONTRACT.md` §3。
-- 平台落地形态差异是适配不是债务：dify/coze 用双遍 `flow.Project`（边集合是
+- 平台落地形态差异是适配不是债务：参考目标/coze 用双遍 `flow.Project`（边集合是
   IR 纯函数）；coze-biz 用单遍 `cfCollector`（`refsLoopVar` 依赖渲染产物，
   双遍会丢信息——评审否决 #10 迁移，论证见 `docs/COZEBIZ-SINGLE-PASS-PROJECTION.md`）。
 
@@ -751,9 +751,9 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
     **该缺陷已由 `4f14824` 收口**（四宿主统一 `junctionTailRef` = 「零候选 ⇒ 没有值」+
     共享投影器 merge-less 路径；用户 2026-09-11 批准的「第 1 条 if/QA 伪尾值」）。
     复测该形状：coze-biz `SUCCEEDED`、**无 `variable_merge`**、`end.node_inputs=[]`；
-    dify-1.16 同源产物亦无 `variable_merge`/`Group1`（第一手 + 第九次 gate 24 形状 ×
-    2 target 全负）。用户的「dify / coze-studio 连带变化 = 接受」裁定（本文件「开发主线
-    与平台优先级」）正是解除「必须先证 dify 形状不变」阻塞的依据。规则残差（同一条普遍
+    参考目标 1.16 同源产物亦无 `variable_merge`/`Group1`（第一手 + 第九次 gate 24 形状 ×
+    2 target 全负）。用户的「参考目标 / coze-studio 连带变化 = 接受」裁定（本文件「开发主线
+    与平台优先级」）正是解除「必须先证 参考目标 形状不变」阻塞的依据。规则残差（同一条普遍
     规则的其余未收口通道）= 全通道清单（**2 条已收口** = 尾值统一 + junction phi
     成员判据；另有若干未收口通道 + N1 + **RT-EVAL**）。
     **同规则在第四个目标（runtime）上的求值侧遗漏 = RT-EVAL（已证可达，2026-09-12 第一手）**：
@@ -845,8 +845,8 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
     `pkg/passes/zero_path_merge_report.go`（接线 = `TargetValidationPass.Run`）。能力表
     `zeroPathMergeCapacityOf`：**coze-biz / coze-studio = 无承载面**（`variable_merge` 的值语义 =
     first_non_zero，见本文件「平台形状契约」节 A 级定义）；**其余目标本判据不主张**（取法同
-    `nonHTTPTimeoutAxisOf`：**只对已证载体错位的目标报账**，不发明能力 —— dify 的聚合器是
-    first-**not-null**、零值不是 null ⇒「零值被当成缺席」这个失效模式在 dify 上不成立；dify 侧 junction
+    `nonHTTPTimeoutAxisOf`：**只对已证载体错位的目标报账**，不发明能力 —— 参考目标的聚合器是
+    first-**not-null**、零值不是 null ⇒「零值被当成缺席」这个失效模式在 参考目标上不成立；参考目标侧 junction
     形状另有其自身的历史问题，属搁置面）。
     判据（**词法下限**，不是类型检查、也不是常量折叠 —— 取不到权威就不报）：junction 宿主（if / switch /
     attempt / ask / parallel，与 `definite_init.go` 的 join 宿主**同集**）收敛的提升变量 v 同时满足：
@@ -863,7 +863,7 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
     正例（未承载，必须报）= switch **≥2 case**（含 int / bool / 带 default / 缺 default）、switch 的零值
     只写在 default 里、**attempt 的 success 臂未写** —— 全部由**产物面**独立复核（基线载体的入边来自
     `start`，不在宿主兜底口上）；负侧 5 格（每条臂都写 v / 无非零基线 / 零基线 / 没有显式零值写 / 中间
-    语句覆盖了基线）+ 分母格（同宿主同变量两处零值写 = **1** 条账）+ R1（dify 一条不许有，且同一源在
+    语句覆盖了基线）+ 分母格（同宿主同变量两处零值写 = **1** 条账）+ R1（参考目标 一条不许有，且同一源在
     coze 家族上**确实报** —— 否则那格测不出承载面差异）+ R3（`status` 仍 `SUCCEEDED`）+ **已承载 9 格一律
     静默**。撤实现必红 = `python3 scripts/five-step/mutation_check.py --only 零值路径` **2/2**
     （① 撤能力表 ⇒ 报账永不发出；② 撤 (c) ⇒ 每臂都写的负侧被误报）。
@@ -1171,7 +1171,7 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
   3. **QA action / attempt success-failure 分支 return = 分支结果值**
      （subscope，返回给 QA/attempt 节点而非函数，不参与函数级锚定）。
   - 判定实现在 `pkg/ir/build_return.go`；投影约束见
-    `docs/DIFY-VS-COZE-GRAPH-SEMANTICS.md` §6.2（merge 仅双分支有出口
+    `docs/图语义对照（适配器仓）.md` §6.2（merge 仅双分支有出口
     才投影；FlowEnd 分支不汇入 merge 直连 end；dead-path cut）。
 - **多 return 出口是语言特性（C 风格）**：同一函数可以有任意多个 `return`
   出口（if/attempt/parallel 分支……），**不因"多出口"而拒绝**。约束只有两条：
@@ -1181,7 +1181,7 @@ switch, dataOnErr}` 是一个 **stanza**；它的**每一轴**都必须在链路
      分支，值返回给循环/QA 节点而非函数）不参与函数级锚定。
   2. **投影为平台形态**：coze 单出口（所有出口汇入唯一 end 900001；**值侧**：
      多带值出口经汇聚 merge 汇聚由 end 读 `Group1`，单带值出口由 end 直绑该
-     producer，无带值出口 end 不绑值）；dify 同规则（多出口经 variable-aggregator
+     producer，无带值出口 end 不绑值）；参考目标 同规则（多出口经 variable-aggregator
      → end，单 end 多入边）；runtime 首个到达 END 的出口短路（first-to-end wins）。
      旧措辞「ensureEnd first-write-wins」描述的是**已修复的缺陷**（第一条出口
      静态占位、后续出口值静默丢失，违反 r0 ≍ c0）。

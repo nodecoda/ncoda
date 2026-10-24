@@ -29,12 +29,12 @@ import "github.com/nodecoda/ncoda/pkg/capability"
 // 循环容器在「未命中」路径上也执行过 ⇒ 把裸的循环回声口 `return_value` 直接当
 // flow-exit 候选，会在未命中时被**恒选中**（取到状态初值）⇒ 流程返回零值而不是
 // 循环后的尾值，且 L1/L2 全绿（静默错语义）。故真臂用**单候选汇聚单元**（原生
-// variable_merge）承载逃逸值：它只在该臂执行 ⇒ 未命中时其来源被跳过（与 dify 的
+// variable_merge）承载逃逸值：它只在该臂执行 ⇒ 未命中时其来源被跳过（与参考目标的
 // `makeLoopReturnAssigner`、runtime 目标 `shortcutLoopReturns` 的「路径上的
 // 物化节点」同一规则）。
 //
 // **目标门控**：本文件只在 coze-biz 目标实例化（`g.caps.Target`，与 LLM 信封
-// 放置同一处目标分派）。dify / runtime 各自已有实现（dify 的
+// 放置同一处目标分派）。参考目标 / runtime 各自已有实现（参考目标的
 // `__returning/__return_value` + 循环后 if-else；runtime 的
 // `shortcutLoopReturns`），不动它们；ncoda 语言语义与 IR 节点类型均不变——这
 // 只是一次**目标内**的语句重写。
@@ -54,16 +54,10 @@ const (
 
 // loopReturnNeedsStateGate reports whether this target needs the M17
 // statement rewrite. The shape is declared by the adapter
-// (capability.Table.LoopReturnShape); the legacy name bridge keeps pre-
-// declaration tables on their old shape.
+// (capability.Table.LoopReturnShape); an undeclared table gets the native
+// shape (the conservative reading: don't rewrite what nobody asked for).
 func loopReturnNeedsStateGate(caps *capability.Table) bool {
-	if caps == nil {
-		return false
-	}
-	if caps.LoopReturnShape == capability.LoopReturnStateGate {
-		return true
-	}
-	return legacyLoopReturnStateGate(caps.Target)
+	return caps != nil && caps.LoopReturnShape == capability.LoopReturnStateGate
 }
 
 // materializeLoopReturns 在 IR 建成后、flow-exit phi 物化前，把目标平台无法直接

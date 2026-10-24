@@ -131,7 +131,7 @@ func TestBuildImportQualifiedToolCall(t *testing.T) {
 		t.Fatalf("NewRegistry: %v", err)
 	}
 	src := workflowHeader + `
-import "dify.google_search";
+import "acme.google_search";
 function main(string q) -> string {
     let r = google_search.search({ query: q });
     return "ok";

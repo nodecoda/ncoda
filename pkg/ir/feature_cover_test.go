@@ -318,7 +318,7 @@ func buildToolIRErr(t *testing.T, src string) string {
 	return ""
 }
 
-const toolHeader = "@language nodecoda/1\n@mode workflow\nimport \"dify.google_search\";\n"
+const toolHeader = "@language nodecoda/1\n@mode workflow\nimport \"acme.google_search\";\n"
 
 func TestBuildToolCallParams(t *testing.T) {
 	src := toolHeader + `
@@ -623,7 +623,7 @@ function main(string token) -> int {
 		t.Errorf("body = %q, want a {{block_output_<id>.output}} placeholder", http.Body)
 	}
 	// ③ 两种写法指向同一条数据依赖 ⇒ 该 producer 端口在 Inputs 里只登记一次。
-	//    （Inputs = dify 渲染器的 variables 载体；coze 的 node_inputs 由占位符反向合成。）
+	//    （Inputs = 参考目标渲染器的 variables 载体；coze 的 node_inputs 由占位符反向合成。）
 	counts := map[string]int{}
 	for _, in := range http.Inputs {
 		counts[in.Name]++
@@ -768,7 +768,7 @@ function main(string a) -> string {
 
 func TestBuildConditionArrayIndexBind(t *testing.T) {
 	if _, ok := builtin.Contract("coze-biz-1.0")["knowledge"]; !ok {
-		t.Skip("coze-biz knowledge 契约不在本构建（O2 开放仓只带 dify 契约）")
+		t.Skip("coze-biz knowledge 契约不在本构建（O2 开放仓只带参考目标契约）")
 	}
 	// A record-array element chain inside a non-native condition shape
 	// (binary `+` left operand) forces materialization; the resolvable

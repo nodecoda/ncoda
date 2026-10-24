@@ -16,6 +16,7 @@ github.com/kr/pretty (MIT) · github.com/kr/text (MIT) · gopkg.in/check.v1
 property `ncoda:linkage=test-or-module-graph`.
 
 The open-core distribution (this repository) contains the ncoda language
-kernel and the Dify compile/decompile backend. Coze, Coze-Studio,
-Coze-Biz, the runtime and the foundry are distributed separately under a
-commercial license and are not part of this repository.
+kernel: the frontend, the neutral IR, the runtime and the language-level
+conformance gates. Platform adapters (compile/decompile pipelines, platform
+identity tables and fixtures) and the foundry are distributed separately
+under a commercial license and are not part of this repository.

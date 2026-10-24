@@ -392,7 +392,7 @@ func TestFallbackBindAfterPreScopePassError(t *testing.T) {
 // std/json entry in the IR import-namespace set (the divergence the type
 // pass / IR discriminants used to disagree on is unreachable).
 func TestPipelineRejectsImportCollidingWithBuiltinNamespace(t *testing.T) {
-	for _, provider := range []string{"dify.std", "dify.json"} {
+	for _, provider := range []string{"acme.std", "acme.json"} {
 		src := "@language nodecoda/1\n@mode workflow\nimport \"" + provider + "\";\nfunction main() { return \"ok\"; }"
 		res := DefaultPipeline().Run(src, "i2.ncoda", nil)
 		if !res.HasErrors() {

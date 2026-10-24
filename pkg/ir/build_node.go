@@ -1238,7 +1238,7 @@ func (g *Builder) buildMap(id string, m *ast.MapLit) (Node, error) {
 	}
 	code := ShimMarker + fmt.Sprintf("def main(%s) -> dict:\n    return {%s}", strings.Join(names, ", "), strings.Join(kv, ", "))
 	// D3 (G8): the record shim declares its object output so downstream
-	// nodes can bind it: dify maps the logical "output" port through
+	// nodes can bind it: the reference target maps the logical "output" port through
 	// singleTypeKey(OutTypes) → "result", coze keeps its canonical
 	// "output" port and exposes the extra result port.
 	node := &CodeRun{
@@ -1371,7 +1371,7 @@ func (g *Builder) lowerMapPyast(id string, m *ast.MapLit) (Node, bool, error) {
 // defaults (string → "", integer/number → 0, boolean → false). The schema
 // comes from the type argument T (a named record declared in the program);
 // coze recognizes the shape and lowers it to the native type-59
-// JsonDeserialization node, dify keeps the code node (same runtime
+// JsonDeserialization node, the reference target keeps the code node (same runtime
 // semantics as today's hand-written json.loads foreign code). Field access
 // on the bound variable resolves onto the per-field output ports.
 func (g *Builder) buildJSONParse(id string, call *ast.CallExpr, prevIDs []string, firstPort string) (Node, error) {
@@ -1452,7 +1452,7 @@ func (g *Builder) buildJSONParse(id string, call *ast.CallExpr, prevIDs []string
 	if arrayElem != nil {
 		// Top-level array schema: the parsed value is the whole array.
 		// The coze type-59 node exposes it on the single "output" port as
-		// a list; dify keeps the code node whose "result" port carries the
+		// a list; the reference target keeps the code node whose "result" port carries the
 		// array (empty list when the payload is not a JSON array, mirroring
 		// the hand-written isinstance guard).
 		// P5.11: pyast path (multi-statement shim; ternary parens are the
@@ -1519,7 +1519,7 @@ func (g *Builder) buildJSONParse(id string, call *ast.CallExpr, prevIDs []string
 // IsJSONParseShim reports whether this CodeRun is the synthetic json.parse<T>
 // shim (G11): compiler-generated, exactly one bound input whose body calls
 // `json.loads(arg)`. Both targets use the shape: coze lowers it to the
-// native JsonDeserialization node (type 59), dify keeps the code node and
+// native JsonDeserialization node (type 59), the reference target keeps the code node and
 // must map the shim's dotted "output.field" refs onto its per-field ports.
 func (n *CodeRun) IsJSONParseShim() bool {
 	if !n.Synthetic || len(n.Inputs) != 1 || len(n.Inputs[0].Path) == 0 {
@@ -1532,7 +1532,7 @@ func (n *CodeRun) IsJSONParseShim() bool {
 // json.stringify(v) shim (G8): compiler-generated, exactly one bound input
 // whose body calls `json.dumps(arg, ensure_ascii=False)`. Both targets use the
 // shape: coze lowers it to the native JsonSerialization node (type 58, wire
-// `to_json`); dify keeps the code node. 对称面 = IsJSONParseShim（同一族，
+// `to_json`); 参考目标 keeps the code node. 对称面 = IsJSONParseShim（同一族，
 // 一读一写；反编译端 `nodeTypeAliases` 认 `to_json` 而正编译曾经只发 code
 // ⇒「只读不写」的不对称，R-117 收口）。
 func (n *CodeRun) IsJSONStringifyShim() bool {
@@ -1641,7 +1641,7 @@ func jsonDeserPropsDeclarable(t *Type) bool {
 // jsonDefaultLit returns the Python default literal for a JSON extraction
 // field of the given type (string → "", integer/number → 0, boolean →
 // false, array → []; anything else → None). The array default keeps the
-// dify code-node path equivalent to the hand-written `or []` guard: a
+// reference code-node path equivalent to the hand-written `or []` guard: a
 // missing field binds [] instead of None, so downstream array inputs stay
 // well-typed.
 func jsonDefaultLit(t *Type) string {
@@ -1665,7 +1665,7 @@ func jsonDefaultLit(t *Type) string {
 // Synthetic=true (compiler-generated), so the G7 passthrough contract holds:
 // user foreign code is never rewritten. Inline object/array literals are
 // materialized first (reusing buildMap/buildArray) and their canonical output
-// port is serialized, so coze renders code(record)+type-58 and dify renders
+// port is serialized, so coze renders code(record)+type-58 and the reference target renders
 // code(record)+code(dumps) — identical runtime semantics to today's
 // hand-written foreign code.
 func (g *Builder) buildStringify(id string, call *ast.CallExpr, prevIDs []string, firstPort string) (Node, error) {

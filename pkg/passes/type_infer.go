@@ -2290,7 +2290,7 @@ func codeResultIdentity(n *ast.ForeignCodeExpr) string {
 }
 
 // isCodePortType mirrors _is_code_port_type (:1868-1882): whether a declared
-// type has an exact Dify Code port representation.
+// type has an exact the reference target Code port representation.
 func isCodePortType(t *types.Descriptor) bool {
 	if t == nil {
 		return false
@@ -2311,7 +2311,7 @@ func isCodePortType(t *types.Descriptor) bool {
 		// string 端口类型处理。
 		return true
 	case types.Any:
-		// E5: `any` is a JSON value (the Dify codec maps it onto the string
+		// E5: `any` is a JSON value (the reference target codec maps it onto the string
 		// code port). Real plugins return untyped records (array<any>,
 		// map<string,any>); rejecting them forces every consumer through a
 		// decode shim for no safety gain — code nodes already receive

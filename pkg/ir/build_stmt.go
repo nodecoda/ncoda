@@ -61,7 +61,7 @@ func (g *Builder) emitAssign(s *ast.AssignStmt, prevIDs []string, firstPort stri
 		// 复合赋值的中性形 = **(op, 右值)**：前端把 `v += e` desugar 成 `v + e`
 		// （`pkg/parser/stmt.go`），左操作数是**读回 v** 的产物 ⇒ 这里把它
 		// 拆掉、只留右值 + op。**每个后端自己决定这个 op 轴能不能承**：
-		//   · dify/Graphon 有 op 轴（`internal/backend/dify/（商业仓）render_nodes.go` 的
+		//   · reference target/Graphon 有 op 轴（`商业仓参考后端render_nodes.go` 的
 		//     `Operation: assignerOperation(n.Operation)`）⇒ 直接承载；
 		//   · coze-biz 的 assigner 是**纯 set**（一手：coze-studio
 		//     `internal/nodes/variableassigner/variable_assign.go` 的 `Invoke`
@@ -179,7 +179,7 @@ func (g *Builder) emitOutputStmt(value ast.Expr, streaming bool, prevIDs []strin
 	//
 	// 注意（2026-09-12 门禁接线复盘）：这条 tailRef 是**共享语义**，三个
 	// target 共用——runtime 的 advanced-chat 记忆（chatflowRunnable 读
-	// end 的 output 绑定当 answer）与 dify 的 Answer 投影都靠它。coze-biz
+	// end 的 output 绑定当 answer）与参考目标的 Answer 投影都靠它。coze-biz
 	// 承载不了这个引用（平台的 OutputEmitter 不声明任何输出口，语料
 	// 275/275 个 output 节点无 node_outputs、398 个 end 输入 0 处引用它），
 	// 该差异**在 coze-biz lowering 侧消化**（renderEndInputs 丢弃指向
@@ -364,7 +364,7 @@ func (g *Builder) flattenTemplateConcat(e ast.Expr, sb *strings.Builder, prevIDs
 // own End (legacy lowerAttempt renders two independent ends, e.g. end_4 and
 // end_6 in attempt_recovery). Platform-neutral: the failure branch is the
 // operation's error control flow; the backend maps it onto its own error
-// strategy shape (dify "fail-branch"; Coze maps processType=3 and
+// strategy shape (the reference target "fail-branch"; Coze maps processType=3 and
 // default/branch_error in its renderer).
 func (g *Builder) emitAttempt(s *ast.AttemptStmt, prevIDs []string, firstPort string, lastInBlock bool) ([]string, string, error) {
 	// flowExit: the attempt is the flow's tail statement, so its exit merge is
@@ -995,7 +995,7 @@ func (g *Builder) emitLoopNode(varNames []string, iterables []ast.Expr, body []a
 	// M17 (46_loop_escape):loop body 含 return 时,loop 输出额外暴露
 	// "returned"(bool,loop 是否因 return 终止)与 "return_value"(终止时
 	// 的返回值)端口 —— 运行期由驱动器从 LoopState 填充;spec 层短路与
-	// dify 渲染的 __returning / __return_value 机制都基于这两个端口。
+	// 参考目标渲染的 __returning / __return_value 机制都基于这两个端口。
 	// body 编译期经 loopReturns 中转的 return 值在此（端口装配前）落盘。
 	if rv, ok := g.loopReturns[loopID]; ok && loop.ReturnValue == nil {
 		loop.ReturnValue = rv

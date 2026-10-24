@@ -824,11 +824,11 @@ func (g *Builder) emitTextConst(prevIDs []string, firstPort string, portOnLast b
 	}
 	// **native-first（P0'）**：concat 节点是目标的**能力**，不是语言的必然 ——
 	// 有原生 TextProcess 的目标（`caps.TextConcat`，如 coze / coze-biz）才对非空
-	// 常量物化 text 节点；没有该承载面的目标（dify：文本也落 code 节点）走常量
+	// 常量物化 text 节点；没有该承载面的目标（参考目标：文本也落 code 节点）走常量
 	// shim —— 与该文件 `emitBinaryValue` 的字符串 `+` 同一条尺子（同处唯一 gate）。
 	//
 	// 缺这道 gate 的后果（2026-09-25 一手）：`let v1 = "abc"; return { "k": v1 };`
-	// 在 dify 上产出「无 `# ncoda:shim 1` 标记」的 code 节点 —— 自家载体丢标记
+	// 在参考目标上产出「无 `# ncoda:shim 1` 标记」的 code 节点 —— 自家载体丢标记
 	// ⇒ 反向读回时被当成用户 foreign code（而内联拼写走通用表达式 shim，带标记）
 	// ⇒ 同一意思两种产物、且其中一个不可逆。
 	if !g.nativeTextConcat() {
@@ -1890,9 +1890,9 @@ func (g *Builder) emitFetchAndSummarize(call *ast.CallExpr, prevIDs []string, fi
 	return []string{lid}, varRef{nodeID: lid, output: "text", kind: "code"}, nil
 }
 
-// emitListOp lowers filter/take/sort/sort_by into Dify list-operator
+// emitListOp lowers filter/take/sort/sort_by into reference list-operator
 // nodes (legacy list_operator_lowerer.go): each operation becomes one
-// ordered NodeStmt and the last node exposes its "result" output. map is not a Dify
+// ordered NodeStmt and the last node exposes its "result" output. map is not a the reference target
 // list-operator (the legacy backend falls through to the generic code
 // materializer), so it stays a CodeRunner.
 func (g *Builder) emitListOp(call *ast.CallExpr, prevIDs []string, firstPort string) (varRef, error) {

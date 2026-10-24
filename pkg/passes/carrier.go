@@ -2,20 +2,14 @@ package passes
 
 // carrier.go —— 目标**承载面**（representability facts）的轴词汇 + 语言缺省。
 //
-// 边界（ASSET-BOUNDARY D8）：内核拥有「有哪些轴」以及一个语言缺省；每个平台
-// 适配器声明「这些轴取什么值」。平台事实（节点形状、字段承载面）属于适配器，
-// 不进语言。
+// 边界（ASSET-BOUNDARY D8）：内核拥有「有哪些轴」以及语言自己的两个缺省
+// （参考目标 = 语言定义的严格承载面；语言中立 = 什么都不声称承载）。每个平台
+// 适配器在自己的仓里声明「这些轴取什么值」，通过 TargetProfile.Carrier 注入。
 //
-// 过渡（P2d 发版批次）：商业仓 v0.6.0 的 profile 还不带 Carrier，故
-// carrierOf 在未声明时按 profile 名回退到当前事实（carrierFromName）。内核
-// 打 tag、商业仓 bump 之后，适配器改为显式声明，carrierFromName 整段删除 ——
-// 从那时起内核不认识任何平台名。
+// 内核**不认识任何平台名**：没有按名查表的回退。未声明 Carrier 的 profile
+// 承载面为零 —— 「不发明能力」是唯一安全的缺省。
 //
-// 判据（scripts/audit_split.py S6）：本文件是内核里唯一知道历史目标名的代码
-// 位置，且只以字符串字面量出现（不是标识符）；台账
-// docs/PLATFORM-IDENTITY-RESIDUALS.yaml 的 transitional_name_gates 记录它。
-
-import "strings"
+// 判据（scripts/audit_split.py S6/S7）：本文件与内核其余部分一样，不含平台名。
 
 // NativeTargetName is the language's own target identity: the default profile
 // a standalone ncoda program is compiled and run against. It is deliberately
@@ -115,22 +109,24 @@ type AskCarrierAxes struct {
 	ModelProtocolPrefix string
 }
 
-// carrierOf resolves a profile's carrier: an adapter-declared value wins;
-// otherwise the transitional name bridge supplies today's facts.
+// carrierOf resolves a profile's carrier: an adapter-declared value wins; a
+// profile that declares nothing carries nothing (never invent a capability).
 func carrierOf(profile *TargetProfile) CarrierProfile {
 	if profile == nil {
-		return referenceCarrier()
+		return ReferenceCarrier()
 	}
 	if profile.Carrier.Declared {
 		return profile.Carrier
 	}
-	return carrierFromName(profile.Name)
+	return CarrierProfile{}
 }
 
-// referenceCarrier is the reference node-graph carrier: the facts the
-// language's reference oracle declared. DefaultTargetProfile publishes it
-// until the adapters inject their own (P2d); it is not a platform identity.
-func referenceCarrier() CarrierProfile {
+// ReferenceCarrier is the language reference target's carrier: the strictest
+// representability surface the language itself defines — a node-graph product
+// that carries every optional axis. It is a language declaration, not a
+// platform identity: an adapter that carries a different surface declares its
+// own (TargetProfile.Carrier).
+func ReferenceCarrier() CarrierProfile {
 	return CarrierProfile{
 		Declared:         true,
 		NodeGraphShapes:  true,
@@ -144,67 +140,11 @@ func referenceCarrier() CarrierProfile {
 		Ask: AskCarrierAxes{
 			Known: true, Title: true, Style: true, Timeout: true, RequiresActionID: true,
 			NoTemplateSlotCarrier: true,
-			ModelProtocolPrefix:   "coze:",
 		},
 	}
 }
 
-// bizCarrier is the node-graph carrier with a single-value file kind, a
-// shared timeout budget, no retry interval, and the question parameter face.
-func bizCarrier() CarrierProfile {
-	return CarrierProfile{
-		Declared:         true,
-		FileContract:     FileContractCarrier{Kinds: true},
-		TimeoutAxis:      TimeoutAxisSharedBudget,
-		RetryInterval:    RetryIntervalAbsent,
-		QAActionValueSet: true,
-		Ask: AskCarrierAxes{
-			Known: true, QuestionParams: true, Actionless: true,
-			ModelProtocolPrefix: "coze:",
-		},
-	}
-}
-
-// studioCarrier is the node-graph carrier with no file-contract surface, a
-// shared timeout budget, and no retry interval.
-func studioCarrier() CarrierProfile {
-	return CarrierProfile{
-		Declared:         true,
-		TimeoutAxis:      TimeoutAxisSharedBudget,
-		RetryInterval:    RetryIntervalAbsent,
-		QAActionValueSet: true,
-		Ask:              AskCarrierAxes{Known: true, ModelProtocolPrefix: "coze:"},
-	}
-}
-
-// runtimeCarrier is the execution carrier: it consumes the retry interval
-// and the batch on_error axis directly.
-func runtimeCarrier() CarrierProfile {
-	return CarrierProfile{
-		Declared:        true,
-		RetryInterval:   RetryIntervalCarried,
-		ParallelOnError: true,
-	}
-}
-
-// carrierFromName is the transitional bridge for profiles built before the
-// adapters injected a Carrier (kernel tag + commercial bump = P2d release
-// batch). It is the only place in the open kernel that maps a historical
-// target name to facts; delete it once every adapter sets Carrier.
-//
-// The language's own name resolves to the reference carrier: profiles are
-// routinely built by copying DefaultTargetProfile() and renaming, so the
-// carrier must follow the *name*, not ride along in the struct.
-func carrierFromName(name string) CarrierProfile {
-	switch {
-	case name == NativeTargetName, strings.HasPrefix(name, "dify"):
-		return referenceCarrier()
-	case strings.HasPrefix(name, "coze-biz"):
-		return bizCarrier()
-	case strings.HasPrefix(name, "coze-studio"), strings.HasPrefix(name, "coze-1."):
-		return studioCarrier()
-	case strings.Contains(name, "runtime"):
-		return runtimeCarrier()
-	}
-	return CarrierProfile{}
-}
+// LanguageCarrier is the language-neutral carrier: a standalone ncoda program
+// is judged by the language alone, so no optional axis is claimed carried.
+// The target-free language lane (`--target __none__`) runs under this carrier.
+func LanguageCarrier() CarrierProfile { return CarrierProfile{Declared: true} }

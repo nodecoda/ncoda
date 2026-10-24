@@ -43,11 +43,11 @@
 
 ## 2. 其他 target
 
-- `dify-1.16-graphon-0.6`：默认清单（除 `condition.effectful` 外全 ENABLED）；dify 侧
-  的循环早退由 dify 自己的 lowering（`__returning` / `__return_value`）承载，故
+- `参考目标-1.16-graphon-0.6`：默认清单（除 `condition.effectful` 外全 ENABLED）；参考目标侧
+  的循环早退由 参考目标 自己的 lowering（`__returning` / `__return_value`）承载，故
   `loop.function_return` **不拒绝**。
 - `coze-1.0` / `coze-studio-flow-1.0`：与 coze-biz 同族、同一能力事实；当前只在
-  lowering 兜底层报（未在前端门禁装载），按「dify / coze-studio 搁置」纪律只登记、
+  lowering 兜底层报（未在前端门禁装载），按「参考目标 / coze-studio 搁置」纪律只登记、
   不在主线改动。
 
 ## 3. 代码位置索引

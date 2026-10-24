@@ -13,6 +13,8 @@ check below corresponds to an acceptance criterion of the O2 split:
   S5 license       LICENSE + NOTICE present
   S6 identity      no platform name in a kernel identifier, except the
                    registered residuals in docs/PLATFORM-IDENTITY-RESIDUALS.yaml
+  S7 purge         the platform word is gone from the whole public tree —
+                   code, comments, docs and paths (the gate names it itself)
 
 Exit codes (same four-state convention as the governance repo):
   0 pass · 1 violation (named) · 2 usage · 3 cannot judge (go list / git failed)
@@ -42,6 +44,13 @@ DEP_PACKAGES = ("./cmd/nclang-compile",)
 # `cozeOnErrorMode`, `isDifyProfile`, `platformDify` are all hits.
 PLATFORM_IDENT_TOKENS = ("dify", "coze")
 IDENTITY_LEDGER = os.path.join("docs", "PLATFORM-IDENTITY-RESIDUALS.yaml")
+
+# S7: the platform identity that has been moved out of the open repository.
+# Case-insensitive whole-word match: "modify" must not trip it, "Dify-only"
+# must. Only the gate itself is exempt — it has to name what it forbids.
+PURGED_WORD_RE = re.compile(r"\bdify\b", re.IGNORECASE)
+PURGE_GATE_FILES = {os.path.join("scripts", "audit_split.py"),
+                    os.path.join("scripts", "test_audit_split.py")}
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
@@ -123,6 +132,44 @@ def check_platform_identity(root: str) -> list[str]:
         if ident not in found:
             problems.append(
                 f"S6 台账过期：{item.get('id', '?')} 登记的 {ident} 已不在代码里（删掉该条）")
+    return problems
+
+
+def check_purged_words(root: str) -> list[str]:
+    """S7: the purged platform word appears nowhere in the public tree.
+
+    S6 only looks at identifiers (a real dependency). Prose is not a
+    dependency, but it is how a removed platform quietly becomes the project's
+    default vocabulary again — the word comes back first, the code follows.
+    This check keeps the whole tree clean: source, comments, docs, fixtures and
+    file names. The gate scripts are exempt because they must name the word.
+    """
+    problems = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames
+                       if d not in (".git", "vendor", "__pycache__", "node_modules")]
+        for name in dirnames + filenames:
+            rel = os.path.relpath(os.path.join(dirpath, name), root)
+            if rel in PURGE_GATE_FILES:
+                continue
+            if PURGED_WORD_RE.search(name):
+                problems.append(f"S7 {rel}: 路径名带平台词")
+        for fn in filenames:
+            rel = os.path.relpath(os.path.join(dirpath, fn), root)
+            if rel in PURGE_GATE_FILES:
+                continue
+            path = os.path.join(dirpath, fn)
+            try:
+                with open(path, "rb") as fh:
+                    blob = fh.read()
+            except OSError:
+                continue
+            if b"\x00" in blob[:8192]:  # binary artifact
+                continue
+            text = blob.decode("utf-8", errors="replace")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                if PURGED_WORD_RE.search(line):
+                    problems.append(f"S7 {rel}:{lineno}: 平台词仍在公开树里")
     return problems
 
 
@@ -215,7 +262,8 @@ def main() -> int:
     try:
         problems = (check_structure(args.root) + check_mentions(args.root)
                     + check_absolute(args.root) + check_license(args.root)
-                    + check_platform_identity(args.root))
+                    + check_platform_identity(args.root)
+                    + check_purged_words(args.root))
         if not args.skip_deps:
             problems += check_deps(args.root)
     except CannotJudge as exc:
@@ -226,7 +274,7 @@ def main() -> int:
         for p in problems:
             print(f"    {p}", file=sys.stderr)
         return 1
-    print("[audit-split] ✓ S1 结构 · S2 依赖 · S3 引用 · S4 绝对路径 · S5 许可 · S6 平台身份")
+    print("[audit-split] ✓ S1 结构 · S2 依赖 · S3 引用 · S4 绝对路径 · S5 许可 · S6 平台身份 · S7 平台词清零")
     return 0
 
 

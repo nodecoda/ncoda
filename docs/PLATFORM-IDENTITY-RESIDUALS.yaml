@@ -3,43 +3,18 @@ schema: ncoda.open.platform-identity-residuals/v1
 # 开源内核里**仍然与平台身份有关**的代码位置（ASSET-BOUNDARY D8 / P2f）。
 #
 # 判据：scripts/audit_split.py S6 扫内核 Go 标识符（去注释、去字符串后），
-# 任何含 dify/coze 的标识符都必须在本文件的 items 里登记；反之，登记了但代码里
-# 已不存在也判红（台账必须随代码一起缩小）。
+# 任何含平台名的标识符都必须在本文件的 items 里登记；反之，登记了但代码里
+# 已不存在也判红（台账必须随代码一起缩小）。S7 再判一层更强的：整个公开树
+# （含注释/文档/路径）不得出现平台名字面量，闸门脚本自身除外。
 #
-# 2026-10-25：**items 已清空** —— 内核不再有平台标识符。dify 适配器、目标名、
-# 能力表、夹具与文档均已在商业仓（internal/backend/dify · platforms/dify ·
-# internal/targets）。剩余的耦合只以**字符串字面量**形式存在（S6 口径：字符串是
-# 值，不是依赖），逐条登记在下面的 transitional_name_gates，随 P2d 发版批次删除。
+# 2026-10-25：**items 已清空**，且适配器的全部事实（目标名、承载轴、能力表、
+# 线拼写、夹具与文档）都在商业仓，由各适配器显式声明后注入。内核不认识任何
+# 平台名 —— 没有按名回退。
 items: []
 
 # 过渡桥：内核仍认识「历史目标名」，因为商业仓 v0.6.0 的 profile / capability
 # 表还没有显式声明这些轴。每条都必须写清 what / why / unblock。
 transitional_name_gates:
-  - id: TN-1
-    file: pkg/passes/carrier.go
-    symbol: carrierFromName
-    what: >-
-      未声明 CarrierProfile 的 profile 按名字前缀取承载事实（reference / biz /
-      studio / runtime 四档）。
-    why: >-
-      商业仓 v0.6.0（当前 go.mod 钉的版本）按名字构 profile，且内核默认
-      profile（ncoda-native-1.0）仍被 dify lane 复用；此刻删掉回退会改变
-      dify/coze 三条 lane 的降级报账与形状约束。
-    unblock: >-
-      内核打 tag（v0.7.0）→ 商业仓 bump → internal/compiler 为每个 target 注入
-      CarrierProfile（后端各自声明）→ 删除 carrierFromName 及四档构造函数。
-  - id: TN-2
-    file: pkg/ir/legacy_target_axes.go
-    symbol: legacyOnErrorWire / legacyLoopReturnStateGate / legacyEnvelopePlacement
-    what: >-
-      IR 的线拼写（on_error）、循环早退形状、LLM 信封落点，在适配器未声明
-      capability.Table 轴时按历史目标名给旧值。
-    why: >-
-      同上：v0.6.0 的适配器表没有 OnErrorWire / LoopReturnShape /
-      LLMEnvelopePlacement 三个字段；删掉回退会改变 dify/coze 产物。
-    unblock: >-
-      bump 后由 internal/backend/{dify,coze,cozebiz} 的 CapabilityTable() 填三个
-      字段，删除本文件（判据 on_error_mode_single_implementation_test.go 随迁）。
   - id: TN-3
     file: pkg/passes/capability.go
     symbol: CapabilityManifestForTarget

@@ -95,7 +95,7 @@ func checkContractPrototype() []string {
 		}
 	}
 	// 承认表过期同样报红（欠账只减不增）。但 target 不在本构建（O2 开放/闭源
-	// 拆分：开放仓只带 dify 契约）时，该条目不适用，不算过期。
+	// 拆分：开放仓只带参考目标契约）时，该条目不适用，不算过期。
 	declaredTargets := map[string]bool{}
 	for _, t := range DeclaredTargets() {
 		declaredTargets[t] = true
@@ -127,7 +127,7 @@ func TestContractPrototypeGateSelfTest(t *testing.T) {
 		t.Fatalf("基线不干净，自检无意义：%v", problems)
 	}
 	// 任取一个本构建里存在的 (target, key)：自检不能依赖某个具体平台
-	// （开放仓只有 dify；闭源仓多 target）。
+	// （开放仓只有 reference target；闭源仓多 target）。
 	targets := DeclaredTargets()
 	sort.Strings(targets)
 	if len(targets) == 0 {

@@ -61,7 +61,7 @@ import (
 //
 // 调用点：coze-biz lowering 入口、**FlattenChainAggregates 之后**（那次折叠会
 // 重写候选槽并删除内层聚合，从而新产生孤儿；早于它的清理会在第二轮重新长出
-// 来——B2(1473) > B1(1220) 即此现象）。共享 IR 的 dify/coze-studio 路径不调用。
+// 来——B2(1473) > B1(1220) 即此现象）。共享 IR 的 reference target/coze-studio 路径不调用。
 
 // PruneDeadPureNodes 删除所有「纯 ∧ 无消费者 ∧ 非结构承载」的节点，迭代到
 // 不动点（删一个叶子可能让只喂它的上游变死）。返回**被删节点的 id**（按

@@ -77,7 +77,7 @@ var placementFamilies = map[string]string{
 //	capability      平台**有**这个原生面，本次决策走的就是它（例：条件单目 op 11 ·
 //	                TextProcessor concat · 原生 HTTP/LLM/知识库节点）
 //	no-native-node  平台**没有**承载这个**值**的原生面（节点类型或口形态都没有）
-//	                （例：无点分口形态 · 无原生算术节点 · 目标没有原生 json 节点（dify）·
+//	                （例：无点分口形态 · 无原生算术节点 · 目标没有原生 json 节点（参考目标）·
 //	                有节点但承载不了这个载荷 —— `json` 内建的两个子面见
 //	                `Builder.recordJSONBuiltinPlacement`）
 //	contract        由**本仓不变量**决定，与平台能力无关（例：P1 数据依赖 · 透传契约 ·

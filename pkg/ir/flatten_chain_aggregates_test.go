@@ -2,7 +2,7 @@ package ir_test
 
 // flatten 语义锁（2026-09-09）：FlattenChainAggregates 是 coze-biz 编译路径
 // 的专属规范化（internal/backend/cozebiz generate() 入口调用），不在共享
-// ir.Build 内运行 —— dify/coze-studio 链式聚合是真实 canvas 形状。本测试直接
+// ir.Build 内运行 —— reference target/coze-studio 链式聚合是真实 canvas 形状。本测试直接
 // 调用导出的 FlattenChainAggregates 锁定其变换：
 //   1. 嵌套 if 链式 merge → 最外逃逸点单 merge、组候选 = 叶直引（first_
 //      non_zero 保序展开）、内层 if merge-less（只赋值不汇聚）；

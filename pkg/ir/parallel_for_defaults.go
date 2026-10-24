@@ -20,7 +20,7 @@ package ir
 // `concurrentSize` 分布为 1→85 / 3→66 / 2→60 / 10→37 / 4·5→6，**无占多数的值**；
 // 但三个目标的**平台自身缺省都是 10**：coze-studio 开源实现
 // （oss:backend/domain/workflow/internal/nodes/batch/batch.go，`concurrency == 0 → 10`）·
-// dify（`get_default_config` 的 `parallel_nums: 10`，且 `serialize.go` 写侧省略 10）·
+// 参考目标（`get_default_config` 的 `parallel_nums: 10`，且 `serialize.go` 写侧省略 10）·
 // runtime（`internal/runtime/（商业仓）compile/loop.go`，`workers <= 0 → 10`）。
 // ⇒ 「省」只发生在**语言表面**；产物里省不掉（平台缺键 = 硬报错，必须物化）。
 const (

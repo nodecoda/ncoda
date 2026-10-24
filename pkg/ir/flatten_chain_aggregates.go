@@ -15,7 +15,7 @@ import (
 // 汇聚（「最外逃逸点 flat merge、内层只赋值不汇聚」）。
 //
 // 适用边界（2026-09-09 修正）：**coze-biz 专属规范化**，不在共享
-// optimizeGraph 内运行 —— dify/coze-studio 的链式聚合是真实 canvas 形状
+// optimizeGraph 内运行 —— reference target/coze-studio 的链式聚合是真实 canvas 形状
 // （flow.Project 双遍投影 / golden 锁定），共享 IR 删除内层 junction 会改变
 // 其既有结果（违反共享层契约）。调用点 = internal/backend/cozebiz generate()
 // 入口（compiler.Compile coze-biz-1.0 与 cozebiz 渲染测试共用此路径）。

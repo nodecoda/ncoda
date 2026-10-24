@@ -33,7 +33,7 @@ func TestSplitRejectsQualifiedPathShapedProvider(t *testing.T) {
 		"coze-biz../victimfile",
 		"coze-biz.a/b",
 		"coze-biz..hidden",
-		"dify.langgenius/perplexity/perplexity", // dify 物理 provider_id 未规范化前
+		"acme.langgenius/perplexity/perplexity", // acme 物理 provider_id 未规范化前
 	}
 	for _, provider := range cases {
 		if _, name, err := Split(provider); err == nil {
@@ -49,8 +49,8 @@ func TestSplitAcceptsValidProviders(t *testing.T) {
 		{"web_search", "", "web_search"},
 		{"coze-biz.web_search", "coze-biz", "web_search"},
 		{"coze-studio.tts", "coze-studio", "tts"},
-		{"dify.time", "dify", "time"},
-		{"dify.langgenius_perplexity_perplexity", "dify", "langgenius_perplexity_perplexity"},
+		{"acme.time", "acme", "time"},
+		{"acme.langgenius_perplexity_perplexity", "acme", "langgenius_perplexity_perplexity"},
 	}
 	for _, c := range cases {
 		platform, name, err := Split(c.provider)

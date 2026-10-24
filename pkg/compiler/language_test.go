@@ -68,7 +68,7 @@ func TestLanguageLaneOmitsDumpUnlessRequested(t *testing.T) {
 
 func TestLanguageLaneRejectsPlatformTargets(t *testing.T) {
 	// The open distribution has no platform backend: a platform target is
-	// UNKNOWN_TARGET here (rc=2 usage), never a silent dify render.
+	// UNKNOWN_TARGET here (rc=2 usage), never a silent the reference target render.
 	res := Compile(languageHeader+"function main() -> R {\n    return {\"a\": \"x\"};\n}\n",
 		Options{Target: "coze-biz-1.0", Filename: "lang.ncoda"})
 	if res.OK {

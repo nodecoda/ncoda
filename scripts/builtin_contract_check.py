@@ -10,7 +10,7 @@ adapters declare their own physical ports in the commercial repository and
 inject them via pkg/builtin.RegisterContracts; the two sides are joined by the
 language field name, not guessed from wire shapes.
 
-Dify used to be declared here as a platform target; it moved to the commercial
+The platform target tables used to be declared here; they moved to the commercial
 repo with the adapter (ASSET-BOUNDARY P2c). The open target is now the
 language itself (`ncoda-language`), so the open build no longer names a
 platform.

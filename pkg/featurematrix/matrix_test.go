@@ -29,15 +29,9 @@ type featureRow struct {
 // O2 拆分后语言内核在 pkg/（开放），闭源遗留（internal/compiler、各平台）仍
 // 在 internal/；列 1 的覆盖率与拆分前一致（其余列仍指向单一目录）。
 var columnDirs = map[int][]string{
-	1: {filepath.Join("..", "..", "pkg"), filepath.Join("..", "..", "internal")}, // IR 语言内核（parser/passes/ir/binding…递归）
-	2: {filepath.Join("..", "..", "pkg", "backend", "dify")},                     // dify 编译
-	3: {filepath.Join("..", "..", "platforms", "dify", "decompile")},             // dify 反编译
-	4: {filepath.Join("..", "..", "internal", "backend", "coze")},                // coze-studio 编译
-	5: {filepath.Join("..", "..", "platforms", "cozebiz", "decompile")},          // coze-studio 反编译（共享强类型实现）
-	6: {filepath.Join("..", "..", "internal", "backend", "cozebiz")},             // coze-biz 编译
-	7: {filepath.Join("..", "..", "platforms", "cozebiz", "decompile")},          // coze-biz 反编译
-	8: {filepath.Join("..", "..", "internal", "runtime")},                        // runtime（递归）
-	9: nil,                                                                       // eino-json（N/A：未实现）
+	// 列 1 = 语言内核（parser / passes / ir / binding … 递归）。平台适配器列
+	// 随适配器移出开放仓（ASSET-BOUNDARY），由适配器仓的同名矩阵校验。
+	1: {filepath.Join("..", "..", "pkg")},
 }
 
 func TestMatrixAnchors(t *testing.T) {

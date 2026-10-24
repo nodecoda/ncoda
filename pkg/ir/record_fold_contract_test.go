@@ -28,9 +28,9 @@ import (
 const recordFoldHeader = "@language nodecoda/1\n@mode workflow\n"
 
 // buildIRForNativeTarget 走 **coze-biz** 前端 profile 建 IR：本文件的夹具用 `file<...>`
-// （A 轴的代表形状就是文件族的单叶记录），dify 前端会以
+// （A 轴的代表形状就是文件族的单叶记录），参考目标前端会以
 // 「single-file Code input is not JSON-safe for this target」拒收 —— 那是
-// dify 的目标能力边界（本仓已裁定搁置），不是本契约的形状问题。
+// 参考目标的目标能力边界（本仓已裁定搁置），不是本契约的形状问题。
 func buildIRForNativeTarget(t *testing.T, src string) *ir.Graph {
 	t.Helper()
 	base := passes.DefaultTargetProfile()

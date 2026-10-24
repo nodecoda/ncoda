@@ -10,7 +10,7 @@ import "github.com/nodecoda/ncoda/pkg/capability"
 //     携带语言名 —— 这就是「IR 只带语义名」的缺省，平台拼写不进语言。
 //
 // 两个宿主（`build_stmt.go` 的语句形 / `build_call.go` 的值形）都只调用本函数，
-// 不得各写一份表（判据 on_error_mode_single_implementation_test.go）。
+// 不得各写一份表；线拼写表归适配器，内核只有语言名的恒等映射。
 //
 // 空串 = 作者**没写**该键 ⇒ 语言缺省（`ParallelForDefaultOnError`）。缺省在
 // **这里**落地而不是在 parser：AST 上「写了缺省」与「没写」不可分辨，前端只记
@@ -34,11 +34,6 @@ func onErrorWire(caps *capability.Table, name string) (string, bool) {
 	}
 	if caps != nil && caps.OnErrorWire != nil {
 		if wire, ok := caps.OnErrorWire[name]; ok {
-			return wire, true
-		}
-	}
-	if caps != nil {
-		if wire, ok := legacyOnErrorWire(caps.Target, name); ok {
 			return wire, true
 		}
 	}

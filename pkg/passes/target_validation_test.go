@@ -106,7 +106,7 @@ func assertNoTargetValidationErrors(t *testing.T, res *FrontendResult) {
 // ── 1. Start input shapes (:170-196) ───────────────────────────────────
 
 // TestStartInputShapesRejectNonRepresentable pins the unsupported map and
-// record shapes. Ordinary arrays are native Dify Start inputs (input_type
+// record shapes. Ordinary arrays are native the reference target Start inputs (input_type
 // "array") and are tested separately below.
 func TestStartInputShapesRejectNonRepresentable(t *testing.T) {
 	cases := []struct {
@@ -2376,7 +2376,7 @@ func TestExtractionValidationReadsProfileCodecFace(t *testing.T) {
 // capcut.str_to_list 的 obj 参数。工具调用有独立的 tool-lowering 与平台
 // file 契约（coze-biz file == URL 字符串），参数是透传而非编译器生成的
 // Code 表达式——scalarFileSelectors 不应把工具参数里的 file 标识符当
-// "single-file Code input" 拒绝（E1034）。Dify 参考无 capability import，
+// "single-file Code input" 拒绝（E1034）。参考目标参考无 capability import，
 // 该分支在参考表面不可达（parity 不受影响）。
 func TestCapabilityCallFileParamIsPassThrough(t *testing.T) {
 	reg, err := tool.NewRegistry(tool.Definition{

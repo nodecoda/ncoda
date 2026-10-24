@@ -3,7 +3,7 @@
 // Rewrites old `intent(...)` statements to `switch(...)` (lexer-precise
 // keyword rewrite) and detects `classify<T>(...)` value calls, which have no
 // mechanical switch form (branch bodies are unknowable): per PRD §C2, pure
-// value extraction migrates to llm<enum>, branch-form classify (dify
+// value extraction migrates to llm<enum>, branch-form classify (reference target
 // question-classifier) migrates to switch statements at the decompiler. The
 // codemod emits a manual-migration diagnostic instead of inventing branch
 // bodies.

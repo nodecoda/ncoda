@@ -27,7 +27,7 @@ func TestPackageBindingFilesResolvesSiblingBindings(t *testing.T) {
 	writeCapability(t, dir, "tts", simpleHeader)
 	writeBinding(t, dir, "tts", "coze", "version: v1\nbindings: []\n")
 	writeCapability(t, dir, "video_parse", "function parse(any url) -> { string title; } {}\n")
-	writeBinding(t, dir, "video_parse", "dify", "version: v1\nbindings: []\n")
+	writeBinding(t, dir, "video_parse", "acme", "version: v1\nbindings: []\n")
 
 	files, err := PackageBindingFiles([]string{dir}, []string{"tts", "video_parse"}, "coze")
 	if err != nil {
@@ -35,7 +35,7 @@ func TestPackageBindingFilesResolvesSiblingBindings(t *testing.T) {
 	}
 	want := []string{filepath.Join(dir, "tts.coze.yaml")}
 	if !reflect.DeepEqual(files, want) {
-		t.Fatalf("files = %v, want %v (dify binding must be skipped for target coze)", files, want)
+		t.Fatalf("files = %v, want %v (the reference target binding must be skipped for target coze)", files, want)
 	}
 }
 

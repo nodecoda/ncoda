@@ -10,7 +10,7 @@ package ir
 //
 //	① **对账面**：IR 声明的 http 结果口集 == 内建契约声明的口集。正向锚点
 //	   （每个声明口都必须解析出语言类型）与**负向锚点**（契约外的名字必须解析
-//	   失败，如 dify 专属的 `files`）同时锁；只锁正向会被「一律接受」满足，
+//	   失败，如参考目标专属的 `files`）同时锁；只锁正向会被「一律接受」满足，
 //	   只锁负向会被「一律拒绝」满足。
 //	② **文本面**：结果口名不得在消费者包里以**字符串字面量**出现，除非命中
 //	   豁免表（豁免 = 另一套词表：http() 的请求配置键、平台请求参数键）。
@@ -105,7 +105,7 @@ func TestHTTPResultPortVocabularyMatchesContract(t *testing.T) {
 			t.Fatalf("语言字段 body 的 IR 端口名必须取自契约，实得 %q", got)
 		}
 	}
-	// 负向锚点：契约外的名字一律不得解析（`files` = dify 平台专属端口，语言层没有它）。
+	// 负向锚点：契约外的名字一律不得解析（`files` = 参考目标平台专属端口，语言层没有它）。
 	for _, name := range []string{"files", "errorBody", "result", "output", "text", "response"} {
 		if _, ok := httpResultPortType(name); ok {
 			t.Fatalf("%q 不是 http 的语言结果口，必须解析失败（解析成功 = 凭空发明字段）", name)

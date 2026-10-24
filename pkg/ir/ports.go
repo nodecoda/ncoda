@@ -35,7 +35,7 @@ import (
 // （`buildTool` 与 `callBindRef` 都取自 `semanticExprType(call)`）—— 旧注「端口表在
 // 能力注册表、IR 侧未挂」是接线前的化石，已删除。其余族保持既有推断链不动：
 // `resolveValueRef` 会**保留基 ref 的 typ**，把容器类型盖到字段引用上
-// （实测 dify E5001：`http_2.body` 被标成 object 而声明是 string）。
+// （实测 reference E5001：`http_2.body` 被标成 object 而声明是 string）。
 
 // wholeValueAtReturn 判定 `return v` 里 v 的整值在**流程出口**由什么承载。
 //

@@ -111,7 +111,7 @@ def main(p1, p2, ...) -> dict:        ← 同步函数，唯一入口名 main
 | boolean | 端口 boolean；python `True`/`False` |
 | list<T> | 端口 `items.type: T`；python list 字面量/推导式 |
 | object<fields> | 多端口 record 或 `{"result": dict}` |
-| any | JSON 值 → string 端口（dify codec），或 `json.dumps` 序列化 |
+| any | JSON 值 → string 端口（参考 codec），或 `json.dumps` 序列化 |
 
 ## 5. 残余 legacy 回退登记（有意保留，非欠账）
 
@@ -141,7 +141,7 @@ def main(p1, p2, ...) -> dict:        ← 同步函数，唯一入口名 main
    序列化器补 `\uXXXX` 全家族转义 + 白名单豁免测试后收编。
 3. **低价值形态**（json.stringify）：维持现状（平台原生 `to_json` / 开源 type-58 优先），
    登记为"永不收编"，避免为平台已原生化的形态付出维护成本。
-   **边界（2026-09-27）**：coze-biz 与 coze 一样 ⇒ 该 shim 只在**无承载面的目标**（dify）出现；
+   **边界（2026-09-27）**：coze-biz 与 coze 一样 ⇒ 该 shim 只在**无承载面的目标**（参考目标）出现；
    「有没有承载面」由能力轴 `capability.Table.JSONSerial` 回答，不由本文件判
    （正本 = `docs/PLACEMENT-CONTRACT.md` §1.3）。
 4. **门禁**：每收编一个 → 该形态的 parity 测试从"legacy 字节"改为
@@ -168,7 +168,7 @@ def main(p1, p2, ...) -> dict:        ← 同步函数，唯一入口名 main
 | 字节对等 | `pkg/ir/*_test.go`（Parity 系列） | 生成器输出 = 契约模板 |
 | 运行时 | `pkg/ir/exec_shim_test.go`（7 形态 × 16 断言） | shim 在 CPython 独立可执行（import 自足） |
 | **求值端同解** | `pkg/pygen/shim_eval_parity_test.go`（名册 = `byteEquivCases()`，16 内建 × 覆盖+语义） | **生产端能发的每个内建，`pkg/expr.EvalShim`（rt-l3 的求值器）都必须算出同一结果**（见 §10） |
-| 平台接受性 | coze-probe 65/65 · flow-probe 27/27 · dify-verify 0 err | 平台 checker 接受 |
+| 平台接受性 | coze-probe 65/65 · flow-probe 27/27 · 对照校验 0 err | 平台 checker 接受 |
 | 全语料 | `ncoda_build.py` 重编译审计 | 27 语料 133 code 节点零漂移 |
 
 ---
@@ -271,7 +271,7 @@ round2 相似度指标含 difflib 长文件噪声，以行级 diff 为稳健度�
 
 ### 9.1 为什么引入？
 
-1. **平台物理通道**：coze-biz（及 dify/coze-studio）画布把"表达式计算/标量操作"
+1. **平台物理通道**：coze-biz（及 参考目标/coze-studio）画布把"表达式计算/标量操作"
    物化为 CodeRunner 节点。ncoda 的以下表达式在平台上没有直接节点类型，只能落进
    CodeRunner：
    - 常量物化（buildConst，`{"result": ""}`）
@@ -331,7 +331,7 @@ round2 相似度指标含 difflib 长文件噪声，以行级 diff 为稳健度�
 
 ### 9.5 目标不变量：ncoda 层不存在 shim-python-code（2026-09-02 用户拍板）
 
-- **shim 只存在于编译输出的平台工作流中**（coze-biz yaml/json、dify、coze-studio）——
+- **shim 只存在于编译输出的平台工作流中**（coze-biz yaml/json、参考目标、coze-studio）——
   它是编译器的内部通道形态（IR 表达式 → 平台 CodeRunner 物理通道），**不是语言的
   一部分**。
 - **用户只操作 ncoda 时对 shim 完全无感**：

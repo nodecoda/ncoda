@@ -2,11 +2,11 @@
 // binding/name resolution → type check → IR build → ncoda-ir/v1 dump.
 //
 // It has no platform backend, and that is the point. The target-facing
-// compiler (dify / coze / coze-biz rendering) lives in the commercial repo;
+// compiler (参考目标 / coze / coze-biz rendering) lives in the commercial repo;
 // the open repo answers only "does this program mean something in the
 // language?". See docs/language/CLI-CONTRACT.md for the wire surface.
 //
-// 2026-10-25 (ASSET-BOUNDARY P2c): the Dify pipeline that used to live here
+// 2026-10-25 (ASSET-BOUNDARY P2c): the reference target pipeline that used to live here
 // moved to the commercial repo. What remains is the language lane plus the
 // platform-neutral wire helpers the commercial compiler still shares.
 package compiler

@@ -12,7 +12,7 @@ package ir
 // 撤实现必红（实测）：
 //   · `recordJSONBuiltinPlacement` 里把 `hosts && hostable` 改成 `hosts`
 //     ⇒ 第 3 格（不可声明载荷必须留 shim）转红；
-//   · 把 `hosts` 恒置 true ⇒ 第 4 格（dify 没有承载面）与第 5 格（无能力表）转红。
+//   · 把 `hosts` 恒置 true ⇒ 第 4 格（参考目标没有承载面）与第 5 格（无能力表）转红。
 
 import (
 	"testing"

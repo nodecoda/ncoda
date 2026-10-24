@@ -13,7 +13,7 @@ type Block struct{ Stmts []Stmt }
 func (b *Block) stmt() {}
 
 // VarDecl 变量声明（init 非 nil 时为初始化）。Mutable=true 且 Init 非 nil
-// 时渲染 `var <name> = <init>;`（可改绑定,dify loop 状态）;否则 `let`。
+// 时渲染 `var <name> = <init>;`（可改绑定,reference loop 状态）;否则 `let`。
 type VarDecl struct {
 	Name            string
 	Type            string // 类型字符串（如 "string"/"list"）
@@ -60,9 +60,9 @@ type If struct {
 
 func (i *If) stmt() {}
 
-// While 循环（while ( <cond> ) limit <int> { ... }）——dify loop 的
+// While 循环（while ( <cond> ) limit <int> { ... }）——reference loop 的
 // count + break 形态：cond 为继续条件（break 条件的否定），limit 为最大
-// 迭代数（dify loop_count）。可变循环状态（var <label> = <init>;）由
+// 迭代数（参考目标 loop_count）。可变循环状态（var <label> = <init>;）由
 // 前端 LoopStatePass 校验必须由所属 while 写（INVALID_STATE 门禁）。
 type While struct {
 	Cond  Expr
@@ -209,7 +209,7 @@ type Yield struct {
 func (y *Yield) stmt() {}
 
 // OutputStmt 中间消息发射语句：output(<expr>) [streaming];。与 Return 不同，它
-// 继续控制流；dify 链式 answer 的前序节点使用该语义。
+// 继续控制流；参考目标链式 answer 的前序节点使用该语义。
 //
 // Value 是**值位**：既可以是内插串（名字由文本反推），也可以是具名名额表
 // （`template "…" using {…}`，作者的显式名额）。两条 wire 形状共用**一个**
@@ -312,7 +312,7 @@ type OperationPolicyExpr struct {
 
 func (o *OperationPolicyExpr) expr() {}
 
-// LambdaExpr 匿名函数 `(params) -> body`（ncoda 既有语法;dify list-operator
+// LambdaExpr 匿名函数 `(params) -> body`（ncoda 既有语法;参考目标 list-operator
 // 反编译 filter 谓词用）。Body 为单个表达式。
 type LambdaExpr struct {
 	Params []string
@@ -573,7 +573,7 @@ type AttemptStmt struct {
 
 func (a *AttemptStmt) stmt() {}
 
-// RequestInputStmt 挂起式人工输入（dify human-input / coze QA → ncoda ask）：
+// RequestInputStmt 挂起式人工输入（参考目标 human-input / coze QA → ncoda ask）：
 //
 //	ask<Form, Action>({config}) as <result> {
 //	    action Action.<member> { ... }
@@ -583,7 +583,7 @@ func (a *AttemptStmt) stmt() {}
 //
 // FormType 是 record 类型名（表单字段声明），ActionType 是 enum 类型名
 // （动作按钮枚举）；config 的 content/fields/actions/timeout 是平台中性
-// 语义载荷（dify form_content/inputs/user_actions/timeout 的归一化形态）。
+// 语义载荷（参考目标 form_content/inputs/user_actions/timeout 的归一化形态）。
 // 渲染时 form/action 类型声明（TypeDecl/EnumDecl）由调用方提升到文件头。
 type RequestInputStmt struct {
 	FormType       string               // record 类型名
@@ -628,16 +628,16 @@ type RequestInputLLM struct {
 
 func (r *RequestInputStmt) stmt() {}
 
-// RequestInputField 一个表单字段（dify inputs[i] / coze node_outputs）。
+// RequestInputField 一个表单字段（参考目标 inputs[i] / coze node_outputs）。
 type RequestInputField struct {
 	Name    string   // 字段名（output variable）
 	Kind    string   // "paragraph" | "select"
 	Options []string // select 选项（paragraph 为空）
 }
 
-// RequestInputAction 一个动作按钮（dify user_actions[i]）。
+// RequestInputAction 一个动作按钮（参考目标 user_actions[i]）。
 type RequestInputAction struct {
-	Member string // enum 成员名（dify action id）
+	Member string // enum 成员名（参考目标 action id）
 	Title  string
 	Style  string
 }

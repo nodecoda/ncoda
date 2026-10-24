@@ -3,7 +3,7 @@
 // This is a direct port of the procedural AST node definitions in
 // src/nclang/lang/ast.py (read-only oracle). It is the Layer-1
 // representation of the three-layer design (SourceAST -> TypedBoundProgram
-// -> WorkflowAST): a pure syntax tree, independent of the Dify graph AST.
+// -> WorkflowAST): a pure syntax tree, independent of the reference target graph AST.
 //
 // Immutability is by convention: node fields are unexported, values are
 // assigned through constructors, and read back through getters. There is no

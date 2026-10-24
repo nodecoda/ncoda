@@ -138,7 +138,7 @@ type Source struct {
 }
 
 // Type is the platform-neutral port-type description; backends map it onto
-// their own type system (Coze TypeInfo, Dify descriptors).
+// their own type system (Coze TypeInfo, reference descriptors).
 type Type struct {
 	Kind     string // "null"|"string"|"integer"|"number"|"boolean"|"list"|"object"|"file"
 	Elem     *Type  // list element, or Optional element when Optional is true
@@ -149,8 +149,8 @@ type Type struct {
 	// while Optional describes the semantic value carried by the IR.
 	// Lowerings may map the two differently, but the IR must not erase T?.
 	Optional bool
-	// File constraints are preserved for entry parameters so Dify can
-	// reconstruct its upload configuration without coupling the IR to Dify.
+	// File constraints are preserved for entry parameters so the reference target can
+	// reconstruct its upload configuration without coupling the IR to the reference target.
 	AllowedFileTypes         []string
 	AllowedFileExtensions    []string
 	AllowedFileUploadMethods []string
@@ -199,12 +199,12 @@ type Message struct {
 // surface — carried here as a semantic payload, shaped by the backend).
 type ExceptionConfig struct {
 	MaxRetry        int
-	RetryIntervalMS int // retry policy interval (dify retry_interval); coze
+	RetryIntervalMS int // retry policy interval (the reference target retry_interval); coze
 	// renders timeouts from TimeoutMS, so the two stay distinct
 	TimeoutMS   int
 	ProcessType *int
 	// FailBranch marks an operation lowered from an attempt statement: the
-	// backend renders its error strategy as a failure branch (dify
+	// backend renders its error strategy as a failure branch (reference target
 	// "fail-branch") and exposes error_type/error_message semantic output
 	// ports. Platform-neutral: it is the operation's failure branch, not a
 	// platform shape.
@@ -312,7 +312,7 @@ type End struct {
 	NamedReturn bool
 	// Implicit marks the terminal end synthesized from a tail value of a
 	// function that never returns (no return type, no explicit branch
-	// return). The dify backend drops it (the legacy emits no end for a
+	// return). The reference backend drops it (the legacy emits no end for a
 	// bare void body); the coze backend keeps the 900001 exit its checker
 	// requires.
 	Implicit bool
@@ -344,7 +344,7 @@ type End struct {
 
 // LLMCall invokes a model with uninterpreted configuration. Model is the
 // provider/name string; backends split it (Coze modelType/modelName) or map
-// it (Dify model config).
+// it (reference model config).
 type LLMCall struct {
 	ID             string
 	Model          string
@@ -420,7 +420,7 @@ type LLMValidationContract struct {
 
 // ExtractionSpec is the target-neutral schema extraction contract attached
 // to an LLMCall. Backends without a native extractor can keep rendering the
-// model call; Dify expands it into its parameter-extractor plus result adapter.
+// model call; The reference target expands it into its parameter-extractor plus result adapter.
 type ExtractionSpec struct {
 	Instruction string
 	Strategy    string
@@ -550,7 +550,7 @@ type KnowledgeCall struct {
 // target profile). The IR carries both the semantic contract payload and
 // the resolved target-profile wire identity (StrategyName/ProviderName/
 // StrategyLabel/PluginUniqueIdentifier + per-tool pinning); the backend
-// renders them directly (dify: AgentDataNode v2). The profile is resolved
+// renders them directly (reference target: AgentDataNode v2). The profile is resolved
 // at IR build time from the pipeline-published AgentProfiles face.
 type AgentCall struct {
 	ID           string
@@ -563,7 +563,7 @@ type AgentCall struct {
 	MemoryWindow int    // memory message-pair window (0 = unlimited)
 	Exception    *ExceptionConfig
 	// KnowledgeDatasetIDs / KnowledgeTopK:@mode agent 数据集检索配置
-	// （对齐 dify agent-chat DatasetRetrieverTool 注入）。空 = 不启用。
+	// （对齐参考目标 agent-chat DatasetRetrieverTool 注入）。空 = 不启用。
 	KnowledgeDatasetIDs []string
 	KnowledgeTopK       int
 
@@ -609,7 +609,7 @@ type TextProcess struct {
 	ConcatChar string
 	Separators []string
 	Inputs     []Source
-	Answer     bool // direct return of a template literal (dify: answer node)
+	Answer     bool // direct return of a template literal (reference target: answer node)
 }
 
 // CodeRun executes embedded code with bound inputs. Types maps the input
@@ -674,7 +674,7 @@ type CodeRun struct {
 	Identity bool
 }
 
-// ListOp applies one Dify list-operator operation to a collection. Each
+// ListOp applies one reference list-operator operation to a collection. Each
 // operation lowers to one list-operator node (filter/sort/sort_by/take);
 // chained operations connect source → op → next op via dataflow edges.
 // map is NOT a list-operator in the legacy backend and stays a CodeRun.
@@ -727,7 +727,7 @@ type AggregateGroup struct {
 	// optimizeGraph prunes at owner granularity — a record field group is
 	// kept when any other group of the same record variable is consumed, so
 	// a partially-consumed record keeps its full declared field set on the
-	// platform merge (dify variable-aggregator lock), while an entirely
+	// platform merge (the reference target variable-aggregator lock), while an entirely
 	// unconsumed carrier variable (mirror group chain, X4/X12/X20) is
 	// dropped.  Empty Owner means legacy/unannotated: pruning falls back to
 	// per-port granularity.
@@ -1008,7 +1008,7 @@ type Loop struct {
 	// ReturnValue 是 loop 体内的提前返回（return）值引用（M17）。nil =
 	// loop 无 return;非 nil 时 loop 输出端口额外暴露 "returned"（bool,
 	// loop 是否因 return 终止）与 "return_value"（终止时的返回值）,由
-	// 驱动器填充 —— 对齐 dify 渲染的 __returning / __return_value 机制。
+	// 驱动器填充 —— 对齐参考目标渲染的 __returning / __return_value 机制。
 	ReturnValue *varRef
 }
 

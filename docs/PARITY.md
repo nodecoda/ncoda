@@ -6,7 +6,7 @@
 
 > 日期: 2026-08-22（落盘）| 范围: `本仓（拆分前）` 全链路
 > 背景: ncoda（Go 生产编译器）逐函数移植自 Python 参考编译器
-> （ncoda-py `src/nclang/` + ncoda-dify），移植纪律要求**可观察行为字节对齐**。
+> （ncoda-py `src/nclang/` + 参考编译器），移植纪律要求**可观察行为字节对齐**。
 > 2026-08-19 **Go 毕业**：双 CLI `golden_diff` 退役，字节一致性由
 > `scripts/shadow_parity.py`（Go/Python 双跑）与 `scripts/contract_test.sh`
 > （契约快照 sha256 + 逐字节 cmp）接棒锁定。
@@ -26,7 +26,7 @@
 | SymbolID 偏移 | 参考中 `extract` 未注册使 Go 侧 SymbolID 偏移偏差**窄化到 1**；**禁止任何 "+1" 补偿** | `binder.go:26-36` |
 | 边顺序 | 后端边集合 = 结构深度优先 = legacy `AddEdge` 顺序；coze-biz 27 语料逐边一致（MATCH=27, DIFF=0） | `pkg/backend/flow/project.go`、`scripts/coze_biz_real_export.sh` |
 | 深度边界 | 嵌套接受阈值与 Python `RecursionError` 边界一致：expr/paren/call ~88、stmt block ~128，超限 = `ADAPTER_ERROR` | `pkg/parser/parser.go`（depth guard）、`depth_guard_test.go` |
-| 冻结消息 | 历史消息逐字保留（如 `TOOL_REGISTRY_HINT` 含已废弃 `--tools` 字样）——差分一致性优先于措辞现代化 | `internal/compiler/api.go`、`docs/DIFY-COMPILER-LINK.md` |
+| 冻结消息 | 历史消息逐字保留（如 `TOOL_REGISTRY_HINT` 含已废弃 `--tools` 字样）——差分一致性优先于措辞现代化 | `internal/compiler/api.go`、`docs/参考编译器对接文档（适配器仓）` |
 | `UnsupportedError` 前缀 | 错误消息保留历史 `coze: unsupported construct:` 前缀（wire 契约） | `pkg/ir/build.go` |
 | 编译器版本 | `compilerVersion` 原镜像 `nclang.__version__="0.1.0"`；oracle 退役后改跟 v0.4.0 里程碑，**bump 是发布动作**（须与契约快照一起重冻结） | `internal/compiler/api.go` |
 
@@ -39,7 +39,7 @@
 | code FFI 无字节级 parity | Python AST 检查仅验证 `main` 参数与可见返回键，不推断/修改声明类型；Go 只要求确定性 | `binding/code_bind.go:22` |
 | coze-biz 单遍投影 | `cfCollector` 单遍边收集替代独立双遍 `buildCFG`（后者丢失 `refsLoopVar` 信息）；双遍迁移被设计文档否决 | `docs/EDGE-CONTRACT.md` §5、`docs/COZEBIZ-SINGLE-PASS-PROJECTION.md` |
 | Scope 双表（symbols/records） | 镜像 Python 双面（identity + record），binder 路径同步写保证一致 | `binding/scope.go` 头注 |
-| 死保留字 entry / stream / \|> 移除（A1） | Go 生产侧删除无产生式的 `KW_ENTRY`/`KW_STREAM`/`PIPE` 及关键词表项；`entry`/`stream` 回归普通标识符，`\|>` 与裸 `\|` 改为词法错误（`\|>` 原提示消息指向已删除的管道记号，同步更新）。Python 参考（`tokens.py`）为冻结归档快照，不回溯修改；原 `dify-dsl.y` 已退役删除，语法事实源迁移至 [nodecoda-spec `spec/grammar.ebnf`](https://github.com/nodecoda/nodecoda-spec/blob/main/spec/grammar.ebnf) | `token/token.go`、`lexer/lexer.go` + 回归测试（`lexer_test.go`、`grammar_test.go`） |
+| 死保留字 entry / stream / \|> 移除（A1） | Go 生产侧删除无产生式的 `KW_ENTRY`/`KW_STREAM`/`PIPE` 及关键词表项；`entry`/`stream` 回归普通标识符，`\|>` 与裸 `\|` 改为词法错误（`\|>` 原提示消息指向已删除的管道记号，同步更新）。Python 参考（`tokens.py`）为冻结归档快照，不回溯修改；原 `参考语法文件` 已退役删除，语法事实源迁移至 [nodecoda-spec `spec/grammar.ebnf`](https://github.com/nodecoda/nodecoda-spec/blob/main/spec/grammar.ebnf) | `token/token.go`、`lexer/lexer.go` + 回归测试（`lexer_test.go`、`grammar_test.go`） |
 
 ## 3. 例外流程（改锁定面时）
 

@@ -5,7 +5,7 @@ package compiler
 // SourceLocation string forms (lang/tokens.py:200-220).
 //
 // Single source of truth: internal/compiler (closed multi-target build)
-// delegates to these exported helpers so the dify wire shape cannot drift
+// delegates to these exported helpers so the reference target wire shape cannot drift
 // between the open and closed builds. The coze-biz specific error-class
 // bridge (applyBackendErrClass) stays closed — it is the only piece that
 // needs platforms/cozebiz types.

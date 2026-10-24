@@ -114,7 +114,7 @@ type Projection struct {
 //
 // Deprecated: migrate to Plan followed by ProjectFromPlan (P1 graph
 // obligation plan); Project is kept as a behavior-compatible wrapper until
-// the dify/coze/run/rt-l3 call sites move. Its derivation logic is frozen.
+// the reference target/coze/run/rt-l3 call sites move. Its derivation logic is frozen.
 func Project(g *ir.Graph) (*Projection, error) {
 	if g.Root == nil {
 		return nil, fmt.Errorf("ir: derive: graph has no structured root")
@@ -875,7 +875,7 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				// `s.Merge == nil` 分支同型：真实臂尾透传给续接消费者，
 				// 空臂把宿主自身留在 current（其端口边由下一条语句/外层
 				// 消费者续接；P4 端口边只换目标、不消失）。
-				// 注：merge-less 时宿主端口标签不逐端口回填（flow/dify/
+				// 注：merge-less 时宿主端口标签不逐端口回填（flow/reference target/
 				// coze-studio 侧适配缺口，见 docs/COZE-EXPRESSIVENESS.md）。
 				current = mergeLessExits(aggEdges)
 			} else if len(aggEdges) > 0 {
@@ -936,7 +936,7 @@ func (d *deriveCtx) deriveBlockDepth(b *ir.Block, entry []string, entryPort stri
 				// 同 QaStmt：junction 被 IR 优化阶段删掉 ⇒ merge-less 投影。
 				// HEAD 在此处对 nil Merge 直接 `d.addNode(s.Merge)` ⇒
 				// `(*Aggregate).NodeID` 空指针 panic（2026-09-11 实测：
-				// `switch (x) { "a": { http } } <续接语句>` 编译 dify-1.16 /
+				// `switch (x) { "a": { http } } <续接语句>` 编译 reference target-1.16 /
 				// coze-1.0 直接崩）。规则只换投影形状，不得让共享投影器崩。
 				current = mergeLessExits(iaggEdges)
 			} else if len(iaggEdges) > 0 {

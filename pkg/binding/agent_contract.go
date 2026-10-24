@@ -71,7 +71,7 @@ func NewAgentParameterTarget(name, parameterType string, required bool) (*AgentP
 
 // AgentToolTargetProfile mirrors AgentToolTargetProfile
 // (agent_contract.py:21-33): one stable NodeCoda tool alias pinned to an
-// exact Dify tool identity. ProviderType is the Literal["builtin"] value.
+// exact the reference target tool identity. ProviderType is the Literal["builtin"] value.
 type AgentToolTargetProfile struct {
 	Alias                  string
 	ProviderID             string

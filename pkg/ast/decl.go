@@ -203,7 +203,7 @@ func (n *ConversationVarDecl) Default() Expr { return n.default_ }
 func (n *ConversationVarDecl) String() string { return reprNode(n) }
 
 // AgentDecl is the top-level agent application declaration for @mode agent
-// (coze SingleAgent / dify AgentEntity alignment). Fields mirror
+// (coze SingleAgent / the reference target AgentEntity alignment). Fields mirror
 // spec.AgentConfig: model is the provider/name string, instruction is the
 // system persona, max_iteration is the tool-round cap (0 → runtime default
 // 10), and tools lists logical tool aliases wired to the runtime registry.
@@ -216,7 +216,7 @@ type AgentDecl struct {
 	memory       bool
 	memoryWindow int
 	tools        []string
-	// knowledge 检索配置（对齐 dify agent-chat 数据集检索）:dataset_ids 是
+	// knowledge 检索配置（对齐参考目标 agent-chat 数据集检索）:dataset_ids 是
 	// 数据集白名单,top_k 是检索条数（0 = 后端默认）。空 = 不启用。
 	knowledgeDatasetIDs []string
 	knowledgeTopK       int

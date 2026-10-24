@@ -187,7 +187,7 @@ func FileKindTokens(registryType string) []string {
 
 // IsFileType reports whether a registry leaf type is a file type — bare
 // "file" or a constrained "file<…>". Consumers that predate the constraint
-// axis (dify / coze-studio 渲染器) use it to keep their existing "file"
+// axis (参考目标 / coze-studio 渲染器) use it to keep their existing "file"
 // behaviour instead of falling through to the string default.
 func IsFileType(registryType string) bool {
 	return registryType == "file" || FileKindTokens(registryType) != nil

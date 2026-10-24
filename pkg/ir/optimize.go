@@ -111,7 +111,7 @@ func optimizeGraph(g *Graph) {
 			// data consumer; a variable with zero consumers is dead
 			// scaffolding and every group it owns here is pruned.  Owner
 			// granularity keeps a partially-consumed record's full declared
-			// field set on the platform merge (dify variable-aggregator
+			// field set on the platform merge (the reference target variable-aggregator
 			// field contract), while an entirely unconsumed carrier variable
 			// (mirror group chained through nested junctions —
 			// X4/X12/X20: dead carrier groups regrew names round over round

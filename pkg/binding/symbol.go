@@ -103,9 +103,9 @@ func mainBuiltins() []builtinSpec {
 		{Name: "status_code", Type: types.IntType()},
 		{Name: "headers", Type: anyMap()},
 		// 共享原型 = 语言级：只放**平台无关**的响应字段。
-		// `files`（响应附件数组）是 dify http-request 的固定端口，coze-biz `type: http`
+		// `files`（响应附件数组）是参考目标 http-request 的固定端口，coze-biz `type: http`
 		// 节点只有 body/headers/statusCode（② 语料 3/3）——平台专属字段不进语言，
-		// dify 侧按其自身端口契约另作适配（2026-09-14 用户拍板 R2）。
+		// 参考目标侧按其自身端口契约另作适配（2026-09-14 用户拍板 R2）。
 	})
 	m := anyMap()
 	return []builtinSpec{

@@ -85,6 +85,24 @@ class AuditSplit(unittest.TestCase):
         self.assertEqual(len(problems), 1, problems)
         self.assertIn("台账过期", problems[0])
 
+    def test_purged_word_flags_a_comment_and_a_doc(self):
+        self.touch("pkg/x.go", "package x\n\n// the Dify lane used to live here\n")
+        self.touch("docs/NOTE.md", "Dify is gone.\n")
+        problems = self.mod.check_purged_words(self.tmp)
+        self.assertEqual(len(problems), 2, problems)
+        self.assertTrue(any("pkg/x.go:3" in p for p in problems), problems)
+        self.assertTrue(any("docs/NOTE.md:1" in p for p in problems), problems)
+
+    def test_purged_word_ignores_substrings_and_the_gate_itself(self):
+        self.touch("pkg/x.go", "package x\n\nfunc modify() {}\n")
+        self.touch("scripts/audit_split.py", "# dify\n")
+        self.assertEqual(self.mod.check_purged_words(self.tmp), [])
+
+    def test_purged_word_flags_a_path(self):
+        self.touch("tests/fixtures/dify-thing.ncoda", "function main() {}\n")
+        problems = self.mod.check_purged_words(self.tmp)
+        self.assertTrue(any("路径名" in p for p in problems), problems)
+
     def test_license(self):
         self.touch("LICENSE", "Apache License 2.0\n")
         self.touch("NOTICE", "ncoda\n")

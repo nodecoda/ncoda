@@ -13,8 +13,8 @@ package cli
 // 商业仓的编译器（ASSET-BOUNDARY：适配器只在商业仓）；传了就是用法错，
 // 不做静默降级、不假装渲染。
 //
-// 2026-10-25（ASSET-BOUNDARY P2c）：本文件原先叫 compile_dify.go，是 Dify
-// 编译器的入口。Dify 管线已搬入商业仓，开放发行版的唯一产物是语言 IR。
+// 2026-10-25（ASSET-BOUNDARY P2c）：本文件原先叫 compile_language.go，是参考目标
+// 编译器的入口。参考目标管线已搬入商业仓，开放发行版的唯一产物是语言 IR。
 
 import (
 	"flag"

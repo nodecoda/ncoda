@@ -15,7 +15,7 @@
 **ncoda 语义独立，投影不承诺全覆盖**（规范侧落盘：nodecoda-spec `CONCEPTS.md`）：
 ncoda 语义由语言自身定义，不从任何平台节点行为推导；平台渲染是**投影**，允许不完整/
 近似/降级，但必须**显式化**（诊断、告警、文档化），绝不静默改变语义。某平台缺少
-ncoda 原语的等价节点（如 `output` 在 Dify）是投影差异，不是语言缺陷。
+ncoda 原语的等价节点（如 `output` 在 参考目标）是投影差异，不是语言缺陷。
 
 ## 1. 一句话模型
 
@@ -86,7 +86,7 @@ output_stmt = "output" "(" expression ")" ";" ;
   页 = `docs/five-step/evidence/output-message-node.md`。
   契约 pass（`RESPONSE_CONTEXT` E1044）只保留两类拒绝：非 workflow/advanced-chat
   模式、非 `main` 函数体。（**已作废**：旧文本此处曾列「parallel 分支内」——该
-  子句出自 dify 语境，随本条裁定作废；旧文本举的 S110/S82/jianggushi1/S111
+  子句出自 参考目标语境，随本条裁定作废；旧文本举的 S110/S82/jianggushi1/S111
   「output 嵌于 loop」四例经**一手实测全部为假**：四份导出的消息节点（type 13）
   数各为 0（即根本没有 output 节点，谈不上在不在 loop 里）。）
 - **parallel 臂内的次序语义**：每臂内保序，**跨臂顺序未指定**（wire 也不给顺序）。
@@ -127,7 +127,7 @@ output_stmt = "output" "(" expression ")" ";" ;
 
 ### 7.1 三语义 × 平台投影矩阵（当前决策）
 
-| 语义 | coze / coze-biz | dify chatflow | dify workflow | runtime |
+| 语义 | coze / coze-biz | 参考目标 chatflow | 参考目标 workflow | runtime |
 |---|---|---|---|---|
 | 中间消息（`output`） | **忠实实现**：OutputEmitter（content=模板 + streamingOutput，A2 参数） | **转义**：Answer 节点（内容投递 ≈ 中间消息；语义偏差：answer 拼接进最终 outputs——需显式告警或抑制） | **模拟/忽略**：无对话流——选项 (a) 渲染 output 节点但产物不输出 / (b) 默认 output 插件模拟 / (c) 忽略+告警；**当前实现是静默渲染 answer = 违反显式化，待修** | **忠实实现**：响应流消息事件（不进最终结果，已验证） |
 | 最终答复（`return template`，端点 = `useAnswerContent`） | 忠实：Exit·`useAnswerContent` + 模板 + `node_inputs`（逐条承载） | 忠实：Answer（chatflow 内容投递） | —（无对话流；转义为 Output 字段并告警） | 回合终止消息 |
@@ -135,7 +135,7 @@ output_stmt = "output" "(" expression ")" ";" ;
 
 ### 7.2 失真边界（workflow 模式，§7.1 依据）
 
-Dify workflow 模式承载 `output` 时的语义失真（详析见 `docs/SEMANTICS-output-answer.md` §6.6 或本文件 §7.3）：
+参考目标 workflow 模式承载 `output` 时的语义失真（详析见 `docs/SEMANTICS-output-answer.md` §6.6 或本文件 §7.3）：
 1. **平台合法性**：Answer 节点仅 chatflow，workflow 产物导入即失败风险；
 2. **结果污染**：graphon `merge_response_outputs` 把 answer 文本**拼接进最终 outputs**——中间消息错误地成为结构化结果；
 3. **累积漂移**：多次 output 的独立消息 → answer 键拼接成一段（消息边界丢失）；
@@ -173,24 +173,24 @@ ncoda 源码 → IR → 平台 AST（语义载体层:output 节点真实存在�
 | 插件 | 节点替换为默认 output 插件占位 | WARNING |
 | 忠实实现 | 不改（原样输出） | 无 |
 
-**当前实现状态**：dify workflow 模式**尚无此层**——`RenderFromIR → SerializeToDict` 直连，
-output 静默渲染为 answer 节点（违反显式化义务，§7.2）。修正 = 实现本层，dify workflow
+**当前实现状态**：参考目标 workflow 模式**尚无此层**——`RenderFromIR → SerializeToDict` 直连，
+output 静默渲染为 answer 节点（违反显式化义务，§7.2）。修正 = 实现本层，参考目标 workflow
 默认"禁止 + 诊断"。
 
 ## 8. 设计依据（证据索引）
 
 1. **Coze 平台无 key**：coze-studio `OutputEmitter` 参数面仅 `{content, streamingOutput}`
    （`vo/canvas.go` `Inputs`），运行时 `Invoke` = 模板渲染 → `{output: 文本}`
-   （`nodes/emitter/emitter.go`）——X26/X29 的 `"progress"` key 是编译器自造（源自动 Dify
+   （`nodes/emitter/emitter.go`）——X26/X29 的 `"progress"` key 是编译器自造（源自动 参考目标
    输出变量名），coze-biz 丢 key 是忠实于平台的。
 2. **中间消息与最终文本在 Coze 运行时同构**：`Exit` Build 双线形——`ReturnVariables`→
    纯透传 `Exit`；返回文本→**复用 `OutputEmitter`**（`nodes/exit/exit.go`）→ 渲染机制共享，
    **但共享渲染机制不构成语言载体**（W1-D6）：`output` 是中间消息（`output` 节点，
    与 `end` 无任何关系），最终答复是**端点取值**、语言载体 = `return template … using {…}`。
-3. **Dify Output ≠ 中间消息**：Dify Output(原 End) 是"最终结果的结构化收集"
+3. **参考目标 Output ≠ 中间消息**：参考目标 Output(原 End) 是"最终结果的结构化收集"
    （文档 + graphon `EndNode` 纯输出收集 + `merge_response_outputs` 覆盖/拼接），
    与 Coze 输出节点是两种语义——ncoda 语义对齐 Coze（本会话已确立）。
-4. **现状双语义混用即错位根源**：`output(key, value)` 在 coze 侧丢 key、dify 侧把 key 当
+4. **现状双语义混用即错位根源**：`output(key, value)` 在 coze 侧丢 key、参考目标侧把 key 当
    响应字段名（`render.go` L1631）——同一语法两平台语义不同。单值化 + 结构化归 `return`
    消除该错位。
 
@@ -204,8 +204,8 @@ output 静默渲染为 answer 节点（违反显式化义务，§7.2）。修正
 - 投影策略谱系（§7）：忠实/转义/模拟/忽略；选择权在渲染层，非忠实投影必须显式化。
 
 **待定**：
-- **D3-执行**：dify workflow 模式 `output` 的投影落地——在 模拟（a/b）或 忽略（c）中选定
+- **D3-执行**：参考目标 workflow 模式 `output` 的投影落地——在 模拟（a/b）或 忽略（c）中选定
   并实现 + 显式诊断（当前"静默渲染 answer"待修，§7.2）。
-- **D3-chatflow 显式化**：dify chatflow 走"转义=Answer"时，answer 拼接进最终 outputs 的
+- **D3-chatflow 显式化**：参考目标 chatflow 走"转义=Answer"时，answer 拼接进最终 outputs 的
   偏差需要告警或抑制机制（§7.1）。
 - 流式表达：`output` 的表达式来自流式 LLM 时如何声明/投影（Coze `RequireStreamingInput`）。

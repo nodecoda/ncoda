@@ -179,7 +179,7 @@ func defaultOperationSpecs() map[string]*OperationSpec {
 			{Name: "status_code", Type: types.IntType()},
 			{Name: "headers", Type: opAnyMap()},
 			// 与 binding/symbol.go httpResponse 同步（scope 注册 vs 类型推断 operation
-			// spec 两处必须一致）。`files` 是 dify 平台专属端口，不入共享原型
+			// spec 两处必须一致）。`files` 是参考目标平台专属端口，不入共享原型
 			// （2026-09-14 用户拍板 R2）。
 		}),
 	})

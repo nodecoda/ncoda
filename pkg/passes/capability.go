@@ -23,7 +23,7 @@ package passes
 //   - CapabilityEntry carries only State. Python's diagnostic is forced to
 //     DSLDiagnosticCode.TARGET_NOT_LOWERABLE for every REJECTED entry
 //     (capabilities.py:69-79) — the Go Diagnostic() method restates that
-//     invariant — and evidence_ids/dify_version_range are dropped: they are
+//     invariant — and evidence_ids/reference target_version_range are dropped: they are
 //     consumed by the capability-inventory module (17C2 target validation
 //     territory), not by the gate. The test surface asserting evidence IDs
 //     (test_capability_manifest.py flat/function_call/enum/memory/vision

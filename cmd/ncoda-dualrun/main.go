@@ -266,7 +266,7 @@ func buildGraph(path string, registry *tool.Registry) (*ir.Graph, error) {
 
 // runtimeProfile mirrors ncoda run's frontend profile: the corpus is
 // decompiled workflow source, and runtime semantics (URL/data-URL file
-// carriers) must not be rejected by dify-only shape gates.
+// carriers) must not be rejected by reference-only shape gates.
 func runtimeProfile() *passes.TargetProfile {
 	base := passes.DefaultTargetProfile()
 	return &passes.TargetProfile{

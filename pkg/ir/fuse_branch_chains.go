@@ -24,7 +24,7 @@ package ir
 //
 // ── 谁不需要改 ────────────────────────────────────────────────────────
 // 本 pass **不**在共享 `optimizeGraph` 内运行（调用点 = coze-biz `generate()`
-// 的专属规范化段、渲染前最后一站）：dify / coze-studio / runtime 的语句树里
+// 的专属规范化段、渲染前最后一站）：参考目标 / coze-studio / runtime 的语句树里
 // `ChainArms` 恒为 nil（`walkStmtBlocks` 的 ChainArms 支只在有生产者时才有输入），
 // 既有结果一字不变。
 //

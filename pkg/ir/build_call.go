@@ -950,7 +950,7 @@ func (g *Builder) buildHTTP(id string, call *ast.CallExpr, prevIDs []string, fir
 			// A key outside that vocabulary is a hard error, never a
 			// silent no-op: the old code fell through to the generic ref
 			// collector, whose Sources land in HTTPCall.Inputs — a
-			// carrier only the dify renderer reads (its `variables` list).
+			// carrier only the reference renderer reads (its `variables` list).
 			// The coze targets synthesize http node_inputs from the
 			// template placeholders instead, so on those targets the
 			// entry AND its data reference simply vanished while the
@@ -992,7 +992,7 @@ func (g *Builder) buildHTTP(id string, call *ast.CallExpr, prevIDs []string, fir
 			// The config must be a map literal. A config carried through a
 			// variable cannot be read statically, and the old fallback
 			// collected its refs into HTTPCall.Inputs — a carrier only the
-			// dify renderer reads ⇒ on the coze targets the whole config
+			// reference renderer reads ⇒ on the coze targets the whole config
 			// (body AND headers) vanished with zero diagnostics. Same rule
 			// as the value layer below: what we cannot carry must fail loud.
 			return nil, &UnsupportedError{Construct: fmt.Sprintf(
@@ -1074,7 +1074,7 @@ func (g *Builder) httpConfigRef(expr ast.Expr, inputs *[]Source, seen map[string
 }
 
 // noteHTTPInput registers the (producer, port) pair a placeholder depends on.
-// HTTPCall.Inputs is the dify renderer's `variables` carrier; the coze
+// HTTPCall.Inputs is the reference renderer's `variables` carrier; the coze
 // renderers synthesize node_inputs from the placeholders themselves, so this
 // registration is what keeps both targets reading the same dependency.
 func (g *Builder) noteHTTPInput(ref varRef, inputs *[]Source, seen map[string]bool) {

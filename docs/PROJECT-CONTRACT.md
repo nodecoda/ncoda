@@ -47,7 +47,7 @@
 
 ## 项目定位（2026-08-29 用户拍板）
 
-**ncoda 语言是圆心，dify / coze-studio / coze-biz / runtime 是它的四个目标
+**ncoda 语言是圆心，参考目标 / coze-studio / coze-biz / runtime 是它的四个目标
 （backend target）。** 编译方向：`.ncoda` → TypedBoundProgram → 结构化 IR →
 （IR 优化：折叠 / 删除无用节点）→ lowering → 各目标平台产物（YAML/JSON/ZIP/图）。
 反编译方向：各目标平台产物 → ncoda。
@@ -216,7 +216,7 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   **全部是 coze-biz 主线真信号**）。
 - **默认门禁 = 主线面，另两层移出去（2026-09-19，门禁治理 G-B）**：`go test ./...` 里只留
   L1/L2 主线判据；`make snapshot`（`//go:build snapshot`）= 字节 sha 快照层；`make shelved`
-  （`//go:build shelved`）= 搁置面（dify / coze-studio / python golden，本文件 2026-09-11
+  （`//go:build shelved`）= 搁置面（参考目标 / coze-studio / python golden，本文件 2026-09-11
   已裁定其结果**不是**主线回归判据）。动机 = 实测 30 条常驻红里 23 条属搁置面 ⇒ 主线真信号
   被淹没。判据与入口见 `scripts/gov/README.md`；分类用 `python3 scripts/gov/triage.py`。
 - **保留（真判据，不是账本）**：`go test ./...` 里的契约测试 · `tools/five-step-roundtrip`
@@ -228,51 +228,51 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   **不再保证与实时仓库一致**（谁要用谁自己复算）。
 - **理由与替代口径** = `docs/five-step/rulings/2026-09-19-ruling-sheet.md`。
 
-## 开发主线与平台优先级（纪律，2026-09-08 用户拍板；2026-09-11 用户拍板修订：dify / coze-studio 连带变化 = 接受 + 搁置）
+## 开发主线与平台优先级（纪律，2026-09-08 用户拍板；2026-09-11 用户拍板修订：参考目标 / coze-studio 连带变化 = 接受 + 搁置）
 
 - **主线唯一 = coze-biz 后端**：coze-biz 反编译↔编译收敛（X23 / roundtrip
   系列）是当前唯一开发主线；投入、语料分析、验证与归因都以其为圆心。
-- **dify / coze-studio 问题一律搁置，不修**：遇到 dify / coze-studio 的任何
+- **参考目标 / coze-studio 问题一律搁置，不修**：遇到 参考目标 / coze-studio 的任何
   缺陷、基线红、回归、覆盖缺口或适配需求，**不在主线动手**——不改该平台
   代码、不做该平台专项验证、不为其扩展语言；只落一条带证据的记录
   （`docs/five-step/shelved/`），供日后专项接手。
-- **共享层以 coze-biz 归因为准；dify / coze-studio 的连带变化 = 接受 + 搁置
-  （A 级，2026-09-11 用户拍板，取代 2026-09-08 的「不得改变 dify / coze-studio
+- **共享层以 coze-biz 归因为准；参考目标 / coze-studio 的连带变化 = 接受 + 搁置
+  （A 级，2026-09-11 用户拍板，取代 2026-09-08 的「不得改变 参考目标 / coze-studio
   既有结果」冻结条款）**：IR / 语言语义 / 共享反编译层等**共享层的正确性修复
-  照常按根因优先与递归自洽原则做**，归因以 coze-biz 为准，**不为 dify 让路**。
+  照常按根因优先与递归自洽原则做**，归因以 coze-biz 为准，**不为 参考目标 让路**。
   - **连带变化 = 接受**：若某个 coze-biz 修复在共享语义上**必然**改变
-    dify / coze-studio 的投影形状，该变化**直接接受**——**不阻塞提交、不回退
+    参考目标 / coze-studio 的投影形状，该变化**直接接受**——**不阻塞提交、不回退
     修复、不为保形状缩小改动边界，也不得在共享层加「仅当某平台」的特判守卫**；
-    更不得为保留 dify 旧形状反向修改语言语义或共享算法。判据是「新语义下
-    dify 的输出是否自洽（与其自身物理形状一致）」，**不是**「是否与旧输出一致」。
-  - **连带后果 = 搁置**：dify / coze-studio 侧因此出现的失败、回归、覆盖缺口、
+    更不得为保留 参考目标 旧形状反向修改语言语义或共享算法。判据是「新语义下
+    参考目标的输出是否自洽（与其自身物理形状一致）」，**不是**「是否与旧输出一致」。
+  - **连带后果 = 搁置**：参考目标 / coze-studio 侧因此出现的失败、回归、覆盖缺口、
     形状不匹配、基线红**变化**，**一律不在主线处理**——不改该平台代码、不做
     该平台专项验证、不为其扩展语言；只落一条带证据的记录（`docs/five-step/shelved/`）
     + 该次提交的 commit 线索，供日后专项接手。
-  - **golden / testdata 例外（必须做，且不算「修 dify」）**：共享语义变了，
-    dify / coze-studio 的 golden、快照、parity 基线**必须同步更新到新语义**，
+  - **golden / testdata 例外（必须做，且不算「修 参考目标」）**：共享语义变了，
+    参考目标 / coze-studio 的 golden、快照、parity 基线**必须同步更新到新语义**，
     否则测试无法表达真实行为；更新时在提交信息与文档中记录「改了哪些文件 +
     新旧差异 + 由哪条共享语义修复引起」。**禁止**为了让 golden 保持旧值而
     反向调整共享层。
-  - **判据与验证随之调整**：dify / coze-studio 相关测试的**结果**不再作为
+  - **判据与验证随之调整**：参考目标 / coze-studio 相关测试的**结果**不再作为
     主线改动的回归判据（既有的 `TestRound2FixedPoint` /
     `TestRoundtripEdgeTopology` 等基线红同样只作记录）；主线验证只按下方
     「验证契约」节的 coze-biz 口径执行。
   - **决策记录**：本条替代条款的首次适用 = R8（表达式物化类型真值化）导致
-    dify 的 `comparison_operator` 由 `= "true"` 变为 `is "true"`，用户裁定
-    搁置 dify、专注 coze-biz。
+    参考目标的 `comparison_operator` 由 `= "true"` 变为 `is "true"`，用户裁定
+    搁置 参考目标、专注 coze-biz。
 - **先归因后动手**：缺陷先判「coze-biz 语义/适配问题」（主线处理）还是
-  「dify / coze-studio 问题」（搁置记录）；归因不清时按三文件归因法
+  「参考目标 / coze-studio 问题」（搁置记录）；归因不清时按三文件归因法
   （A ≍ B → N 定出生点）定位后再决定主线或搁置，禁止未归因直接改共享层。
 - **验证口径**：按下方「验证契约」节执行——`go build/vet` 与 `go test ./...`
-  全绿（dify 已知基线例外除外）。**dify / coze-studio 相关测试的结果不作为
+  全绿（参考目标 已知基线例外除外）。**参考目标 / coze-studio 相关测试的结果不作为
   主线回归判据**：共享层语义修复引起的其输出变化属「连带变化 = 接受」，
   测试红属「连带后果 = 搁置」（记账不修），仅 golden 按上一条同步更新。
-  dify 基线红（`TestRound2FixedPoint` / `TestRoundtripEdgeTopology`）同样
+  参考目标 基线红（`TestRound2FixedPoint` / `TestRoundtripEdgeTopology`）同样
   只作记录，不得作为 coze-biz 改动回归的判据。
 - **这是纪律不是不变量**（2026-10-03 收口「等级用语」）—— 它的机器面 = **读数**：
   `python3 scripts/gov/triage.py`（跑全仓并**按面分类**红：主线面 / 搁置面）+
-  `make shelved`（搁置面的执行入口，`//go:build shelved`）。⇒ 「dify / coze-studio 的红
+  `make shelved`（搁置面的执行入口，`//go:build shelved`）。⇒ 「参考目标 / coze-studio 的红
   不算主线回归」不靠人记：分类读数就是它的证据；搁置记录落 `docs/five-step/shelved/`。
 
 ## 注册表数据权威（DB 唯一真相，2026-08-26 决策）
@@ -404,7 +404,7 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   编译错误（Undefined variable / UNINITIALIZED_USE）。
 - **"未执行分支"被类型零值吸收**（string→""、int→0、bool→false、
   array→[]、map→{}、record→全字段零值）——反编译安全网显式化
-  （对齐 DIFY-DECOMPILE §0、hoistedVarDecl），**不是 null 字面量**。
+  （对齐 反编译模式对照（适配器仓） §0、hoistedVarDecl），**不是 null 字面量**。
 - **null 只在显式产生处出现**：`null` 字面量、code 返回 None、插件 null
   字段、merge 全 nil（runtime FirstNotNullValue：空串是合法取值，仅 nil
   跳过；zero 语义下 raising 不把 merge 全 nil 还原为 null——吸收为类型零值，
@@ -463,8 +463,8 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   与既有语义的兼容性），用户确认后才能写代码。未经审核的语言级改动
   一律不做。
 - 反编译器 / 编译器内部 AST 补全不在此列——只要输出仍是既有 ncoda 语法、
-  不改变语言语义（例：dify list-operator 反编译输出 filter/take/sort 的
-  lambda 形态，lambda 是 ncoda 既有语法）。但共享渲染层（cozebiz / dify
+  不改变语言语义（例：参考目标 list-operator 反编译输出 filter/take/sort 的
+  lambda 形态，lambda 是 ncoda 既有语法）。但共享渲染层（cozebiz / 参考目标
   反编译共用的 cd AST）的改动必须评估双向影响。
 - 已做过的语言级扩展（`$` 关键字转义、return 语义分层、parallel 栅栏、
   **投递开关 `streaming`**（2026-09-27 用户裁决 甲：尾置上下文词，两个位点
@@ -494,8 +494,8 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   编译期放行非 string `llm<T>`，不因外部平台缺少集成结构化生成/验证/retry 证明
   而拒绝（LLM 输出静态不可预测是平台现实，编译器不是银弹；详见
   `docs/UNIFIED-LLM-SEMANTICS.md` §0）。校验责任在运行期：能校验处（runtime v2
-  DecodePayload、dify native structured_output）严格校验+重试；不能校验处
-  （coze / coze-biz）信任 T，残差风险归用户——dify/coze 平台自身就是"提示词约束
+  DecodePayload、参考目标 native structured_output）严格校验+重试；不能校验处
+  （coze / coze-biz）信任 T，残差风险归用户——参考目标/coze 平台自身就是"提示词约束
   + 少校验"，我们不假装比平台更严格。唯一硬底线是不撒谎：不把未校验的实际输出
   伪装成 T 的字段（text 是 string 就不能谎报 record）；反编译 schema 不足时仍
   保留 UNKNOWN 诊断。
@@ -518,7 +518,7 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
 
 ## ncoda 覆盖承诺（不可违背）
 
-- ncoda 承诺覆盖 dify / coze-studio / coze-biz 三平台的**所有节点类型**与
+- ncoda 承诺覆盖 参考目标 / coze-studio / coze-biz 三平台的**所有节点类型**与
   **节点的所有特性**（参数、端口、默认值、错误分支、输出声明等）。
 - **ncoda 自身的自洽优先**：语言语义是第一性的；平台形状差异是渲染器的
   适配问题，不是让语言向平台妥协的理由。同一 IR 结构在不同平台可呈现不同
@@ -701,10 +701,10 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   单因变异实测：A（`--construct` 退化整包）⇒ 恰 K4 红；B（0 命中兜底跑包）⇒ 恰 K5 红。
   接线 = `make gate-self-tests`。
 - **验证专注：coze-biz**（2026-09-05 固化；主线投入策略见上「开发主线与
-  平台优先级」，2026-09-08 拍板；**2026-09-11 用户拍板收紧：dify / coze-studio
+  平台优先级」，2026-09-08 拍板；**2026-09-11 用户拍板收紧：参考目标 / coze-studio
   搁置，不在本线改动、不做专项验证，其测试结果亦不作回归判据**）。当前开发
   主线是 coze-biz 后端的反编译↔编译收敛（X23 系列）。共享层修复引起的
-  dify / coze-studio 输出变化 = **接受**（golden 同步更新），引起的测试红
+  参考目标 / coze-studio 输出变化 = **接受**（golden 同步更新），引起的测试红
   = **搁置**（记账不修）；二者均不阻塞主线提交。
 - `go build ./... && go vet ./...` 必须全绿。
 - `go test ./...` 的失败集与红基线**逐条一致**，唯一权威 =
@@ -716,7 +716,7 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   **2026-09-16 校正（勘误 E-15）**：本行原写「唯一权威 = roundtrip_baseline.yaml」，把
   语料棘轮当成了测试失败集的权威；而当时 `verify.sh` **根本不跑 `go test ./...`**
   （只跑 build/vet）⇒「新增一条失败测试」在门禁里**不可见**，只能靠人肉前后各跑一遍全仓。
-  现在两栏由 R-TEST 复算：主线 = coze-biz 回归判据；搁置面（dify / coze-studio / llmfixture）
+  现在两栏由 R-TEST 复算：主线 = coze-biz 回归判据；搁置面（参考目标 / coze-studio / llmfixture）
   = 记账不修，**分栏表逐包钉住**（`scope.packages`，未登记 ⇒ 红）。
   **归类看失败内容，不看包路径**。**逐次转红 / 转绿的过程叙事不进本文件**：
   过程叙事的归宿是 git；本节只留**判据**与**指针**。
@@ -753,8 +753,8 @@ ncoda 语言语义是第一性的；平台形状差异是渲染器的适配问�
   `return`；`end + useAnswerContent`（答复端点）的语言载体 = `return template …`（W2 §4）。
   判据 = `go test ./internal/compiler/ -run 'TestCozeBizOutput'`（含判据自检：手工构造
   `end→output` 值绑定必须被报出）—— 权威处 = `docs/five-step/spec/W1-output-return.md` §5.0b。
-  共享 IR 里 `emitOutputStmt` 的 `tailRef` 是**dify 时代残余**（coze-biz lowering 丢弃 ⇒
-  只在 dify 可见），已按平台优先级搁置登记；**不得**据此残余把 N1 读软。
+  共享 IR 里 `emitOutputStmt` 的 `tailRef` 是**参考目标 时代残余**（coze-biz lowering 丢弃 ⇒
+  只在 参考目标 可见），已按平台优先级搁置登记；**不得**据此残余把 N1 读软。
 - 修复边相关的 bug 时，先写"最小 ncoda 片段"的定向回归测试，再改渲染器。
 - **`T v = <init>;` ≡ `T v; v = <init>;` + `parallel` 语义（差异 = 无顺序 + 兄弟不可见）**：判据 = `go test ./internal/compiler/ -run 'TestCozeBizInitDeclEquivalent|TestCozeBizParallel'`
   （产物面：两条拼写**逐字节相同** + 读回值不丢）∪ `go test ./pkg/passes/ -run 'TestParallel'`

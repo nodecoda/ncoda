@@ -7,7 +7,7 @@ package ir
 // switches over exactly these keys, and a key outside the list is rejected
 // (never silently ignored — an unhandled key used to fall through to the
 // generic ref collector, whose Sources land in HTTPCall.Inputs, a carrier only
-// the dify renderer reads ⇒ on the coze targets the entry AND its data
+// the reference renderer reads ⇒ on the coze targets the entry AND its data
 // reference vanished while the compile reported SUCCEEDED; C2-H3 一手实测).
 //
 // `params`（查询参数）于 **2026-10-22 由用户裁定进入词表**（PRD

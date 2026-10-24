@@ -32,10 +32,8 @@ func TestRetryIntervalCarrierTable(t *testing.T) {
 		{"nil profile = language reference carrier", nil, RetryIntervalCarried},
 		// 未声明：**不发结论**（既不报也不声称承载）—— 与超时轴同一条有意口径，登记 R-89。
 		{"undeclared target", &TargetProfile{Name: "future-target-9.9"}, RetryIntervalUnknown},
-		// 过渡桥（P2d 发版批次删除）：未声明 Carrier 的旧 profile 仍按历史名取事实。
-		{"legacy name bridge: dify family", &TargetProfile{Name: "ncoda-native-1.0"}, RetryIntervalCarried},
-		{"legacy name bridge: biz family", &TargetProfile{Name: "coze-biz-1.0"}, RetryIntervalAbsent},
-		{"legacy name bridge: execution family", &TargetProfile{Name: "coze-runtime-1.0"}, RetryIntervalCarried},
+		// 名字不参与判定：未声明 Carrier 就不再按名字猜（内核不认识平台名）。
+		{"name alone carries nothing", &TargetProfile{Name: "ncoda-native-1.0"}, RetryIntervalUnknown},
 	}
 	for _, tc := range cases {
 		if got := retryIntervalCarrierOf(tc.profile); got != tc.want {
@@ -44,15 +42,12 @@ func TestRetryIntervalCarrierTable(t *testing.T) {
 	}
 }
 
-// TestDeclaredCarrierWinsOverLegacyName 注入点优先于过渡桥：适配器一旦声明，
-// 历史目标名不再参与判定（这是 P2d 删掉 carrierFromName 的前提）。
-func TestDeclaredCarrierWinsOverLegacyName(t *testing.T) {
-	p := &TargetProfile{
-		Name:    "ncoda-native-1.0",
-		Carrier: CarrierProfile{Declared: true, RetryInterval: RetryIntervalAbsent},
-	}
-	if got := retryIntervalCarrierOf(p); got != RetryIntervalAbsent {
-		t.Fatalf("declared carrier must win over the legacy name bridge: got %d", got)
+// TestUndeclaredCarrierIsNotGuessedFromName：内核不认识平台名 —— 只写名字、
+// 不声明 Carrier 的 profile 必须按「什么都不承载」读（不发明能力）。
+func TestUndeclaredCarrierIsNotGuessedFromName(t *testing.T) {
+	p := &TargetProfile{Name: "ncoda-native-1.0"}
+	if got := retryIntervalCarrierOf(p); got != RetryIntervalUnknown {
+		t.Fatalf("an undeclared carrier must carry nothing: got %d", got)
 	}
 }
 

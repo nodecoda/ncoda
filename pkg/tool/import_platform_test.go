@@ -25,7 +25,7 @@ func TestSplitImportPlatformQualified(t *testing.T) {
 		name     string
 	}{
 		{"coze-biz.web_search", "coze-biz", "web_search"},
-		{"dify.google_search", "dify", "google_search"},
+		{"acme.google_search", "acme", "google_search"},
 		{"coze-studio.feishu_bitable", "coze-studio", "feishu_bitable"},
 		// A qualifier the open repo does not serve is still a legal import:
 		// whether the target can satisfy it is an adapter decision.
@@ -68,7 +68,7 @@ func TestPlatformOf(t *testing.T) {
 	}{
 		{"web_search", ""},
 		{"coze-biz.web_search", "coze-biz"},
-		{"dify.google_search", "dify"},
+		{"acme.google_search", "acme"},
 		{"windows.web_search", "windows"}, // shape-valid ⇒ a qualifier
 		{"a/b.web_search", ""},            // malformed ⇒ no qualifier
 	}
@@ -80,7 +80,7 @@ func TestPlatformOf(t *testing.T) {
 }
 
 func TestValidPlatformQualifier(t *testing.T) {
-	for _, ok := range []string{"dify", "coze-biz", "coze-studio", "acme2", "x"} {
+	for _, ok := range []string{"acme", "coze-biz", "coze-studio", "acme2", "x"} {
 		if !ValidPlatformQualifier(ok) {
 			t.Fatalf("ValidPlatformQualifier(%q) = false, want true", ok)
 		}

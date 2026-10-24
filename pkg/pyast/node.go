@@ -1,7 +1,7 @@
 // Package pyast implements a typed AST for the normalized Python subset
 // (docs/ideas-todo/PYTHON-SUBSET-GENERATOR.md). The AST mirrors the
 // platform backend pattern: typed nodes + deterministic serializer.
-// Backends (IR builder, dify legacy) consume this AST instead of
+// Backends (IR builder, the reference target legacy) consume this AST instead of
 // hand-written string templates, guaranteeing byte-identical output.
 package pyast
 
@@ -26,7 +26,7 @@ type Expr interface {
 type Module struct {
 	// Imports are emitted as `import <name>` lines before def main. A shim
 	// that references a module-level name (json.loads, json.dumps) must
-	// declare it here: platform code sandboxes (Dify/Coze) make stdlib
+	// declare it here: platform code sandboxes (the reference target/Coze) make stdlib
 	// modules importable but do NOT auto-bind them — missing import is a
 	// runtime NameError no static gate can catch.
 	Imports []string

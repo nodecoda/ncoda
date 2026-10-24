@@ -3,7 +3,7 @@
 // by a target's physical port.
 //
 // The open repo deliberately ships **no platform codec**: a platform adapter
-// (for example the Dify codec in the commercial repo) implements Codec and is
+// (for example the reference target codec in the commercial repo) implements Codec and is
 // injected through passes.TargetProfile.Codec. DefaultCodec is a canonical
 // language mapping — it names no platform and exists so that the language lane
 // can still build IR without a target.

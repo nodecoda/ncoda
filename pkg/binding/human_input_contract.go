@@ -58,14 +58,14 @@ var validActionStyles = map[HumanInputActionStyle]bool{
 
 var actionIDPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
-// ValidActionStyle reports whether style is one of the canonical Dify
+// ValidActionStyle reports whether style is one of the canonical the reference target
 // human-input action button styles (primary/default/accent/ghost).
 func ValidActionStyle(style HumanInputActionStyle) bool {
 	return validActionStyles[style]
 }
 
 // IsCanonicalHumanInputActionID mirrors is_canonical_human_input_action_id
-// (human_input_contract.py:25-27): value must match Dify's exact action ID
+// (human_input_contract.py:25-27): value must match the reference target's exact action ID
 // wire contract — a canonical identifier of at most 20 characters.
 func IsCanonicalHumanInputActionID(value string) bool {
 	return len(value) <= 20 && actionIDPattern.MatchString(value)

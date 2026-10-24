@@ -19,7 +19,7 @@ package passes
 //     that surface yet (deferred to the code-analysis task), so the case is
 //     unreachable and is not ported.
 //   - test_exitful_for_uses_loop_not_iteration /
-//     test_loop_return_escapes_before_function_response assert on the Dify
+//     test_loop_return_escapes_before_function_response assert on the reference target
 //     backend graph (loop vs iteration nodes, __returning labels); the Go
 //     frontend stops at LoopStatePass, so those cases are ported at pass
 //     level (facts/no-errors) and the graph assertions are documented as
@@ -579,7 +579,7 @@ func TestLoopStateIsDeclaredAndReexposed(t *testing.T) {
 	}
 }
 
-// test_exitful_for_uses_loop_not_iteration asserts on the Dify backend graph
+// test_exitful_for_uses_loop_not_iteration asserts on the reference backend graph
 // (loop vs iteration nodes); the Go frontend stops at LoopStatePass. Ported
 // at pass level: the for loop compiles cleanly and produces no loop-state
 // facts (for loops never own mutable state).
@@ -626,7 +626,7 @@ func TestMutationOutsideAnOwningLoopIsLegal(t *testing.T) {
 	}
 }
 
-// test_loop_return_escapes_before_function_response asserts on the Dify
+// test_loop_return_escapes_before_function_response asserts on the reference target
 // backend graph (__returning labels); ported at pass level: the loop
 // compiles cleanly and the state fact is still published.
 func TestLoopReturnEscapesBeforeFunctionResponse(t *testing.T) {

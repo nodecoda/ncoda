@@ -161,7 +161,7 @@ func (r *FrontendResult) Errors() []diag.Diagnostic {
 // registered in pipeline order (Task 17A wires yield_contract,
 // response_contract, syntax and semantic alongside the earlier stages).
 // New() keeps the empty registry for tests that need stage-level control;
-// end-to-end harnesses (the pass tests, and later the difycodec frontend)
+// end-to-end harnesses (the pass tests, and later the reference targetcodec frontend)
 // use DefaultPipeline as the single source of wiring truth.
 func DefaultPipeline() *Pipeline {
 	p := New()

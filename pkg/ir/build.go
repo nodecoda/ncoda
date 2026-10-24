@@ -104,7 +104,7 @@ type varRef struct {
 }
 
 // NodeID / Output export the loop return-value ref to the backend layers
-// (spec.Build short-circuit + dify render need the producer/port pair).
+// (spec.Build short-circuit + the reference target render need the producer/port pair).
 func (r varRef) NodeID() string { return r.nodeID }
 func (r varRef) Output() string { return r.output }
 func (r varRef) Kind() string   { return r.kind }
@@ -600,7 +600,7 @@ func (g *Builder) build() (*Graph, error) {
 				inputs = append(inputs, Ref{Producer: g.tailRef.nodeID, Output: g.tailRef.output})
 			}
 		}
-		// The tail end is implicit (dify drops it) when the function never
+		// The tail end is implicit (the reference target drops it) when the function never
 		// returns: no return type and no explicit branch return.
 		implicit := !g.entryReturns && (!g.branchReturns || g.rootEndsWithOutput())
 		end := &End{ID: endID, Inputs: inputs, Outputs: outputs, NamedReturn: namedReturn, Implicit: implicit}
@@ -635,13 +635,9 @@ func (g *Builder) build() (*Graph, error) {
 			continue
 		}
 		// The placement is declared by the adapter
-		// (capability.Table.LLMEnvelopePlacement); the legacy name bridge
-		// keeps pre-declaration tables on their old placement.
-		placement := g.caps.LLMEnvelopePlacement
-		if placement == capability.EnvelopeUnspecified {
-			placement = legacyEnvelopePlacement(g.caps.Target)
-		}
-		switch placement {
+		// (capability.Table.LLMEnvelopePlacement); an undeclared table
+		// records no placement (never invent a product shape).
+		switch g.caps.LLMEnvelopePlacement {
 		case capability.EnvelopeShim:
 			g.recordPlacement(call.ID, placementConstruct("llm", "whole-envelope"), PlacementShim, placementReason(PlacementCauseContract, "target assembles LLMResponse<T> from native payload/metadata paths and literal nulls"))
 		case capability.EnvelopeNative:
@@ -1117,7 +1113,7 @@ func (g *Builder) emitExprStmt(s *ast.ExprStmt, prevIDs []string, firstPort stri
 		return []string{id}, "", nil
 	}
 	if fc, ok := s.Expr().(*ast.ForeignCodeExpr); ok {
-		// A Dify code node may be intentionally used only for its side effect
+		// A reference code node may be intentionally used only for its side effect
 		// (for example, an iteration updates a conversation variable and its
 		// collected output is not consumed). Preserve execution without
 		// inventing an unused language binding.
@@ -1286,8 +1282,8 @@ func (g *Builder) typeOf(t ast.TypeRef) *Type {
 			AllowedFileUploadMethods: append([]string(nil), c.UploadMethods...),
 		}
 	case *ast.MapTypeRef:
-		// Dify and the neutral IR represent maps as object values. Map keys are
-		// not expressible in Dify output schemas, so retain the value shape.
+		// The reference target and the neutral IR represent maps as object values. Map keys are
+		// not expressible in reference output schemas, so retain the value shape.
 		return TObject(map[string]*Type{})
 	case *ast.OptionalTypeRef:
 		inner := g.typeOf(tr.Value())
@@ -1514,7 +1510,7 @@ func (g *Builder) resolveHTTPMethod(call *ast.CallExpr) (string, error) {
 // The slot accepts any string expression the language admits — the language
 // types it as `string`, and every target renders it as a template (coze-biz /
 // coze-studio carry the refs as {{block_output_<id>.<port>}} placeholders,
-// dify rewrites them to {{#node.port#}}, runtime renders the same template):
+// the reference target rewrites them to {{#node.port#}}, runtime renders the same template):
 //
 //   - literal / const → verbatim text;
 //   - value reference → {{block_output_<id>.<port>}};
@@ -1967,19 +1963,19 @@ func loopAggOutput(ref varRef, fields []string) string {
 // IRPortVocabularyTarget 声明 **IR 的端口词汇表取自哪个目标的契约**。
 //
 // 历史事实：IR 的端口词汇表一直是 coze-biz 的（本函数此前把 coze-biz 的物理口名
-// 直接写死在此，dify 后端再把 IR 口名映射回自己的口名）。本常量把那件事实显式化，
+// 直接写死在此，参考目标后端再把 IR 口名映射回自己的口名）。本常量把那件事实显式化，
 // 不新增语义：语言字段 → IR 口名走本目标的契约；**IR 口名 → 某平台的口名**由该
 // 平台后端用同一份契约完成（经语言字段中转，见 builtin.LangOf/PortOf）。
 //
 // 残余设计债（已登记，需独立切片）：IR 携带平台物理名本身违背「IR = 语义定锚」，
 // 目标形态是 **IR 只携带语言层名、平台名下沉到各后端**。本切片只做「契约声明化」。
 // 用函数而非包级 var：闭源契约由下游模块在 init() 注册，包级 var 会在下游
-// init 之前定格 ⇒ 多平台构建会误选 dify。
+// init 之前定格 ⇒ 多平台构建会误选 reference target。
 func IRPortVocabularyTarget() string { return choosePortVocabularyTarget() }
 
 // choosePortVocabularyTarget 选本构建里**实际存在**的端口词汇表目标：
 // 多平台构建（含 coze-biz 契约）仍取 coze-biz（历史口径不变）；开放仓只带
-// dify 契约时取 dify —— 否则查不到契约会退化为 ref.output，静默丢端口映射。
+// 参考目标契约时取参考目标 —— 否则查不到契约会退化为 ref.output，静默丢端口映射。
 func choosePortVocabularyTarget() string {
 	if _, ok := builtin.Contract("coze-biz-1.0")["http"]; ok {
 		return "coze-biz-1.0"
@@ -2003,7 +1999,7 @@ func fieldPort(ref varRef, field string) string {
 		return field
 	case "attempt-error":
 		// OperationError record fields are the operation's semantic error
-		// output ports (dify http-request fail-branch exposes them as
+		// output ports (the reference target http-request fail-branch exposes them as
 		// node ports; Coze maps these onto default/branch_error.
 		if field == "error_type" || field == "error_message" {
 			return field
@@ -2053,7 +2049,7 @@ func fieldPort(ref varRef, field string) string {
 		// registry (definitions.Outputs are dotted member paths). Preserve
 		// the full semantic member path so each target renderer can rebuild
 		// the platform output reference (Coze: the plugin's object-typed
-		// output port; Dify: the tool's single result).
+		// output port; the reference target: the tool's single result).
 		if ref.typ != nil && ref.typ.Kind == "object" {
 			if _, ok := ref.typ.Props[field]; ok {
 				return field

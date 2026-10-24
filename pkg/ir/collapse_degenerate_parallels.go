@@ -33,7 +33,7 @@ package ir
 // 先被清空）、`CanonicalZeroCarrierOrder` 与 `FuseBranchChains` **之前**：坍缩后
 // 语句树与「同一意思的 else-if 源」逐句相同 ⇒ 其后所有规范化 pass 在**同一棵**
 // 树上求值，首编产物与二编产物构造相同。
-// 共享 IR 的 dify / coze-studio / runtime 路径不调用（那里的链式聚合是真实
+// 共享 IR 的参考目标 / coze-studio / runtime 路径不调用（那里的链式聚合是真实
 // canvas 形状，删掉会改其既有结果）。
 
 // CollapseDegenerateParallels 把「至多一条臂有语句」的并行栅栏就地坍缩为顺序

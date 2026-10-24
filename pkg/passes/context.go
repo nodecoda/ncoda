@@ -106,8 +106,8 @@ type TargetProfile struct {
 	Codec target.Codec
 
 	// Carrier declares the target's representability facts (carrier.go).
-	// Adapters set it; a zero value falls back to the transitional name
-	// bridge so profiles built before the release batch keep their facts.
+	// Adapters set it explicitly; a zero value declares nothing carried
+	// (the conservative reading — never invent a capability).
 	Carrier CarrierProfile
 }
 
@@ -115,10 +115,10 @@ type TargetProfile struct {
 // the identity a standalone ncoda program is compiled and run against. It is
 // deliberately not a platform: adapters declare their own name and carrier.
 //
-// The carrier currently holds the reference node-graph facts because the
-// commercial adapters still build their profiles on top of this default
-// (P2d release batch); once they inject their own CarrierProfile the default
-// becomes the language-only carrier.
+// The default carries the language reference surface (ReferenceCarrier):
+// compile/IR lanes keep the strict shape rules, while the target-free
+// language lane installs LanguageCarrier explicitly. Adapters inject their
+// own Carrier on their own profiles.
 func DefaultTargetProfile() *TargetProfile {
 	return &TargetProfile{
 		Name:                                 NativeTargetName,
@@ -129,6 +129,7 @@ func DefaultTargetProfile() *TargetProfile {
 		ParameterExtractorFunctionCallModels: map[string]bool{"deepseek/deepseek-chat": true},
 		ParameterExtractorMemoryMaxTurns:     99,
 		Codec:                                target.DefaultCodec(),
+		Carrier:                              ReferenceCarrier(),
 	}
 }
 

@@ -123,7 +123,7 @@ func IsAssignable(src, dst *Descriptor) bool {
 	}
 	// coze-biz 平台 file 本质是 URL 字符串（image/audio/video 输入在
 	// 平台侧按 string 传参）: file → string 兼容, 与 isCodePortType
-	// 对 code 节点 file 端口的处理同理。Dify 等目标需要 file 真类型时
+	// 对 code 节点 file 端口的处理同理。参考目标等目标需要 file 真类型时
 	// 由后端映射还原（upload-config 重建, 不受此处放宽影响）。
 	if src.Kind == File && dst.Kind == String {
 		return true

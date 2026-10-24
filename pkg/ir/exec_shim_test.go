@@ -5,10 +5,10 @@ package ir
 
 // Runtime-execution gate for compiler-generated Python shims (test
 // governance, 2026-08-20). The P5.12 import self-sufficiency fix was
-// triggered by a blind spot no static gate could catch: Dify sandboxes make
+// triggered by a blind spot no static gate could catch: the reference target sandboxes make
 // stdlib modules importable but do NOT auto-bind names, so a shim that calls
 // json.loads without `import json` is a runtime NameError — while every
-// acceptance gate (coze-probe / flow-probe / dify-verify) and even
+// acceptance gate (coze-probe / flow-probe / reference target-verify) and even
 // py_compile (compile(), no exec()) passes. This test locks the runtime
 // semantics of every generated shim shape by actually executing it under
 // CPython, asserting the output (including out-of-bounds / missing-field

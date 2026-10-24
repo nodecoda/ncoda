@@ -67,7 +67,7 @@ func (SemanticPass) Run(program *ast.Program, ctx *Context) {
 		ctx.Emit(diag.EMPTY_ENTRY, diag.Warning, "Main function is empty", program.Entry().Span())
 	}
 
-	// M13: @mode advanced-chat（对齐 dify chatflow）入口应声明 string query
+	// M13: @mode advanced-chat（对齐参考目标 chatflow）入口应声明 string query
 	// —— 会话输入。无参 main 放行：runtime 可直接从 input map 读取 query
 	//（兼容 target_validation 降级路径）;仅当显式声明了非 query 首参时报错。
 	if program.Mode() == "advanced-chat" {

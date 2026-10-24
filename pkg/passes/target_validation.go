@@ -202,7 +202,7 @@ func classifyAssignerRhs(expr ast.Expr, target *types.Descriptor) assignerRHSKin
 // ── the pass ──────────────────────────────────────────────────────────
 
 // TargetValidationPass validates whether typed language constructs are
-// representable by Dify, mirroring target_validation.py TargetValidationPass.
+// representable by the reference target, mirroring target_validation.py TargetValidationPass.
 type TargetValidationPass struct {
 	ctx      *Context
 	mode     string
@@ -216,26 +216,26 @@ type TargetValidationPass struct {
 	// snapshot AstNodeID (NodeIDOf) — deviation recorded in the report.
 	reportedScalarFileExprs map[binding.AstNodeID]bool
 	// fileCapacity 当前目标的 file 契约承载能力（Run 解析一次；一处定义见
-	// fileContractCapacityOf）。**两条分支共用** —— dify 也消费它。
+	// fileContractCapacityOf）。**两条分支共用** —— 参考目标也消费它。
 	fileCapacity FileContractCarrier
 }
 
-// Run mirrors run (:161-168). The pass enforces the Dify target's
+// Run mirrors run (:161-168). The pass enforces the reference target's
 // representability rules; coze/coze-biz lower the same platform-neutral AST
-// through their own backends and are not subject to Dify-specific shape
+// through their own backends and are not subject to the reference target-specific shape
 // constraints (e.g. scalar file field access is representable on coze-biz,
 // where a file is a URL string). Gate on the profile name.
 //
-// 2026-09-21（Stage A）：**dify-only 的那半仍然 dify-only**（形状约束），但
+// 2026-09-21（Stage A）：**reference-only 的那半仍然 reference-only**（形状约束），但
 // **语言级的那半对每个目标都跑** —— 合法性（`file<…>` token 的词表校验）与
-// file 契约轴的降级报账（见下方非 dify 分支）。旧实现整段 return ⇒
-// 同一份源在 coze-biz 上比 dify 宽松（`file<bogus>` 能过），是**目标相关的语言**。
+// file 契约轴的降级报账（见下方非参考目标分支）。旧实现整段 return ⇒
+// 同一份源在 coze-biz 上比参考目标宽松（`file<bogus>` 能过），是**目标相关的语言**。
 func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 	p.ctx = ctx
-	// 承载能力**在入口解析一次**，两条分支共用（一处定义；dify 也走这张表 ——
-	// 否则「dify 三轴俱载」这条事实永远不被消费 = 空判据）。
+	// 承载能力**在入口解析一次**，两条分支共用（一处定义；参考目标也走这张表 ——
+	// 否则「参考目标三轴俱载」这条事实永远不被消费 = 空判据）。
 	p.fileCapacity = fileContractCapacityOf(ctx.Profile)
-	// 枚举值集的承载（R-57）与目标相关，但**判据对每个目标都跑**：dify 的
+	// 枚举值集的承载（R-57）与目标相关，但**判据对每个目标都跑**：参考目标的
 	// 「payload 面承载」这条事实否则永不被消费（= 空判据，与 file 三轴同一条纪律）。
 	p.reportEnumValueSetDegradations(program)
 	p.reportNullBindingDegradations(program)
@@ -250,16 +250,16 @@ func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 	// `internal/compiler/cozebiz_zero_path_arm_gating_contract_test.go`（产物面）锁定；
 	// 退役裁决与证据 = `docs/five-step/rulings/2026-09-28-ruling-sheet-r26.md`。
 	if !carrierOf(ctx.Profile).NodeGraphShapes {
-		// ── 非 dify 目标（2026-09-21 Stage A）──
+		// ── 非参考目标（2026-09-21 Stage A）──
 		//
 		// 旧实现整段 return，于是「语言级的那半」也一起被跳过了：
-		// `TargetValidationPass` 名义上只做 dify 形状约束，实际却成了**目标相关的
-		// 语言**——同一份源 coze-biz 绿、dify 红（实测：`file<bogus>` 在 coze-biz
+		// `TargetValidationPass` 名义上只做参考目标形状约束，实际却成了**目标相关的
+		// 语言**——同一份源 coze-biz 绿、参考目标红（实测：`file<bogus>` 在 coze-biz
 		// `SUCCEEDED` 并静默落成 `type: file`）。
 		//
-		// 现在只跳过 **dify 的形状约束**，不跳过语言级判据：把每个 `file<…>` 声明位
-		// 送进 `validateTypeRef`（与 dify 路径**同一个入口** ⇒ 合法性 + 承载报账
-		// 只有一份实现）。非 dify 路径不能用 pass 自身的 `Visit` 分发（那是 dify 的
+		// 现在只跳过 **参考目标的形状约束**，不跳过语言级判据：把每个 `file<…>` 声明位
+		// 送进 `validateTypeRef`（与参考目标路径**同一个入口** ⇒ 合法性 + 承载报账
+		// 只有一份实现）。非参考目标路径不能用 pass 自身的 `Visit` 分发（那是参考目标的
 		// 形状规则），故用一个只认 `*ast.FileTypeRef` 的遍历器。
 		//
 		// 不变量（判据 `TestFileConstraintLegalityRunsForEveryTarget`，一条判据两个
@@ -272,11 +272,11 @@ func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 		ast.Walk(typeRefChecker{pass: p}, program)
 		// 同一道门里的第二个缺口（R-108，2026-09-26）：**IR 消费的契约也必须
 		// 每个目标都发布**。`ValidatedExtractions` / `ValidatedAgents` 由本 pass 的
-		// dify 分支填充，而非 dify 目标整段 return ⇒ 两个表恒为空 ⇒ IR 拿不到
+		// 参考分支填充，而非参考目标整段 return ⇒ 两个表恒为空 ⇒ IR 拿不到
 		// instruction / descriptions / strategy（一手：coze-biz 编 57 源
 		// SUCCEEDED，产物 llmParam 里连 prompt 都没有 ⇒ 反编译只能还出 llm<T>）。
-		// 判据 = 发布者与 dify 路径**同一个函数**（不写第二份），只跳过 dify 的
-		// 形状约束。表里没有 IR 消费者的契约（classification 只被 dify lowering
+		// 判据 = 发布者与参考目标路径**同一个函数**（不写第二份），只跳过参考目标的
+		// 形状约束。表里没有 IR 消费者的契约（classification 只被参考目标 lowering
 		// 读）不在此列 —— 判据是「IR 读不读它」，不是节点类型清单。
 		ast.Walk(languageContractChecker{pass: p}, program)
 		return
@@ -303,7 +303,7 @@ func fileContractCapacityOf(profile *TargetProfile) FileContractCarrier {
 // TimeoutCarrierAxis 目标上**非 http 面**的「超时」载体表达的是哪个轴 —— **一处定义**。
 //
 // 为什么需要它：语言裁定 `with timeout(D)` 的 D = **每次尝试**（2026-09-16 用户拍板，与
-// runtime / dify 两侧一致）。平台上「超时」有两个载体，轴**不同**：
+// runtime / 参考目标两侧一致）。平台上「超时」有两个载体，轴**不同**：
 //
 //   - **http 节点自带** `parameters.setting.timeout`（**秒**）：平台运行期把它装进
 //     `http.Client.Timeout`，重试循环 `for i := 0; i <= retryTimes; i++ { client.Do(…) }`
@@ -323,7 +323,7 @@ func fileContractCapacityOf(profile *TargetProfile) FileContractCarrier {
 // 枚举值集 / 显式 null 同一条纪律：**不升级成 error**（那会拒收合法源码）。
 // nonHTTPTimeoutAxisOf 目标 → **非 http 面**的超时载体轴。
 //
-//   - dify：`internal/backend/dify/（商业仓）render_nodes.go:288-291` 发
+//   - 参考目标：`商业仓参考后端render_nodes.go:288-291` 发
 //     `timeout{max_connect_timeout, max_read_timeout}`（每次请求各一份）⇒ 每次尝试。
 //   - coze-biz / coze-studio：非 http 节点只有 `settingOnError.timeoutMs`
 //     （`internal/backend/cozebiz/（商业仓）render_node.go::errorPolicySetting` ·
@@ -410,7 +410,7 @@ func (p *TargetValidationPass) reportTimeoutAxisDegradations(program *ast.Progra
 // 平台承载面（一手证据；与 TimeoutCarrierAxis 同一条纪律：载体表按**实测的渲染器字段**
 // 写，不按愿望）：
 //
-//   - **dify**：`retry_interval`（毫秒，`internal/backend/dify/（商业仓）render_nodes.go`）⇒ 承载。
+//   - **reference target**：`retry_interval`（毫秒，`商业仓参考后端render_nodes.go`）⇒ 承载。
 //   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/（商业仓）nodes/http.go` /
 //     `llm.go` 真的按 `RetryIntervalMS` sleep ⇒ 语义被消费 ⇒ 承载。
 //   - **coze-biz / coze-studio**：**无载体** —— 平台的 http 重试循环里没有 sleep
@@ -476,7 +476,7 @@ func (p *TargetValidationPass) reportRetryIntervalAxisDegradations(program *ast.
 // parallelForErrorModeCarried 目标**是否承载 `parallel for` 的 `on_error` 轴** —— 一处定义。
 //
 // 承载：
-//   - **dify**：`error_handle_mode`（`internal/backend/dify/（商业仓）nodes.go:553/661`，
+//   - **reference target**：`error_handle_mode`（`商业仓参考后端nodes.go:553/661`，
 //     `serialize.go` 非默认值才写）；三值 = `terminated` / `continue-on-error` /
 //     `remove-abnormal-output`（`pkg/ir/on_error_mode.go` 的落点）。
 //   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/（商业仓）spec/configs.go`
@@ -543,9 +543,9 @@ func (p *TargetValidationPass) reportParallelForErrorModeDegradations(program *a
 //
 // 依据 = 渲染器**实际发出的字段**（实测，不是愿望）：
 //
-//   - dify：**LLM payload 面**承载 —— `internal/backend/dify/（商业仓）render_nodes.go:134`
+//   - 参考目标：**LLM payload 面**承载 —— `商业仓参考后端render_nodes.go:134`
 //     把 `llm.Enum` 渲成 `{"type": "string", "enum": [...]}`，反编译端
-//     `platforms/dify/（商业仓）decompile/convert.go:911` 读回 ⇒ 值集在产物里存在。
+//     `商业仓参考反编译decompile/convert.go:911` 读回 ⇒ 值集在产物里存在。
 //   - coze-biz：**无承载面** —— `internal/backend/cozebiz/（商业仓）render_node.go::llmSchemaDecl`
 //     的 `llm.KindEnum` ⇒ `"string"`（该处注释已自认 soft degradation）；非 payload
 //     面更早在**共享**中性 IR 塌成 `TObject{value: string}`（`pkg/ir/build.go:1230`）。
@@ -554,8 +554,8 @@ func (p *TargetValidationPass) reportParallelForErrorModeDegradations(program *a
 //   - **表外 / 未知目标 = 不承载**（保守 = 不发明能力）：宁可多报一条**可见**的降级
 //     警告，也不要静默丢掉作者声明的值域约束。
 //
-// 已知边界（登记，不掩盖）：dify 的**非 LLM** 面同样把值集塌成 string（中性 IR 的
-// 塌缩与目标无关）——本判据只对「连 payload 面都不承载」的目标报账；dify 面属搁置面
+// 已知边界（登记，不掩盖）：参考目标的**非 LLM** 面同样把值集塌成 string（中性 IR 的
+// 塌缩与目标无关）——本判据只对「连 payload 面都不承载」的目标报账；参考目标面属搁置面
 // （AGENTS.md「开发主线与平台优先级」），不在主线动。
 func enumValueSetCapacityOf(profile *TargetProfile) bool {
 	return carrierOf(profile).EnumValueSet
@@ -575,7 +575,7 @@ func enumValueSetCapacityOf(profile *TargetProfile) bool {
 // **豁免：`ask` 的 action 枚举**（一手 2026-09-26）。原措辞称「LLM payload 面与值位置
 // 面都塌成 string ⇒ 任何使用面都不承载值集」—— 这句话对 `ask<Form, E>` 的 `E` 是**假**的：
 // 每个目标的 QA 载体都把 action 成员**逐条**发进选项表（`docs/ASK-SYNTAX.md` §4：
-// dify `human_input.user_actions[]` / coze-studio `QuestionAnswerNode.options` /
+// 参考目标 `human_input.user_actions[]` / coze-studio `QuestionAnswerNode.options` /
 // coze-biz `question` 的选项表），而编译器对「枚举成员 ↔ action 臂」强制穷尽
 // （缺臂 = `TYPE_MISMATCH` "Human Input is missing action branches"）⇒ 每个成员都必然
 // 出现在选项表里，值集可精确还原。一手：`examples/nodecoda/61_request_input.ncoda`
@@ -591,10 +591,10 @@ func enumValueSetCapacityOf(profile *TargetProfile) bool {
 //	· coze-studio / coze-biz = **已验不承载**：`AGENTS.md`「null / undefined 语义契约」把
 //	  coze 平台定义为不区分 nil/null/zero，coze-biz 更被显式定义为**不支持 nil/null** 的平台
 //	  （2026-09-08 A 级定义）⇒ 报账。
-//	· dify = **格式层已验能承载、绑定层不可观测**：dify 的序列化面能写 null
-//	  （`internal/backend/dify/（商业仓）yaml.go` 的 `yamlNullRe` / `writePlain("null")`、
+//	· 参考目标 = **格式层已验能承载、绑定层不可观测**：参考目标的序列化面能写 null
+//	  （`商业仓参考后端yaml.go` 的 `yamlNullRe` / `writePlain("null")`、
 //	  `render_nodes.go` 的 `{"type":"null"}` anyOf 一手证据）⇒ 不出降级账；
-//	  但「dify 把 `let x = null;` 渲成什么样」**今天观测不到** —— 读 null 型值在三目标都
+//	  但「参考目标把 `let x = null;` 渲成什么样」**今天观测不到** —— 读 null 型值在三目标都
 //	  fail loud（`residuals.yaml#R-65`）⇒ 无消费点可看产物。**不声称**它承载，只是不报账
 //	  （不撒谎的底线：没有证据就不发结论，也不发反向结论）。
 func explicitNullCarried(profile *TargetProfile) bool { return carrierOf(profile).ExplicitNull }
@@ -682,9 +682,9 @@ func (c askActionEnumCollector) Visit(n ast.Node) ast.Visitor {
 	return c
 }
 
-// typeRefChecker 非 dify 目标上的**语言级类型引用检查器**：把每个 `file<…>` 声明位
-// 送进 `validateTypeRef`（与 dify 路径**同一个入口** ⇒ 合法性 + 承载报账只有一份实现）。
-// 非 dify 路径不做 dify 的形状约束，所以不能直接复用 pass 自身的 `Visit` 分发。
+// typeRefChecker 非参考目标上的**语言级类型引用检查器**：把每个 `file<…>` 声明位
+// 送进 `validateTypeRef`（与参考目标路径**同一个入口** ⇒ 合法性 + 承载报账只有一份实现）。
+// 非参考目标路径不做参考目标的形状约束，所以不能直接复用 pass 自身的 `Visit` 分发。
 type typeRefChecker struct {
 	pass *TargetValidationPass
 }
@@ -696,18 +696,18 @@ func (v typeRefChecker) Visit(n ast.Node) ast.Visitor {
 	return v
 }
 
-// languageContractChecker 在非 dify 目标上发布 IR 消费的**语言级契约**：
+// languageContractChecker 在非参考目标上发布 IR 消费的**语言级契约**：
 // `ValidatedExtractions`（extract<T>）与 `ValidatedAgents`（agent）。
-// 它只认这两个操作性分支，且调用的校验器与 dify 路径**同一个函数** ——
-// 判据一次、发布一处，避免「同一份契约在非 dify 上静默为空」这类半接线。
+// 它只认这两个操作性分支，且调用的校验器与参考目标路径**同一个函数** ——
+// 判据一次、发布一处，避免「同一份契约在非参考目标上静默为空」这类半接线。
 type languageContractChecker struct {
 	pass *TargetValidationPass
 }
 
 func (v languageContractChecker) Visit(n ast.Node) ast.Visitor {
-	// `ask` 的语言级契约与 extract/agent 同一条纪律：非 dify 目标也必须发布
-	// （IR 无条件读它）。校验函数与 dify 路径同一个（`validateHumanInputStmt`），
-	// 子节点仍由本访问器继续下潜（不借用 pass 的 dify 形状规则）。
+	// `ask` 的语言级契约与 extract/agent 同一条纪律：非参考目标也必须发布
+	// （IR 无条件读它）。校验函数与参考目标路径同一个（`validateHumanInputStmt`），
+	// 子节点仍由本访问器继续下潜（不借用 pass 的参考目标形状规则）。
 	if req, ok := n.(*ast.RequestInputStmt); ok {
 		v.pass.validateHumanInputStmt(req, v)
 		return nil
@@ -1792,20 +1792,20 @@ func sameStringSet(a, want []string) bool {
 // form/action-type rejections the Python branch returns without calling
 // super() (children pruned); the Go form returns nil for the same pruning.
 func (p *TargetValidationPass) visitRequestInputStmt(node *ast.RequestInputStmt) ast.Visitor {
-	// dify 路径：子节点用 **pass 自己**做访问器（子节点也过 dify 形状规则）。
+	// 参考路径：子节点用 **pass 自己**做访问器（子节点也过参考目标形状规则）。
 	p.validateHumanInputStmt(node, p)
 	return nil
 }
 
 // validateHumanInputStmt 校验 + 发布 `ask` 的语言级契约（**一条实现，两条目标
-// 路径共用**：dify 的 `visitRequestInputStmt` 与非 dify 的 `languageContractChecker`）。
+// 路径共用**：参考目标的 `visitRequestInputStmt` 与非参考目标的 `languageContractChecker`）。
 //
-// 为什么非 dify 也要跑（R-108 同类，2026-09-30 一手）：`pkg/ir/build_condition.go`
+// 为什么非参考目标也要跑（R-108 同类，2026-09-30 一手）：`pkg/ir/build_condition.go`
 // 的 `emitRequestInput` **无条件**读 `prog.ValidatedHumanInputs`（判据 = 「IR 读不读它」），
-// 而旧实现只在 dify 路径填充该表 ⇒ coze-biz / coze-studio 上 `qa.Fields/Actions/Timeout`
+// 而旧实现只在参考目标路径填充该表 ⇒ coze-biz / coze-studio 上 `qa.Fields/Actions/Timeout`
 // 恒为空 = 作者写的 `fields[].kind/options`、`actions[].title/style`、`timeout` 全部
-// 静默丢（`failNames` 之外一个都没落地）。发布点与 dify 路径**同一个函数**，
-// 避免「同一份契约在非 dify 上静默为空」这类半接线。
+// 静默丢（`failNames` 之外一个都没落地）。发布点与参考目标路径**同一个函数**，
+// 避免「同一份契约在非参考目标上静默为空」这类半接线。
 func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt, child ast.Visitor) *binding.ValidatedHumanInputContract {
 	nodeID, hasID := snapshotID(p.ctx, node)
 	if hasID {
@@ -1830,9 +1830,9 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 	}
 	if noAction {
 		// **无动作形态的载体表外 ⇒ 拒收并点名**（不是「语法错」，也不是静默降级）。
-		// 依据 = r38 §六.2（用户 2026-10-01 批准）：dify / coze-studio 侧按平台优先级
+		// 依据 = r38 §六.2（用户 2026-10-01 批准）：参考目标 / coze-studio 侧按平台优先级
 		// 搁置 ⇒ 最低限度 = 不产错产物。旧行为（一手实测）不是拒收而是**产坏产物**：
-		// dify ⇒ `human_input` 之后没有 `end`、`inputs: []`（表单字段与尾巴一起丢，
+		// 参考目标 ⇒ `human_input` 之后没有 `end`、`inputs: []`（表单字段与尾巴一起丢，
 		// 仍 SUCCEEDED）；coze-studio ⇒ `answer_type: option` + 只连 1 条边。
 		axes := askTargetAxesOf(p.ctx.Profile)
 		if axes.Known && !axes.Actionless {
@@ -1890,7 +1890,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 	}
 	if noAction {
 		// 无动作形态**没有超时载体**：本刀只落地「只问不选」这一格（用户
-		// 2026-10-01 批准），`无动作 + 超时` 需平台另有一格承载（dify 装得下、
+		// 2026-10-01 批准），`无动作 + 超时` 需平台另有一格承载（参考目标装得下、
 		// coze-biz 装不下）⇒ 现在**拒收并点名**，不静默丢超时（残余已登记）。
 		if _, ok := config["timeout"]; ok {
 			p.rejectAt(
@@ -1907,7 +1907,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 	}
 
 	// ── coze-biz `question` 参数面 ②③ 的四个新键（2026-10-10）──────────────
-	// 目标能力：新键在 dify / coze-studio / runtime 上**没有载体**（那些 question
+	// 目标能力：新键在参考目标 / coze-studio / runtime 上**没有载体**（那些 question
 	// widget 不持有这些参数）⇒ 与「无动作形态」同一条处置：**fail loud 点名**，
 	// 不静默降级（r38 §六.2 先例）。
 	askAxes := askTargetAxesOf(p.ctx.Profile)
@@ -1978,7 +1978,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 		// （build_condition.go::emitRequestInput）转成生产者引用，落到产物的
 		// `node_inputs` —— 平台 `question` 文本里的 `{{name}}` 正是按它解析的。
 		//
-		// dify 目标这一格**没有名额载体**（本拼写装不下）⇒ 拒收并点名，不静默丢
+		// 参考目标这一格**没有名额载体**（本拼写装不下）⇒ 拒收并点名，不静默丢
 		// ——与同文件「无动作形态 + timeout 无载体」同一条处置。
 		content = ce.Text()
 		if axes := askTargetAxesOf(p.ctx.Profile); axes.Known && axes.NoTemplateSlotCarrier && len(ce.Bindings()) > 0 {
@@ -2022,7 +2022,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 
 	// Python super().visit_request_input_stmt walks form_type, action_type,
 	// config, result_binding, action branches and timeout body; the manual walk
-	// keeps that coverage. 子访问器由调用方给（dify = pass 自己；非 dify =
+	// keeps that coverage. 子访问器由调用方给（参考目标 = pass 自己；非参考目标 =
 	// languageContractChecker）—— 形状规则分路径，语言校验只有一份。
 	ast.Walk(child, node.FormType())
 	ast.Walk(child, node.ActionType()) // nil-safe（Walk 对 typed-nil 早退）
@@ -2062,7 +2062,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 // 逐目标列举（**表外 ⇒ 不发结论**：说「这个目标丢了 X」= 捏造一个我们没验过的
 // 平台事实 ⇒ 谎报比沉默更坏，同 `retryIntervalCarrierOf` / `TimeoutCarrierAxis`）：
 //
-//   - **dify**：三轴全承（`internal/backend/dify/（商业仓）nodes.go::UserAction{Title, Label,
+//   - **reference target**：三轴全承（`商业仓参考后端nodes.go::UserAction{Title, Label,
 //     ButtonStyle}` + `HumanInputDataNode{Timeout, TimeoutUnit}`）。
 //   - **coze-biz / coze-studio**：三轴俱无（上面那条 QA 结构；语料
 //     `7574994076144779304_calendar_helper/workflow.yaml` 的 2/2 例也只有
@@ -2074,12 +2074,12 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 // 严格的 action ID 线格式。
 //
 //   - requiresActionID：`IsCanonicalHumanInputActionID` 的注释自己写着它是
-//     **「Dify's exact action ID wire contract」**（≤20 字符的 ASCII 标识符）——
-//     那是 dify `user_actions[].member` 的线格式，不是语言级规则。coze 家族把成员
+//     **「参考目标's exact action ID wire contract」**（≤20 字符的 ASCII 标识符）——
+//     那是参考目标 `user_actions[].member` 的线格式，不是语言级规则。coze 家族把成员
 //     写进 `options[].name`（**自由文本槽**：平台会把它 TemplateRender 给用户看，
 //     见 `nodes/qa/question_answer.go`），分支身份由**端口序号**承载 ⇒ 该契约不适用
 //     （2026-09-30 一手：语料 `7574994076144779304_calendar_helper` 的 question 节点
-//     选项名是任意文本，套用 dify 契约会让真实平台导出读不回来）。
+//     选项名是任意文本，套用参考目标契约会让真实平台导出读不回来）。
 //     语言级只剩「非空」——作者写的成员本来就是枚举成员 token，标识符规则由
 //     解析器保证。
 //
@@ -2342,8 +2342,8 @@ func (p *TargetValidationPass) validateHumanInputActions(actionsExpr ast.Expr, a
 			continue
 		}
 		// `style` 的**必填性**是目标约束，不是语言级必填：ASK-SYNTAX.md §1 把
-		// `user_actions[]: {member, title, style}` 写在「Dify Human-Input 节点」的
-		// 输入形状里（dify 的按钮需要样式槽）；coze 家族（QA / QuestionAnswerNode）
+		// `user_actions[]: {member, title, style}` 写在「参考目标 Human-Input 节点」的
+		// 输入形状里（参考目标的按钮需要样式槽）；coze 家族（QA / QuestionAnswerNode）
 		// 的结构里没有样式槽（见 askTargetAxesOf 表）⇒ 要求作者写一个必然被
 		// 丢弃的字段没有意义。缺席 = 缺省 `default`，与产物侧「缺省不报账」同口径。
 		style := binding.HumanInputActionStyleDefault
@@ -2367,7 +2367,7 @@ func (p *TargetValidationPass) validateHumanInputActions(actionsExpr ast.Expr, a
 		}
 		if !axes.RequiresActionID {
 			// coze 家族：成员是自由文本槽 `options[].name` 的值 ⇒ 只受语言级
-			// 约束（非空；标识符性由解析器保证），不套 dify 的 ≤20/ASCII 线格式。
+			// 约束（非空；标识符性由解析器保证），不套参考目标的 ≤20/ASCII 线格式。
 			// 上面已完成 title/style 的全部检查，故可直接构造。
 			contracts = append(contracts, binding.HumanInputActionContract{Member: member, Title: title, Style: style})
 			continue
@@ -2804,7 +2804,7 @@ func (p *TargetValidationPass) visitAssignStmt(node *ast.AssignStmt) ast.Visitor
 		}
 		return nil
 	}
-	// Graphon/Dify supports overwriting a scalar conversation variable from a
+	// Graphon/the reference target supports overwriting a scalar conversation variable from a
 	// directly selected variable. Keep the target boundary strict: complex
 	// expressions still require a materialization node and array/map values are
 	// not accepted by this assigner shape.
@@ -2938,7 +2938,7 @@ func callTarget(node *ast.CallExpr, ctx *Context) (binding.CallTarget, bool) {
 // native selector too — it lowers through the tool path with its own
 // platform file contract, so a scalar File value inside its params map is
 // legal (coze-biz file == URL string), never compiler-generated Code. The
-// Dify reference has no capability imports, so this branch is unreachable
+// the reference target reference has no capability imports, so this branch is unreachable
 // there and the reference-surface parity is untouched.
 func isNativeSelectorCall(node *ast.CallExpr, ctx *Context) bool {
 	if target, ok := callTarget(node, ctx); ok && target.Kind == binding.CallStdlib {

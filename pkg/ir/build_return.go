@@ -73,7 +73,7 @@ func (g *Builder) emitReturn(s *ast.ReturnStmt, prevIDs []string, firstPort stri
 	if id, ok := s.Value().(*ast.IdentExpr); ok {
 		if _, isConv := g.convVars[id.Name()]; isConv {
 			// Conversation variables are runtime globals, not block outputs.
-			// Materialize the return as an answer-bearing text process so Dify
+			// Materialize the return as an answer-bearing text process so the reference target
 			// receives {{#conversation.<name>#}} rather than an empty node ref.
 			nodeID := g.nextID()
 			g.add(&TextProcess{
@@ -98,7 +98,7 @@ func (g *Builder) emitReturn(s *ast.ReturnStmt, prevIDs []string, firstPort stri
 	// 故在此改绑到**平台真正声明的口**；绑定已是字段投影路径时不动。
 	// 与隐式 else 臂共用同一个归一化函数（rebindExitPort）。
 	ref = g.rebindExitPort(s.Value(), ref)
-	// A direct template-literal return carries answer semantics (dify
+	// A direct template-literal return carries answer semantics (reference target
 	// renders it as an Answer node; an assigned-then-returned template is a
 	// Template node). Mark the materialized TextProcess so the backend can
 	// fold it instead of emitting a plain terminal.
@@ -117,7 +117,7 @@ func (g *Builder) emitReturn(s *ast.ReturnStmt, prevIDs []string, firstPort stri
 		producer = []string{ref.nodeID}
 	}
 	// M17 (46_loop_escape): loop 体内的 return 不是普通函数返回 —— 它
-	// 终止最内层 loop 并把值经 loop 输出端口传出（对齐 dify 渲染的
+	// 终止最内层 loop 并把值经 loop 输出端口传出（对齐参考目标渲染的
 	// __returning/__return_value 机制）。生成 LoopReturn 节点:值引用
 	// （迭代变量直引或任意表达式物化）作为节点输入,运行期写入
 	// LoopState.ReturnValue + break 标记;loop.ReturnValue 登记供
@@ -342,7 +342,7 @@ func (g *Builder) emitLoopReturn(ref varRef, producer []string, s *ast.ReturnStm
 
 // emitVoidReturn lowers a bare `return;` (void return) into a no-output
 // terminal: the flow simply terminates with no value. At the top level it
-// creates the canonical shared End (dify renders it as the workflow exit;
+// creates the canonical shared End (the reference target renders it as the workflow exit;
 // coze keeps its required 900001 exit). Inside a branch the return is
 // recorded on the branch junction and the branch carries no value.
 func (g *Builder) emitVoidReturn(prevIDs []string) ([]string, string, error) {
@@ -1172,7 +1172,7 @@ func (g *Builder) dropCollapsedExitCarriers(exits []flowExit) {
 	}
 	g.allNodes = published
 	// 语句级引用（ReturnStmt.Value）与树里的 NodeStmt 一并摘掉：留一个指向已删
-	// 节点的 Value 会让下游（dify 的出口值匹配）读到悬空生产者。
+	// 节点的 Value 会让下游（参考目标的出口值匹配）读到悬空生产者。
 	forEachStmt(g.root, func(st Stmt) {
 		if rs, ok := st.(*ReturnStmt); ok && rs.Value != nil && victims[rs.Value.nodeID] {
 			rs.Value = nil
@@ -2102,7 +2102,7 @@ func isObjectType(t *Type) bool { return t != nil && t.Kind == "object" }
 // (`let r = {...}` / `v = <record literal>` → CodeRun{OutTypes: {result: RT},
 // Synthetic: true}): every renderer expands that record's members into
 // top-level ports, because the shared field-port contract addresses shim
-// members as flat paths (`r.G1` → from_path G1; dify down-drills `result.` in
+// members as flat paths (`r.G1` → from_path G1; the reference target down-drills `result.` in
 // its ref mapper, coze-biz expands node_outputs, render_node.go).  Judging
 // containment on the raw map alone therefore contradicts the ref model the
 // rest of the compiler already emits:

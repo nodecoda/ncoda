@@ -7,7 +7,7 @@ package passes
 //  1. elif → nested if/else (ElseIfBranch chains collapse into nested
 //     IfStmt/Block wrappers in the outer if's else body);
 //  2. for normalization (recurse into the body). For→while conversion is
-//     deliberately NOT done: Dify's IterationNode is a first-class
+//     deliberately NOT done: the reference target's IterationNode is a first-class
 //     construct, the translator maps ForStmt → IterationNode, and
 //     converting would lose the iteration semantics (desugar.py:118-129).
 //
