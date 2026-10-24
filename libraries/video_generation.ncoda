@@ -1,0 +1,18 @@
+// video_generation.ncoda — capability header (provider = file name)
+// desc: 视频生成（内置节点 doubao-seedance;动态输入 + 静态配置透传,输出 video）
+// P1 内置节点通道: 绑定表 node_type=video_generation,渲染平台原生视频生成节点。
+// inputs（map,键 = wire node_inputs 作者命名）→ 逐条 node_inputs 绑定;config
+// （map,wire 键直通,含 firstFrame ref 形态 + seed/generateMode/model 等）→
+// RawInputs 透传。签名与注册表 collect.builtinNodeToUse 一致
+// （docs/ROUNDTRIP-MATRIX.md 同款）。
+
+@language nodecoda/1
+library video_generation @ 0.1.0;
+
+type VideoGenerationGenerateResult = {
+  file<video> video;
+
+  string msg;
+};
+
+function generate(any config = 0, any inputs = 0) -> VideoGenerationGenerateResult {}

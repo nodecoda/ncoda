@@ -75,6 +75,10 @@ var gateSkip = map[string]bool{
 	// 需要 capabilities 目录,runtime 门禁链路（passes.Run）不提供。
 	"06_tool_use.ncoda":           true,
 	"38_chatflow_time_tool.ncoda": true,
+	// Needs the public capability registry (libraries/) to resolve
+	// `import "database"`; this gate runs the closed-world chain on purpose.
+	// Positive evidence: pkg/localtools database_e2e_test.go + `make push`.
+	"62_local_library_roundtrip.ncoda": true,
 }
 
 var gateExpect = map[string]gateWant{

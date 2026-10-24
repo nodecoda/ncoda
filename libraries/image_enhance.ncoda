@@ -1,0 +1,14 @@
+// image_enhance.ncoda — capability header (provider = file name)
+// desc: 画质提升
+
+@language nodecoda/1
+library image_enhance @ 0.1.0;
+
+type ImageEnhanceImageQualityImproveResult = {
+  file<image> data;
+
+  string msg;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function image_quality_improve(string image_url = 0) -> ImageEnhanceImageQualityImproveResult {}

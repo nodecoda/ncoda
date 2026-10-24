@@ -26,12 +26,37 @@ import (
 
 	"github.com/nodecoda/ncoda/pkg/backend/flow"
 	"github.com/nodecoda/ncoda/pkg/ir"
+	"github.com/nodecoda/ncoda/pkg/localtools"
 	"github.com/nodecoda/ncoda/pkg/passes"
 	rtcompile "github.com/nodecoda/ncoda/pkg/runtime/compile"
 	"github.com/nodecoda/ncoda/pkg/runtime/nodes"
+	"github.com/nodecoda/ncoda/pkg/runtime/plugin"
 	"github.com/nodecoda/ncoda/pkg/runtime/spec"
+	"github.com/nodecoda/ncoda/pkg/tool"
+	"github.com/nodecoda/ncoda/pkg/toolbridge"
+	"github.com/nodecoda/ncoda/pkg/toolpath"
 	"github.com/nodecoda/ncoda/pkg/version"
 )
+
+// runtimeProfile is the execution lane's target profile: the runtime runs
+// language nodes directly, so it does not enforce a platform's lowerability
+// shapes (NodeGraphShapes=false) and declares the axes it really carries.
+// Mirrors the commercial runtime lane; the language frontend keeps its own
+// stricter profile.
+func runtimeProfile() *passes.TargetProfile {
+	base := passes.DefaultTargetProfile()
+	return &passes.TargetProfile{
+		Name:                                 "runtime",
+		Operations:                           base.Operations,
+		MaxParallelism:                       base.MaxParallelism,
+		Capabilities:                         passes.DefaultCapabilityManifest(),
+		AgentProfiles:                        base.AgentProfiles,
+		ParameterExtractorFunctionCallModels: base.ParameterExtractorFunctionCallModels,
+		ParameterExtractorMemoryMaxTurns:     base.ParameterExtractorMemoryMaxTurns,
+		Codec:                                base.Codec,
+		Carrier:                              passes.CarrierProfile{Declared: true, RetryInterval: passes.RetryIntervalCarried, ParallelOnError: true},
+	}
+}
 
 // echoModel 是离线确定性的模型后端：llm 返回固定文本，agent 不发工具调用。
 type echoModel struct{}
@@ -54,6 +79,16 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 	raw := fs.Bool("raw", false, `Print the raw value when the result is exactly one string "output" key`)
 	emitSpec := fs.String("emit-spec", "", "Do not run: write the compiled spec.v1 JSON to this path and exit")
 	modelFactory := fs.String("model-factory", "echo", "Model backend for llm/agent nodes (the open distribution ships echo)")
+	localPlugins := fs.Bool("local-plugins", false, "Register the built-in offline local libraries (deterministic; platform tools are bound by symbol)")
+	artifactDir := fs.String("artifact-dir", "", "Directory for artifacts written by --local-plugins (default: $TMPDIR/ncoda-local-artifacts)")
+	localDB := fs.String("local-db", "", "SQLite file backing the local database library (--local-plugins); empty = in-process :memory:")
+	var toolPaths []string
+	fs.Func("tool-path", "Search path for capability headers imported by the source (repeatable; default: <exe>/libraries, $NCLANG_TOOL_PATH, ~/.nodecoda/tools)", func(v string) error {
+		if v != "" {
+			toolPaths = append(toolPaths, v)
+		}
+		return nil
+	})
 	versionFlag := fs.Bool("version", false, "Print the runtime version and exit")
 	var params multiFlag
 	fs.Func("p", "Entry input as key=value (repeatable; coerced to JSON scalars)", func(v string) error {
@@ -85,7 +120,47 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		return 2
 	}
 
-	res := passes.DefaultPipeline().Run(source, name, nil)
+	// Capability headers: the source's import declarations resolve against the
+	// same search-path model as nclang-compile (flag > env > <exe>/libraries >
+	// user default). Missing directories are skipped (CPATH semantics).
+	pipeline := passes.DefaultPipeline()
+	var semDefs []tool.Definition
+	capReg, cerr := tool.LoadCapabilitySearchPaths(toolpath.Resolve(toolPaths, os.Getenv, os.UserHomeDir))
+	if cerr != nil {
+		fmt.Fprintln(stderr, "ncoda-run: capability tool paths:", cerr)
+		return 1
+	}
+	if capReg != nil {
+		semDefs = append(semDefs, capReg.Definitions()...)
+	}
+
+	// Local libraries: the open distribution's deterministic implementations
+	// (image/database/matting/scale). Platform physical ids are adapter facts
+	// and never registered here.
+	var pm *plugin.Manager
+	if *localPlugins {
+		pm = plugin.New()
+		if _, lerr := localtools.Register(pm, localtools.Options{ArtifactDir: *artifactDir, DBPath: *localDB}); lerr != nil {
+			fmt.Fprintln(stderr, "ncoda-run: local plugins:", lerr)
+			return 1
+		}
+		tr, terr := toolbridge.FromPluginManager(pm)
+		if terr != nil {
+			fmt.Fprintln(stderr, "ncoda-run: semantic registry:", terr)
+			return 1
+		}
+		semDefs = append(tr.Definitions(), semDefs...)
+	}
+	if len(semDefs) > 0 {
+		merged, merr := tool.NewRegistry(toolbridge.MergeDefinitions(semDefs)...)
+		if merr != nil {
+			fmt.Fprintln(stderr, "ncoda-run: semantic registry:", merr)
+			return 1
+		}
+		pipeline = pipeline.WithToolRegistry(merged)
+	}
+
+	res := pipeline.Run(source, name, runtimeProfile())
 	if res.HasErrors() || res.Program == nil {
 		for _, d := range res.Errors() {
 			fmt.Fprintf(stderr, "%s: %s\n", d.Code.String(), d.Message)
@@ -120,7 +195,11 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		return 0
 	}
 
-	c := rtcompile.New(nodes.StdRegistry(), rtcompile.WithDeps(nodes.Deps{Models: echoModel{}}))
+	deps := nodes.Deps{Models: echoModel{}}
+	if pm != nil {
+		deps.Tools = pm
+	}
+	c := rtcompile.New(nodes.StdRegistry(), rtcompile.WithDeps(deps))
 	r, err := c.Compile(context.Background(), s)
 	if err != nil {
 		fmt.Fprintln(stderr, "ncoda-run: compile:", err)
@@ -215,7 +294,7 @@ func coerceInputValue(v string) any {
 // package stops at the first positional, which would silently drop `-p` after
 // a path. Boolean flags never consume the next token.
 func splitFlagArgs(args []string) (flags, pos []string) {
-	boolFlag := map[string]bool{"pretty": true, "raw": true, "version": true}
+	boolFlag := map[string]bool{"pretty": true, "raw": true, "version": true, "local-plugins": true}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		if a == "--" {

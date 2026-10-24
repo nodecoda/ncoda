@@ -1,0 +1,36 @@
+// video_all_download.ncoda — capability header (provider = file name)
+// desc: 视频全平台下载
+
+@language nodecoda/1
+library video_all_download @ 0.1.0;
+
+type VideoAllDownloadDownloadResult = {
+  VideoAllDownloadDownloadData data;
+
+  float exec_time;
+
+  string ip;
+
+  string msg;
+
+  float $code;
+};
+type VideoAllDownloadDownloadData = {
+  string audio;
+
+  string image;
+
+  string photo;
+
+  array<string> pics;
+
+  string test;
+
+  string title;
+
+  string url;
+
+  string video;
+};
+
+function download(any api_token = 0, any url = 0) -> VideoAllDownloadDownloadResult {}

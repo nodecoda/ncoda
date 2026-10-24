@@ -1,0 +1,41 @@
+// na_image_gen.ncoda — capability header (library = file name)
+// desc: na图片生成
+
+@language nodecoda/1
+library na_image_gen @ 0.1.0;
+
+type Na2GenerateImageResult = {
+  Na2GenerateImageData data;
+
+  string message;
+};
+type Na2GenerateImageData = {
+  string id;
+
+  string url;
+};
+type NaGenerateImageResult = {
+  NaGenerateImageData data;
+
+  string message;
+};
+type NaGenerateImageData = {
+  string id;
+
+  string url;
+};
+type NaTaskInfoResult = {
+  NaTaskInfoData data;
+
+  string message;
+};
+type NaTaskInfoData = {
+  string url;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function na2_generate_image(array<any> image_urls = 0, string key = 0, string prompt = 0, string ratio = 0, string resolution = 0, string asyn = 0) -> Na2GenerateImageResult {}
+@capability failure_branch=true, timeout_ms=600000
+function na_generate_image(string image_url = 0, string key = 0, string prompt = 0) -> NaGenerateImageResult {}
+@capability failure_branch=true, timeout_ms=180000
+function na_task_info(string id = 0) -> NaTaskInfoResult {}

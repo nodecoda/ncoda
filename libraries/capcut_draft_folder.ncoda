@@ -1,0 +1,62 @@
+// capcut_draft_folder.ncoda — capability header (library = file name)
+// desc: 剪映草稿文件夹小助手
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library capcut_draft_folder @ 0.1.0;
+
+type AddAudiosResult = {
+  array<string> segment_ids;
+  string track_id;
+  string draft_id;
+  array<string> material_ids;
+};
+
+function add_audios(string draft_id = "", string infos = "") -> AddAudiosResult {}
+
+type AddImagesSegmentInfosItem = {
+  int end;
+  string id;
+  int start;
+};
+
+type AddImagesResult = {
+  string track_id;
+  string draft_id;
+  array<string> material_ids;
+  array<string> segment_ids;
+  array<AddImagesSegmentInfosItem> segment_infos;
+};
+
+function add_images(string draft_id = "", string in_animation = "", int in_animation_duration = 0, string infos = "", string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, int transform_x = 0, int transform_y = 0) -> AddImagesResult {}
+
+type AddKeyframesResult = {
+  string draft_id;
+};
+
+function add_keyframes(string draft_id = "", string infos = "") -> AddKeyframesResult {}
+
+type AddTextsResult = {
+  string draft_id;
+  array<string> material_ids;
+  array<string> segment_ids;
+  string track_id;
+};
+
+function add_texts(int align = 0, float alpha = 0.0, string color = "", string draft_id = "", string font = "", string in_animation = "", int in_animation_duration = 0, string infos = "", int letter_spacing = 0, int line_spacing = 0, string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, int size = 0, int transform_x = 0, int transform_y = 0) -> AddTextsResult {}
+
+type AddVideosResult = {
+  array<string> segment_ids;
+  string track_id;
+  string draft_id;
+  array<string> material_ids;
+};
+
+function add_videos(string draft_id = "", string in_animation = "", int in_animation_duration = 0, string infos = "", string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, int transform_x = 0, int transform_y = 0) -> AddVideosResult {}
+
+type CreateDraftResult = {
+  string draft_id;
+  string draft_url;
+};
+
+function create_draft(int height = 0, int width = 0) -> CreateDraftResult {}

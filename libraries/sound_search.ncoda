@@ -1,0 +1,29 @@
+// sound_search.ncoda — capability header (provider = file name)
+// desc: 搜索音效
+
+@language nodecoda/1
+library sound_search @ 0.1.0;
+
+type SoundSearchSearchSoundEffectResult = {
+  array<SoundSearchSearchSoundEffectData> data;
+
+  string message;
+};
+type SoundSearchSearchSoundEffectData = {
+  float duration;
+
+  float duration_ms;
+
+  string format;
+
+  string id;
+
+  bool is_vip;
+
+  string title;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function search_sound_effect(string keyword = 0) -> SoundSearchSearchSoundEffectResult {}

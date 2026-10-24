@@ -1,0 +1,21 @@
+// htmlcode_to_img.ncoda — capability header (library = file name)
+// desc: htmlcode_to_img
+
+@language nodecoda/1
+library htmlcode_to_img @ 0.1.0;
+
+type HtmlImgResult = {
+  HtmlImgData data;
+
+  string message;
+
+  float status;
+
+  float $code;
+};
+type HtmlImgData = {
+  string imageUrl;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function html_img(string htmlContent = 0, map<string,any> viewport = 0) -> HtmlImgResult {}

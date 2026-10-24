@@ -1,0 +1,19 @@
+// stickman_search.ncoda — capability header (library = file name)
+// desc: 火柴人矢量图搜索
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library stickman_search @ 0.1.0;
+
+type HcrSearchDataItem = {
+  string imageUrl;
+};
+
+type HcrSearchResult = {
+  array<HcrSearchDataItem> data;
+  string imgsLink;
+  bool $success;
+  int total;
+};
+
+function hcr_search(string api_key = "", string color = "", float prob = 0.0, string q = "") -> HcrSearchResult {}

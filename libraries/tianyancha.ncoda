@@ -1,0 +1,145 @@
+// tianyancha.ncoda — capability header (provider = file name)
+// desc: 天眼查
+
+@language nodecoda/1
+library tianyancha @ 0.1.0;
+
+type TianyanchaAbnormalOperationResult = {
+  float error_code;
+
+  string reason;
+
+  TianyanchaAbnormalOperationResultValue result;
+};
+type TianyanchaAbnormalOperationResultItems = {
+  string putDate;
+
+  string putDepartment;
+
+  string putReason;
+
+  string removeDate;
+
+  string removeDepartment;
+
+  string removeReason;
+};
+type TianyanchaAbnormalOperationResultValue = {
+  array<TianyanchaAbnormalOperationResultItems> items;
+
+  float total;
+};
+type TianyanchaCompanyDetailResult = {
+  float error_code;
+
+  string reason;
+
+  TianyanchaCompanyDetailResultValue result;
+};
+type TianyanchaCompanyDetailResultIndustryall = {
+  string category;
+
+  string categoryBig;
+
+  string categoryMiddle;
+
+  string categorySmall;
+};
+type TianyanchaCompanyDetailResultValue = {
+  string actualCapital;
+
+  string actualCapitalCurrency;
+
+  string alias;
+
+  float approvedTime;
+
+  string base;
+
+  string bondName;
+
+  string bondNum;
+
+  string bondType;
+
+  string businessScope;
+
+  int cancelDate;
+
+  string cancelReason;
+
+  string city;
+
+  string companyOrgType;
+
+  string creditCode;
+
+  string district;
+
+  string email;
+
+  float estiblishTime;
+
+  float fromTime;
+
+  array<string> historyNameList;
+
+  string historyNames;
+
+  float id;
+
+  string industry;
+
+  TianyanchaCompanyDetailResultIndustryall industryAll;
+
+  float isMicroEnt;
+
+  string legalPersonName;
+
+  string name;
+
+  string orgNumber;
+
+  float percentileScore;
+
+  string phoneNumber;
+
+  string property3;
+
+  string regCapital;
+
+  string regCapitalCurrency;
+
+  string regInstitute;
+
+  string regLocation;
+
+  string regNumber;
+
+  string regStatus;
+
+  int revokeDate;
+
+  string revokeReason;
+
+  float socialStaffNum;
+
+  string staffNumRange;
+
+  string tags;
+
+  string taxNumber;
+
+  int toTime;
+
+  float $type;
+
+  float updateTimes;
+
+  string usedBondName;
+
+  string websiteList;
+};
+
+function abnormal_operation(string keyword = 0, int pageNum = 0, int pageSize = 0) -> TianyanchaAbnormalOperationResult {}
+function company_detail(string keyword = 0) -> TianyanchaCompanyDetailResult {}

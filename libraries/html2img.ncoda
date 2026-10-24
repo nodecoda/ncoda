@@ -1,0 +1,15 @@
+// html2img.ncoda — capability header (provider = file name)
+// desc: HTML 转图片
+// 语料采集只有 html 参数；width/height 为平台真实参数（git 历史 biz 版
+// 完整签名恢复，注册表=完整头文件愿景）。@capability 注解恢复。
+
+@language nodecoda/1
+library html2img @ 0.1.0;
+
+type Html2imgGenImgResult = {
+  string image_url;
+  string message;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function gen_img(int height = 0, string html, int width = 0) -> Html2imgGenImgResult {}

@@ -1,0 +1,26 @@
+// toutiao_news.ncoda — capability header (provider = file name)
+// desc: 头条新闻
+
+@language nodecoda/1
+library toutiao_news @ 0.1.0;
+
+type ToutiaoNewsGettoutiaonewsResult = {
+  array<ToutiaoNewsGettoutiaonewsNews> news;
+};
+type ToutiaoNewsGettoutiaonewsNews = {
+  array<string> categories;
+
+  string cover;
+
+  string media_name;
+
+  string summary;
+
+  string time;
+
+  string title;
+
+  string url;
+};
+
+function getToutiaoNews(string q = 0) -> ToutiaoNewsGettoutiaonewsResult {}

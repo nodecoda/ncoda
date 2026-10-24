@@ -1,0 +1,148 @@
+// hailuo_img2video.ncoda — capability header (provider = file name)
+// desc: 海螺图生视频
+
+@language nodecoda/1
+library hailuo_img2video @ 0.1.0;
+
+type HailuoImg2videoStCreateTaskListResult = {
+  HailuoImg2videoStCreateTaskListData data;
+
+  string msg;
+
+  array<HailuoImg2videoStCreateTaskListOutputlist> outputList;
+
+  string tip_url;
+};
+type HailuoImg2videoStCreateTaskListData = {
+  int add_failed_count;
+
+  int canAppeal;
+
+  int canRetry;
+
+  string coverURL;
+
+  string created_at;
+
+  string downloadURL;
+
+  int height;
+
+  string id;
+
+  string image_url;
+
+  string modelID;
+
+  string originFiles;
+
+  string prompt;
+
+  string status;
+
+  string task_id;
+
+  string user_id;
+
+  string videoURL;
+
+  string video_id;
+
+  int width;
+};
+type HailuoImg2videoStCreateTaskListOutputlist = {
+  HailuoImg2videoStCreateTaskListOutputlistData data;
+
+  string msg;
+
+  string tip_url;
+};
+type HailuoImg2videoStCreateTaskListOutputlistData = {
+  int add_failed_count;
+
+  int canAppeal;
+
+  int canRetry;
+
+  string coverURL;
+
+  string created_at;
+
+  string downloadURL;
+
+  int height;
+
+  string id;
+
+  string image_url;
+
+  string modelID;
+
+  string originFiles;
+
+  string prompt;
+
+  string status;
+
+  string task_id;
+
+  string user_id;
+
+  string videoURL;
+
+  string video_id;
+
+  int width;
+};
+type HailuoImg2videoStGetTaskInfoResult = {
+  HailuoImg2videoStGetTaskInfoData data;
+
+  string message;
+  array<any> outputList;
+};
+type HailuoImg2videoStGetTaskInfoData = {
+  int add_failed_count;
+
+  int canAppeal;
+
+  int canRetry;
+
+  string coverURL;
+
+  string created_at;
+
+  string downloadURL;
+
+  string downloadURLWithoutWatermark;
+
+  string failed_msg;
+
+  int height;
+
+  string id;
+
+  string image_url;
+
+  string modelID;
+
+  string originFiles;
+
+  string prompt;
+
+  string status;
+
+  string u_id;
+
+  string updated_at;
+
+  string user_id;
+
+  string videoURL;
+
+  string video_id;
+
+  int width;
+};
+
+function st_create_task_list(string api_token = 0, string image_url = 0, string prompt = 0) -> HailuoImg2videoStCreateTaskListResult {}
+function st_get_task_info(string task_id = 0) -> HailuoImg2videoStGetTaskInfoResult {}

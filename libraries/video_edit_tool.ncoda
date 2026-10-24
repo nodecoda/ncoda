@@ -1,0 +1,103 @@
+// video_edit_tool.ncoda — capability header (provider = file name)
+// desc: 视频剪辑工具
+
+@language nodecoda/1
+library video_edit_tool @ 0.1.0;
+
+type VideoEditToolCompileVideoAudioResult = {
+  VideoEditToolCompileVideoAudioBillInfo bill_info;
+
+  string message;
+
+  string req_id;
+
+  string url;
+
+  VideoEditToolCompileVideoAudioVideoMeta video_meta;
+};
+type VideoEditToolCompileVideoAudioBillInfo = {
+  float duration;
+
+  float ratio;
+};
+type VideoEditToolCompileVideoAudioVideoMeta = {
+  float duration;
+
+  string resolution;
+
+  string $type;
+};
+type VideoEditToolConcatVideosResult = {
+  VideoEditToolConcatVideosBillInfo bill_info;
+
+  string message;
+
+  string req_id;
+
+  string url;
+
+  VideoEditToolConcatVideosVideoMeta video_meta;
+};
+type VideoEditToolConcatVideosBillInfo = {
+  float duration;
+
+  float ratio;
+};
+type VideoEditToolConcatVideosVideoMeta = {
+  float duration;
+
+  string resolution;
+
+  string $type;
+};
+type VideoEditToolVideoTrimResult = {
+  VideoEditToolVideoTrimBillInfo bill_info;
+
+  string message;
+
+  string req_id;
+
+  string url;
+
+  VideoEditToolVideoTrimVideoMeta video_meta;
+};
+type VideoEditToolVideoTrimBillInfo = {
+  float duration;
+
+  float ratio;
+};
+type VideoEditToolVideoTrimVideoMeta = {
+  float duration;
+
+  string resolution;
+
+  string $type;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function compile_video_audio(string audio = 0, bool is_video_audio_sync = 0, string video = 0, bool is_audio_reserve = 0, map<string,any> output_sync = 0, int url_expire = 0) -> VideoEditToolCompileVideoAudioResult {}
+@capability failure_branch=true, timeout_ms=180000
+function concat_videos(array<any> videos = 0, array<any> transitions = 0, int url_expire = 0) -> VideoEditToolConcatVideosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video_trim(float end_time = 0, float start_time = 0, int url_expire = 0, string video = 0) -> VideoEditToolVideoTrimResult {}
+
+type AddSubtitlesBillInfoData = {
+  any duration;
+  any ratio;
+};
+
+type AddSubtitlesVideoMetaData = {
+  any duration;
+  string resolution;
+  string $type;
+};
+
+type AddSubtitlesResult = {
+  AddSubtitlesBillInfoData bill_info;
+  string message;
+  string req_id;
+  string url;
+  AddSubtitlesVideoMetaData video_meta;
+};
+
+function add_subtitles(map<string,any> subtitle_config = 0, string subtitle_url = "", array<any> text_list = [], int url_expire = 0, string video = "") -> AddSubtitlesResult {}

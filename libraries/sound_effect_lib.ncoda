@@ -1,0 +1,20 @@
+// sound_effect_lib.ncoda — capability header (provider = file name)
+// desc: 音效库
+
+@language nodecoda/1
+library sound_effect_lib @ 0.1.0;
+
+type SoundEffectLibSearchSoundResult = {
+  array<SoundEffectLibSearchSoundData> data;
+
+  bool $success;
+
+  string message;
+};
+type SoundEffectLibSearchSoundData = {
+  string title;
+
+  string url;
+};
+
+function search_sound(string keyword = 0) -> SoundEffectLibSearchSoundResult {}

@@ -1,0 +1,31 @@
+// audio_duration.ncoda — capability header (provider = file name)
+// desc: 获取音频时长 / 获取音频时间
+
+@language nodecoda/1
+library audio_duration @ 0.1.0;
+
+type AudioDurationGetAudioDurationResult = {
+  float duration;
+
+  AudioDurationGetAudioDurationErrorbody errorBody;
+
+  bool isSuccess;
+
+  string message;
+
+  array<AudioDurationGetAudioDurationOutputlist> outputList;
+  string error;
+};
+type AudioDurationGetAudioDurationErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type AudioDurationGetAudioDurationOutputlist = {
+  float duration;
+
+  string message;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function get_audio_duration(any mp3_url = 0, string audio_url = 0) -> AudioDurationGetAudioDurationResult {}

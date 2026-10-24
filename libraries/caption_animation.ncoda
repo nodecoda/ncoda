@@ -1,0 +1,12 @@
+// caption_animation.ncoda — capability header (library = file name)
+// desc: 修改字幕入场动画时长
+
+@language nodecoda/1
+library caption_animation @ 0.1.0;
+
+type AnimationChangeResult = {
+  string result;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function animation_change(string input = 0) -> AnimationChangeResult {}

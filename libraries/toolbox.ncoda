@@ -1,0 +1,12 @@
+// toolbox.ncoda — capability header (library = file name)
+// desc: 定时器
+
+@language nodecoda/1
+library toolbox @ 0.1.0;
+
+type TimeWaitResult = {
+  int result;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function time_wait(float seconds = 0) -> TimeWaitResult {}

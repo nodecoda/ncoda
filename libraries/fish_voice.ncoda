@@ -1,0 +1,14 @@
+// fish_voice.ncoda — capability header (provider = file name)
+// desc: fish语音
+
+@language nodecoda/1
+library fish_voice @ 0.1.0;
+
+type FishVoiceGenerateVoiceResult = {
+  string data;
+
+  string message;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function generate_voice(string key = 0, string reference_id = 0, float speed = 0, float temperature = 0, any text = 0, float top_p = 0, float volume = 0) -> FishVoiceGenerateVoiceResult {}

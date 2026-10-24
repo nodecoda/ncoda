@@ -1,0 +1,216 @@
+// capcut_data.ncoda — capability header (provider = file name)
+// desc: 剪映小助手数据生成器 / 数据生成器_速创小助手
+
+@language nodecoda/1
+library capcut_data @ 0.1.0;
+
+type CapcutDataAsrTimelinesResult = {
+  array<CapcutDataAsrTimelinesAllTimelines> all_timelines;
+
+  array<string> texts;
+
+  array<CapcutDataAsrTimelinesTimelines> timelines;
+};
+type CapcutDataAsrTimelinesAllTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataAsrTimelinesTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataAudioInfosResult = {
+  string infos;
+};
+type CapcutDataAudioTimelinesResult = {
+  array<CapcutDataAudioTimelinesAllTimelines> all_timelines;
+
+  array<CapcutDataAudioTimelinesTimelines> timelines;
+  array<any> outputList;
+};
+type CapcutDataAudioTimelinesAllTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataAudioTimelinesTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataCaptionInfosResult = {
+  string infos;
+};
+type CapcutDataEffectInfosResult = {
+  string infos;
+};
+type CapcutDataGetUrlResult = {
+  array<CapcutDataGetUrlOutputlist> outputList;
+
+  string $output;
+};
+type CapcutDataGetUrlOutputlist = {
+  string $output;
+};
+type CapcutDataImgsInfosResult = {
+  string infos;
+};
+type CapcutDataKeyframesInfosResult = {
+  CapcutDataKeyframesInfosErrorbody errorBody;
+
+  bool isSuccess;
+
+  string keyframes_infos;
+
+  array<CapcutDataKeyframesInfosOutputlist> outputList;
+};
+type CapcutDataKeyframesInfosErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type CapcutDataKeyframesInfosOutputlist = {
+  string keyframes_infos;
+};
+type CapcutDataObjsToStrListResult = {
+  array<string> infos;
+};
+type CapcutDataSearchStickerResult = {
+  array<CapcutDataSearchStickerData> data;
+
+  string message;
+};
+type CapcutDataSearchStickerData = {
+  CapcutDataSearchStickerDataSticker sticker;
+
+  string sticker_id;
+
+  string title;
+};
+type CapcutDataSearchStickerDataSticker = {
+  CapcutDataSearchStickerDataStickerLargeImage large_image;
+
+  string preview_cover;
+
+  CapcutDataSearchStickerDataStickerStickerPackage sticker_package;
+
+  int sticker_type;
+
+  string track_thumbnail;
+};
+type CapcutDataSearchStickerDataStickerLargeImage = {
+  string image_url;
+};
+type CapcutDataSearchStickerDataStickerStickerPackage = {
+  int height_per_frame;
+
+  int size;
+
+  int width_per_frame;
+};
+type CapcutDataStrToListResult = {
+  array<string> infos;
+};
+type CapcutDataTimelinesResult = {
+  array<CapcutDataTimelinesAllTimelines> all_timelines;
+
+  array<CapcutDataTimelinesTimelines> timelines;
+};
+type CapcutDataTimelinesAllTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataTimelinesTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutDataVideoInfosResult = {
+  string infos;
+};
+type CapcutDataWenanLinksMergeResult = {
+  array<CapcutDataWenanLinksMergeLinksList> links_list;
+};
+type CapcutDataWenanLinksMergeLinksList = {
+  array<string> links;
+};
+type CapcutDataWenanSplitResult = {
+  array<string> wenan1;
+
+  array<string> wenan2;
+
+  array<string> wenan3;
+
+  array<string> wenan4;
+
+  array<string> wenan5;
+};
+
+function asr_timelines(array<any> content_chunks = 0) -> CapcutDataAsrTimelinesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function audio_infos(string audio_effect = 0, any mp3_urls = 0, array<any> timelines = 0, float volume = 0) -> CapcutDataAudioInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function audio_timelines(array<any> links = 0) -> CapcutDataAudioTimelinesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function caption_infos(int font_size = 0, string in_animation = 0, int in_animation_duration = 0, string keyword_color = 0, int keyword_font_size = 0, array<any> keywords = [], string loop_animation = 0, any loop_animation_duration = 0, string out_animation = 0, int out_animation_duration = 0, any texts = 0, any timelines = 0) -> CapcutDataCaptionInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function effect_infos(array<any> effects = 0, array<any> timelines = 0) -> CapcutDataEffectInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function get_url(string $output = 0) -> CapcutDataGetUrlResult {}
+@capability failure_branch=true, timeout_ms=180000
+function imgs_infos(int height = 0, array<any> imgs = 0, string in_animation = 0, int in_animation_duration = 0, string out_animation = 0, int out_animation_duration = 0, array<any> timelines = 0, string transition = 0, int transition_duration = 0, int width = 0, string loop_animation = 0, int loop_animation_duration = 0) -> CapcutDataImgsInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function keyframes_infos(string ctype = 0, int height = 0, string offsets = 0, array<any> segment_infos = 0, string values = 0, int width = 0) -> CapcutDataKeyframesInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function objs_to_str_list(array<any> outputs = 0) -> CapcutDataObjsToStrListResult {}
+function search_sticker(string keyword = 0) -> CapcutDataSearchStickerResult {}
+@capability failure_branch=true, timeout_ms=180000
+function str_to_list(any obj = 0) -> CapcutDataStrToListResult {}
+@capability failure_branch=true, timeout_ms=180000
+function timelines(int duration = 0, any num = 0, int start = 0, int $type = 0) -> CapcutDataTimelinesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video_infos(int height = 0, array<any> timelines = 0, string transition = 0, int transition_duration = 0, array<any> video_urls = 0, float volume = 0, int width = 0, string mask = 0, any play_timelines = 0, any speeds = 0, any transition_duration_list = 0, any transitions = 0) -> CapcutDataVideoInfosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function wenan_links_merge(array<any> link1 = 0, array<any> link2 = 0, array<any> link3 = 0, array<any> link4 = 0, array<any> link5 = 0) -> CapcutDataWenanLinksMergeResult {}
+@capability failure_branch=true, timeout_ms=600000
+function wenan_split(array<any> wenan = 0) -> CapcutDataWenanSplitResult {}
+
+type ArrayPairGroupsItem = {
+  array<string> group;
+};
+
+type ArrayPairResult = {
+  array<ArrayPairGroupsItem> groups;
+  int total_groups;
+};
+
+function array_pair(array<any> items = []) -> ArrayPairResult {}
+
+type TimelineKeyframeResult = {
+  array<string> offsets;
+  array<string> values;
+};
+
+function timeline_keyframe(string presetOffsets = "", string presetValues = "", array<any> timelines = []) -> TimelineKeyframeResult {}
+
+type ExtractFirstEndFrameResult = {
+  string end_item;
+  string first_item;
+};
+
+function extract_first_end_frame(array<any> items = []) -> ExtractFirstEndFrameResult {}
+
+type TimelinesFormatAllTimelinesItem = {
+  int end;
+  int start;
+};
+
+type TimelinesFormatResult = {
+  array<string> all_formatted_texts;
+  array<TimelinesFormatAllTimelinesItem> all_timelines;
+};
+
+function timelines_format(array<any> timelines = []) -> TimelinesFormatResult {}

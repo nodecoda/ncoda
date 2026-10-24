@@ -7,12 +7,12 @@ import (
 	"testing"
 )
 
-// TestCapabilityHeaderRealCorpus is an optional corpus regression: it loads
-// the real examples/coze-reference/capabilities-ncoda directory and asserts
-// the expected definition count and spot-checks key shapes. Skipped when the
-// corpus is absent (e.g. -short CI runs without examples checked out).
+// TestCapabilityHeaderRealCorpus is the public-library regression: it loads
+// the open tree's libraries/ directory and asserts the registry did not
+// silently shrink, plus spot-checks key shapes. Skipped when the headers are
+// absent (e.g. a source tarball without libraries/).
 func TestCapabilityHeaderRealCorpus(t *testing.T) {
-	corpus := filepath.Join("..", "..", "examples", "coze-reference", "capabilities-ncoda")
+	corpus := filepath.Join("..", "..", "libraries")
 	if _, err := os.Stat(corpus); err != nil {
 		t.Skipf("corpus not present: %s", corpus)
 	}
@@ -35,8 +35,9 @@ func TestCapabilityHeaderRealCorpus(t *testing.T) {
 	// bing_search/video_url_get；2026-09-18 语料闭集补齐 plugin_7513599695369945107 的 3 op
 	// —— 该 pluginID 不在 slug 表，兜底域名不带身份时语料整源 DECOMPILE_FAIL/RS-REG-002。
 	// 当前事实（2026-09-30 实测）：154 头文件 / 299 定义。
-	if len(definitions) < 293 {
-		t.Errorf("definition count = %d, want >= 293 (下界棘轮：注册表不得静默缩水；锚计数与来由见上)", len(definitions))
+	// 2026-10-25：头文件随公共库迁入开源仓 `libraries/`，实测 174 文件 / 339 定义。
+	if len(definitions) < 339 {
+		t.Errorf("definition count = %d, want >= 339 (下界棘轮：注册表不得静默缩水；锚计数与来由见上)", len(definitions))
 	}
 	checks := map[string]bool{
 		"tts/speech_synthesis":                            false,

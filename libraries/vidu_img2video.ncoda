@@ -1,0 +1,26 @@
+// vidu_img2video.ncoda — capability header (provider = file name)
+// desc: vidu图生视频
+
+@language nodecoda/1
+library vidu_img2video @ 0.1.0;
+
+type ViduImg2videoTaskInfoResult = {
+  array<ViduImg2videoTaskInfoCreations> creations;
+
+  string err_code;
+
+  string id;
+
+  string message;
+
+  string state;
+};
+type ViduImg2videoTaskInfoCreations = {
+  string cover_url;
+
+  string id;
+
+  string url;
+};
+
+function task_info(string task_id = 0) -> ViduImg2videoTaskInfoResult {}

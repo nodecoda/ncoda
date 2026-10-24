@@ -1,0 +1,37 @@
+// video_download.ncoda — capability header (provider = file name)
+// desc: 视频下载
+@language nodecoda/1
+library video_download @ 0.1.0;
+
+type VideoDownloadGetvideodownloadResult = {
+  VideoDownloadGetvideodownloadData data;
+
+  VideoDownloadGetvideodownloadErrorbody errorBody;
+
+  bool isSuccess;
+
+  string msg;
+
+  int $code;
+};
+
+type VideoDownloadGetvideodownloadData = {
+  string imageSrc;
+
+  string link;
+
+  int state;
+
+  string title;
+
+  string videourl;
+};
+
+type VideoDownloadGetvideodownloadErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=180000
+function getvideodownload(any videolink = 0) -> VideoDownloadGetvideodownloadResult {}

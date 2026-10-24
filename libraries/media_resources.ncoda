@@ -1,0 +1,18 @@
+// media_resources.ncoda — capability header (library = file name)
+// desc: 资源素材
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library media_resources @ 0.1.0;
+
+type SearchCloudResourceDataItem = {
+  string id;
+  string name;
+  string url;
+};
+
+type SearchCloudResourceResult = {
+  array<SearchCloudResourceDataItem> data;
+};
+
+function search_cloud_resource(int direction = 0, string keyword = "", int $type = 0) -> SearchCloudResourceResult {}

@@ -1,0 +1,31 @@
+// homepage_analyzer.ncoda — capability header (provider = file name)
+// desc: 主页分析
+@language nodecoda/1
+library homepage_analyzer @ 0.1.0;
+
+type HomepageAnalyzerHomepageGetDataResult = {
+  HomepageAnalyzerHomepageGetDataData data;
+
+  string msg;
+
+  int $code;
+};
+
+type HomepageAnalyzerHomepageGetDataData = {
+  HomepageAnalyzerHomepageGetDataDataAuthor author;
+
+  array<any> aweme_list;
+
+  string linkPlatform;
+
+  int max_cursor;
+};
+
+type HomepageAnalyzerHomepageGetDataDataAuthor = {
+  string avatar;
+
+  string nickname;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function homepage_get_data(any homelink = 0, any max_cursor = 0) -> HomepageAnalyzerHomepageGetDataResult {}

@@ -1,0 +1,33 @@
+// jimeng_lip_sync.ncoda — capability header (provider = file name)
+// desc: 即梦对口型
+
+@language nodecoda/1
+library jimeng_lip_sync @ 0.1.0;
+
+type JimengLipSyncJimengLipSyncResult = {
+  string created_at;
+
+  string message;
+
+  int status;
+
+  string task_id;
+
+  file<video> url;
+};
+type JimengLipSyncJimengTaskInfoResult = {
+  string created_at;
+
+  string message;
+
+  int status;
+
+  string task_id;
+
+  file<video> url;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function jimeng_lip_sync(string image_url = 0, string key = 0, string mp3_url = 0, bool asyn = 0) -> JimengLipSyncJimengLipSyncResult {}
+@capability failure_branch=true, timeout_ms=180000
+function jimeng_task_info(string id = 0) -> JimengLipSyncJimengTaskInfoResult {}

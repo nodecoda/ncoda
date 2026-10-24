@@ -5,9 +5,9 @@ The split is only durable if its invariants are checked, not remembered. Each
 check below corresponds to an acceptance criterion of the O2 split:
 
   S1 structure     no `internal/` tree, no `platforms/*` (private backends)
-  S2 dependencies  nclang-compile (the open distribution's only binary) never
-                   reaches a platform adapter (dify/coze/coze-biz), the closed
-                   tree, eino, or ncoda-commercial
+  S2 dependencies  no open binary reaches a platform adapter or the closed
+                   tree; the language lane (nclang-compile) additionally never
+                   links the runtime graph engine (eino)
   S3 mentions      no Go source references the commercial module
   S4 absolute      no tracked `/home/dev/` path (publishable tree)
   S5 license       LICENSE + NOTICE present
@@ -31,12 +31,16 @@ import subprocess
 import sys
 
 # Global needles: any dependency path containing one of these is a violation.
-FORBIDDEN_DEPS = ("ncoda-commercial", "eino")
+FORBIDDEN_DEPS = ("ncoda-commercial",)
+# The language lane must stay a pure frontend; the runtime lane may use the
+# general graph engine (it is the executor, not a platform adapter).
+LANGUAGE_LANE_PACKAGE = "./cmd/nclang-compile"
+LANGUAGE_LANE_FORBIDDEN = ("eino",)
 # Module-owned package prefixes that belong to an adapter, not the language.
 FORBIDDEN_MODULE_SEGMENTS = ("/internal/", "/platforms/", "/pkg/backend/dify",
                              "/pkg/backend/llmprovider", "/pkg/backend/llmprojection")
 MODULE_PREFIX = "github.com/nodecoda/ncoda/"
-DEP_PACKAGES = ("./cmd/nclang-compile",)
+DEP_PACKAGES = (LANGUAGE_LANE_PACKAGE, "./cmd/ncoda-run")
 
 
 # Platform tokens that must not appear in an open-kernel identifier.
@@ -240,7 +244,10 @@ def check_deps(root: str) -> list[str]:
     problems = []
     for package in DEP_PACKAGES:
         deps = go_deps(root, package)
-        for needle in FORBIDDEN_DEPS:
+        needles = FORBIDDEN_DEPS
+        if package == LANGUAGE_LANE_PACKAGE:
+            needles = needles + LANGUAGE_LANE_FORBIDDEN
+        for needle in needles:
             hit = sorted(d for d in deps if needle in d)
             if hit:
                 problems.append(f"S2 {package} → {needle}：{hit[:3]}")

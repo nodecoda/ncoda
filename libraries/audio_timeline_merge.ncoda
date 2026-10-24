@@ -1,0 +1,56 @@
+// audio_timeline_merge.ncoda — capability header (library = file name)
+// desc: 音频时间线合并
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library audio_timeline_merge @ 0.1.0;
+
+type TimelineMergeMainTimelinesItem = {
+  int end;
+  int start;
+};
+
+type TimelineMergePreTimelinesItem = {
+  int end;
+  int start;
+};
+
+type TimelineMergeTimelinesItem = {
+  int start;
+  int end;
+};
+
+type TimelineMergeAllMainTimelineItem = {
+  int end;
+  int start;
+};
+
+type TimelineMergeAllTimelineItem = {
+  int end;
+  int start;
+};
+
+type TimelineMergeAllCompleteTimelineItem = {
+  int end;
+  int start;
+};
+
+type TimelineMergeAllPreTimelineItem = {
+  int start;
+  int end;
+};
+
+type TimelineMergeResult = {
+  array<TimelineMergeMainTimelinesItem> main_timelines;
+  array<TimelineMergePreTimelinesItem> pre_timelines;
+  array<TimelineMergeTimelinesItem> timelines;
+  array<TimelineMergeAllMainTimelineItem> all_main_timeline;
+  int last_end_us;
+  array<TimelineMergeAllTimelineItem> all_timeline;
+  string contact;
+  array<TimelineMergeAllCompleteTimelineItem> all_complete_timeline;
+  array<TimelineMergeAllPreTimelineItem> all_pre_timeline;
+  array<any> gap_us_timeline;
+};
+
+function timeline_merge(int gap_us = 0, array<any> main_timeline = [], array<any> pre_timeline = [], int skip_us = 0) -> TimelineMergeResult {}

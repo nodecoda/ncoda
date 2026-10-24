@@ -1,0 +1,13 @@
+// ai302.ncoda — capability header (provider = file name)
+// desc: 302AI
+
+@language nodecoda/1
+library ai302 @ 0.1.0;
+
+type Ai302GlifResult = {
+  string id;
+
+  string $output;
+};
+
+function Glif(string Authorization = 0, string id = 0, string inputs = 0) -> Ai302GlifResult {}

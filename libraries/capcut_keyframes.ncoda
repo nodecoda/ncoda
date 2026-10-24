@@ -1,0 +1,12 @@
+// capcut_keyframes.ncoda — capability header (library = file name)
+// desc: 剪映放大缩小关键帧
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library capcut_keyframes @ 0.1.0;
+
+type KeyFramesResult = {
+  string keyFrames;
+};
+
+function keyFrames(array<any> duration_list = [], array<any> image_num = [], array<any> segment_image = [], array<any> segment_video = [], array<any> video_num = []) -> KeyFramesResult {}

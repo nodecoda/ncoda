@@ -1,0 +1,33 @@
+// jimeng_video_gen.ncoda — capability header (provider = file name)
+// desc: 即梦视频生成
+
+@language nodecoda/1
+library jimeng_video_gen @ 0.1.0;
+
+type JimengVideoGenJimengGenerateVideoResult = {
+  string created_at;
+
+  string message;
+
+  int status;
+
+  string task_id;
+
+  file<video> url;
+};
+type JimengVideoGenJimengTaskInfoResult = {
+  string created_at;
+
+  string message;
+
+  int status;
+
+  string task_id;
+
+  file<video> url;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function jimeng_generate_video(int duration = 0, string image_tail = 0, string image_url = 0, string key = 0, string model = 0, any prompt = 0, string ratio = 0, string resolution = 0, bool asyn = 0) -> JimengVideoGenJimengGenerateVideoResult {}
+@capability failure_branch=true, timeout_ms=180000
+function jimeng_task_info(string id = 0) -> JimengVideoGenJimengTaskInfoResult {}

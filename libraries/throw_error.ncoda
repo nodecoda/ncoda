@@ -1,0 +1,20 @@
+// throw_error.ncoda — capability header (provider = file name)
+// desc: 抛出错误
+
+@language nodecoda/1
+library throw_error @ 0.1.0;
+
+type ThrowErrorThrowErrorResult = {
+  ThrowErrorThrowErrorErrorbody errorBody;
+
+  string error_message;
+
+  string prompt;
+};
+type ThrowErrorThrowErrorErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+function throw_error(string error_message = 0) -> ThrowErrorThrowErrorResult {}

@@ -1,0 +1,47 @@
+// tts.ncoda — capability header (provider = file name)
+// desc: 语音合成
+
+@language nodecoda/1
+library tts @ 0.1.0;
+
+type TtsSpeechSynthesisResult = {
+  TtsSpeechSynthesisData data;
+
+  TtsSpeechSynthesisErrorbody errorBody;
+
+  string log_id;
+
+  string msg;
+
+  array<TtsSpeechSynthesisOutputlist> outputList;
+
+  float $code;
+  bool isSuccess;
+};
+type TtsSpeechSynthesisErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type TtsSpeechSynthesisData = {
+  float duration;
+
+  string link;
+};
+type TtsSpeechSynthesisOutputlist = {
+  TtsSpeechSynthesisOutputlistData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type TtsSpeechSynthesisOutputlistData = {
+  float duration;
+
+  string link;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function speech_synthesis(string emotion = 0, string language = 0, string speaker_id = 0, float speed_ratio = 0, any text = 0, string voice_id = 0, float emotion_scale = 0) -> TtsSpeechSynthesisResult {}

@@ -1,0 +1,158 @@
+// edit_material_lib.ncoda — capability header (provider = file name)
+// desc: 剪辑视频素材库
+
+@language nodecoda/1
+library edit_material_lib @ 0.1.0;
+
+type EditMaterialLibSearchResult = {
+  array<EditMaterialLibSearchDatas> datas;
+};
+type EditMaterialLibSearchDatas = {
+  EditMaterialLibSearchDatasCommonAttr common_attr;
+
+  array<EditMaterialLibSearchDatasTimeline> timeline;
+
+  EditMaterialLibSearchDatasVideo video;
+
+  array<string> video_url;
+};
+type EditMaterialLibSearchDatasCommonAttr = {
+  float aspect_ratio;
+
+  EditMaterialLibSearchDatasCommonAttrBusinessInfo business_info;
+
+  EditMaterialLibSearchDatasCommonAttrCoverUrl cover_url;
+
+  int create_time;
+
+  string description;
+
+  EditMaterialLibSearchDatasCommonAttrDownloadInfo download_info;
+
+  string effect_id;
+
+  int effect_type;
+
+  string extra;
+
+  bool has_favorited;
+
+  string id;
+
+  bool is_business;
+
+  bool is_original;
+
+  string md5;
+
+  string publish_source;
+
+  EditMaterialLibSearchDatasCommonAttrReviewInfo review_info;
+
+  int $source;
+
+  int status;
+
+  string title;
+};
+type EditMaterialLibSearchDatasCommonAttrBusinessInfo = {
+  string json_str;
+
+  string sign;
+};
+type EditMaterialLibSearchDatasCommonAttrCoverUrl = {
+  string small;
+
+  string static_img;
+};
+type EditMaterialLibSearchDatasCommonAttrDownloadInfo = {
+  string format;
+
+  string url;
+};
+type EditMaterialLibSearchDatasCommonAttrReviewInfo = {
+  array<string> review_code_list;
+
+  array<string> review_reason_list;
+
+  int review_status;
+};
+type EditMaterialLibSearchDatasTimeline = {
+  int end;
+
+  int start;
+};
+type EditMaterialLibSearchDatasVideo = {
+  int duration;
+
+  int duration_ms;
+
+  EditMaterialLibSearchDatasVideoOriginVideo origin_video;
+
+  EditMaterialLibSearchDatasVideoTranscodedVideo transcoded_video;
+
+  string video_id;
+
+  int video_size_type;
+};
+type EditMaterialLibSearchDatasVideoOriginVideo = {
+  string definition;
+
+  string format;
+
+  int height;
+
+  int size;
+
+  string video_url;
+
+  int width;
+};
+type EditMaterialLibSearchDatasVideoTranscodedVideo = {
+  EditMaterialLibSearchDatasVideoTranscodedVideo360p _360p;
+
+  EditMaterialLibSearchDatasVideoTranscodedVideo480p _480p;
+
+  EditMaterialLibSearchDatasVideoTranscodedVideo720p _720p;
+};
+type EditMaterialLibSearchDatasVideoTranscodedVideo360p = {
+  string definition;
+
+  string format;
+
+  int height;
+
+  int size;
+
+  string video_url;
+
+  int width;
+};
+type EditMaterialLibSearchDatasVideoTranscodedVideo480p = {
+  string definition;
+
+  string format;
+
+  int height;
+
+  int size;
+
+  string video_url;
+
+  int width;
+};
+type EditMaterialLibSearchDatasVideoTranscodedVideo720p = {
+  string definition;
+
+  string format;
+
+  int height;
+
+  int size;
+
+  string video_url;
+
+  int width;
+};
+
+function search(string query = 0, bool horizontal = 0) -> EditMaterialLibSearchResult {}

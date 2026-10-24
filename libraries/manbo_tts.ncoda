@@ -1,0 +1,67 @@
+// manbo_tts.ncoda — capability header (library = file name)
+// desc: 语音合成_速创小助手 曼波配音
+@language nodecoda/1
+library manbo_tts @ 0.1.0;
+
+type SpeechSynthesisResult = {
+  array<SpeechSynthesisAllTimelines> all_timelines;
+
+  int $code;
+
+  SpeechSynthesisData data;
+
+  int duration_us;
+
+  string link;
+
+  array<string> links;
+
+  string msg;
+
+  array<SpeechSynthesisOutputlist> outputList;
+
+  array<string> texts;
+
+  array<SpeechSynthesisTimelines> timelines;
+
+  array<SpeechSynthesisWenantimeline> wenanTimeline;
+};
+
+type SpeechSynthesisAllTimelines = {
+  int end;
+
+  int start;
+};
+
+type SpeechSynthesisData = {
+  string link;
+};
+
+type SpeechSynthesisOutputlist = {
+  int $code;
+
+  SpeechSynthesisOutputlistData data;
+
+  string msg;
+};
+
+type SpeechSynthesisOutputlistData = {
+  string link;
+};
+
+type SpeechSynthesisTimelines = {
+  int end;
+
+  int start;
+};
+
+type SpeechSynthesisWenantimeline = {
+  string content;
+
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function speech_synthesis(string api_key, float emotion_scale = 0, float speed_ratio = 0.0, string text, bool trim_breath = false, string voice_id = "", string emotion = "", string language = "", string speaker_id = "") -> SpeechSynthesisResult {}

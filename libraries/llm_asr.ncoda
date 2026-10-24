@@ -1,0 +1,21 @@
+// llm_asr.ncoda — capability header (provider = file name)
+// desc: 大模型语音识别
+
+@language nodecoda/1
+library llm_asr @ 0.1.0;
+
+type LlmAsrAsrLlmResult = {
+  LlmAsrAsrLlmData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type LlmAsrAsrLlmData = {
+  string text;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function asr_llm(string audio_url = 0) -> LlmAsrAsrLlmResult {}

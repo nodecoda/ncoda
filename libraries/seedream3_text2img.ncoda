@@ -1,0 +1,18 @@
+// seedream3_text2img.ncoda — capability header (library = file name)
+// desc: 文生图_seedream3
+
+@language nodecoda/1
+library seedream3_text2img @ 0.1.0;
+
+type GenimagearkResult = {
+  string data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=180000
+function genImageArk(any height = 0, any prompt = 0, string guidance_scale = "", string weight = "", int width = 0) -> GenimagearkResult {}

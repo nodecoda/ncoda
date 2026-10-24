@@ -1,0 +1,14 @@
+// viral_video_prompt.ncoda — capability header (library = file name)
+// desc: 爆款视频二创提示词
+
+@language nodecoda/1
+library viral_video_prompt @ 0.1.0;
+
+type VeVideoToPromptResult = {
+  string data;
+
+  string message;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function ve_video_to_prompt(string key = 0, string video_url = 0) -> VeVideoToPromptResult {}

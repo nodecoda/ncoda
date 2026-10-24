@@ -1,0 +1,36 @@
+// capcut_resources.ncoda — capability header (library = file name)
+// desc: 剪映资源
+
+@language nodecoda/1
+library capcut_resources @ 0.1.0;
+
+type SearchSoundResult = {
+  array<SearchSoundData> data;
+
+  SearchSoundErrorbody errorBody;
+
+  bool isSuccess;
+
+  string message;
+};
+type SearchSoundData = {
+  int duration;
+
+  string format;
+
+  bool is_vip;
+
+  string song_id;
+
+  string title;
+
+  string url;
+};
+type SearchSoundErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability timeout_ms=600000
+function search_sound(string query = 0) -> SearchSoundResult {}

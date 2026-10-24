@@ -1,0 +1,17 @@
+// drawing_board.ncoda — capability header (provider = file name)
+// desc: 画板排版（内置节点;canvasSchema 自由 JSON 透传）
+// P1 内置节点通道: 绑定表 node_type=drawing_board,渲染平台原生画板节点。
+// canvas_schema 为静态 JSON 字面量（对齐语料 109/109 literal）;variables
+// map 的键 = 画布变量名（customVariableRefs.variableName）,值 = 数据流 ref
+// 或字面量 → node_inputs 绑定。
+
+@language nodecoda/1
+library drawing_board @ 0.1.0;
+
+type DrawingBoardRenderResult = {
+  file<image> data;
+
+  string msg;
+};
+
+function render(any canvas_schema = 0, any variables = 0) -> DrawingBoardRenderResult {}

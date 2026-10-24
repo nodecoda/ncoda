@@ -1,0 +1,54 @@
+// bocha_search.ncoda — capability header (library = file name)
+// desc: 博查搜索社区版
+
+@language nodecoda/1
+library bocha_search @ 0.1.0;
+
+type BochawebsearchResult = {
+  BochawebsearchData data;
+
+  string msg;
+
+  string response_for_model;
+
+  float $code;
+  float status_code;
+};
+type BochawebsearchData = {
+  BochawebsearchDataImages images;
+
+  BochawebsearchDataVideos videos;
+
+  BochawebsearchDataWebpages webPages;
+};
+type BochawebsearchDataImages = {
+  array<BochawebsearchDataImagesValue> value;
+};
+type BochawebsearchDataImagesValue = {
+  string id;
+};
+type BochawebsearchDataVideos = {
+  array<BochawebsearchDataVideosValue> value;
+};
+type BochawebsearchDataVideosValue = {
+  string id;
+};
+type BochawebsearchDataWebpages = {
+  array<BochawebsearchDataWebpagesValue> value;
+};
+type BochawebsearchDataWebpagesValue = {
+  string dateLastCrawled;
+
+  string datePublished;
+
+  string id;
+
+  string name;
+
+  string snippet;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function BochaWebSearch(string query = 0, string count = 0) -> BochawebsearchResult {}

@@ -1,0 +1,138 @@
+// video_compose_toolkit.ncoda — capability header (provider = file name)
+// desc: 视频合成工具箱
+
+@language nodecoda/1
+library video_compose_toolkit @ 0.1.0;
+
+type VideoComposeToolkitUploadVideoOssResult = {
+  string message;
+
+  string oss_video_url;
+
+  VideoComposeToolkitUploadVideoOssVideoInfo video_info;
+};
+type VideoComposeToolkitUploadVideoOssVideoInfo = {
+  array<VideoComposeToolkitUploadVideoOssVideoInfoAudiostreams> AudioStreams;
+
+  int Bitrate;
+
+  float Duration;
+
+  string FormatLongName;
+
+  string FormatName;
+
+  string RequestId;
+
+  int Size;
+
+  int StreamCount;
+
+  int VideoHeight;
+
+  array<VideoComposeToolkitUploadVideoOssVideoInfoVideostreams> VideoStreams;
+
+  int VideoWidth;
+};
+type VideoComposeToolkitUploadVideoOssVideoInfoAudiostreams = {
+  int Bitrate;
+
+  string ChannelLayout;
+
+  int Channels;
+
+  string CodecLongName;
+
+  string CodecName;
+
+  string CodecTag;
+
+  string CodecTagString;
+
+  float Duration;
+
+  int FrameCount;
+
+  int Index;
+
+  string SampleFormat;
+
+  int SampleRate;
+
+  string TimeBase;
+};
+type VideoComposeToolkitUploadVideoOssVideoInfoVideostreams = {
+  string AverageFrameRate;
+
+  int BitDepth;
+
+  int Bitrate;
+
+  string CodecLongName;
+
+  string CodecName;
+
+  string CodecTag;
+
+  string CodecTagString;
+
+  string DisplayAspectRatio;
+
+  float Duration;
+
+  int FrameCount;
+
+  string FrameRate;
+
+  int HasBFrames;
+
+  int Height;
+
+  int Level;
+
+  string PixelFormat;
+
+  string Profile;
+
+  string SampleAspectRatio;
+
+  string TimeBase;
+
+  int Width;
+};
+type VideoComposeToolkitVideo2videoResult = {
+  string aboutUrl;
+
+  string downloadUrl;
+
+  string errorMessage;
+
+  float $code;
+
+  string videoUrl;
+};
+
+function upload_video_oss(string video_url = 0) -> VideoComposeToolkitUploadVideoOssResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video2video(array<any> videoFiles = 0, float coverImageDuration = 0, string footerVideoUrl = 0, int voiceVolume = 0, string bgmUrl = 0, float bgmVolume = 0, string coverImageUrl = 0, string headerVideoUrl = 0, string voiceUrl = 0) -> VideoComposeToolkitVideo2videoResult {}
+
+type ImgAudioVideoResult = {
+
+  string message;
+  string out_url;
+  string tip_url;
+  float duration;
+};
+
+function img_audio_video(string api_token = "", string img_url = "", int motion = 0, string mp3_url = "", int volume_db = 0) -> ImgAudioVideoResult {}
+
+type VideoMergingResult = {
+
+  string tip_url;
+  float duration;
+  string error;
+  string message;
+  string out_url;
+};
+
+function video_merging(string api_token = "", string transition = "", array<any> video_urls = []) -> VideoMergingResult {}

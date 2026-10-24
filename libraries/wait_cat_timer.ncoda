@@ -1,0 +1,12 @@
+// wait_cat_timer.ncoda — capability header (library = file name)
+// desc: 等待猫_定时器
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library wait_cat_timer @ 0.1.0;
+
+type TimeWaitResult = {
+  any value;
+};
+
+function time_wait(float seconds = 0.0) -> TimeWaitResult {}

@@ -1,0 +1,59 @@
+// toutiao_search.ncoda — capability header (provider = file name)
+// desc: 头条搜索
+
+@language nodecoda/1
+library toutiao_search @ 0.1.0;
+
+type ToutiaoSearchBrowseResult = {
+  ToutiaoSearchBrowseData data;
+
+  int errcode;
+
+  string errmsg;
+
+  string log_id;
+
+  bool ok;
+
+  int $code;
+};
+type ToutiaoSearchBrowseData = {
+  string content;
+
+  string title;
+};
+type ToutiaoSearchSearchResult = {
+  ToutiaoSearchSearchData data;
+
+  int errcode;
+
+  string errmsg;
+
+  string log_id;
+
+  bool ok;
+
+  int $code;
+};
+type ToutiaoSearchSearchData = {
+  int cursor;
+
+  array<ToutiaoSearchSearchDataDocResults> doc_results;
+
+  bool has_more;
+
+  string search_id;
+};
+type ToutiaoSearchSearchDataDocResults = {
+  string sitename;
+
+  string summary;
+
+  string title;
+
+  string url;
+};
+
+function browse(string url = 0, string prompt = 0) -> ToutiaoSearchBrowseResult {}
+@capability failure_branch=true, timeout_ms=180000
+function search(int count = 0, string input_query = 0, int cursor = 0, string search_id = 0) -> ToutiaoSearchSearchResult {}

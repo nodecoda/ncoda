@@ -1,0 +1,14 @@
+// adjustment.ncoda — capability header (library = file name)
+// desc: 调整
+
+@language nodecoda/1
+library adjustment @ 0.1.0;
+
+type ChangeResult = {
+  file<image> data;
+
+  string msg;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function change(float brightness = 0, float contrast = 0, string image_url = 0, float saturation = 0) -> ChangeResult {}

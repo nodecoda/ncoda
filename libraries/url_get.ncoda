@@ -1,0 +1,11 @@
+// url_get.ncoda — capability header (provider = file name)
+// desc: 提取链接
+@language nodecoda/1
+library url_get @ 0.1.0;
+
+type UrlGetGetUrlResult = {
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function get_url(string content = 0) -> UrlGetGetUrlResult {}

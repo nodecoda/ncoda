@@ -1,0 +1,36 @@
+// common_code_block.ncoda — capability header (provider = file name)
+// desc: 常用代码块
+
+@language nodecoda/1
+library common_code_block @ 0.1.0;
+
+type CommonCodeBlockGetOneByNumResult = {
+  string item;
+
+  array<string> list;
+
+  string message;
+};
+type CommonCodeBlockIsListTrimResult = {
+  bool done;
+};
+type CommonCodeBlockListSliTrimResult = {
+  array<string> data;
+
+  string message;
+
+  array<string> stu_list;
+};
+type CommonCodeBlockRemoveListEmptyResult = {
+  array<string> data;
+
+  string message;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function get_one_by_num(bool end = 0, array<any> list = 0, int num = 0) -> CommonCodeBlockGetOneByNumResult {}
+function is_list_trim(array<any> list = 0) -> CommonCodeBlockIsListTrimResult {}
+@capability failure_branch=true, timeout_ms=180000
+function list_sli_trim(array<any> list = 0) -> CommonCodeBlockListSliTrimResult {}
+@capability failure_branch=true, timeout_ms=180000
+function remove_list_empty(array<any> list = 0) -> CommonCodeBlockRemoveListEmptyResult {}

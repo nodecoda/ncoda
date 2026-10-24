@@ -1,0 +1,240 @@
+// xhs_search_note.ncoda — capability header (provider = file name)
+// desc: 小红书
+
+@language nodecoda/1
+library xhs_search_note @ 0.1.0;
+
+type XhsSearchNoteXhsSearchNoteResult = {
+  array<XhsSearchNoteXhsSearchNoteData> data;
+
+  string message;
+
+  string msg;
+
+  int $code;
+
+  string tips;
+};
+type XhsSearchNoteXhsSearchNoteData = {
+  string auther_avatar;
+
+  string auther_home_page_url;
+
+  string auther_nick_name;
+
+  string auther_user_id;
+
+  int cover_height;
+
+  string cover_url_default;
+
+  string cover_url_pre;
+
+  int cover_width;
+
+  string display_title;
+
+  string id;
+
+  bool liked;
+
+  string liked_count;
+
+  string model_type;
+
+  string note_card_type;
+
+  string note_cover_height;
+
+  string note_cover_url_default;
+
+  string note_cover_url_pre;
+
+  string note_cover_width;
+
+  string note_display_title;
+
+  string note_id;
+
+  bool note_liked;
+
+  string note_liked_count;
+
+  string note_model_type;
+
+  string note_url;
+
+  string note_xsec_token;
+
+  string $type;
+
+  string url;
+};
+type XhsSearchNoteXhsSearchNoteDetailResult = {
+  float cmtNum;
+
+  string content;
+
+  string createTime;
+
+  XhsSearchNoteXhsSearchNoteDetailData data;
+
+  float favNum;
+
+  float followCnt;
+
+  string headPhoto;
+
+  array<XhsSearchNoteXhsSearchNoteDetailImageslist> imagesList;
+
+  float impNum;
+
+  float likeNum;
+
+  string message;
+
+  string name;
+
+  string noteId;
+
+  string noteLink;
+
+  float readNum;
+
+  string redId;
+
+  float shareNum;
+
+  string title;
+
+  int $type;
+
+  string userId;
+
+  XhsSearchNoteXhsSearchNoteDetailUserinfo userInfo;
+
+  XhsSearchNoteXhsSearchNoteDetailVideoinfo videoInfo;
+};
+type XhsSearchNoteXhsSearchNoteDetailData = {
+  string auther_avatar;
+
+  string auther_home_page_url;
+
+  string auther_nick_name;
+
+  string auther_user_id;
+
+  string card_type;
+
+  bool collected;
+
+  string collected_count;
+
+  string comment_count;
+
+  string create_time;
+
+  string desc;
+
+  int duration;
+
+  string id;
+
+  array<string> image_list;
+
+  string last_update_time;
+
+  bool liked;
+
+  string liked_count;
+
+  string model_type;
+
+  string share_count;
+
+  array<string> tags;
+
+  string title;
+
+  string url;
+
+  int video_h264_audio_duration;
+
+  string video_h264_url;
+
+  int video_h264_video_duration;
+
+  int video_h265_audio_duration;
+
+  string video_h265_url;
+
+  int video_h265_video_duration;
+
+  int video_id;
+};
+type XhsSearchNoteXhsSearchNoteDetailImageslist = {
+  string fileId;
+
+  int height;
+
+  string original;
+
+  string url;
+
+  int width;
+};
+type XhsSearchNoteXhsSearchNoteDetailUserinfo = {
+  string avatar;
+
+  int cooperType;
+
+  int currentLevel;
+
+  int fansNum;
+
+  string gender;
+
+  string location;
+
+  string nickName;
+
+  int operateState;
+
+  int picturePrice;
+
+  int pictureState;
+
+  int priceState;
+
+  string userId;
+
+  int userType;
+
+  int videoPrice;
+
+  int videoState;
+};
+type XhsSearchNoteXhsSearchNoteDetailVideoinfo = {
+  string id;
+
+  XhsSearchNoteXhsSearchNoteDetailVideoinfoMeta meta;
+
+  string originVideoKey;
+
+  string videoKey;
+
+  string videoUrl;
+
+  float volume;
+};
+type XhsSearchNoteXhsSearchNoteDetailVideoinfoMeta = {
+  int duration;
+
+  int height;
+
+  int width;
+};
+
+function xhs_search_note(any cookie = 0, any cookieStr = 0, any keywords = 0, any noteType = 0, any note_type = 0, any sort = 0, any total = 0, any totalNumber = 0, string search_id = 0, string session_id = 0, int sort_type = 0, int filter_note_type = 0, string key = 0, int page = 0, int filter_note_time = 0, string keyword = 0) -> XhsSearchNoteXhsSearchNoteResult {}
+@capability failure_branch=true, timeout_ms=180000
+function xhs_search_note_detail(any cookie = 0, string key = 0, string link = 0, any url = 0, string note_id = 0) -> XhsSearchNoteXhsSearchNoteDetailResult {}

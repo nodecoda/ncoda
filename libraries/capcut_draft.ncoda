@@ -1,0 +1,12 @@
+// capcut_draft.ncoda — capability header (provider = file name)
+// desc: 视频草稿剪映小助手
+
+@language nodecoda/1
+library capcut_draft @ 0.1.0;
+
+type CapcutDraftStringToListResult = {
+  array<string> result;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function string_to_list(string obj = 0) -> CapcutDraftStringToListResult {}

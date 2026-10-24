@@ -1,0 +1,13 @@
+// paraformer_asr.ncoda — capability header (library = file name)
+// desc: 阿里云百炼Paraformer语音识别功能
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library paraformer_asr @ 0.1.0;
+
+type YuyinResult = {
+  string data;
+  string error_message;
+};
+
+function yuyin(string api_key = "", string file_url = "") -> YuyinResult {}

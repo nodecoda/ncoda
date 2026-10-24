@@ -1,0 +1,43 @@
+// kling_img2video.ncoda — capability header (provider = file name)
+// desc: 可灵图生视频
+
+@language nodecoda/1
+library kling_img2video @ 0.1.0;
+
+type KlingImg2videoGetTaskInfoResult = {
+  KlingImg2videoGetTaskInfoData data;
+
+  string message;
+
+  int $code;
+};
+type KlingImg2videoGetTaskInfoData = {
+  KlingImg2videoGetTaskInfoDataOutputParams output_params;
+
+  string task_id;
+};
+type KlingImg2videoGetTaskInfoDataOutputParams = {
+  string error;
+
+  KlingImg2videoGetTaskInfoDataOutputParamsVideo video;
+};
+type KlingImg2videoGetTaskInfoDataOutputParamsVideo = {
+  string url;
+};
+type KlingImg2videoKeling21StandardImgVideoResult = {
+  KlingImg2videoKeling21StandardImgVideoData data;
+
+  string message;
+
+  int $code;
+};
+type KlingImg2videoKeling21StandardImgVideoData = {
+  string input_params;
+
+  string task_id;
+
+  int user_id;
+};
+
+function get_task_info(string task_id = 0) -> KlingImg2videoGetTaskInfoResult {}
+function keling_2_1_standard_img_video(string api_token = 0, any duration = 0, string image_url = 0, string prompt = 0, string negative_prompt = 0, string cfg_scale = 0) -> KlingImg2videoKeling21StandardImgVideoResult {}

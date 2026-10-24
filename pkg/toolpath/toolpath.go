@@ -20,19 +20,34 @@ const EnvName = "NCLANG_TOOL_PATH"
 //  1. CLI --tool-path entries (highest priority, in order)
 //  2. NCLANG_TOOL_PATH environment variable (colon-separated; empty entries
 //     ignored)
-//  3. user default directory ~/.nodecoda/tools (appended only when it
+//  3. `<dir of the running executable>/libraries` (the public capability
+//     headers shipped next to the distribution's binaries; appended only when
+//     it exists)
+//  4. user default directory ~/.nodecoda/tools (appended only when it
 //     exists — the "site-packages" analog)
 //
 // Within a layer, first-match-wins ordering is preserved; the compiler
 // resolves each provider by scanning the returned list in order.
 // getenv/homeDir are injected for testability.
 func Resolve(flagPaths []string, getenv func(string) string, homeDir func() (string, error)) []string {
+	return ResolveWith(flagPaths, getenv, homeDir, os.Executable)
+}
+
+// ResolveWith is Resolve with the executable lookup injected. Tests use it to
+// prove the libraries/ layer without depending on where the test binary lives.
+func ResolveWith(flagPaths []string, getenv func(string) string, homeDir func() (string, error),
+	executable func() (string, error)) []string {
 	paths := append([]string{}, flagPaths...)
 	if env := getenv(EnvName); env != "" {
 		for _, p := range filepath.SplitList(env) {
 			if p != "" {
 				paths = append(paths, p)
 			}
+		}
+	}
+	if exe, err := executable(); err == nil && exe != "" {
+		if dir := filepath.Join(filepath.Dir(exe), "libraries"); DirExists(dir) {
+			paths = append(paths, dir)
 		}
 	}
 	if home, err := homeDir(); err == nil && home != "" {

@@ -1,0 +1,16 @@
+// doubao_seedream45.ncoda — capability header (library = file name)
+// desc: Doubao-Seedream-4.5（自接入版）
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library doubao_seedream45 @ 0.1.0;
+
+type GenerateImageResult = {
+
+  float $code;
+  array<string> data;
+  string log_id;
+  string msg;
+};
+
+function generateImage(string api_key = 0, int max_images = 0, string model_id = 0, string prompt = 0, array<any> reference_images = 0, string size = 0, bool watermark = 0) -> GenerateImageResult {}

@@ -1,0 +1,17 @@
+// string_to_array.ncoda — capability header (provider = file name)
+// desc: 字符串转数组
+
+@language nodecoda/1
+library string_to_array @ 0.1.0;
+
+type StringToArrayString2ArrayResult = {
+  array<string> data;
+
+  string message;
+
+  string prompt;
+
+  int $code;
+};
+
+function string_2_array(string content = 0, string splitter = 0) -> StringToArrayString2ArrayResult {}

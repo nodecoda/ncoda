@@ -1,0 +1,15 @@
+// flux_kontext.ncoda — capability header (provider = file name)
+// desc: Flux_kontext最新图片模型
+
+@language nodecoda/1
+library flux_kontext @ 0.1.0;
+
+type FluxKontextMultiImageKontextMaxResult = {
+  string img_url;
+
+  string message;
+
+  string tip_url;
+};
+
+function multi_image_kontext_max(string api_token = 0, string input_image_1 = 0, string input_image_2 = 0, string prompt = 0, string aspect_ratio = 0) -> FluxKontextMultiImageKontextMaxResult {}

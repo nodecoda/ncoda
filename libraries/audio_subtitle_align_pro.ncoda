@@ -1,0 +1,57 @@
+// audio_subtitle_align_pro.ncoda — capability header (library = file name)
+// desc: 字幕音频对齐
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library audio_subtitle_align_pro @ 0.1.0;
+
+type AlignTextToAudioExtraData = {
+  string asr_service;
+  string caption_type;
+  string is_singing;
+  string language;
+  string sta_use_batch_request;
+};
+
+type AlignTextToAudioAttributeData = {
+  AlignTextToAudioExtraData extra;
+};
+
+type AlignTextToAudioWordsItem = {
+  any attribute;
+  int end_time;
+  int start_time;
+  string text;
+};
+
+type AlignTextToAudioUtterancesItem = {
+  any attribute;
+  int end_time;
+  int start_time;
+  string text;
+  array<AlignTextToAudioWordsItem> words;
+};
+
+type AlignTextToAudioDataData = {
+  AlignTextToAudioAttributeData attribute;
+  int $code;
+  any duration;
+  string id;
+  string message;
+  array<AlignTextToAudioUtterancesItem> utterances;
+};
+
+type AlignTextToAudioTimelinesItem = {
+  int end;
+  int start;
+};
+
+type AlignTextToAudioResult = {
+  AlignTextToAudioDataData data;
+  string message;
+  array<string> texts;
+  array<AlignTextToAudioTimelinesItem> timelines;
+  string tip_url;
+};
+
+function align_text_to_audio(string alignment_mode = "", string api_key = "", string audio_url = "", bool is_singing = false, string max_chars_per_line = "", string text = "") -> AlignTextToAudioResult {}

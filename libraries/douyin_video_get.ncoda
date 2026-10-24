@@ -1,0 +1,146 @@
+// douyin_video_get.ncoda — capability header (provider = file name)
+// desc: 抖音视频获取
+
+@language nodecoda/1
+library douyin_video_get @ 0.1.0;
+
+type DouyinVideoGetSearchVideoResult = {
+  array<DouyinVideoGetSearchVideoData> data;
+
+  int has_more;
+
+  string message;
+
+  string search_id;
+};
+type DouyinVideoGetSearchVideoData = {
+  string audio_url;
+
+  DouyinVideoGetSearchVideoDataAuthor author;
+
+  string aweme_id;
+
+  string cover_url;
+
+  string create_time;
+
+  string desc;
+
+  int duration;
+
+  string share_title;
+
+  string share_url;
+
+  DouyinVideoGetSearchVideoDataStatistics statistics;
+
+  string video_url;
+};
+type DouyinVideoGetSearchVideoDataAuthor = {
+  string nickname;
+
+  string sec_uid;
+
+  string uid;
+};
+type DouyinVideoGetSearchVideoDataStatistics = {
+  int collect_count;
+
+  int comment_count;
+
+  int digg_count;
+
+  int share_count;
+};
+type DouyinVideoGetUserPostVideosResult = {
+  array<DouyinVideoGetUserPostVideosData> data;
+
+  int has_more;
+
+  int max_cursor;
+};
+type DouyinVideoGetUserPostVideosData = {
+  string audio_url;
+
+  DouyinVideoGetUserPostVideosDataAuthor author;
+
+  string aweme_id;
+
+  string cover_url;
+
+  string create_time;
+
+  string desc;
+
+  float duration;
+
+  string share_title;
+
+  string share_url;
+
+  DouyinVideoGetUserPostVideosDataStatistics statistics;
+
+  string video_url;
+};
+type DouyinVideoGetUserPostVideosDataAuthor = {
+  string nickname;
+
+  string uid;
+};
+type DouyinVideoGetUserPostVideosDataStatistics = {
+  int collect_count;
+
+  int comment_count;
+
+  int digg_count;
+
+  int share_count;
+};
+type DouyinVideoGetVideoDetailResult = {
+  DouyinVideoGetVideoDetailData data;
+
+  string message;
+};
+type DouyinVideoGetVideoDetailData = {
+  string audio_url;
+
+  DouyinVideoGetVideoDetailDataAuthor author;
+
+  string aweme_id;
+
+  string cover_url;
+
+  string create_time;
+
+  string desc;
+
+  int duration;
+
+  DouyinVideoGetVideoDetailDataStatistics statistics;
+
+  string title;
+
+  string video_url;
+};
+type DouyinVideoGetVideoDetailDataAuthor = {
+  string avatar_larger;
+
+  string nickname;
+
+  string sec_uid;
+};
+type DouyinVideoGetVideoDetailDataStatistics = {
+  int collect_count;
+
+  int comment_count;
+
+  int digg_count;
+
+  int share_count;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function search_video(string key = 0, string keyword = 0, string sort_type = 0, string search_id = 0, string backtrace = 0, string duration = 0, string publish_time = 0) -> DouyinVideoGetSearchVideoResult {}
+function user_post_videos(string key = 0, string link = 0, int max_cursor = 0) -> DouyinVideoGetUserPostVideosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video_detail(string key = 0, string link = 0) -> DouyinVideoGetVideoDetailResult {}

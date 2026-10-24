@@ -1,0 +1,37 @@
+// arxiv_search.ncoda — capability header (library = file name)
+// desc: arXiv
+
+@language nodecoda/1
+library arxiv_search @ 0.1.0;
+
+type SearchResult = {
+  array<SearchItems> items;
+
+  string log_id;
+
+  string message;
+
+  string msg;
+
+  int $code;
+
+  float total;
+};
+type SearchItems = {
+  array<string> author;
+
+  string doi;
+
+  string id;
+
+  string link;
+
+  string published;
+
+  string summary;
+
+  string title;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function search(int count = 0, string search_query = 0, int sort_by = 0, int sort_order = 0, map<string,any> filter = 0) -> SearchResult {}

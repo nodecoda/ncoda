@@ -1,0 +1,41 @@
+// doubao_video_lite.ncoda — capability header (library = file name)
+// desc: (corpus fallback: DB 快照未收录)
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library doubao_video_lite @ 0.1.0;
+
+type VideoContentData = {
+  string video_url;
+};
+
+type VideoErrorData = {
+  string $code;
+  string message;
+};
+
+type VideoUsageData = {
+  any completion_tokens;
+  any total_tokens;
+};
+
+type VideoDataData = {
+  VideoContentData content;
+  any created_at;
+  VideoErrorData error;
+  string id;
+  string model;
+  string status;
+  any updated_at;
+  VideoUsageData usage;
+};
+
+type VideoResult = {
+
+  float $code;
+  VideoDataData data;
+  string log_id;
+  string msg;
+};
+
+function video(any camerafixed = 0, any duration = 0, any first_frame_url = 0, any model = 0, any ratio = 0, any resolution = 0, any text = 0, any watermark = 0) -> VideoResult {}

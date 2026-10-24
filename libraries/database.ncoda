@@ -1,0 +1,55 @@
+// database.ncoda — capability header (provider = file name)
+// desc: 数据库 CRUD（内置节点族; 增 / 查 / 改 / 删）
+//
+// 为什么一个 provider 四个 operation：平台把这一族拆成四个 **wire type**，
+// 但它们的语义身份是同一个（同表同操作面：数据库 + 增/查/改/删），
+// 平台侧解析器也把它们归到同一 handler。wire type 由绑定表的 node_type 列
+// 钉死，语言侧只认 provider.operation。平台映射细节与证据链见
+// docs/API-ID-PROVENANCE.md。
+//
+// 参数面（每个 operation 的具名参数 = 平台参数子树的**语义投影**，不是逐字拷
+// 平台键名）：
+//   tables     表 id 列表（平台 databaseInfoList[].databaseInfoID）
+//   values     insert/update：字段 id → 值表达式（平台 insertParam.fieldInfo /
+//              updateParam.fieldInfo 的 [fieldID, fieldValue] 对）
+//   columns    select：字段 id → 是否去重（平台 selectParam.fieldList）
+//   condition  条件子句（平台 selectParam/deleteParam/updateParam.condition）
+//   order_by   select：排序（平台 selectParam.orderByList）
+//   rows       select：行数上限（平台 selectParam.limit）
+//   outputs    该节点**声明的产出表**（平台 node_outputs 逐字）：平台把结果
+//              schema 声明在节点上（列名/类型随表而变），语言侧没有对应的
+//              固定原型 ⇒ 原样承载，不发明也不丢弃。
+//
+// 证据：语料 322 份平台导出 0 个数据库节点（该族从未被主线走到）；
+// 本表依据 = 新抓真实导出 4 份（liukaiyang11 的 produce/create_video/get_produce/
+// get_video，2×insert_record + 2×select_record）+ 开源同族类型定义
+// （backend/domain/workflow/entity/vo/canvas.go:395-425 的 InsertParam /
+// SelectParam / UpdateParam / DeleteParam）+ database/adapt.go 的读取实现。
+
+@language nodecoda/1
+library database @ 0.1.0;
+
+// 产出表：字段名**逐字 = 平台端口名**（outputList / rowNum）。raising 侧的引用
+// 就是按端口名写的（`v1.outputList`，一手：新语料 get_video/get_produce 的 end
+// 节点 ref `{path: outputList, ref_node: …}`），改名就编不回去。
+//
+// 元素声明成 `any`（= 两侧同一格的「开放记录」，元素可字段访问）而不是加字段的
+// record：列名/列类型**随表而变**（平台把 schema 声明在节点的 node_outputs 上，
+// 同一个 provider 不同表不同列）⇒ 注册表层没有固定原型。`array<any>` 是两端
+// 闭集里**同一个串**（编译端 internal/passes/type_ops.go::registryTypeDescriptor
+// ↔ 反编译端 generate.go::registryLeafTypeInfo，都映射到「元素 = 开放 object」；
+// 判据 = TestRepoCapabilityOutputTypesResolvableByRaising）。别改成 `array<object>`
+// —— 那个串只有编译端认（落到 any 兜底），反编译端不可解 = 半接线。
+type DatabaseOpResult = {
+  array<any> outputList;
+
+  int rowNum;
+};
+
+function insert(any tables = 0, any values = 0, any outputs = 0) -> DatabaseOpResult {}
+
+function select(any tables = 0, any columns = 0, any condition = 0, any order_by = 0, any rows = 0, any outputs = 0) -> DatabaseOpResult {}
+
+function update(any tables = 0, any values = 0, any condition = 0, any outputs = 0) -> DatabaseOpResult {}
+
+function delete(any tables = 0, any condition = 0, any outputs = 0) -> DatabaseOpResult {}

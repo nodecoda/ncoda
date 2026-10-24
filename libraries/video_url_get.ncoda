@@ -1,0 +1,12 @@
+// video_url_get.ncoda — capability header (provider = file name)
+// desc: 视频解析
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library video_url_get @ 0.1.0;
+
+type GetUrlResult = {
+  any value;
+};
+
+function get_url(string key = "", string url = "") -> GetUrlResult {}

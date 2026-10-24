@@ -1,0 +1,48 @@
+// subtitle_get.ncoda — capability header (provider = file name)
+// desc: 字幕获取
+
+@language nodecoda/1
+library subtitle_get @ 0.1.0;
+
+type SubtitleGetGenerateVideoCaptionsResult = {
+  string content;
+
+  array<SubtitleGetGenerateVideoCaptionsContentChunks> content_chunks;
+};
+type SubtitleGetGenerateVideoCaptionsContentChunks = {
+  float end_time;
+
+  string index;
+
+  float start_time;
+
+  string text;
+};
+type SubtitleGetGenerateVideoCaptionsSyncResult = {
+  SubtitleGetGenerateVideoCaptionsSyncData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type SubtitleGetGenerateVideoCaptionsSyncData = {
+  string content;
+
+  array<SubtitleGetGenerateVideoCaptionsSyncDataContentChunks> content_chunks;
+};
+type SubtitleGetGenerateVideoCaptionsSyncDataContentChunks = {
+  float end_time;
+
+  float index;
+
+  float start_time;
+
+  string text;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function generate_video_captions(string url = 0, string lang = 0) -> SubtitleGetGenerateVideoCaptionsResult {}
+@capability failure_branch=true, timeout_ms=180000
+function generate_video_captions_sync(string url = 0, string lang = 0) -> SubtitleGetGenerateVideoCaptionsSyncResult {}

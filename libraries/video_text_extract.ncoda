@@ -1,0 +1,12 @@
+// video_text_extract.ncoda — capability header (library = file name)
+// desc: 视频文本提取
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library video_text_extract @ 0.1.0;
+
+type VideoToTextResult = {
+  string content;
+};
+
+function video_to_text(string api_key = "", string url = "") -> VideoToTextResult {}

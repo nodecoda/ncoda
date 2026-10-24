@@ -1,0 +1,80 @@
+// xhs_article_extract.ncoda — capability header (provider = file name)
+// desc: 小红书文章信息提取
+
+@language nodecoda/1
+library xhs_article_extract @ 0.1.0;
+
+type XhsArticleExtractExtractXhsArticleWebinfoResult = {
+  XhsArticleExtractExtractXhsArticleWebinfoArticleinfo articleInfo;
+
+  XhsArticleExtractExtractXhsArticleWebinfoBaseinfo baseInfo;
+
+  string url;
+  string msg;
+};
+type XhsArticleExtractExtractXhsArticleWebinfoArticleinfo = {
+  string desc;
+
+  string ipLocation;
+
+  int lastUpdateTime;
+
+  string noteId;
+
+  int time;
+
+  string title;
+
+  string $type;
+
+  string xsecToken;
+};
+type XhsArticleExtractExtractXhsArticleWebinfoBaseinfo = {
+  string collectedCount;
+
+  string commentCount;
+
+  string desc;
+
+  array<XhsArticleExtractExtractXhsArticleWebinfoBaseinfoImagelist> imageList;
+
+  string likedCount;
+
+  string nickname;
+
+  string shareCount;
+
+  string title;
+
+  string $type;
+
+  string videoUrl;
+};
+type XhsArticleExtractExtractXhsArticleWebinfoBaseinfoImagelist = {
+  string fileId;
+
+  int height;
+
+  array<XhsArticleExtractExtractXhsArticleWebinfoBaseinfoImagelistInfolist> infoList;
+
+  bool livePhoto;
+
+  any stream;
+
+  string traceId;
+
+  string url;
+
+  string urlDefault;
+
+  string urlPre;
+
+  int width;
+};
+type XhsArticleExtractExtractXhsArticleWebinfoBaseinfoImagelistInfolist = {
+  string imageScene;
+
+  string url;
+};
+
+function extract_xhs_article_webinfo(string url = 0, string cookie = 0) -> XhsArticleExtractExtractXhsArticleWebinfoResult {}

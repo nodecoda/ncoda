@@ -1,0 +1,36 @@
+// video_nowm_download.ncoda — capability header (provider = file name)
+// desc: 视频无水印下载
+
+@language nodecoda/1
+library video_nowm_download @ 0.1.0;
+
+type VideoNowmDownloadDownloadVieoResult = {
+  VideoNowmDownloadDownloadVieoData data;
+
+  float exec_time;
+
+  string ip;
+
+  string msg;
+
+  float $code;
+};
+type VideoNowmDownloadDownloadVieoData = {
+  string audio;
+
+  string image;
+
+  string photo;
+
+  array<string> pics;
+
+  string test;
+
+  string title;
+
+  string url;
+
+  string video;
+};
+
+function download_vieo(any api_token = 0, any url = 0) -> VideoNowmDownloadDownloadVieoResult {}

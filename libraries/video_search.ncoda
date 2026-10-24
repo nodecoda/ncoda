@@ -1,0 +1,930 @@
+// video_search.ncoda — capability header (provider = file name)
+// desc: 视频搜索
+
+@language nodecoda/1
+library video_search @ 0.1.0;
+
+type VideoSearchDouyinDataResult = {
+  VideoSearchDouyinDataData data;
+
+  VideoSearchDouyinDataParams params;
+
+  string router;
+
+  int $code;
+
+  string tip_url;
+};
+type VideoSearchDouyinDataData = {
+  VideoSearchDouyinDataDataAwemeDetail aweme_detail;
+};
+type VideoSearchDouyinDataDataAwemeDetail = {
+  VideoSearchDouyinDataDataAwemeDetailAuthor author;
+
+  string city;
+
+  int create_time;
+
+  string desc;
+
+  string distance;
+
+  int duration;
+
+  VideoSearchDouyinDataDataAwemeDetailImageAlbumMusicInfo image_album_music_info;
+
+  any image_comment;
+
+  string item_title;
+
+  VideoSearchDouyinDataDataAwemeDetailMusic music;
+
+  string preview_title;
+
+  string share_url;
+
+  VideoSearchDouyinDataDataAwemeDetailStatistics statistics;
+
+  int user_digged;
+
+  VideoSearchDouyinDataDataAwemeDetailVideo video;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthor = {
+  bool accept_private_policy;
+
+  string account_cert_info;
+
+  string account_region;
+
+  int apple_account;
+
+  int authority_status;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAvatar168x168 avatar_168x168;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAvatar300x300 avatar_300x300;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAvatarLarger avatar_larger;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAvatarMedium avatar_medium;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAvatarThumb avatar_thumb;
+
+  string avatar_uri;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorAwemeControl aweme_control;
+
+  int aweme_count;
+
+  int aweme_hotsoon_auth;
+
+  int aweme_hotsoon_auth_relation;
+
+  string awemehts_greet_info;
+
+  array<string> ban_user_functions;
+
+  string bind_phone;
+
+  string birthday;
+
+  int close_friend_type;
+
+  int comment_filter_status;
+
+  int comment_setting;
+
+  int commerce_user_level;
+
+  int constellation;
+
+  int contacts_status;
+
+  array<VideoSearchDouyinDataDataAwemeDetailAuthorCoverUrl> cover_url;
+
+  int create_time;
+
+  string custom_verify;
+
+  string cv_level;
+
+  int download_prompt_ts;
+
+  int download_setting;
+
+  int duet_setting;
+
+  bool enable_nearby_visible;
+
+  string enterprise_verify_reason;
+
+  int favoriting_count;
+
+  int fb_expire_time;
+
+  int follow_status;
+
+  int follower_count;
+
+  int follower_request_status;
+
+  int follower_status;
+
+  int following_count;
+
+  int gender;
+
+  array<string> geofencing;
+
+  string google_account;
+
+  bool has_email;
+
+  bool has_facebook_token;
+
+  bool has_insights;
+
+  bool has_orders;
+
+  bool has_twitter_token;
+
+  bool has_unread_story;
+
+  bool has_youtube_token;
+
+  bool hide_location;
+
+  bool hide_search;
+
+  string ins_id;
+
+  bool is_ad_fake;
+
+  bool is_binded_weibo;
+
+  bool is_block;
+
+  bool is_blocked_v2;
+
+  bool is_blocking_v2;
+
+  int is_cf;
+
+  bool is_discipline_member;
+
+  bool is_gov_media_vip;
+
+  bool is_mix_user;
+
+  bool is_not_show;
+
+  bool is_phone_binded;
+
+  bool is_star;
+
+  bool is_verified;
+
+  int ky_only_predict;
+
+  string language;
+
+  int live_agreement;
+
+  int live_agreement_time;
+
+  bool live_commerce;
+
+  int live_high_value;
+
+  int live_status;
+
+  int live_verify;
+
+  string location;
+
+  int mate_add_permission;
+
+  int max_follower_count;
+
+  int need_recommend;
+
+  int neiguang_shield;
+
+  string nickname;
+
+  bool prevent_download;
+
+  int react_setting;
+
+  int reflow_page_gid;
+
+  int reflow_page_uid;
+
+  string region;
+
+  string risk_notice_text;
+
+  int room_id;
+
+  int school_category;
+
+  string school_id;
+
+  string school_name;
+
+  string school_poi_id;
+
+  int school_type;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorSearchImpr search_impr;
+
+  string sec_uid;
+
+  int secret;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorShareInfo share_info;
+
+  string share_qrcode_uri;
+
+  int shield_comment_notice;
+
+  int shield_digg_notice;
+
+  int shield_follow_notice;
+
+  string short_id;
+
+  bool show_image_bubble;
+
+  bool show_nearby_active;
+
+  string signature;
+
+  int signature_display_lines;
+
+  int special_follow_status;
+
+  int special_lock;
+
+  int status;
+
+  int stitch_setting;
+
+  int story_count;
+
+  bool story_open;
+
+  int sync_to_toutiao;
+
+  int total_favorited;
+
+  int tw_expire_time;
+
+  string twitter_id;
+
+  string twitter_name;
+
+  string uid;
+
+  string unique_id;
+
+  int unique_id_modify_time;
+
+  int user_age;
+
+  bool user_canceled;
+
+  int user_mode;
+
+  int user_not_see;
+
+  int user_not_show;
+
+  int user_period;
+
+  int user_rate;
+
+  int verification_type;
+
+  string verify_info;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorVideoIcon video_icon;
+
+  string weibo_name;
+
+  string weibo_schema;
+
+  string weibo_url;
+
+  string weibo_verify;
+
+  bool with_commerce_entry;
+
+  bool with_dou_entry;
+
+  bool with_fusion_shop_entry;
+
+  bool with_shop_entry;
+
+  string youtube_channel_id;
+
+  string youtube_channel_title;
+
+  int youtube_expire_time;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAvatar168x168 = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAvatar300x300 = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAvatarLarger = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAvatarMedium = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAvatarThumb = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorAwemeControl = {
+  bool can_comment;
+
+  bool can_forward;
+
+  bool can_share;
+
+  bool can_show_comment;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorCoverUrl = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorSearchImpr = {
+  string entity_id;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorShareInfo = {
+  string share_desc;
+
+  string share_desc_info;
+
+  VideoSearchDouyinDataDataAwemeDetailAuthorShareInfoShareQrcodeUrl share_qrcode_url;
+
+  string share_title;
+
+  string share_title_myself;
+
+  string share_title_other;
+
+  string share_url;
+
+  string share_weibo_desc;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorShareInfoShareQrcodeUrl = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailAuthorVideoIcon = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailImageAlbumMusicInfo = {
+  int begin_time;
+
+  int end_time;
+
+  int volume;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusic = {
+  string album;
+
+  array<string> artists;
+
+  int audition_duration;
+
+  string author;
+
+  bool author_deleted;
+
+  int author_status;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicAvatarLarge avatar_large;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicAvatarMedium avatar_medium;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicAvatarThumb avatar_thumb;
+
+  int binded_challenge_id;
+
+  bool can_background_play;
+
+  int collect_stat;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicCoverHd cover_hd;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicCoverLarge cover_large;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicCoverMedium cover_medium;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicCoverThumb cover_thumb;
+
+  bool dmv_auto_show;
+
+  int dsp_status;
+
+  int duration;
+
+  int end_time;
+
+  array<string> external_song_info;
+
+  string extra;
+
+  int id;
+
+  string id_str;
+
+  bool is_audio_url_with_cookie;
+
+  bool is_commerce_music;
+
+  bool is_del_video;
+
+  bool is_matched_metadata;
+
+  bool is_original;
+
+  bool is_original_sound;
+
+  bool is_pgc;
+
+  bool is_restricted;
+
+  bool is_video_self_see;
+
+  string mid;
+
+  int music_collect_count;
+
+  string music_cover_atmosphere_color_value;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicMusicImageBeats music_image_beats;
+
+  int music_status;
+
+  bool mute_share;
+
+  string offline_desc;
+
+  string owner_handle;
+
+  string owner_id;
+
+  string owner_nickname;
+
+  int pgc_music_type;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicPlayUrl play_url;
+
+  bool prevent_download;
+
+  int prevent_item_download_status;
+
+  int preview_end_time;
+
+  int preview_start_time;
+
+  int reason_type;
+
+  bool redirect;
+
+  string schema_url;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicSearchImpr search_impr;
+
+  string sec_uid;
+
+  int shoot_duration;
+
+  int source_platform;
+
+  int start_time;
+
+  int status;
+
+  VideoSearchDouyinDataDataAwemeDetailMusicStrongBeatUrl strong_beat_url;
+
+  string title;
+
+  int user_count;
+
+  int video_duration;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicAvatarLarge = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicAvatarMedium = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicAvatarThumb = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicCoverHd = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicCoverLarge = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicCoverMedium = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicCoverThumb = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicMusicImageBeats = {
+  VideoSearchDouyinDataDataAwemeDetailMusicMusicImageBeatsMusicImageBeatsUrl music_image_beats_url;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicMusicImageBeatsMusicImageBeatsUrl = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicPlayUrl = {
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicSearchImpr = {
+  string entity_id;
+};
+type VideoSearchDouyinDataDataAwemeDetailMusicStrongBeatUrl = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailStatistics = {
+  int admire_count;
+
+  string aweme_id;
+
+  int collect_count;
+
+  int comment_count;
+
+  string digest;
+
+  int digg_count;
+
+  int download_count;
+
+  int exposure_count;
+
+  int forward_count;
+
+  int live_watch_count;
+
+  int lose_comment_count;
+
+  int lose_count;
+
+  int play_count;
+
+  int share_count;
+
+  int whatsapp_share_count;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideo = {
+  VideoSearchDouyinDataDataAwemeDetailVideoAnimatedCover animated_cover;
+
+  any audio;
+
+  array<VideoSearchDouyinDataDataAwemeDetailVideoBigThumbs> big_thumbs;
+
+  array<VideoSearchDouyinDataDataAwemeDetailVideoBitRate> bit_rate;
+
+  int cdn_url_expired;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoCover cover;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoCoverOriginalScale cover_original_scale;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoDownloadAddr download_addr;
+
+  int duration;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoDynamicCover dynamic_cover;
+
+  string format;
+
+  bool has_watermark;
+
+  int height;
+
+  int horizontal_type;
+
+  int is_bytevc1;
+
+  bool is_callback;
+
+  int is_h265;
+
+  int is_long_video;
+
+  int is_source_HDR;
+
+  string meta;
+
+  bool need_set_token;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoOriginCover origin_cover;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoPlayAddr play_addr;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoPlayAddr265 play_addr_265;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoPlayAddrH264 play_addr_h264;
+
+  string ratio;
+
+  bool use_static_cover;
+
+  string video_model;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoAnimatedCover = {
+  string uri;
+
+  array<string> url_list;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoBigThumbs = {
+  int duration;
+
+  string fext;
+
+  int img_num;
+
+  string img_url;
+
+  array<string> img_urls;
+
+  int img_x_len;
+
+  int img_x_size;
+
+  int img_y_len;
+
+  int img_y_size;
+
+  int interval;
+
+  string uri;
+
+  array<string> uris;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoBitRate = {
+  int FPS;
+
+  string HDR_bit;
+
+  string HDR_type;
+
+  int bit_rate;
+
+  string format;
+
+  string gear_name;
+
+  int is_bytevc1;
+
+  int is_h265;
+
+  VideoSearchDouyinDataDataAwemeDetailVideoBitRatePlayAddr play_addr;
+
+  int quality_type;
+
+  string video_extra;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoBitRatePlayAddr = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoCover = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoCoverOriginalScale = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoDownloadAddr = {
+  int data_size;
+
+  string file_cs;
+
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoDynamicCover = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoOriginCover = {
+  int height;
+
+  string uri;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoPlayAddr = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoPlayAddr265 = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataDataAwemeDetailVideoPlayAddrH264 = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type VideoSearchDouyinDataParams = {
+  string share_url;
+};
+
+function douyin_data(any api_token = 0, any douyin_url = 0) -> VideoSearchDouyinDataResult {}

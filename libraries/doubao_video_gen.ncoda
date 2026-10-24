@@ -1,0 +1,39 @@
+// doubao_video_gen.ncoda — capability header (library = file name)
+// desc: 豆包图生视频
+
+@language nodecoda/1
+library doubao_video_gen @ 0.1.0;
+
+type DoubaoVideoGeneratorResult = {
+  DoubaoVideoGeneratorErrorbody errorBody;
+
+  bool isSuccess;
+
+  bool $success;
+
+  string message;
+
+  string task_id;
+
+  string video_url;
+  string error_stage;
+  string request_id;
+};
+type DoubaoVideoGeneratorErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function doubao_video_generator(string api_key = 0, bool asyn = 0, any duration = 0, string model = 0, string prompt = 0, string ratio = 0, string resolution = 0, string start_image_url = 0, array<any> reference_link = 0, map<string,any> adv_config = 0, bool camerafixed = 0, string end_image_url = 0, int seed = 0) -> DoubaoVideoGeneratorResult {}
+
+type DoubaoVideoQueryResult = {
+  string message;
+  string status;
+  bool $success;
+  string task_id;
+  string video_url;
+};
+
+function doubao_video_query(string task_id = "", array<any> task_ids = []) -> DoubaoVideoQueryResult {}

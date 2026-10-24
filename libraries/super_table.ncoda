@@ -1,0 +1,76 @@
+// super_table.ncoda — capability header (provider = file name)
+// desc: 超级多维表格
+
+@language nodecoda/1
+library super_table @ 0.1.0;
+
+type SuperTableGetTableResult = {
+  SuperTableGetTableData data;
+
+  bool $success;
+};
+type SuperTableGetTableData = {
+  SuperTableGetTableDataPagination pagination;
+
+  array<SuperTableGetTableDataResult> result;
+
+  string table_name;
+
+  string web_url;
+};
+type SuperTableGetTableDataPagination = {
+  int page;
+
+  int page_size;
+
+  int total_pages;
+
+  int total_rows;
+};
+type SuperTableGetTableDataResult = {
+  array<string> datas;
+
+  string title;
+};
+type SuperTableGetUrlResult = {
+  array<SuperTableGetUrlOutputlist> outputList;
+};
+type SuperTableGetUrlOutputlist = {
+  string $output;
+};
+type SuperTableSaveListResult = {
+  SuperTableSaveListData data;
+
+  bool $success;
+
+  string message;
+
+  string web_url;
+};
+type SuperTableSaveListData = {
+  array<string> added_rows;
+
+  string message;
+
+  string table_id;
+
+  int total_rows;
+
+  array<int> updated_rows;
+};
+type SuperTableStrListResult = {
+  array<string> infos;
+};
+type SuperTableSuperTableResult = {
+  string data_url;
+
+  string message;
+
+  string web_url;
+};
+
+function get_table(string name = 0, string table_id = 0, int page = 0, int page_size = 0) -> SuperTableGetTableResult {}
+function get_url(string $output = 0) -> SuperTableGetUrlResult {}
+function save_list(array<any> datas = 0, string name = 0, string table_id = 0) -> SuperTableSaveListResult {}
+function str_list(array<any> outputs = 0) -> SuperTableStrListResult {}
+function super_table(any data = 0) -> SuperTableSuperTableResult {}

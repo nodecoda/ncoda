@@ -1,0 +1,12 @@
+// video_montage.ncoda — capability header (library = file name)
+// desc: 视频混剪
+
+@language nodecoda/1
+library video_montage @ 0.1.0;
+
+type VideoMontageResult = {
+  string draft_id;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function video_montage(array<any> audios = 0, string background_music = 0, array<any> captions = 0, float draft_height = 0, float draft_width = 0, string text_border_color = 0, string text_color = 0, string text_font = 0, string text_in_animation = 0, float text_in_animation_duration = 0, float text_size = 0, float text_transform_y = 0, string video_code = 0, float text_transform_x = 0, array<any> video_urls = 0) -> VideoMontageResult {}

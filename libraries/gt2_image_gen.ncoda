@@ -1,0 +1,30 @@
+// gt2_image_gen.ncoda — capability header (library = file name)
+// desc: GT2_图片生成
+
+@language nodecoda/1
+library gt2_image_gen @ 0.1.0;
+
+type G2GenerateImageResult = {
+  G2GenerateImageData data;
+
+  G2GenerateImageErrorbody errorBody;
+
+  bool isSuccess;
+
+  string message;
+
+  int $code;
+};
+type G2GenerateImageData = {
+  string id;
+
+  string url;
+};
+type G2GenerateImageErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function g2_generate_image(bool asyn = 0, array<any> image_urls = [], string key = 0, string prompt = 0, string ratio = 0, any resolution = 0) -> G2GenerateImageResult {}

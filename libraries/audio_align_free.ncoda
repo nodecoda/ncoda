@@ -1,0 +1,18 @@
+// audio_align_free.ncoda — capability header (library = file name)
+// desc: 字幕音频对齐_免费版
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library audio_align_free @ 0.1.0;
+
+type AlignTextToAudioTextTimielinesItem = {
+  int end;
+  int start;
+};
+
+type AlignTextToAudioResult = {
+  array<string> text_captions;
+  array<AlignTextToAudioTextTimielinesItem> text_timielines;
+};
+
+function align_text_to_audio(array<any> duration_list = [], int text_max = 0, array<any> texts = []) -> AlignTextToAudioResult {}

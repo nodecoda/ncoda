@@ -1,0 +1,16 @@
+// qwen_vl.ncoda — capability header (library = file name)
+// desc: 通义千问
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library qwen_vl @ 0.1.0;
+
+type QwenVlMaxResult = {
+
+  float $code;
+  string data;
+  string log_id;
+  string msg;
+};
+
+function qwen_vl_max(string image_url = "", string text = "") -> QwenVlMaxResult {}

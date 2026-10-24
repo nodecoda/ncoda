@@ -1,0 +1,80 @@
+// video_tool.ncoda — capability header (provider = file name)
+// desc: 视频工具
+
+@language nodecoda/1
+library video_tool @ 0.1.0;
+
+type VideoToolAudioExtractorResult = {
+  VideoToolAudioExtractorData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type VideoToolAudioExtractorData = {
+  string url;
+};
+type VideoToolFrameExtractorByCountResult = {
+  VideoToolFrameExtractorByCountData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type VideoToolFrameExtractorByCountData = {
+  array<VideoToolFrameExtractorByCountDataChunks> chunks;
+};
+type VideoToolFrameExtractorByCountDataChunks = {
+  float index;
+
+  string screenshot;
+
+  float timestamp_ms;
+};
+type VideoToolFrameExtractorByIntervalResult = {
+  VideoToolFrameExtractorByIntervalData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type VideoToolFrameExtractorByIntervalData = {
+  array<VideoToolFrameExtractorByIntervalDataChunks> chunks;
+};
+type VideoToolFrameExtractorByIntervalDataChunks = {
+  float index;
+
+  string screenshot;
+
+  float timestamp_ms;
+};
+type VideoToolFrameExtractorByKeyFrameResult = {
+  VideoToolFrameExtractorByKeyFrameData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type VideoToolFrameExtractorByKeyFrameData = {
+  array<VideoToolFrameExtractorByKeyFrameDataChunks> chunks;
+};
+type VideoToolFrameExtractorByKeyFrameDataChunks = {
+  float index;
+
+  string screenshot;
+
+  float timestamp_ms;
+};
+
+function audio_extractor(string url = 0, string audio_type = 0) -> VideoToolAudioExtractorResult {}
+function frame_extractor_by_count(int count = 0, string url = 0) -> VideoToolFrameExtractorByCountResult {}
+function frame_extractor_by_interval(float interval_ms = 0, string url = 0) -> VideoToolFrameExtractorByIntervalResult {}
+function frame_extractor_by_key_frame(string url = 0) -> VideoToolFrameExtractorByKeyFrameResult {}

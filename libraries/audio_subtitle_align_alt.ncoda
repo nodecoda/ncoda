@@ -1,0 +1,19 @@
+// audio_subtitle_align_alt.ncoda — capability header (library = file name)
+// desc: 音频字幕对齐
+
+@language nodecoda/1
+library audio_subtitle_align_alt @ 0.1.0;
+
+type AlignTextToAudioResult = {
+  array<string> text_captions;
+
+  array<AlignTextToAudioTextTimelines> text_timelines;
+};
+type AlignTextToAudioTextTimelines = {
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function align_text_to_audio(array<any> duration_list = 0, array<any> texts = 0, int text_max = 0) -> AlignTextToAudioResult {}

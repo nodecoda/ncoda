@@ -1,0 +1,23 @@
+// speech_to_text.ncoda — capability header (provider = file name)
+// desc: 语音转文本
+
+@language nodecoda/1
+library speech_to_text @ 0.1.0;
+
+type SpeechToTextSpeechtotextResult = {
+  SpeechToTextSpeechtotextData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type SpeechToTextSpeechtotextData = {
+  string msg;
+
+  string text;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function SpeechToText(any url = 0) -> SpeechToTextSpeechtotextResult {}

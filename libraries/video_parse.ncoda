@@ -1,0 +1,32 @@
+// video_parse.ncoda — capability header (provider = file name)
+// desc: 抖音视频解析
+
+@language nodecoda/1
+library video_parse @ 0.1.0;
+
+type VideoParseParseVideoResult = {
+  VideoParseParseVideoData data;
+
+  VideoParseParseVideoErrorbody errorBody;
+
+  string message;
+
+  string prompt;
+
+  int $code;
+  bool isSuccess;
+};
+type VideoParseParseVideoErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type VideoParseParseVideoData = {
+  string cover;
+
+  string title;
+
+  string video;
+};
+
+function parse_video(string api_key = 0, string share_link = 0) -> VideoParseParseVideoResult {}

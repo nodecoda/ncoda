@@ -1,0 +1,39 @@
+// so2_video_gen.ncoda — capability header (plugin = file name)
+// desc: 米核视频生成
+
+@language nodecoda/1
+library so2_video_gen @ 0.1.0;
+
+type So2VideoGenVeSo2GenerateVideoResult = {
+  So2VideoGenVeSo2GenerateVideoData data;
+
+  string message;
+};
+type So2VideoGenVeSo2GenerateVideoData = {
+  string id;
+};
+type So2VideoGenVeTaskInfoResult = {
+  So2VideoGenVeTaskInfoData data;
+
+  string message;
+
+  int status;
+};
+type So2VideoGenVeTaskInfoData = {
+  string url;
+};
+type So2VideoGenVeV31GenerateVideoResult = {
+  So2VideoGenVeV31GenerateVideoData data;
+
+  string message;
+};
+type So2VideoGenVeV31GenerateVideoData = {
+  string id;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function ve_so2_generate_video(int direction = 0, int duration = 0, string image_url = 0, string key = 0, string prompt = 0, array<any> image_urls = 0) -> So2VideoGenVeSo2GenerateVideoResult {}
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function ve_task_info(string id = 0) -> So2VideoGenVeTaskInfoResult {}
+@capability failure_branch=true, timeout_ms=180000
+function ve_v31_generate_video(string image_url = 0, string key = 0, string model = 0, string prompt = 0, string ratio = 0, string image_tail = 0) -> So2VideoGenVeV31GenerateVideoResult {}

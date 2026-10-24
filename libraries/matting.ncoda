@@ -1,0 +1,25 @@
+// matting.ncoda — capability header (provider = file name)
+// desc: 抠图
+
+@language nodecoda/1
+library matting @ 0.1.0;
+
+type MattingCutoutResult = {
+  file<image> data;
+
+  MattingCutoutErrorbody errorBody;
+
+  bool isSuccess;
+
+  string mask;
+
+  string msg;
+};
+type MattingCutoutErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=180000
+function cutout(int only_mask = 0, int output_mode = 0, string prompt = 0, file url = 0) -> MattingCutoutResult {}

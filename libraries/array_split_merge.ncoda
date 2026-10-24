@@ -1,0 +1,34 @@
+// array_split_merge.ncoda — capability header (library = file name)
+// desc: 数组拆分与合并
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library array_split_merge @ 0.1.0;
+
+type StrListResult = {
+  array<string> Str_list10;
+  array<string> Str_list3;
+  array<string> Str_list6;
+  array<string> Str_list9;
+  string contact;
+  array<string> Str_list8;
+  array<string> Str_list1;
+  array<string> Str_list2;
+  array<string> Str_list4;
+  array<string> Str_list5;
+  array<string> Str_list7;
+};
+
+function Str_list(array<any> Str_list = 0, float num = 0) -> StrListResult {}
+
+type StrMergeSplitStrItem = {
+  array<string> Str_list;
+};
+
+type StrMergeResult = {
+  array<string> All_Str_list;
+  array<StrMergeSplitStrItem> Split_str;
+  string contact;
+};
+
+function Str_merge(array<any> Str_list1 = 0, array<any> Str_list2 = 0, array<any> Str_list3 = 0, array<any> Str_list4 = 0, array<any> Str_list5 = 0) -> StrMergeResult {}

@@ -1,0 +1,32 @@
+// video_enhance.ncoda — capability header (provider = file name)
+// desc: 视频增强
+// 来源: collector.db 同步（7597436608694108200 新代）+ 语料旧代 7597045637133254662（S149 循环块）
+
+@language nodecoda/1
+library video_enhance @ 0.1.0;
+
+type VideoEnhanceVideoClearerResult = {
+  VideoEnhanceVideoClearerData data;
+
+  string message;
+};
+type VideoEnhanceVideoClearerData = {
+  string id;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function video_clearer(string key = 0, string video_url = 0) -> VideoEnhanceVideoClearerResult {}
+
+type VideoEnhanceRTaskInfoResult = {
+  VideoEnhanceRTaskInfoData data;
+
+  string message;
+
+  int status;
+};
+type VideoEnhanceRTaskInfoData = {
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function r_task_info(string id = 0) -> VideoEnhanceRTaskInfoResult {}

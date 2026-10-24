@@ -1,0 +1,20 @@
+// image_scale.ncoda — capability header (provider = file name)
+// desc: 缩放
+
+@language nodecoda/1
+library image_scale @ 0.1.0;
+
+type ImageScaleResizeResult = {
+  file<image> data;
+
+  string msg;
+
+  array<ImageScaleResizeOutputlist> outputList;
+};
+type ImageScaleResizeOutputlist = {
+  file<image> data;
+
+  string msg;
+};
+
+function resize(string image_url = 0, int max_length = 0, string mode = 0) -> ImageScaleResizeResult {}

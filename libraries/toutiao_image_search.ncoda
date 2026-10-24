@@ -1,0 +1,29 @@
+// toutiao_image_search.ncoda — capability header (library = file name)
+// desc: 头条图片搜索
+
+@language nodecoda/1
+library toutiao_image_search @ 0.1.0;
+
+type ToutiaopicturesearchResult = {
+  array<ToutiaopicturesearchResultValue> result;
+};
+type ToutiaopicturesearchResultValue = {
+  ToutiaopicturesearchResultValuePictureInfo picture_info;
+};
+type ToutiaopicturesearchResultValuePictureInfo = {
+  string display_url;
+
+  string right_protect;
+
+  ToutiaopicturesearchResultValuePictureInfoSize size;
+
+  string title;
+};
+type ToutiaopicturesearchResultValuePictureInfoSize = {
+  string height;
+
+  string width;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function ToutiaoPictureSearch(string query = 0, string count = 0, string offset = 0) -> ToutiaopicturesearchResult {}

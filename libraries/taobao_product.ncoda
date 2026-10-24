@@ -1,0 +1,172 @@
+// taobao_product.ncoda — capability header (provider = file name)
+// desc: 淘宝商品数据
+
+@language nodecoda/1
+library taobao_product @ 0.1.0;
+
+type TaobaoProductShopInfoResult = {
+  TaobaoProductShopInfoData data;
+
+  string extracted_id;
+
+  bool $success;
+
+  string message;
+};
+type TaobaoProductShopInfoData = {
+  TaobaoProductShopInfoDataItem item;
+};
+type TaobaoProductShopInfoDataItem = {
+  string _ddf;
+
+  string brand;
+
+  string brandId;
+
+  string cid;
+
+  string created_time;
+
+  array<string> crumbs;
+
+  string delist_time;
+
+  string desc;
+
+  array<string> desc_img;
+
+  string desc_short;
+
+  string detail_url;
+
+  string ems_fee;
+
+  string error;
+
+  string express_fee;
+
+  string fans_count;
+
+  string fav_count;
+
+  string freight;
+
+  string has_discount;
+
+  string is_promotion;
+
+  string is_virtual;
+
+  array<TaobaoProductShopInfoDataItemItemImgs> item_imgs;
+
+  string item_size;
+
+  string item_weight;
+
+  string location;
+
+  int min_num;
+
+  string modified_time;
+
+  string nick;
+
+  string num;
+
+  string num_iid;
+
+  string orginal_price;
+
+  string pic_url;
+
+  string post_fee;
+
+  string price;
+
+  TaobaoProductShopInfoDataItemPropImgs prop_imgs;
+
+  string property_alias;
+
+  array<TaobaoProductShopInfoDataItemProps> props;
+
+  string props_name;
+
+  string rootCatId;
+
+  int sales;
+
+  string sample_id;
+
+  string seller_id;
+
+  TaobaoProductShopInfoDataItemSellerInfo seller_info;
+
+  string shipping_to;
+
+  string shop_id;
+
+  TaobaoProductShopInfoDataItemSkus skus;
+
+  int suggestive_price;
+
+  string title;
+
+  bool tmall;
+
+  int total_price;
+
+  int total_sold;
+
+  array<string> url_log;
+
+  any video;
+
+  string warning;
+};
+type TaobaoProductShopInfoDataItemItemImgs = {
+  string url;
+};
+type TaobaoProductShopInfoDataItemPropImgs = {
+  array<TaobaoProductShopInfoDataItemPropImgsPropImg> prop_img;
+};
+type TaobaoProductShopInfoDataItemPropImgsPropImg = {
+  string properties;
+
+  string url;
+};
+type TaobaoProductShopInfoDataItemProps = {
+  string name;
+
+  string value;
+};
+type TaobaoProductShopInfoDataItemSellerInfo = {
+  string nick;
+
+  string shop_name;
+
+  string sid;
+
+  string title;
+
+  string zhuy;
+};
+type TaobaoProductShopInfoDataItemSkus = {
+  array<TaobaoProductShopInfoDataItemSkusSku> sku;
+};
+type TaobaoProductShopInfoDataItemSkusSku = {
+  string orginal_price;
+
+  string price;
+
+  string properties;
+
+  string properties_name;
+
+  string quantity;
+
+  string sku_id;
+
+  int total_price;
+};
+
+function shop_info(any api_token = 0, any url = 0) -> TaobaoProductShopInfoResult {}

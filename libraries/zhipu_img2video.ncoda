@@ -1,0 +1,19 @@
+// zhipu_img2video.ncoda — capability header (library = file name)
+// desc: (corpus fallback: DB 快照未收录)
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library zhipu_img2video @ 0.1.0;
+
+type ZhipuGenVideoResult = {
+  string id;
+};
+
+function zhipu_gen_video(any api_key = 0, any image_url = 0) -> ZhipuGenVideoResult {}
+
+type ZhipuGetVideoResult = {
+  string status;
+  string video_url;
+};
+
+function zhipu_get_video(any api_key = 0, any task_id = 0) -> ZhipuGetVideoResult {}

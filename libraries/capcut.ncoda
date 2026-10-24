@@ -1,0 +1,307 @@
+// capcut.ncoda — capability header (provider = file name)
+// desc: 剪映小助手
+
+@language nodecoda/1
+library capcut @ 0.1.0;
+
+type CapcutAddAudiosResult = {
+  array<string> audio_ids;
+
+  string draft_id;
+
+  string message;
+
+  array<string> segment_ids;
+
+  array<CapcutAddAudiosSegmentInfos> segment_infos;
+
+  string track_id;
+};
+type CapcutAddAudiosSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAddCaptionsResult = {
+  string draft_id;
+
+  string message;
+
+  array<CapcutAddCaptionsOutputlist> outputList;
+
+  array<string> segment_ids;
+
+  array<CapcutAddCaptionsSegmentInfos> segment_infos;
+};
+type CapcutAddCaptionsOutputlist = {
+  string draft_id;
+
+  string message;
+
+  array<string> segment_ids;
+
+  array<CapcutAddCaptionsOutputlistSegmentInfos> segment_infos;
+};
+type CapcutAddCaptionsOutputlistSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAddCaptionsSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAddEffectsResult = {
+  string draft_id;
+
+  string message;
+};
+type CapcutAddImagesResult = {
+  string draft_id;
+
+  string message;
+
+  array<CapcutAddImagesOutputlist> outputList;
+
+  array<string> segment_ids;
+
+  array<CapcutAddImagesSegmentInfos> segment_infos;
+};
+type CapcutAddImagesOutputlist = {
+  string draft_id;
+
+  string message;
+
+  array<string> segment_ids;
+
+  array<CapcutAddImagesOutputlistSegmentInfos> segment_infos;
+};
+type CapcutAddImagesOutputlistSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAddImagesSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAddKeyframesResult = {
+  string draft_id;
+
+  CapcutAddKeyframesErrorbody errorBody;
+
+  bool isSuccess;
+
+  string message;
+
+  array<CapcutAddKeyframesOutputlist> outputList;
+};
+type CapcutAddKeyframesErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type CapcutAddKeyframesOutputlist = {
+  string draft_id;
+
+  string message;
+};
+type CapcutAddMasksResult = {
+  string draft_id;
+};
+type CapcutAddStickerResult = {
+  string draft_id;
+
+  string message;
+};
+type CapcutAddVideosResult = {
+  string draft_id;
+
+  array<string> segment_ids;
+
+  array<CapcutAddVideosSegmentInfos> segment_infos;
+};
+type CapcutAddVideosSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CapcutAudioInfosResult = {
+  string infos;
+
+  array<CapcutAudioInfosOutputlist> outputList;
+};
+type CapcutAudioInfosOutputlist = {
+  string infos;
+};
+type CapcutAudioTimelinesResult = {
+  array<CapcutAudioTimelinesAllTimelines> all_timelines;
+
+  array<CapcutAudioTimelinesTimelines> timelines;
+};
+type CapcutAudioTimelinesAllTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutAudioTimelinesTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutCaptionInfosResult = {
+  string infos;
+
+  array<CapcutCaptionInfosOutputlist> outputList;
+};
+type CapcutCaptionInfosOutputlist = {
+  string infos;
+};
+type CapcutCreateDraftResult = {
+  string draft_id;
+};
+type CapcutEasyCreateMaterialResult = {
+  array<CapcutEasyCreateMaterialOutputlist> outputList;
+};
+type CapcutEasyCreateMaterialOutputlist = {
+  string draft_id;
+};
+type CapcutEffectInfosResult = {
+  string infos;
+};
+type CapcutGetAudioDurationResult = {
+  float duration;
+
+  array<CapcutGetAudioDurationOutputlist> outputList;
+};
+type CapcutGetAudioDurationOutputlist = {
+  float duration;
+};
+type CapcutGetUrlResult = {
+  array<CapcutGetUrlOutputlist> outputList;
+
+  string $output;
+};
+type CapcutGetUrlOutputlist = {
+  string $output;
+};
+type CapcutImgsInfosResult = {
+  string infos;
+};
+type CapcutKeyframesInfosResult = {
+  CapcutKeyframesInfosErrorbody errorBody;
+
+  bool isSuccess;
+
+  string keyframes_infos;
+
+  array<CapcutKeyframesInfosOutputlist> outputList;
+};
+type CapcutKeyframesInfosErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+type CapcutKeyframesInfosOutputlist = {
+  string keyframes_infos;
+};
+type CapcutObjsToStrListResult = {
+  array<string> infos;
+};
+type CapcutStrToListResult = {
+  array<string> infos;
+};
+type CapcutTimelinesResult = {
+  array<CapcutTimelinesAllTimelines> all_timelines;
+
+  array<CapcutTimelinesTimelines> timelines;
+};
+type CapcutTimelinesAllTimelines = {
+  float end;
+
+  float start;
+};
+type CapcutTimelinesTimelines = {
+  float end;
+
+  float start;
+};
+type CapcutVideoInfosResult = {
+  string infos;
+};
+type CapcutVideoTimelinesResult = {
+  array<CapcutVideoTimelinesAllTimelines> all_timelines;
+
+  array<CapcutVideoTimelinesTimelines> timelines;
+};
+type CapcutVideoTimelinesAllTimelines = {
+  float end;
+
+  float start;
+};
+type CapcutVideoTimelinesTimelines = {
+  float end;
+
+  float start;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function add_audios(string audio_infos = 0, string draft_id = 0, string draft_url = "") -> CapcutAddAudiosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_captions(int alignment = 0, float alpha = 0, string border_color = 0, string captions = 0, string draft_id = 0, string font = 0, int font_size = 0, float letter_spacing = 0, float line_spacing = 0, float scale_x = 0, float scale_y = 0, int style_text = 0, string text_color = 0, float transform_x = 0, float transform_y = 0, string draft_url = "") -> CapcutAddCaptionsResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_effects(string draft_id = 0, string effect_infos = 0) -> CapcutAddEffectsResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_images(float alpha = 0, string draft_id = 0, string image_infos = 0, float scale_x = 0, float scale_y = 0, float transform_x = 0, float transform_y = 0) -> CapcutAddImagesResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_keyframes(string draft_id = 0, string keyframes = 0) -> CapcutAddKeyframesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function add_masks(int X = 0, int Y = 0, string draft_id = 0, int feather = 0, int height = 0, bool invert = 0, string name = 0, int roundCorner = 0, array<any> segment_ids = 0, int width = 0, int rotation = 0) -> CapcutAddMasksResult {}
+@capability failure_branch=true, timeout_ms=180000
+function add_sticker(string draft_id = 0, int end = 0, float scale = 0, int start = 0, string sticker_id = 0, int transform_x = 0, int transform_y = 0) -> CapcutAddStickerResult {}
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function add_videos(float alpha = 0, string draft_id = 0, float scale_x = 0, float scale_y = 0, float transform_y = 0, string video_infos = 0, float transform_x = 0) -> CapcutAddVideosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function audio_infos(string audio_effect = 0, array<any> mp3_urls = 0, array<any> timelines = 0, float volume = 0) -> CapcutAudioInfosResult {}
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function audio_timelines(array<any> links = 0) -> CapcutAudioTimelinesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function caption_infos(int font_size = 0, string in_animation = 0, int in_animation_duration = 0, string keyword_color = 0, int keyword_font_size = 0, array<any> keywords = [], string loop_animation = 0, int loop_animation_duration = 0, string out_animation = 0, int out_animation_duration = 0, array<any> texts = 0, array<any> timelines = 0) -> CapcutCaptionInfosResult {}
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function create_draft(int height = 0, int width = 0, int user_id = 0) -> CapcutCreateDraftResult {}
+@capability failure_branch=true, timeout_ms=180000
+function easy_create_material(string audio_url = 0, string draft_id = 0, float font_size = 0, string img_url = 0, string text = 0, float text_transform_y = 0, string video_url = 0, string text_color = 0) -> CapcutEasyCreateMaterialResult {}
+@capability failure_branch=true, timeout_ms=180000
+function effect_infos(array<any> effects = 0, array<any> timelines = 0) -> CapcutEffectInfosResult {}
+@capability retry=true, failure_branch=true, timeout_ms=180000
+function get_audio_duration(string mp3_url = 0) -> CapcutGetAudioDurationResult {}
+@capability failure_branch=true, timeout_ms=180000
+function get_url(string $output = 0) -> CapcutGetUrlResult {}
+@capability failure_branch=true, timeout_ms=180000
+function imgs_infos(int height = 0, array<any> imgs = 0, string in_animation = 0, int in_animation_duration = 0, string loop_animation = 0, int loop_animation_duration = 0, int out_animation_duration = 0, array<any> timelines = 0, string transition = 0, int transition_duration = 0, int width = 0, string out_animation = 0) -> CapcutImgsInfosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function keyframes_infos(string ctype = 0, int height = 0, string offsets = 0, array<any> segment_infos = 0, string values = 0, int width = 0) -> CapcutKeyframesInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function objs_to_str_list(array<any> outputs = 0) -> CapcutObjsToStrListResult {}
+@capability failure_branch=true, timeout_ms=180000
+function str_to_list(string obj = 0) -> CapcutStrToListResult {}
+@capability failure_branch=true, timeout_ms=180000
+function timelines(int duration = 0, int num = 0, int start = 0, int $type = 0) -> CapcutTimelinesResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video_infos(int height = 0, array<any> play_timelines = 0, array<any> timelines = 0, string transition = 0, int transition_duration = 0, array<any> video_urls = 0, int volume = 0, int width = 0, array<any> speeds = 0, string mask = 0, array<any> transition_duration_list = 0, array<any> transitions = 0) -> CapcutVideoInfosResult {}
+@capability failure_branch=true, timeout_ms=180000
+function video_timelines(array<any> links = 0) -> CapcutVideoTimelinesResult {}

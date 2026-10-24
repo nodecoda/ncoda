@@ -1,0 +1,17 @@
+@language nodecoda/1
+@mode workflow
+import "database";
+
+// 只用开源公共库：不 import 任何平台 provider，不需要网络与凭据。
+// insert 一行再用 select 读回，值必须原样返回。
+function main() -> array<any> {
+    let w = database.insert({
+        "tables": ["demo"],
+        "values": [[
+            {"name": "fieldID", "input": {"value": "k"}},
+            {"name": "fieldValue", "input": {"value": "hello"}}
+        ]]
+    });
+    let r = database.select({ "tables": ["demo"], "columns": [{"fieldID": "k"}], "rows": 10 });
+    return r.outputList;
+}

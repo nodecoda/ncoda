@@ -1,0 +1,92 @@
+// capcut_draft_data.ncoda — capability header (library = file name)
+// desc: 剪映草稿数据生成工具
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library capcut_draft_data @ 0.1.0;
+
+type AudioInfosResult = {
+  string infos;
+};
+
+function audio_infos(string audio_effect = "", array<any> timelines = [], array<any> urls = [], float volume = 0.0) -> AudioInfosResult {}
+
+type AudioTimelinesTimelinesItem = {
+  int end;
+  int start;
+};
+
+type AudioTimelinesTotalTimelinesItem = {
+  int end;
+  int start;
+};
+
+type AudioTimelinesResult = {
+  int end;
+  int start;
+  array<AudioTimelinesTimelinesItem> timelines;
+  array<AudioTimelinesTotalTimelinesItem> total_timelines;
+};
+
+function audio_timelines(array<any> urls = []) -> AudioTimelinesResult {}
+
+type CaptionSplitterTimelinesItem = {
+  int end;
+  int start;
+};
+
+type CaptionSplitterResult = {
+  array<string> texts;
+  array<CaptionSplitterTimelinesItem> timelines;
+};
+
+function caption_splitter(int max_char_count = 0, array<any> texts = [], array<any> timelines = []) -> CaptionSplitterResult {}
+
+type GetAudioDurationResult = {
+  int duration;
+};
+
+function get_audio_duration(string url = "") -> GetAudioDurationResult {}
+
+type ImageInfosResult = {
+  string infos;
+};
+
+function image_infos(string in_animation = "", int in_animation_duration = 0, string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, array<any> timelines = [], int transform_x = 0, int transform_y = 0, array<any> urls = []) -> ImageInfosResult {}
+
+type KeyframeInfosResult = {
+  string infos;
+};
+
+function keyframe_infos(string property = "", array<any> segment_infos = [], string time_percents = "", string values = "") -> KeyframeInfosResult {}
+
+type StrToListResult = {
+  array<string> result;
+};
+
+function str_to_list(string value = "") -> StrToListResult {}
+
+type TextInfosResult = {
+  string infos;
+};
+
+function text_infos(int align = 0, float alpha = 0.0, float border_alpha = 0.0, string border_color = "", string color = "", string font = "", string in_animation = "", int in_animation_duration = 0, int letter_spacing = 0, int line_spacing = 0, string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, int size = 0, array<any> texts = [], array<any> timelines = [], int transform_x = 0, int transform_y = 0) -> TextInfosResult {}
+
+type TimelinesTimelinesItem = {
+  int end;
+  int start;
+};
+
+type TimelinesResult = {
+  int end;
+  int start;
+  array<TimelinesTimelinesItem> timelines;
+};
+
+function timelines(int duration = 0, int number = 0, int start = 0, int $type = 0) -> TimelinesResult {}
+
+type VideoInfosResult = {
+  string infos;
+};
+
+function video_infos(string in_animation = "", int in_animation_duration = 0, string out_animation = "", int out_animation_duration = 0, float scale_x = 0.0, float scale_y = 0.0, array<any> timelines = [], int transform_x = 0, int transform_y = 0, array<any> urls = []) -> VideoInfosResult {}

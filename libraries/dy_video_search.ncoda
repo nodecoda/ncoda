@@ -1,0 +1,210 @@
+// dy_video_search.ncoda — capability header (library = file name)
+// desc: 视频搜索
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library dy_video_search @ 0.1.0;
+
+type DyVideoSearchNextPageData = {
+  any cursor;
+  string search_id;
+};
+
+type DyVideoSearchBusinessConfigData = {
+  any has_more;
+  string keyword;
+  DyVideoSearchNextPageData next_page;
+};
+
+type DyVideoSearchAvatarThumbData = {
+  array<string> url_list;
+};
+
+type DyVideoSearchCoverUrlItem = {
+  array<string> url_list;
+};
+
+type DyVideoSearchAuthorData = {
+  DyVideoSearchAvatarThumbData avatar_thumb;
+  array<DyVideoSearchCoverUrlItem> cover_url;
+  any follower_count;
+  string nickname;
+  string sec_uid;
+  string short_id;
+  string signature;
+  any total_favorited;
+  string uid;
+  string unique_id;
+};
+
+type DyVideoSearchPlayUrlData = {
+  string uri;
+  string url_key;
+  array<string> url_list;
+};
+
+type DyVideoSearchMusicData = {
+  DyVideoSearchPlayUrlData play_url;
+};
+
+type DyVideoSearchPointsItem = {
+  string desc;
+  string detail;
+  any $type;
+};
+
+type DyVideoSearchRecommendChapterListItem = {
+  string desc;
+  string detail;
+  array<DyVideoSearchPointsItem> points;
+  any timestamp;
+};
+
+type DyVideoSearchRecommendChapterInfoData = {
+  string chapter_abstract;
+  array<DyVideoSearchRecommendChapterListItem> recommend_chapter_list;
+};
+
+type DyVideoSearchStatisticsData = {
+  any collect_count;
+  any comment_count;
+  any digg_count;
+  any recommend_count;
+  any share_count;
+};
+
+type DyVideoSearchWordsItem = {
+  string word;
+};
+
+type DyVideoSearchSuggestWordsData2 = {
+  string hint_text;
+  array<DyVideoSearchWordsItem> words;
+};
+
+type DyVideoSearchSuggestWordsData = {
+  DyVideoSearchSuggestWordsData2 suggest_words;
+};
+
+type DyVideoSearchTextExtraItem = {
+  string hashtag_name;
+};
+
+type DyVideoSearchBigThumbsData = {
+  string img_url;
+  any img_x_len;
+  any img_x_size;
+  any img_y_len;
+  any img_y_size;
+  any interval;
+  array<string> url_list;
+};
+
+type DyVideoSearchDownloadAddrData = {
+  array<string> url_list;
+};
+
+type DyVideoSearchDynamicCoverData = {
+  array<string> url_list;
+};
+
+type DyVideoSearchOriginCoverData = {
+  array<string> url_list;
+};
+
+type DyVideoSearchPlayAddrData = {
+  any data_size;
+  any height;
+  array<string> url_list;
+  any width;
+};
+
+type DyVideoSearchPlayAddr265Data = {
+  any data_size;
+  any height;
+  array<string> url_list;
+  any width;
+};
+
+type DyVideoSearchPlayAddrH264Data = {
+  any data_size;
+  any height;
+  array<string> url_list;
+  any width;
+};
+
+type DyVideoSearchVideoData = {
+  DyVideoSearchBigThumbsData big_thumbs;
+  DyVideoSearchDownloadAddrData download_addr;
+  DyVideoSearchDynamicCoverData dynamic_cover;
+  string format;
+  any height;
+  DyVideoSearchOriginCoverData origin_cover;
+  DyVideoSearchPlayAddrData play_addr;
+  DyVideoSearchPlayAddr265Data play_addr_265;
+  DyVideoSearchPlayAddrH264Data play_addr_h264;
+  string ratio;
+  any width;
+};
+
+type DyVideoSearchVideoTagItem = {
+  string tag_name;
+};
+
+type DyVideoSearchAwemeInfoData = {
+  DyVideoSearchAuthorData author;
+  any author_user_id;
+  string aweme_id;
+  any aweme_type;
+  string caption;
+  any comment_gid;
+  any create_time;
+  string desc;
+  any duration;
+  string group_id;
+  any horizontal_type;
+  string item_title;
+  any media_type;
+  DyVideoSearchMusicData music;
+  DyVideoSearchRecommendChapterInfoData recommend_chapter_info;
+  DyVideoSearchStatisticsData statistics;
+  DyVideoSearchSuggestWordsData suggest_words;
+  array<DyVideoSearchTextExtraItem> text_extra;
+  DyVideoSearchVideoData video;
+  array<DyVideoSearchVideoTagItem> video_tag;
+};
+
+type DyVideoSearchDataData2 = {
+  DyVideoSearchAwemeInfoData aweme_info;
+  any $type;
+};
+
+type DyVideoSearchBusinessDataItem = {
+  DyVideoSearchDataData2 data;
+  string data_id;
+  any $type;
+};
+
+type DyVideoSearchDataData = {
+  DyVideoSearchBusinessConfigData business_config;
+  array<DyVideoSearchBusinessDataItem> business_data;
+};
+
+type DyVideoSearchMetaData = {
+  string cost;
+  string cost_desc;
+  string docs;
+  any execution_id;
+  string tool_external_id;
+};
+
+type DyVideoSearchResult = {
+
+  float $code;
+  DyVideoSearchDataData data;
+  string message;
+  DyVideoSearchMetaData meta;
+  string tip;
+};
+
+function dy_video_search(string api_key = "", string backtrace = "", float cursor = 0.0, string filter_duration = "", string keyword = "", string publish_time = "", string search_id = "", string sort_type = "") -> DyVideoSearchResult {}

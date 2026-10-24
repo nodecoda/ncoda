@@ -1,0 +1,21 @@
+// image_generate.ncoda — capability header (provider = file name)
+// desc: 图像生成（内置节点;动态输入 + 模型设置,输出 image）
+// P1 内置节点通道: 绑定表 node_type=image_generate。inputs（map,键 = canvas
+// inputParameters 作者命名）→ 端口 output + 逐条 inputParameters;model_setting
+// （map）→ modelSetting 透传（model / custom_ratio / ddim_steps / ratio /
+// images_reference）;prompt_template（map）→ prompt 模板透传;references（list,
+// 参考图：preprocessor / url / weight，url.value.content 内嵌平台引用身份）→
+// 顶层 references 透传。签名与注册表 collect.builtinNodeToUse 一致
+// （docs/ROUNDTRIP-MATRIX.md 同款）。
+
+@language nodecoda/1
+library image_generate @ 0.1.0;
+
+type ImageGenerateGenerateResult = {
+  file<image> data;
+
+  string msg;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=60000
+function generate(any inputs = 0, any model_setting = 0, any prompt_template = 0, any references = 0) -> ImageGenerateGenerateResult {}

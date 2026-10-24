@@ -1,0 +1,12 @@
+// text_split_master.ncoda — capability header (provider = file name)
+// desc: 文本拆分大师
+
+@language nodecoda/1
+library text_split_master @ 0.1.0;
+
+type TextSplitMasterTextsplittingmasterResult = {
+  array<string> $output;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function TextSplittingMaster(string input = 0) -> TextSplitMasterTextsplittingmasterResult {}

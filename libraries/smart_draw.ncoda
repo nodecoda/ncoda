@@ -1,0 +1,31 @@
+// smart_draw.ncoda — capability header (provider = file name)
+// desc: 智能绘图_文生图
+
+@language nodecoda/1
+library smart_draw @ 0.1.0;
+
+type SmartDrawGenimageResult = {
+  SmartDrawGenimageData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type SmartDrawGenimageData = {
+  SmartDrawGenimageDataAlgorithmBaseResp algorithm_base_resp;
+
+  array<string> binary_data_base64;
+
+  array<string> image_urls;
+
+  string request_id;
+};
+type SmartDrawGenimageDataAlgorithmBaseResp = {
+  float $code;
+
+  string status_message;
+};
+
+function genImage(float height = 0, string prompt = 0, bool use_pre_llm = 0, float width = 0, float scale = 0, int seed = 0, map<string,any> logo_info = 0) -> SmartDrawGenimageResult {}

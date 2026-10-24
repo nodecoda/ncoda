@@ -1,0 +1,117 @@
+// xhs_user_note.ncoda — capability header (provider = file name)
+// desc: 小红书工具
+
+@language nodecoda/1
+library xhs_user_note @ 0.1.0;
+
+type XhsUserNoteGetUserNoteResult = {
+  array<XhsUserNoteGetUserNoteData> data;
+
+  bool has_more;
+
+  bool $success;
+
+  string last_cursor;
+
+  string message;
+
+  string tip_url;
+};
+type XhsUserNoteGetUserNoteData = {
+  array<string> ats;
+
+  int collected_count;
+
+  int comments_count;
+
+  int create_time;
+
+  string cursor;
+
+  string desc;
+
+  string display_title;
+
+  bool has_music;
+
+  string id;
+
+  array<XhsUserNoteGetUserNoteDataImagesList> images_list;
+
+  bool infavs;
+
+  bool inlikes;
+
+  bool is_goods_note;
+
+  int last_update_time;
+
+  int level;
+
+  int likes;
+
+  int nice_count;
+
+  bool niced;
+
+  int price;
+
+  XhsUserNoteGetUserNoteDataRecommend recommend;
+
+  int share_count;
+
+  bool sticky;
+
+  string title;
+
+  string $type;
+
+  XhsUserNoteGetUserNoteDataUser user;
+
+  int view_count;
+
+  string widgets_context;
+};
+type XhsUserNoteGetUserNoteDataImagesList = {
+  string fileid;
+
+  int height;
+
+  string original;
+
+  string trace_id;
+
+  string url;
+
+  string url_size_large;
+
+  int width;
+};
+type XhsUserNoteGetUserNoteDataRecommend = {
+  string desc;
+
+  string icon;
+
+  string target_id;
+
+  string target_name;
+
+  string track_id;
+
+  string $type;
+};
+type XhsUserNoteGetUserNoteDataUser = {
+  bool followed;
+
+  string fstatus;
+
+  string images;
+
+  string nickname;
+
+  int red_official_verify_type;
+
+  string userid;
+};
+
+function get_user_note(string api_token = 0, string lastCursor = 0, string note_url = 0) -> XhsUserNoteGetUserNoteResult {}

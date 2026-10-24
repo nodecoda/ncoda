@@ -1,0 +1,7 @@
+// timer_pro.ncoda — capability header (library = file name)
+// desc: 定时器
+@language nodecoda/1
+library timer_pro @ 0.1.0;
+
+@capability failure_branch=true, timeout_ms=180000
+function time_waiter(int delay_ms) -> void {}

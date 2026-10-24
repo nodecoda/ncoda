@@ -1,0 +1,46 @@
+// video_nowm_parse.ncoda — capability header (provider = file name)
+// desc: 视频无水印解析
+
+@language nodecoda/1
+library video_nowm_parse @ 0.1.0;
+
+type VideoNowmParseParselinkResult = {
+  VideoNowmParseParselinkData data;
+
+  string message;
+
+  int $code;
+};
+type VideoNowmParseParselinkData = {
+  array<VideoNowmParseParselinkDataAvlist> avlist;
+
+  string channel;
+
+  string cover;
+
+  array<string> images;
+
+  string title;
+
+  int $type;
+
+  string video;
+};
+type VideoNowmParseParselinkDataAvlist = {
+  string acodec;
+
+  string filesize;
+
+  string format;
+
+  string height;
+
+  string url;
+
+  string vcodec;
+
+  string width;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function parseLink(any link = 0, string auth = "") -> VideoNowmParseParselinkResult {}

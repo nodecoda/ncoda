@@ -1,0 +1,59 @@
+// codel_video.ncoda — capability header (library = file name)
+// desc: CodeL视频编排工具
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library codel_video @ 0.1.0;
+
+type KeyframeAniSceneV1AudioTimelinesItem = {
+  int end;
+  int start;
+};
+
+type KeyframeAniSceneV1AudioTimelines1Item = {
+  int end;
+  int start;
+};
+
+type KeyframeAniSceneV1Result = {
+  array<string> audio_effect;
+  array<string> audio_effect1;
+  array<KeyframeAniSceneV1AudioTimelinesItem> audio_timelines;
+  array<KeyframeAniSceneV1AudioTimelines1Item> audio_timelines1;
+  string keyframes;
+  string keyframes_scale;
+  string tip_url;
+};
+
+function keyframe_ani_scene_v1(string api_token = "", array<any> segment_infos1 = [], array<any> segment_infos2 = [], array<any> segment_infos3 = []) -> KeyframeAniSceneV1Result {}
+
+type SplitListResultData = {
+  array<string> text_list1;
+  array<string> text_list2;
+  array<string> text_list3;
+  array<string> text_list4;
+  array<string> text_list5;
+  array<string> text_list6;
+  array<string> text_list7;
+  array<string> text_list8;
+  array<string> text_list9;
+  array<string> text_list10;
+};
+
+type SplitListResult = {
+  SplitListResultData result;
+};
+
+function split_list(int size = 0, array<any> text_list = []) -> SplitListResult {}
+
+type MergeListSplitListItem = {
+  array<string> split_list_sub;
+};
+
+type MergeListResult = {
+  array<string> all_list;
+  string remark;
+  array<MergeListSplitListItem> split_list;
+};
+
+function merge_list(array<any> audio_list1 = [], array<any> audio_list10 = [], array<any> audio_list2 = [], array<any> audio_list3 = [], array<any> audio_list4 = [], array<any> audio_list5 = [], array<any> audio_list6 = [], array<any> audio_list7 = [], array<any> audio_list8 = [], array<any> audio_list9 = []) -> MergeListResult {}

@@ -1,0 +1,33 @@
+// hotlist_aggregate.ncoda — capability header (provider = file name)
+// desc: 热搜榜聚合
+
+@language nodecoda/1
+library hotlist_aggregate @ 0.1.0;
+
+type HotlistAggregateHotListResult = {
+  array<HotlistAggregateHotListData> data;
+
+  bool $success;
+};
+type HotlistAggregateHotListData = {
+  array<HotlistAggregateHotListDataData> data;
+
+  string name;
+
+  string subtitle;
+
+  string update_time;
+};
+type HotlistAggregateHotListDataData = {
+  string hot;
+
+  float index;
+
+  string mobilUrl;
+
+  string title;
+
+  string url;
+};
+
+function hot_list() -> HotlistAggregateHotListResult {}

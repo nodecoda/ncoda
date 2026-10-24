@@ -1,0 +1,22 @@
+// video2audio.ncoda — capability header (provider = file name)
+// desc: 视频提取音频 / 视频转音频
+
+@language nodecoda/1
+library video2audio @ 0.1.0;
+
+type Video2audioVideo2mp3Result = {
+  string audio_size;
+
+  string audio_url;
+
+  string message;
+
+  string video_size;
+
+  string video_url;
+  any errorBody;
+  bool isSuccess;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function video2mp3(string video_url = 0) -> Video2audioVideo2mp3Result {}

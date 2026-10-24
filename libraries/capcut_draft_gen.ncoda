@@ -1,0 +1,23 @@
+// capcut_draft_gen.ncoda — capability header (provider = file name)
+// desc: 剪映草稿一键生成
+
+@language nodecoda/1
+library capcut_draft_gen @ 0.1.0;
+
+type CapcutDraftGenAddAudioResult = {
+  array<string> audio_ids;
+
+  string draft_id;
+
+  string message;
+};
+type CapcutDraftGenCreateDraftResult = {
+  string draft_id;
+
+  string message;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function add_audio(string audio_infos = 0, string draft_id = 0) -> CapcutDraftGenAddAudioResult {}
+@capability failure_branch=true, timeout_ms=180000
+function create_draft(int height = 0, int width = 0) -> CapcutDraftGenCreateDraftResult {}

@@ -1,0 +1,12 @@
+// bing_search.ncoda — capability header (provider = file name)
+// desc: Bing搜索
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library bing_search @ 0.1.0;
+
+type BingSearchResult = {
+  any value;
+};
+
+function Bing_Search(int $limit = 0, string query = "") -> BingSearchResult {}

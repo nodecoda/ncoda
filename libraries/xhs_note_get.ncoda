@@ -1,0 +1,15 @@
+// xhs_note_get.ncoda — capability header (provider = file name)
+// desc: 小红书笔记提取
+
+@language nodecoda/1
+library xhs_note_get @ 0.1.0;
+
+type XhsNoteGetGetNotesResult = {
+  string content;
+
+  array<string> image_urls;
+
+  string title;
+};
+
+function get_notes(string url = 0) -> XhsNoteGetGetNotesResult {}

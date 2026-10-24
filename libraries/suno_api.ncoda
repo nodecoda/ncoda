@@ -1,0 +1,71 @@
+// suno_api.ncoda — capability header (provider = file name)
+// desc: suno_api
+
+@language nodecoda/1
+library suno_api @ 0.1.0;
+
+type SunoApiSunoFetchResult = {
+  SunoApiSunoFetchData data;
+
+  string message;
+
+  string $code;
+};
+type SunoApiSunoFetchData = {
+  string $action;
+
+  array<SunoApiSunoFetchDataData> data;
+
+  string fail_reason;
+
+  int finish_time;
+
+  string progress;
+
+  int start_time;
+
+  string status;
+
+  int submit_time;
+
+  string task_id;
+};
+type SunoApiSunoFetchDataData = {
+  string audio_url;
+
+  string clip_id;
+
+  string create_time;
+
+  int duration;
+
+  string gpt_description_prompt;
+
+  string id;
+
+  string image_large_url;
+
+  string image_url;
+
+  string msg;
+
+  string mv;
+
+  string prompt;
+
+  string state;
+
+  string status;
+
+  string tags;
+
+  string task_id;
+
+  string title;
+
+  string update_time;
+
+  string video_url;
+};
+
+function suno_fetch(string api_token = 0, string task_id = 0) -> SunoApiSunoFetchResult {}

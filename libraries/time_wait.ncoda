@@ -1,0 +1,12 @@
+// time_wait.ncoda — capability header (library = file name)
+// desc: 时间等待
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library time_wait @ 0.1.0;
+
+type TimeWaitResult = {
+  any value;
+};
+
+function time_wait(int time = 0) -> TimeWaitResult {}

@@ -1,0 +1,54 @@
+// zh_tts.ncoda — capability header (provider = file name)
+// desc: 中文文本转语音
+
+@language nodecoda/1
+library zh_tts @ 0.1.0;
+
+type ZhTtsWennuanAhuResult = {
+  ZhTtsWennuanAhuData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type ZhTtsWennuanAhuData = {
+  string message;
+
+  string url;
+};
+type ZhTtsYangguangQingnianResult = {
+  ZhTtsYangguangQingnianData data;
+
+  string log_id;
+
+  string msg;
+
+  array<ZhTtsYangguangQingnianOutputlist> outputList;
+
+  float $code;
+};
+type ZhTtsYangguangQingnianData = {
+  string message;
+
+  string url;
+};
+type ZhTtsYangguangQingnianOutputlist = {
+  ZhTtsYangguangQingnianOutputlistData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type ZhTtsYangguangQingnianOutputlistData = {
+  string message;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function wennuan_ahu(any text = 0) -> ZhTtsWennuanAhuResult {}
+function yangguang_qingnian(any text = 0) -> ZhTtsYangguangQingnianResult {}

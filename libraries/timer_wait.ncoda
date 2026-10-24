@@ -1,0 +1,16 @@
+// timer_wait.ncoda — capability header (provider = file name)
+// desc: 定时器
+
+@language nodecoda/1
+library timer_wait @ 0.1.0;
+
+type TimerWaitTimeWaitResult = {
+  float actual_delay;
+
+  bool $success;
+
+  string message;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function time_wait(float seconds = 0) -> TimerWaitTimeWaitResult {}

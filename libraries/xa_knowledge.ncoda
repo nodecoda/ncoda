@@ -1,0 +1,18 @@
+// xa_knowledge.ncoda — capability header (library = file name)
+// desc: XA知识检索（内测）
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library xa_knowledge @ 0.1.0;
+
+type KbSearchQueryResultItem = {
+  string content;
+  any score;
+  string source_doc;
+};
+
+type KbSearchResult = {
+  array<KbSearchQueryResultItem> query_result;
+};
+
+function kb_search(string ak = "", array<any> catalog = [], array<any> label = [], array<any> level = [], string query = "", string scope = "", float score_threshold = 0.0, int top_k = 0) -> KbSearchResult {}

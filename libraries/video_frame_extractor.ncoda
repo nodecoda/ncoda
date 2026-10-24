@@ -1,0 +1,26 @@
+// video_frame_extractor.ncoda — capability header (provider = file name)
+// desc: 视频抽帧（内置节点; P1 内置节点通道 node_type=video_frame_extractor）
+// 输出结构对齐平台 schema（render_node.go builtinNodeOutputs(false)）:
+//   data.chunks[] = { index:integer, screenshot:image, timestamp_ms:integer }
+// screenshot 为图片文件（image）→ file 类型（file 本质 URL 字符串,
+// 与 image_generate.data / drawing_board.data 同构语义）。
+
+@language nodecoda/1
+library video_frame_extractor @ 0.1.0;
+
+type VideoFrameExtractResult = {
+  VideoFrameExtractData data;
+};
+
+type VideoFrameExtractData = {
+  array<VideoFrameExtractChunk> chunks;
+};
+
+type VideoFrameExtractChunk = {
+  int index;
+  file<image> screenshot;
+  int timestamp_ms;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function extract(any video = 0, any count = 0, any interval_ms = 0, any method = 0) -> VideoFrameExtractResult {}

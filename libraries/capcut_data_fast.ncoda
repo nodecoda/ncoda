@@ -1,0 +1,61 @@
+// capcut_data_fast.ncoda — capability header (library = file name)
+// desc: 数据速创_剪映小助手
+@language nodecoda/1
+library capcut_data_fast @ 0.1.0;
+
+type AudioInfosResult = {
+  string error;
+
+  string infos;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function audio_infos(string audio_effect = "", array<any> mp3_urls, array<any> timelines, float volume = 0) -> AudioInfosResult {}
+type CaptionInfosResult = {
+  string error;
+
+  string infos;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function caption_infos(int font_size = 0, string in_animation = "", string keyword_color = "", int keyword_font_size = 0, array<any> keywords = [], array<any> texts, array<any> timelines, int in_animation_duration = 0, string loop_animation = "", int loop_animation_duration = 0, string out_animation = "", int out_animation_duration = 0) -> CaptionInfosResult {}
+type ImgsInfosResult = {
+  string error;
+
+  string infos;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function imgs_infos(array<any> imgs, array<any> timelines, float height = 0.0, string in_animation = "", int in_animation_duration = 0, string loop_animation = "", int loop_animation_duration = 0, string out_animation = "", int out_animation_duration = 0, string transition = "", int transition_duration = 0, float width = 0.0) -> ImgsInfosResult {}
+
+type VideoInfosResult = {
+  string infos;
+};
+
+function video_infos(float height = 0.0, string mask = "", array<any> timelines = [], string transition = "", float transition_duration = 0.0, array<any> video_urls = [], float volume = 0.0, float width = 0.0) -> VideoInfosResult {}
+
+type KeyframesInfosErrorBodyData = {
+  string errorCode;
+  string errorMessage;
+};
+
+type KeyframesInfosOutputListItem = {
+  string error;
+  string keyframes_infos;
+};
+
+type KeyframesInfosResult = {
+  KeyframesInfosErrorBodyData errorBody;
+  bool isSuccess;
+  string keyframes_infos;
+  string error;
+  array<KeyframesInfosOutputListItem> outputList;
+};
+
+function keyframes_infos(string ctype = "", float height = 0.0, string offsets = "", string pattern = "", array<any> segment_infos = [], string values = "", float width = 0.0) -> KeyframesInfosResult {}
+
+type EffectInfosResult = {
+  string infos;
+};
+
+function effect_infos(array<any> effects = [], array<any> timelines = []) -> EffectInfosResult {}

@@ -1,0 +1,39 @@
+// dy_user_aweme_list.ncoda — capability header (provider = file name)
+// desc: 获取博主作品列表
+
+@language nodecoda/1
+library dy_user_aweme_list @ 0.1.0;
+
+type DyUserAwemeListDyGetUserAwemeListResult = {
+  DyUserAwemeListDyGetUserAwemeListData data;
+
+  string message;
+
+  string prompt;
+
+  int $code;
+};
+type DyUserAwemeListDyGetUserAwemeListData = {
+  array<DyUserAwemeListDyGetUserAwemeListDataAwemeList> aweme_list;
+};
+type DyUserAwemeListDyGetUserAwemeListDataAwemeList = {
+  string aweme_url;
+
+  int collect_count;
+
+  int comment_count;
+
+  int create_time;
+
+  string desc;
+
+  int digg_count;
+
+  int duration;
+
+  int share_count;
+
+  string video;
+};
+
+function dy_get_user_aweme_list(string api_key = 0, string share_link = 0, int count = 0) -> DyUserAwemeListDyGetUserAwemeListResult {}

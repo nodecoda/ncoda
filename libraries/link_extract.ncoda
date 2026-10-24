@@ -1,0 +1,27 @@
+// link_extract.ncoda — capability header (provider = file name)
+// desc: 提取文本中链接
+
+@language nodecoda/1
+library link_extract @ 0.1.0;
+
+type LinkExtractExtractAllLinksResult = {
+  array<string> data;
+
+  string message;
+
+  string prompt;
+
+  int $code;
+};
+type LinkExtractExtractFirstLinkResult = {
+  string data;
+
+  string message;
+
+  string prompt;
+
+  int $code;
+};
+
+function extract_all_links(string text = 0) -> LinkExtractExtractAllLinksResult {}
+function extract_first_link(string text = 0) -> LinkExtractExtractFirstLinkResult {}

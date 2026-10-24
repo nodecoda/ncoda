@@ -1,0 +1,31 @@
+// mivideo_fast.ncoda — capability header (library = file name)
+// desc: MIVIDEO生成快速版
+
+@language nodecoda/1
+library mivideo_fast @ 0.1.0;
+
+type MivideoFastspeedResult = {
+  MivideoFastspeedData data;
+
+  string message;
+};
+type MivideoFastspeedData = {
+  string id;
+};
+type TaskInfoResult = {
+  TaskInfoData data;
+
+  string message;
+
+  int status;
+};
+type TaskInfoData = {
+  string id;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function mivideo_fastspeed(int duration = 0, array<any> images = [], string key = 0, string model = 0, string prompt = 0, string ratio = 0, string referenceMode = 0) -> MivideoFastspeedResult {}
+@capability failure_branch=true, timeout_ms=180000
+function task_info(string id = 0) -> TaskInfoResult {}

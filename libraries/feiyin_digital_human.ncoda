@@ -1,0 +1,43 @@
+// feiyin_digital_human.ncoda — capability header (provider = file name)
+// desc: 飞影数字人
+
+@language nodecoda/1
+library feiyin_digital_human @ 0.1.0;
+
+type FeiyinDigitalHumanCreateLipsyncVideoResult = {
+  int job_id;
+
+  string message;
+
+  string request_id;
+
+  int $code;
+};
+type FeiyinDigitalHumanCreateLipsyncVideo2Result = {
+  int job_id;
+
+  string message;
+
+  string request_id;
+
+  int $code;
+};
+type FeiyinDigitalHumanInspectVideoCreationStatusResult = {
+  int duration;
+
+  string message;
+
+  string request_id;
+
+  int status;
+
+  int $code;
+
+  string video_Url;
+};
+
+function create_lipsync_video(string hifly_id = 0, string speaker_id = 0, string text = 0, string video_url = 0, string title = 0, int voice_id = 0, int voice_type = 0, string audio_url = 0) -> FeiyinDigitalHumanCreateLipsyncVideoResult {}
+@capability failure_branch=true, timeout_ms=180000
+function create_lipsync_video2(int digital_human_id = 0, string hifly_id = 0, string speaker_id = 0, string text = 0) -> FeiyinDigitalHumanCreateLipsyncVideo2Result {}
+@capability failure_branch=true, timeout_ms=180000
+function inspect_video_creation_status(string hifly_id = 0, int job_id = 0) -> FeiyinDigitalHumanInspectVideoCreationStatusResult {}

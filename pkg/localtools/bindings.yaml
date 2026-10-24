@@ -1,0 +1,54 @@
+# local-bindings.yaml — 语言库 symbol/operation → ncoda 符号的**本地绑定表**。
+#
+# 这里是语言库名到本地实现的映射；实现包保持平台无关（pkg/localtools
+# 不知道平台 provider id）。平台物理 id 只声明在 platform/bindings-platform.yaml。
+#
+# 新增一条 = 让一条真实语料在离线 runtime 上跑通。来源：语料里 plugin 节点的
+# pluginID + apiName（见 docs/corpus/catalog-v0/）。
+#
+# P0 纪律（L1-AC7）：本文件只收语言库符号（LIBRARY-SYMBOLS.yaml）。
+# 平台 id（plugin_* / 裸数字）在 adapter-owned
+# github.com/nodecoda/ncoda-commercial/internal/localtools/platform/bindings-platform.yaml，仅由
+# platform.RegisterPlatformAliases() 加载；P0 Register 不加载它。
+bindings:
+  # 图像生成_速创小助手 / image_generator（T3 图文：艺术展览等）
+  # L1': 语言层库名；下行保留旧平台名作为 legacy 别名（迁移期兼容）。
+  - provider: image_generate_fast
+    operation: image_generator
+    capability: local_image_generate/generate
+    implementation: real
+  # L1' 主路径：ncoda 源码里写的是 image_generate.generate
+  - provider: image_generate
+    operation: generate
+    capability: local_image_generate/generate
+    implementation: real
+  # 数据库 CRUD（内置节点族）：真实现 = 本地 SQLite，不是 stub。
+  # 表 → t_<tableID>，列 → f_<fieldID>；condition/order_by/limit 交给 SQLite。
+  - provider: database
+    operation: insert
+    capability: local_database/insert
+    implementation: real
+  - provider: database
+    operation: select
+    capability: local_database/select
+    implementation: real
+  - provider: database
+    operation: update
+    capability: local_database/update
+    implementation: real
+  - provider: database
+    operation: delete
+    capability: local_database/delete
+    implementation: real
+
+  # 抠图（matting）：本地实现 = 边界背景 keying（确定性，非分割模型）。
+  - provider: matting
+    operation: cutout
+    capability: local_matting/cutout
+    implementation: real
+
+  # 缩放（image_scale）：本地实现 = 双线性等比缩放，最长边≤max_length，不放大。
+  - provider: image_scale
+    operation: resize
+    capability: local_image_scale/resize
+    implementation: real

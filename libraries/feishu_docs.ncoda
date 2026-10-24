@@ -1,0 +1,49 @@
+// feishu_docs.ncoda — capability header (provider = file name)
+// desc: 飞书云文档
+
+@language nodecoda/1
+library feishu_docs @ 0.1.0;
+
+type FeishuDocsCreateDocumentResult = {
+  FeishuDocsCreateDocumentData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type FeishuDocsCreateDocumentData = {
+  string title;
+
+  string token;
+
+  string $type;
+
+  string url;
+};
+type FeishuDocsWriteDocumentResult = {
+  string log_id;
+
+  string msg;
+
+  int $code;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function create_document(any content = 0, string folder_token = 0, string title = 0) -> FeishuDocsCreateDocumentResult {}
+function write_document(string content = 0, string document_id = 0, string position = 0) -> FeishuDocsWriteDocumentResult {}
+
+type UploadMediaDataData = {
+  string file_token;
+};
+
+type UploadMediaResult = {
+
+  float $code;
+  UploadMediaDataData data;
+  string log_id;
+  string msg;
+};
+
+function upload_media(string file_name = "", string file_url = "", string parent_node = "", string parent_type = "") -> UploadMediaResult {}

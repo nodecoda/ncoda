@@ -1,0 +1,21 @@
+// prompt_optimize.ncoda — capability header (provider = file name)
+// desc: 提示词优化
+
+@language nodecoda/1
+library prompt_optimize @ 0.1.0;
+
+type PromptOptimizeSdBetterPromptResult = {
+  string data;
+
+  string msg;
+
+  array<PromptOptimizeSdBetterPromptOutputlist> outputList;
+};
+type PromptOptimizeSdBetterPromptOutputlist = {
+  string data;
+
+  string msg;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function sd_better_prompt(string prompt = 0) -> PromptOptimizeSdBetterPromptResult {}

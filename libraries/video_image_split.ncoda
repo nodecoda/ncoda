@@ -1,0 +1,34 @@
+// video_image_split.ncoda — capability header (library = file name)
+// desc: 视频图片拆分
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library video_image_split @ 0.1.0;
+
+type VideoImageMergingImageTimelinesItem = {
+  int end;
+  int start;
+};
+
+type VideoImageMergingVideoTimelinesItem = {
+  int end;
+  int start;
+};
+
+type VideoImageMergingResult = {
+  array<string> image_Arr_String;
+  array<VideoImageMergingImageTimelinesItem> image_timelines;
+  array<string> video_Arr_String;
+  array<VideoImageMergingVideoTimelinesItem> video_timelines;
+};
+
+function Video_Image_Merging(array<any> Arr_String = [], array<any> image_num = [], array<any> timelines = [], array<any> video_num = []) -> VideoImageMergingResult {}
+
+type VideoImgeSplitResult = {
+  array<int> image_num;
+  array<string> image_text;
+  array<int> video_num;
+  array<string> video_text;
+};
+
+function video_imge_split(int interval = 0, array<any> texts = [], int video_num = 0) -> VideoImgeSplitResult {}

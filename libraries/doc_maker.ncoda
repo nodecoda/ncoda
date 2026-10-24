@@ -1,0 +1,21 @@
+// doc_maker.ncoda — capability header (library = file name)
+// desc: Doc Maker
+
+@language nodecoda/1
+library doc_maker @ 0.1.0;
+
+type CreateDocumentResult = {
+  string data;
+
+  string log_id;
+
+  string message;
+
+  string msg;
+
+  float $code;
+  float status_code;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function create_document(string formatted_markdown = 0, string title = 0, string to_format = 0) -> CreateDocumentResult {}

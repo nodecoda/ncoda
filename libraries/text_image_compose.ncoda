@@ -1,0 +1,12 @@
+// text_image_compose.ncoda — capability header (library = file name)
+// desc: 图文合成_速创小助手
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library text_image_compose @ 0.1.0;
+
+type HtmlToImageResult = {
+  string image_url;
+};
+
+function html_to_image(string api_key = "", string html_str = "") -> HtmlToImageResult {}

@@ -1,0 +1,35 @@
+// so_video_gen.ncoda — capability header (library = file name)
+// desc: SO视频生成
+
+@language nodecoda/1
+library so_video_gen @ 0.1.0;
+
+type RSoGenerateVideoResult = {
+  RSoGenerateVideoData data;
+
+  string message;
+};
+type RSoGenerateVideoData = {
+  string id;
+
+  string url;
+};
+type RTaskInfoResult = {
+  RTaskInfoData data;
+
+  string message;
+
+  int status;
+};
+type RTaskInfoData = {
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function r_so_generate_video(int direction = 0, int duration = 0, string image_url = 0, string key = 0, string prompt = 0) -> RSoGenerateVideoResult {}
+@capability failure_branch=true, timeout_ms=180000
+function r_task_info(string id = 0) -> RTaskInfoResult {}
+@capability failure_branch=true, timeout_ms=600000
+function so_generate_video(int direction = 0, int duration = 0, string image_url = 0, string key = 0, string prompt = 0) -> RSoGenerateVideoResult {}
+@capability failure_branch=true, timeout_ms=180000
+function so_task_info(string id = 0) -> RTaskInfoResult {}

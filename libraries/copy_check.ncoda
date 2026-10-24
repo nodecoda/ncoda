@@ -1,0 +1,11 @@
+// copy_check.ncoda — capability header (provider = file name)
+// desc: 文案校对
+
+@language nodecoda/1
+library copy_check @ 0.1.0;
+
+type CopyCheckContentCheckResult = {
+  string $output;
+};
+
+function content_check(string api_key = 0, string model = 0, string user_prompt = 0, string system_prompt = 0) -> CopyCheckContentCheckResult {}

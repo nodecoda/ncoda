@@ -1,0 +1,130 @@
+// capcut_video_fast.ncoda — capability header (library = file name)
+// desc: 视频速创_剪映小助手
+
+@language nodecoda/1
+library capcut_video_fast @ 0.1.0;
+
+type AddAudiosResult = {
+  array<string> audio_ids;
+
+  string draft_url;
+
+  string error;
+  any errorBody;
+  bool isSuccess;
+};
+type AddCaptionsResult = {
+  string draft_url;
+
+  string error;
+
+  array<string> segment_ids;
+
+  array<AddCaptionsSegmentInfos> segment_infos;
+
+  array<string> text_ids;
+
+  string track_id;
+  array<any> outputList;
+};
+type AddCaptionsSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type AddEffectsResult = {
+  string draft_url;
+
+  array<string> effect_ids;
+
+  array<string> segment_ids;
+
+  string track_id;
+};
+type AddImagesResult = {
+  string draft_url;
+
+  string error;
+
+  array<string> image_ids;
+
+  array<string> segment_ids;
+
+  array<AddImagesSegmentInfos> segment_infos;
+
+  string track_id;
+  array<any> outputList;
+};
+type AddImagesSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type AddKeyframeResult = {
+  string draft_url;
+  any errorBody;
+  bool isSuccess;
+  array<any> outputList;
+};
+type AddVideosResult = {
+  string draft_url;
+
+  array<string> segment_ids;
+
+  array<AddVideosSegmentInfos> segment_infos;
+
+  array<string> video_ids;
+  string track_id;
+};
+type AddVideosSegmentInfos = {
+  int end;
+
+  string id;
+
+  int start;
+};
+type CreateDraftResult = {
+  string draft_url;
+
+  string error;
+
+  string tip_url;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function add_audios(string audio_effect = 0, string draft_url = 0, array<any> mp3_urls = 0, array<any> timelines = 0, float volume = 0, string audio_infos = 0, string draft_id = "") -> AddAudiosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_captions(any alignment = 0, float alpha = 0, any border_color = 0, string draft_url = 0, any font = 0, any font_size = 0, any in_animation = 0, float in_animation_duration = 0, bool italic = 0, any keyword_color = 0, array<any> keywords = 0, any letter_spacing = 0, string loop_animation = 0, string out_animation = 0, float out_animation_duration = 0, any scale_x = 0, any scale_y = 0, bool shadow = 0, string shadowInfo = 0, any text_color = 0, array<any> texts = 0, array<any> timelines = 0, any transform_x = 0, any transform_y = 0, float width = 0, int style_text = 0, string captions = 0, string backgroundInfo = 0, string keyword_font_size = 0, float loop_animation_duration = 0, string text_effect = 0, bool background = 0, string line_spacing = 0, string text_bubble = 0, string draft_id = "") -> AddCaptionsResult {}
+@capability failure_branch=true, timeout_ms=180000
+function add_effects(string draft_url = 0, array<any> effects = 0, array<any> timelines = 0, string effect_infos = 0, string draft_id = "") -> AddEffectsResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_images(string draft_url = 0, array<any> imgs = 0, string in_animation = 0, float in_animation_duration = 0, float out_animation_duration = 0, any scale_x = 0, any scale_y = 0, array<any> timelines = 0, any transform_x = 0, any transform_y = 0, string alpha = 0, string transition = 0, float transition_duration = 0, string image_infos = 0, float loop_animation_duration = 0, string out_animation = 0, float height = 0, string loop_animation = 0, float width = 0, string draft_id = "") -> AddImagesResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_keyframe(string ctype = 0, string draft_url = 0, string offsets = 0, string pattern = 0, array<any> segment_infos = 0, string values = 0, float width = 0, float height = 0, string keyframes = 0) -> AddKeyframeResult {}
+@capability failure_branch=true, timeout_ms=600000
+function add_videos(string draft_url = 0, any in_animation = 0, float in_animation_duration = 0, string scale_x = 0, string scale_y = 0, array<any> scene_timelines = 0, array<any> timelines = 0, array<any> video_urls = 0, string transform_x = 0, float height = 0, string transform_y = 0, string video_infos = 0, float width = 0, string loop_animation = 0, float loop_animation_duration = 0, string mask = 0, string out_animation = 0, float volume = 0, float out_animation_duration = 0, string transition = 0, float transition_duration = 0) -> AddVideosResult {}
+@capability failure_branch=true, timeout_ms=600000
+function create_draft(float height = 0, float width = 0, string draft_name = 0, int user_id = 0) -> CreateDraftResult {}
+
+type SaveDraftResult = {
+  string draft_url;
+  string message;
+};
+
+function save_draft(string draft_url = "", string user_id = "") -> SaveDraftResult {}
+
+type AddMasksResult = {
+  string draft_url;
+};
+
+function add_masks(int X = 0, int Y = 0, string draft_url = "", int feather = 0, int height = 0, bool invert = false, string name = "", int rotation = 0, int roundCorner = 0, array<any> segment_ids = [], int width = 0) -> AddMasksResult {}
+
+type AddStickersResult = {
+  string draft_url;
+};
+
+function add_stickers(string draft_url = "", string end = "", string scale = "", string start = "", string sticker_id = "", array<any> timelines = [], string transform_x = "", string transform_y = "") -> AddStickersResult {}

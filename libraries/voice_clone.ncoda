@@ -1,0 +1,13 @@
+// voice_clone.ncoda — capability header (provider = file name)
+// desc: 声音克隆
+
+@language nodecoda/1
+library voice_clone @ 0.1.0;
+
+type VoiceCloneVoiceCloneResult = {
+  string audio_url;
+
+  string message;
+};
+
+function voice_clone(string api_token = 0, string speaker = 0, string text = 0, string language = 0) -> VoiceCloneVoiceCloneResult {}

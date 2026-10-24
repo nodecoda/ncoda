@@ -1,0 +1,24 @@
+// book_search_online.ncoda — capability header (library = file name)
+// desc: 在线搜书
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library book_search_online @ 0.1.0;
+
+type SearchBooksOnlineDataItem = {
+  string author;
+  string book_id;
+  string cover;
+  string intro;
+  int price;
+  string publisher;
+  string title;
+};
+
+type SearchBooksOnlineResult = {
+
+  array<SearchBooksOnlineDataItem> data;
+  float errCode;
+};
+
+function search_books_online(string kw = "") -> SearchBooksOnlineResult {}

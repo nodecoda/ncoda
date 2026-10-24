@@ -1,0 +1,85 @@
+// douban_book_search.ncoda — capability header (provider = file name)
+// desc: 豆瓣搜书
+
+@language nodecoda/1
+library douban_book_search @ 0.1.0;
+
+type DoubanBookSearchBooksSearchV1SuggestResult = {
+  array<DoubanBookSearchBooksSearchV1SuggestBooks> books;
+
+  array<DoubanBookSearchBooksSearchV1SuggestOutputlist> outputList;
+};
+type DoubanBookSearchBooksSearchV1SuggestBooks = {
+  string author_name;
+
+  string id;
+
+  string pic;
+
+  string title;
+
+  string url;
+
+  string year;
+};
+type DoubanBookSearchBooksSearchV1SuggestOutputlist = {
+  array<DoubanBookSearchBooksSearchV1SuggestOutputlistBooks> books;
+};
+type DoubanBookSearchBooksSearchV1SuggestOutputlistBooks = {
+  string author_name;
+
+  string id;
+
+  string pic;
+
+  string title;
+
+  string url;
+
+  string year;
+};
+type DoubanBookSearchDoubanGetbookResult = {
+  string author_intro;
+
+  array<string> authors;
+
+  string book_image;
+
+  string book_name;
+
+  string isbn;
+
+  array<DoubanBookSearchDoubanGetbookOutputlist> outputList;
+
+  string pub_date;
+
+  string publisher;
+
+  string summary;
+
+  string url;
+};
+type DoubanBookSearchDoubanGetbookOutputlist = {
+  string author_intro;
+
+  array<string> authors;
+
+  string book_image;
+
+  string book_name;
+
+  string isbn;
+
+  string pub_date;
+
+  string publisher;
+
+  string summary;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function books_search_v1_suggest(string b_name = 0) -> DoubanBookSearchBooksSearchV1SuggestResult {}
+@capability failure_branch=true, timeout_ms=180000
+function douban_getbook(string book_name = 0) -> DoubanBookSearchDoubanGetbookResult {}

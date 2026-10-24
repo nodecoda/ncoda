@@ -1,0 +1,127 @@
+// doubao_img2video.ncoda — capability header (provider = file name)
+// desc: 豆包图生视频
+
+@language nodecoda/1
+library doubao_img2video @ 0.1.0;
+
+type DoubaoImg2videoImg2VideoResult = {
+  string msg;
+
+  array<DoubaoImg2videoImg2VideoOutputlist> outputList;
+
+  DoubaoImg2videoImg2VideoResultValue result;
+
+  int $code;
+
+  string tip;
+};
+type DoubaoImg2videoImg2VideoOutputlist = {
+  string msg;
+
+  DoubaoImg2videoImg2VideoOutputlistResult result;
+
+  int $code;
+
+  string tip;
+};
+type DoubaoImg2videoImg2VideoOutputlistResult = {
+  int completion_tokens;
+
+  string created_at;
+
+  int duration;
+
+  string hs_token;
+
+  string id;
+
+  string image_url;
+
+  string msg;
+
+  string prompt;
+
+  int prompt_tokens;
+
+  string status;
+
+  string task_id;
+
+  string updated_at;
+
+  int user_id;
+
+  string video_url;
+};
+type DoubaoImg2videoImg2VideoResultValue = {
+  int completion_tokens;
+
+  string created_at;
+
+  int duration;
+
+  string hs_token;
+
+  string id;
+
+  string image_url;
+
+  string msg;
+
+  string prompt;
+
+  int prompt_tokens;
+
+  string status;
+
+  string task_id;
+
+  string updated_at;
+
+  int user_id;
+
+  string video_url;
+};
+type DoubaoImg2videoTaskInfoV2Result = {
+  array<DoubaoImg2videoTaskInfoV2Outputlist> outputList;
+};
+type DoubaoImg2videoTaskInfoV2Outputlist = {
+  string msg;
+
+  DoubaoImg2videoTaskInfoV2OutputlistResult result;
+
+  int $code;
+
+  string tip_url;
+};
+type DoubaoImg2videoTaskInfoV2OutputlistResult = {
+  int completion_tokens;
+
+  string created_at;
+
+  int duration;
+
+  string hs_token;
+
+  string id;
+
+  string image_url;
+
+  string prompt;
+
+  int prompt_tokens;
+
+  string status;
+
+  string task_id;
+
+  string updated_at;
+
+  int user_id;
+
+  string video_url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function img2_video(string api_token = 0, bool asyn = 0, bool camerafixed = 0, any duration = 0, string end_image_url = 0, string image_url = 0, any model = 0, any prompt = 0, string resolution = 0, string aspect_ratio = 0) -> DoubaoImg2videoImg2VideoResult {}
+function task_info_v2(any task_id = 0) -> DoubaoImg2videoTaskInfoV2Result {}

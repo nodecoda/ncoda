@@ -1,0 +1,17 @@
+// na2_image_gen.ncoda — capability header (library = file name)
+// desc: na2图片生成
+
+@language nodecoda/1
+library na2_image_gen @ 0.1.0;
+
+type VeNa2GenerateImageResult = {
+  VeNa2GenerateImageData data;
+
+  string message;
+};
+type VeNa2GenerateImageData = {
+  string url;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function ve_na2_generate_image(any image_urls = [], string key = 0, string prompt = 0, string ratio = 0, string resolution = 0) -> VeNa2GenerateImageResult {}

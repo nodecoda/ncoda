@@ -1,0 +1,82 @@
+// jimeng_img2video.ncoda — capability header (provider = file name)
+// desc: 即梦图生视频
+
+@language nodecoda/1
+library jimeng_img2video @ 0.1.0;
+
+type JimengImg2videoImg2VideoResult = {
+  JimengImg2videoImg2VideoData data;
+
+  string msg;
+
+  array<JimengImg2videoImg2VideoOutputlist> outputList;
+
+  int $code;
+
+  string tip_url;
+};
+type JimengImg2videoImg2VideoData = {
+  string created_at;
+
+  string first_image;
+
+  string model;
+
+  string prompt;
+
+  int status;
+
+  string task_id;
+
+  string updated_at;
+};
+type JimengImg2videoImg2VideoOutputlist = {
+  JimengImg2videoImg2VideoOutputlistData data;
+
+  string msg;
+
+  int $code;
+
+  string tip_url;
+};
+type JimengImg2videoImg2VideoOutputlistData = {
+  string created_at;
+
+  string first_image;
+
+  string model;
+
+  string prompt;
+
+  int status;
+
+  string task_id;
+
+  string updated_at;
+};
+type JimengImg2videoTaskInfoResult = {
+  JimengImg2videoTaskInfoData data;
+
+  string msg;
+
+  int $code;
+  array<any> outputList;
+};
+type JimengImg2videoTaskInfoData = {
+  string created_at;
+
+  string first_image;
+
+  string prompt;
+
+  int status;
+
+  string task_id;
+
+  string updated_at;
+
+  string video_url;
+};
+
+function img2_video(string api_token = 0, string img_url = 0, any model = 0, any prompt = 0, bool camerafixed = 0, int duration = 0, string end_image_url = 0, bool asyn = 0, string resolution = 0) -> JimengImg2videoImg2VideoResult {}
+function task_info(string task_id = 0, int wait_cnt = 0) -> JimengImg2videoTaskInfoResult {}

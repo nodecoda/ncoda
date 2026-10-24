@@ -1,0 +1,12 @@
+// null_fill.ncoda — capability header (library = file name)
+// desc: 空值填充
+
+@language nodecoda/1
+library null_fill @ 0.1.0;
+
+type NullValueFillingResult = {
+  array<string> filled_data;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function null_value_filling(array<any> $array = 0) -> NullValueFillingResult {}

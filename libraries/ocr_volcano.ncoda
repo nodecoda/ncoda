@@ -1,0 +1,32 @@
+// ocr_volcano.ncoda — capability header (provider = file name)
+// desc: OCR火山版
+
+@language nodecoda/1
+library ocr_volcano @ 0.1.0;
+
+type OcrVolcanoGeneralOcrResult = {
+  OcrVolcanoGeneralOcrData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+  array<any> outputList;
+};
+type OcrVolcanoGeneralOcrData = {
+  array<OcrVolcanoGeneralOcrLineRects> line_rects;
+
+  array<string> line_texts;
+};
+type OcrVolcanoGeneralOcrLineRects = {
+  float height;
+
+  float width;
+
+  float x;
+
+  float y;
+};
+
+function general_ocr(string url = 0) -> OcrVolcanoGeneralOcrResult {}

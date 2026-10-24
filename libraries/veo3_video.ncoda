@@ -1,0 +1,36 @@
+// veo3_video.ncoda — capability header (library = file name)
+// desc: (corpus fallback: DB 快照未收录)
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library veo3_video @ 0.1.0;
+
+type AddVeo3VideoTaskDataData = {
+  string taskId;
+};
+
+type AddVeo3VideoTaskResult = {
+  string $code;
+  AddVeo3VideoTaskDataData data;
+  string msg;
+};
+
+function add_veo3_video_task(any api_key = 0, any imageUrls = 0, any model = 0, any prompt = 0) -> AddVeo3VideoTaskResult {}
+
+type GetVeo3VideoResponseData = {
+  array<string> resultUrls;
+  string taskId;
+};
+
+type GetVeo3VideoDataData = {
+  GetVeo3VideoResponseData response;
+  string taskId;
+};
+
+type GetVeo3VideoResult = {
+  string $code;
+  GetVeo3VideoDataData data;
+  string msg;
+};
+
+function get_veo3_video(any api_key = 0, any task_id = 0) -> GetVeo3VideoResult {}

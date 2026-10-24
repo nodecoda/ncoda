@@ -1,0 +1,51 @@
+// secondhand_goods.ncoda — capability header (provider = file name)
+// desc: 二手物资
+
+@language nodecoda/1
+library secondhand_goods @ 0.1.0;
+
+type SecondhandGoodsShopSearchResult = {
+  SecondhandGoodsShopSearchData data;
+
+  string message;
+
+  string tip_url;
+};
+type SecondhandGoodsShopSearchData = {
+  string data_from;
+
+  array<SecondhandGoodsShopSearchDataItem> item;
+
+  string page;
+
+  int page_count;
+
+  int page_size;
+
+  int real_total_results;
+
+  int total_results;
+};
+type SecondhandGoodsShopSearchDataItem = {
+  string area;
+
+  string detail_url;
+
+  string nick;
+
+  string num_iid;
+
+  string pic_url;
+
+  string price;
+
+  string promotion_price;
+
+  string title;
+
+  string userAvatarUrl;
+
+  string want_num;
+};
+
+function shop_search(string api_token = 0, string word = 0, int page = 0) -> SecondhandGoodsShopSearchResult {}

@@ -1,0 +1,20 @@
+// timer_wait_dog.ncoda — capability header (provider = file name)
+// desc: 定时器等待狗
+
+@language nodecoda/1
+library timer_wait_dog @ 0.1.0;
+
+type TimerWaitDogWaitResult = {
+  TimerWaitDogWaitData data;
+
+  string msg;
+
+  int $code;
+};
+type TimerWaitDogWaitData = {
+  string task_id;
+
+  string web_url;
+};
+
+function wait(string api_token = 0, string callback_workflow_id = 0, string coze_token = 0, string input = 0, string input_data = 0, string workflow_id = 0, int max_cnt = 0, string callback_key = 0) -> TimerWaitDogWaitResult {}

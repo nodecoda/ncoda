@@ -1,0 +1,23 @@
+// byteartist.ncoda — capability header (provider = file name)
+// desc: ByteArtist
+
+@language nodecoda/1
+library byteartist @ 0.1.0;
+
+type ByteartistText2imageResult = {
+  ByteartistText2imageData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type ByteartistText2imageData = {
+  array<ByteartistText2imageDataImages> images;
+};
+type ByteartistText2imageDataImages = {
+  string image_url;
+};
+
+function text2image(string prompt = 0, int width = 0, int model_type = 0, string negative_prompt = 0, int ratio = 0, float scale = 0, int seed = 0, int ddm_steps = 0, int height = 0) -> ByteartistText2imageResult {}

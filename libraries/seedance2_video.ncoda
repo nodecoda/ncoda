@@ -1,0 +1,43 @@
+// seedance2_video.ncoda — capability header (library = file name)
+// desc: 即梦AI-Seedance2.0
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library seedance2_video @ 0.1.0;
+
+type SeedanceVidGenResult = {
+  string error;
+  string message;
+  string status;
+  string task_id;
+};
+
+function Seedance_Vid_Gen(string api_key = 0, any duration = 0, bool generate_audio = 0, string model = 0, string prompt = 0, string ratio = 0, string reference_image_urls = 0, string resolution = 0) -> SeedanceVidGenResult {}
+
+type SeedanceVidQueryResult = {
+  int completion_tokens;
+  int created_at;
+  bool draft;
+  string draft_task_id;
+  int duration;
+  string error_code;
+  string error_message;
+  int execution_expires_after;
+  int frames;
+  int framespersecond;
+  bool generate_audio;
+  string last_frame_url;
+  string message;
+  string model;
+  string ratio;
+  string resolution;
+  int seed;
+  string service_tier;
+  string status;
+  string task_id;
+  int total_tokens;
+  int updated_at;
+  string video_url;
+};
+
+function Seedance_Vid_Query(string api_key = 0, string task_id = 0) -> SeedanceVidQueryResult {}

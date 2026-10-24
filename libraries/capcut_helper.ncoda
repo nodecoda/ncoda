@@ -1,0 +1,110 @@
+// capcut_helper.ncoda — capability header (provider = file name)
+// desc: 剪映小助手辅助工具
+
+@language nodecoda/1
+library capcut_helper @ 0.1.0;
+
+type CapcutHelperAudioLinkCollectorResult = {
+  array<string> links;
+};
+type CapcutHelperRollingEffectResult = {
+  array<CapcutHelperRollingEffectAllTimeline> all_timeline;
+
+  string error;
+
+  array<string> subject_arr;
+
+  array<CapcutHelperRollingEffectTimelines> timelines;
+};
+type CapcutHelperRollingEffectAllTimeline = {
+  int end;
+
+  int start;
+};
+type CapcutHelperRollingEffectTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTextSplitterResult = {
+  string error;
+
+  array<string> segments;
+};
+type CapcutHelperTimelineMergeResult = {
+  array<CapcutHelperTimelineMergeAllCompleteTimeline> all_complete_timeline;
+
+  array<CapcutHelperTimelineMergeAllMainTimeline> all_main_timeline;
+
+  array<CapcutHelperTimelineMergeAllPreTimeline> all_pre_timeline;
+
+  array<CapcutHelperTimelineMergeAllTimeline> all_timeline;
+
+  string error;
+
+  int last_end_us;
+
+  array<CapcutHelperTimelineMergeMainTimelines> main_timelines;
+
+  array<CapcutHelperTimelineMergePreTimelines> pre_timelines;
+
+  array<CapcutHelperTimelineMergeTimelines> timelines;
+};
+type CapcutHelperTimelineMergeAllCompleteTimeline = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergeAllMainTimeline = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergeAllPreTimeline = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergeAllTimeline = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergeMainTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergePreTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutHelperTimelineMergeTimelines = {
+  int end;
+
+  int start;
+};
+type CapcutHelperWenanTimelineRangeResult = {
+  string error;
+
+  array<CapcutHelperWenanTimelineRangeWenantimeline> wenanTimeline;
+};
+type CapcutHelperWenanTimelineRangeWenantimeline = {
+  string content;
+
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function audio_link_collector(array<any> outputList = 0) -> CapcutHelperAudioLinkCollectorResult {}
+@capability failure_branch=true, timeout_ms=180000
+function rolling_effect(array<any> duration_list = 0, array<any> str_list = 0, int duration = 0, string str = 0) -> CapcutHelperRollingEffectResult {}
+@capability failure_branch=true, timeout_ms=180000
+function text_splitter(string text = 0) -> CapcutHelperTextSplitterResult {}
+@capability failure_branch=true, timeout_ms=180000
+function timeline_merge(float gap_us = 0, array<any> main_timeline = 0, array<any> pre_timeline = 0, float skip_us = 0) -> CapcutHelperTimelineMergeResult {}
+@capability failure_branch=true, timeout_ms=180000
+function wenan_timeline_range(array<any> timelines = 0, array<any> wenan = 0, int mergeCount = 0, int startIndex = 0) -> CapcutHelperWenanTimelineRangeResult {}

@@ -1,0 +1,14 @@
+// instruction_edit.ncoda — capability header (provider = file name)
+// desc: 指令编辑
+
+@language nodecoda/1
+library instruction_edit @ 0.1.0;
+
+type InstructionEditImageChangeResult = {
+  file<image> data;
+
+  string msg;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function image_change(file image_url = 0, string prompt = 0) -> InstructionEditImageChangeResult {}

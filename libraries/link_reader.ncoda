@@ -1,0 +1,77 @@
+// link_reader.ncoda — capability header (provider = file name)
+// desc: 链接读取
+
+@language nodecoda/1
+library link_reader @ 0.1.0;
+
+type LinkReaderLinkReaderPluginResult = {
+  LinkReaderLinkReaderPluginData data;
+
+  string err_msg;
+
+  string error_code;
+
+  string error_msg;
+
+  string message;
+
+  array<LinkReaderLinkReaderPluginOutputlist> outputList;
+
+  string pdf_content;
+
+  int $code;
+};
+type LinkReaderLinkReaderPluginData = {
+  string content;
+
+  array<LinkReaderLinkReaderPluginDataImages> images;
+
+  string title;
+};
+type LinkReaderLinkReaderPluginDataImages = {
+  string alt;
+
+  int height;
+
+  string title;
+
+  string url;
+
+  int width;
+};
+type LinkReaderLinkReaderPluginOutputlist = {
+  LinkReaderLinkReaderPluginOutputlistData data;
+
+  string err_msg;
+
+  string error_code;
+
+  string error_msg;
+
+  string message;
+
+  string pdf_content;
+
+  int $code;
+};
+type LinkReaderLinkReaderPluginOutputlistData = {
+  string content;
+
+  array<LinkReaderLinkReaderPluginOutputlistDataImages> images;
+
+  string title;
+};
+type LinkReaderLinkReaderPluginOutputlistDataImages = {
+  string alt;
+
+  int height;
+
+  string title;
+
+  string url;
+
+  int width;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function link_reader_plugin(bool need_image_url = 0, any $type = 0, string url = 0, string prompt = "", bool skip_cache = false) -> LinkReaderLinkReaderPluginResult {}

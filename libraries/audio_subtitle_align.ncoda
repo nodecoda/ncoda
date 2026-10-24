@@ -1,0 +1,17 @@
+// audio_subtitle_align.ncoda — capability header (provider = file name)
+// desc: 字幕音频自动对齐
+@language nodecoda/1
+library audio_subtitle_align @ 0.1.0;
+
+type AudioSubtitleAlignAlignTextToAudioV2Result = {
+  float duration;
+
+  string msg;
+
+  array<string> texts;
+
+  array<any> timelines;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function align_text_to_audio_v2(string audio_url = 0, string text = 0) -> AudioSubtitleAlignAlignTextToAudioV2Result {}

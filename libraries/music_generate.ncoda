@@ -1,0 +1,35 @@
+// music_generate.ncoda — capability header (library = file name)
+// desc: 音乐生成
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library music_generate @ 0.1.0;
+
+type GenSongFailureReasonData = {
+  any Code;
+  string Msg;
+};
+
+type GenSongSongDetailData = {
+  string AudioUrl;
+  string Captions;
+  any Duration;
+  string Lyrics;
+};
+
+type GenSongDataData = {
+  GenSongFailureReasonData FailureReason;
+  GenSongSongDetailData SongDetail;
+  any Status;
+  string TaskID;
+};
+
+type GenSongResult = {
+
+  float $code;
+  GenSongDataData data;
+  string log_id;
+  string msg;
+};
+
+function gen_song(string Gender = "", string Genre = "", string Mood = "", string Prompt = "") -> GenSongResult {}

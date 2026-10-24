@@ -40,6 +40,10 @@ push:
 	@/tmp/ncoda-run-smoke-$(VERSION) examples/nodecoda/00_minimal_start_llm_end.ncoda | grep -q '"output"'
 	@printf 'function main( {' | /tmp/ncoda-run-smoke-$(VERSION) >/dev/null 2>&1; test $$? -eq 1
 	@/tmp/ncoda-run-smoke-$(VERSION) --model-factory acme examples/nodecoda/00_minimal_start_llm_end.ncoda >/dev/null 2>&1; test $$? -eq 2
+	@# public-library lane: a source that imports only language libraries must run
+	@# offline with --local-plugins, and must fail honestly without it.
+	@/tmp/ncoda-run-smoke-$(VERSION) --local-plugins --tool-path ./libraries examples/nodecoda/62_local_library_roundtrip.ncoda | grep -q '"k":"hello"'
+	@/tmp/ncoda-run-smoke-$(VERSION) --tool-path ./libraries examples/nodecoda/62_local_library_roundtrip.ncoda >/dev/null 2>&1; test $$? -eq 1
 	@echo "runtime_smoke: ok"
 
 nightly:

@@ -1,0 +1,19 @@
+// kimi_chat_parser.ncoda — capability header (library = file name)
+// desc: (corpus fallback: DB 快照未收录)
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library kimi_chat_parser @ 0.1.0;
+
+type KimiChatParserChunksItem = {
+  string answer;
+  string question;
+};
+
+type KimiChatParserResult = {
+  array<string> answers;
+  array<KimiChatParserChunksItem> chunks;
+  array<string> questions;
+};
+
+function kimi_chat_parser(any kimi_chathistory = 0) -> KimiChatParserResult {}

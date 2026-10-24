@@ -1,0 +1,22 @@
+// video_asr.ncoda — capability header (provider = file name)
+// desc: 视频语音转文案
+
+@language nodecoda/1
+library video_asr @ 0.1.0;
+
+type VideoAsrVoiceToTextResult = {
+  string data;
+
+  VideoAsrVoiceToTextErrorbody errorBody;
+
+  string error_message;
+
+  bool isSuccess;
+};
+type VideoAsrVoiceToTextErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+function voice_to_text(string api_key = 0, string file_url = 0) -> VideoAsrVoiceToTextResult {}

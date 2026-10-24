@@ -1,0 +1,12 @@
+// text_split_tool.ncoda — capability header (provider = file name)
+// desc: 文本拆分工具
+
+@language nodecoda/1
+library text_split_tool @ 0.1.0;
+
+type TextSplitToolParagraphSplittingResult = {
+  array<string> segments;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function Paragraph_splitting(string text = 0) -> TextSplitToolParagraphSplittingResult {}

@@ -1,0 +1,31 @@
+// mihewan3.ncoda — capability header (library = file name)
+// desc: (corpus fallback: DB 快照未收录)
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library mihewan3 @ 0.1.0;
+
+type TaskInfoDataData = {
+  string id;
+  string url;
+};
+
+type TaskInfoResult = {
+  TaskInfoDataData data;
+  string message;
+  int status;
+};
+
+function task_info(any id = 0) -> TaskInfoResult {}
+
+type Mihewan3DataData = {
+  string id;
+  string url;
+};
+
+type Mihewan3Result = {
+  Mihewan3DataData data;
+  string message;
+};
+
+function mihewan3(any duration = 0, any images = 0, any key = 0, any prompt = 0, any ratio = 0, any resolution = 0, any videos = 0) -> Mihewan3Result {}

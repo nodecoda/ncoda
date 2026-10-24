@@ -1,0 +1,32 @@
+// image_generate_fast.ncoda — capability header (library = file name)
+// desc: 图像生成_速创小助手
+
+@language nodecoda/1
+library image_generate_fast @ 0.1.0;
+
+type ImageGeneratorResult = {
+  ImageGeneratorErrorbody errorBody;
+
+  string image_url;
+
+  bool isSuccess;
+
+  bool $success;
+
+  string log_id;
+
+  string message;
+
+  float $code;
+  string error_stage;
+  string request_id;
+  float status_code;
+};
+type ImageGeneratorErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function image_generator(string api_key = 0, int height = 0, string model = 0, string negative_prompt = 0, string prompt = 0, string ratio = 0, array<any> reference_images = [], int width = 0, string resolution = 0) -> ImageGeneratorResult {}

@@ -1,0 +1,72 @@
+// text_audio_align.ncoda — capability header (provider = file name)
+// desc: 文本音频对齐
+
+@language nodecoda/1
+library text_audio_align @ 0.1.0;
+
+type TextAudioAlignAligntexttoaudioResult = {
+  TextAudioAlignAligntexttoaudioData data;
+
+  string message;
+
+  array<string> texts;
+
+  array<TextAudioAlignAligntexttoaudioTimelines> timelines;
+
+  string tip_url;
+};
+type TextAudioAlignAligntexttoaudioData = {
+  TextAudioAlignAligntexttoaudioDataAttribute attribute;
+
+  float duration;
+
+  string id;
+
+  string message;
+
+  int $code;
+
+  array<TextAudioAlignAligntexttoaudioDataUtterances> utterances;
+};
+type TextAudioAlignAligntexttoaudioDataAttribute = {
+  TextAudioAlignAligntexttoaudioDataAttributeExtra extra;
+};
+type TextAudioAlignAligntexttoaudioDataAttributeExtra = {
+  string asr_service;
+
+  string caption_type;
+
+  string is_singing;
+
+  string language;
+
+  string sta_use_batch_request;
+};
+type TextAudioAlignAligntexttoaudioDataUtterances = {
+  any attribute;
+
+  int end_time;
+
+  int start_time;
+
+  string text;
+
+  array<TextAudioAlignAligntexttoaudioDataUtterancesWords> words;
+};
+type TextAudioAlignAligntexttoaudioDataUtterancesWords = {
+  any attribute;
+
+  int end_time;
+
+  int start_time;
+
+  string text;
+};
+type TextAudioAlignAligntexttoaudioTimelines = {
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function alignTextToAudio(string api_token = 0, string audio_url = 0, string text = 0, int max_chars_per_line = 0) -> TextAudioAlignAligntexttoaudioResult {}

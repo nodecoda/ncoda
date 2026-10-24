@@ -1,0 +1,46 @@
+// dubbingx_tts.ncoda — capability header (library = file name)
+// desc: 文本转音频DubbingX
+
+@language nodecoda/1
+library dubbingx_tts @ 0.1.0;
+
+type AddttstaskandgetresultResult = {
+  AddttstaskandgetresultData data;
+
+  AddttstaskandgetresultErrorbody errorBody;
+
+  bool isSuccess;
+
+  bool $success;
+
+  string msg;
+
+  int $code;
+
+  string time;
+
+  string traceId;
+};
+type AddttstaskandgetresultData = {
+  string createTime;
+
+  string fileName;
+
+  string fileUrl;
+
+  string id;
+
+  string language;
+
+  string status;
+
+  string updateTime;
+};
+type AddttstaskandgetresultErrorbody = {
+  string errorCode;
+
+  string errorMessage;
+};
+
+@capability timeout_ms=60000
+function addTtsTaskAndGetResult(string apiKey = 0, float audioPitch = 0, float audioSpeed = 0, string fileFormat = 0, string language = 0, string text = 0, string voiceId = 0, string emotion = 0) -> AddttstaskandgetresultResult {}

@@ -1,0 +1,16 @@
+// jimeng_image_gen.ncoda — capability header (provider = file name)
+// desc: 即梦图片生成
+
+@language nodecoda/1
+library jimeng_image_gen @ 0.1.0;
+
+type JimengImageGenJimengGenerateImageResult = {
+  string message;
+
+  string task_id;
+
+  file<image> url;
+};
+
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function jimeng_generate_image(any image_urls = 0, string key = 0, string model = 0, string prompt = 0, string ratio = 0) -> JimengImageGenJimengGenerateImageResult {}

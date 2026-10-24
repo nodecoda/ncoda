@@ -1,0 +1,12 @@
+// array_length.ncoda — capability header (library = file name)
+// desc: 获取数组数量
+
+@language nodecoda/1
+library array_length @ 0.1.0;
+
+type ArrayCountResult = {
+  float count;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function Array_Count(array<any> $array = 0) -> ArrayCountResult {}

@@ -1,0 +1,14 @@
+// face_swap.ncoda — capability header (provider = file name)
+// desc: 智能换脸
+
+@language nodecoda/1
+library face_swap @ 0.1.0;
+
+type FaceSwapSwapFaceResult = {
+  file<image> data;
+
+  string msg;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function swap_face(file reference_picture_url = 0, file template_picture_url = 0) -> FaceSwapSwapFaceResult {}

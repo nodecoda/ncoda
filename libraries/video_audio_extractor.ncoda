@@ -1,0 +1,16 @@
+// video_audio_extractor.ncoda — capability header (provider = file name)
+// desc: 视频提取音频（商业内置节点; P1 node_type=video_audio_extractor）
+// wire contract from real export 7643424597694038042_SW_MultimodalEvaluator_OneQues:
+//   input video; static outputAudioFormat; outputs audio/log_id/msg.
+
+@language nodecoda/1
+library video_audio_extractor @ 0.1.0;
+
+type VideoAudioExtractResult = {
+  file<audio> audio;
+  string log_id;
+  string msg;
+};
+
+@capability failure_branch=true, timeout_ms=60000
+function extract(any video = 0, any audio_format = 0) -> VideoAudioExtractResult {}

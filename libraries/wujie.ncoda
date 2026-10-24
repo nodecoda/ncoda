@@ -1,0 +1,15 @@
+// wujie.ncoda — capability header (provider = file name)
+// desc: 全球大模型
+
+@language nodecoda/1
+library wujie @ 0.1.0;
+
+type WujieLlmResult = {
+  string $output;
+};
+type WujieWujieResult = {
+  string $output;
+};
+
+function llm(string api_key = 0, string model = 0, string system_prompt = 0, string user_prompt = 0) -> WujieLlmResult {}
+function wujie(string api_key = 0, string model = 0, string system_prompt = 0, string user_prompt = 0) -> WujieWujieResult {}

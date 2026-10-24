@@ -1,0 +1,85 @@
+// audio_align.ncoda — capability header (provider = file name)
+// desc: 字幕音频对齐
+
+@language nodecoda/1
+library audio_align @ 0.1.0;
+
+type AudioAlignAlignTextToAudioResult = {
+  AudioAlignAlignTextToAudioData data;
+
+  array<AudioAlignAlignTextToAudioOutputlist> outputList;
+
+  array<string> texts;
+
+  array<AudioAlignAlignTextToAudioTimelines> timelines;
+};
+type AudioAlignAlignTextToAudioData = {
+  float duration;
+
+  array<AudioAlignAlignTextToAudioDataUtterances> utterances;
+};
+type AudioAlignAlignTextToAudioDataUtterances = {
+  float end_time;
+
+  int sentence_id;
+
+  float start_time;
+
+  string text;
+
+  array<AudioAlignAlignTextToAudioDataUtterancesWords> words;
+};
+type AudioAlignAlignTextToAudioDataUtterancesWords = {
+  float end_time;
+
+  string punctuation;
+
+  float start_time;
+
+  string text;
+};
+type AudioAlignAlignTextToAudioOutputlist = {
+  AudioAlignAlignTextToAudioOutputlistData data;
+
+  array<string> texts;
+
+  array<AudioAlignAlignTextToAudioOutputlistTimelines> timelines;
+};
+type AudioAlignAlignTextToAudioOutputlistData = {
+  float duration;
+
+  array<AudioAlignAlignTextToAudioOutputlistDataUtterances> utterances;
+};
+type AudioAlignAlignTextToAudioOutputlistDataUtterances = {
+  float end_time;
+
+  int sentence_id;
+
+  float start_time;
+
+  string text;
+
+  array<AudioAlignAlignTextToAudioOutputlistDataUtterancesWords> words;
+};
+type AudioAlignAlignTextToAudioOutputlistDataUtterancesWords = {
+  float end_time;
+
+  string punctuation;
+
+  float start_time;
+
+  string text;
+};
+type AudioAlignAlignTextToAudioOutputlistTimelines = {
+  int end;
+
+  int start;
+};
+type AudioAlignAlignTextToAudioTimelines = {
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function align_text_to_audio(string audio_url = 0, int max_chars_per_line = 0, string symbols = 0, string text = 0) -> AudioAlignAlignTextToAudioResult {}

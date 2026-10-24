@@ -1,0 +1,33 @@
+// mivideo_slow.ncoda — capability header (library = file name)
+// desc: MIVIDEO生成慢速版
+
+@language nodecoda/1
+library mivideo_slow @ 0.1.0;
+
+type MivideoSlowspeedResult = {
+  MivideoSlowspeedData data;
+
+  string message;
+};
+type MivideoSlowspeedData = {
+  string id;
+
+  string url;
+};
+type TaskInfoResult = {
+  TaskInfoData data;
+
+  string message;
+
+  int status;
+};
+type TaskInfoData = {
+  string id;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function mivideo_slowspeed(int duration = 0, array<any> images = [], string key = 0, string model = 0, string prompt = 0, string ratio = 0, string referenceMode = 0) -> MivideoSlowspeedResult {}
+@capability failure_branch=true, timeout_ms=600000
+function task_info(string id = 0) -> TaskInfoResult {}

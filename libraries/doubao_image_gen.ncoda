@@ -1,0 +1,31 @@
+// doubao_image_gen.ncoda — capability header (provider = file name)
+// desc: 豆包图像生成大模型
+
+@language nodecoda/1
+library doubao_image_gen @ 0.1.0;
+
+type DoubaoImageGenSeedEditResult = {
+  DoubaoImageGenSeedEditData data;
+
+  string log_id;
+
+  string msg;
+
+  float $code;
+};
+type DoubaoImageGenSeedEditData = {
+  DoubaoImageGenSeedEditDataData data;
+
+  string message;
+
+  float $code;
+
+  string time_elapsed;
+};
+type DoubaoImageGenSeedEditDataData = {
+  array<string> image_urls;
+
+  string vlm_result;
+};
+
+function seed_edit(string image_url = 0, string prompt = 0) -> DoubaoImageGenSeedEditResult {}

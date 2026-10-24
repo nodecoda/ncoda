@@ -1,0 +1,20 @@
+// document_to_text.ncoda — capability header (library = file name)
+// desc: 文档转文本
+
+@language nodecoda/1
+library document_to_text @ 0.1.0;
+
+type ConvertFileResult = {
+  string detected_type;
+
+  string error;
+
+  string extracted_text;
+
+  string file_name;
+
+  int file_size;
+};
+
+@capability failure_branch=true, timeout_ms=600000
+function convert_file(string file_url = 0, float $timeout = 0) -> ConvertFileResult {}

@@ -1,0 +1,79 @@
+// bgm_library.ncoda — capability header (provider = file name)
+// desc: 背景音乐库
+
+@language nodecoda/1
+library bgm_library @ 0.1.0;
+
+type BgmLibrarySearchBgmResult = {
+  array<BgmLibrarySearchBgmData> data;
+
+  bool $success;
+
+  string message;
+};
+type BgmLibrarySearchBgmData = {
+  string bgm_url;
+
+  array<string> bgm_urls;
+
+  BgmLibrarySearchBgmDataCoverUrl cover_url;
+
+  int duration;
+
+  array<BgmLibrarySearchBgmDataTimelines> timelines;
+
+  string title;
+};
+type BgmLibrarySearchBgmDataCoverUrl = {
+  string hd;
+
+  string large;
+
+  string medium;
+
+  string thumb;
+};
+type BgmLibrarySearchBgmDataTimelines = {
+  int end;
+
+  int start;
+};
+type BgmLibrarySearchSongsResult = {
+  array<BgmLibrarySearchSongsData> data;
+
+  string message;
+};
+type BgmLibrarySearchSongsData = {
+  BgmLibrarySearchSongsDataCoverUrl cover_url;
+
+  int duration;
+
+  float id;
+
+  BgmLibrarySearchSongsDataTimelines timelines;
+
+  string title;
+
+  string url;
+
+  array<string> urls;
+};
+type BgmLibrarySearchSongsDataCoverUrl = {
+  string hd;
+
+  string large;
+
+  string medium;
+
+  string thumb;
+};
+type BgmLibrarySearchSongsDataTimelines = {
+  int end;
+
+  int start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function search_bgm(string keyword = 0) -> BgmLibrarySearchBgmResult {}
+@capability failure_branch=true, timeout_ms=180000
+function search_songs(string keyword = 0) -> BgmLibrarySearchSongsResult {}

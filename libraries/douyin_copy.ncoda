@@ -1,0 +1,56 @@
+// douyin_copy.ncoda — capability header (provider = file name)
+// desc: 抖音文案
+
+@language nodecoda/1
+library douyin_copy @ 0.1.0;
+
+type DouyinCopyWenanResult = {
+  DouyinCopyWenanData data;
+
+  string message;
+};
+type DouyinCopyWenanData = {
+  array<DouyinCopyWenanDataAudioInfo> audio_info;
+
+  string audio_url;
+
+  array<DouyinCopyWenanDataVideoInfo> video_info;
+
+  string video_url;
+};
+type DouyinCopyWenanDataAudioInfo = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+type DouyinCopyWenanDataVideoInfo = {
+  int data_size;
+
+  string file_cs;
+
+  string file_hash;
+
+  int height;
+
+  string uri;
+
+  string url_key;
+
+  array<string> url_list;
+
+  int width;
+};
+
+function wenan(string api_token = 0, string url = 0) -> DouyinCopyWenanResult {}

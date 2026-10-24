@@ -1,0 +1,31 @@
+// horse_video_gen.ncoda — capability header (library = file name)
+// desc: Horse视频生成
+
+@language nodecoda/1
+library horse_video_gen @ 0.1.0;
+
+type HorseVideoGenerateResult = {
+  HorseVideoGenerateData data;
+
+  string message;
+
+  int $code;
+};
+type HorseVideoGenerateData = {
+  string id;
+};
+type TaskInfoResult = {
+  TaskInfoData data;
+
+  int $code;
+};
+type TaskInfoData = {
+  string id;
+
+  string url;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function horse_video_generate(int duration = 0, array<any> image_urls = 0, string key = 0, string prompt = 0, string ratio = 0, string resolution = 0) -> HorseVideoGenerateResult {}
+@capability failure_branch=true, timeout_ms=180000
+function task_info(string id = 0) -> TaskInfoResult {}

@@ -1,0 +1,288 @@
+// suchuang_video_compose.ncoda — capability header (provider = file name)
+// desc: 视频合成_速创小助手
+
+@language nodecoda/1
+library suchuang_video_compose @ 0.1.0;
+
+type SuchuangVideoComposeAddListResult = {
+  array<string> list;
+};
+type SuchuangVideoComposeAudioLinkCollectorResult = {
+  string error;
+
+  array<string> links;
+};
+type SuchuangVideoComposeAudioTimelinesResult = {
+  array<SuchuangVideoComposeAudioTimelinesAllTimelines> all_timelines;
+
+  string error;
+
+  array<string> links;
+
+  array<SuchuangVideoComposeAudioTimelinesOutputlist> outputList;
+
+  array<SuchuangVideoComposeAudioTimelinesTimelines> timelines;
+};
+type SuchuangVideoComposeAudioTimelinesAllTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeAudioTimelinesOutputlist = {
+  array<SuchuangVideoComposeAudioTimelinesOutputlistAllTimelines> all_timelines;
+
+  string error;
+
+  array<string> links;
+
+  array<SuchuangVideoComposeAudioTimelinesOutputlistTimelines> timelines;
+};
+type SuchuangVideoComposeAudioTimelinesOutputlistAllTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeAudioTimelinesOutputlistTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeAudioTimelinesTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeMediaTileResult = {
+  array<SuchuangVideoComposeMediaTileTimelines> timelines;
+
+  array<string> urls;
+};
+type SuchuangVideoComposeMediaTileTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTextEmptyRemovalResult = {
+  string error;
+
+  array<string> wenan;
+};
+type SuchuangVideoComposeTextSplitterResult = {
+  string error;
+
+  array<string> segments;
+  array<any> outputList;
+};
+type SuchuangVideoComposeTimelineAlignResult = {
+  array<SuchuangVideoComposeTimelineAlignAlignTimelines> align_timelines;
+
+  array<SuchuangVideoComposeTimelineAlignAllTimeline> all_timeline;
+};
+type SuchuangVideoComposeTimelineAlignAlignTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineAlignAllTimeline = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineGeneratorResult = {
+  array<SuchuangVideoComposeTimelineGeneratorAllTimeline> all_timeline;
+
+  array<SuchuangVideoComposeTimelineGeneratorItemsTimelines> items_timelines;
+
+  array<SuchuangVideoComposeTimelineGeneratorTimelines> timelines;
+};
+type SuchuangVideoComposeTimelineGeneratorAllTimeline = {
+  float end;
+
+  float start;
+};
+type SuchuangVideoComposeTimelineGeneratorItemsTimelines = {
+  string content;
+
+  float end;
+
+  float start;
+};
+type SuchuangVideoComposeTimelineGeneratorTimelines = {
+  float end;
+
+  float start;
+};
+type SuchuangVideoComposeTimelineMergeResult = {
+  array<SuchuangVideoComposeTimelineMergeAllCompleteTimeline> all_complete_timeline;
+
+  array<SuchuangVideoComposeTimelineMergeAllMainTimeline> all_main_timeline;
+
+  array<SuchuangVideoComposeTimelineMergeAllPreTimeline> all_pre_timeline;
+
+  array<SuchuangVideoComposeTimelineMergeAllTimeline> all_timeline;
+
+  string error;
+
+  int last_end_us;
+
+  array<SuchuangVideoComposeTimelineMergeMainTimelines> main_timelines;
+
+  array<SuchuangVideoComposeTimelineMergePreTimelines> pre_timelines;
+
+  array<SuchuangVideoComposeTimelineMergeTimelines> timelines;
+};
+type SuchuangVideoComposeTimelineMergeAllCompleteTimeline = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergeAllMainTimeline = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergeAllPreTimeline = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergeAllTimeline = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergeMainTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergePreTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeTimelineMergeTimelines = {
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeWenanTimelineRangeResult = {
+  string error;
+
+  array<SuchuangVideoComposeWenanTimelineRangeWenantimeline> wenanTimeline;
+};
+type SuchuangVideoComposeWenanTimelineRangeWenantimeline = {
+  string content;
+
+  int end;
+
+  int start;
+};
+type SuchuangVideoComposeWenanTimelineRangeMergeResult = {
+  string error;
+
+  array<SuchuangVideoComposeWenanTimelineRangeMergeWenantimeline> wenanTimeline;
+};
+type SuchuangVideoComposeWenanTimelineRangeMergeWenantimeline = {
+  string content;
+
+  float end;
+
+  float start;
+};
+
+@capability failure_branch=true, timeout_ms=180000
+function add_list(array<any> add_list = 0, string item = 0, array<any> list = 0) -> SuchuangVideoComposeAddListResult {}
+@capability failure_branch=true, timeout_ms=600000
+function audio_link_collector(array<any> outputList = 0) -> SuchuangVideoComposeAudioLinkCollectorResult {}
+@capability failure_branch=true, timeout_ms=600000
+function audio_timelines(string api_key = 0, array<any> links = 0, float silence_duration = 0, int trim_breath = 0, float silence_threshold = 0) -> SuchuangVideoComposeAudioTimelinesResult {}
+@capability failure_branch=true, timeout_ms=600000
+function media_tile(array<any> all_timeline = 0, float duration = 0, string media_url = 0) -> SuchuangVideoComposeMediaTileResult {}
+@capability failure_branch=true, timeout_ms=180000
+function text_empty_removal(array<any> text = 0) -> SuchuangVideoComposeTextEmptyRemovalResult {}
+@capability retry=true, failure_branch=true, timeout_ms=600000
+function text_splitter(string text = 0) -> SuchuangVideoComposeTextSplitterResult {}
+@capability failure_branch=true, timeout_ms=180000
+function timeline_align(string align = 0, array<any> timelines = 0) -> SuchuangVideoComposeTimelineAlignResult {}
+@capability failure_branch=true, timeout_ms=180000
+function timeline_generator(string duration = 0, array<any> items = 0, any timelist = 0, float fps = 0, string unit = 0) -> SuchuangVideoComposeTimelineGeneratorResult {}
+@capability failure_branch=true, timeout_ms=600000
+function timeline_merge(float gap_us = 0, array<any> main_timeline = 0, array<any> pre_timeline = 0, float skip_us = 0) -> SuchuangVideoComposeTimelineMergeResult {}
+@capability failure_branch=true, timeout_ms=600000
+function wenan_timeline_range(array<any> timelines = 0, array<any> wenan = 0, int mergeCount = 0, int startIndex = 0) -> SuchuangVideoComposeWenanTimelineRangeResult {}
+@capability failure_branch=true, timeout_ms=600000
+function wenan_timeline_range_merge(array<any> timelines = 0, array<any> wenan = 0, int mergeCount = 0, int startIndex = 0) -> SuchuangVideoComposeWenanTimelineRangeMergeResult {}
+
+type GetAudioDurationOutputListItem = {
+  any duration;
+};
+
+type GetAudioDurationResult = {
+
+  float duration;
+  array<GetAudioDurationOutputListItem> outputList;
+};
+
+function get_audio_duration(string mp3_url = "", string unit = "") -> GetAudioDurationResult {}
+
+type VideoTimelinesAllTimelinesItem = {
+  int end;
+  int start;
+};
+
+type VideoTimelinesTimelinesItem = {
+  int end;
+  int start;
+};
+
+type VideoTimelinesResult = {
+  array<VideoTimelinesAllTimelinesItem> all_timelines;
+  array<string> links;
+  array<VideoTimelinesTimelinesItem> timelines;
+};
+
+function video_timelines(array<any> links = []) -> VideoTimelinesResult {}
+
+type DialogSplitDialogsItem = {
+  string content;
+  int idx;
+  string role;
+};
+
+type DialogSplitRoleDialogsItem = {
+  array<DialogSplitDialogsItem> dialogs;
+  string role;
+};
+
+type DialogSplitResult = {
+  string error;
+  array<DialogSplitRoleDialogsItem> roleDialogs;
+};
+
+function dialog_split(array<any> dialogs = [], string roles = "", string separator = "") -> DialogSplitResult {}
+
+type DialogMergeResult = {
+  string error;
+  array<string> mergedAudioLinks;
+};
+
+function dialog_merge(map<string,any> audioLinks = 0, array<any> roleDialogs = []) -> DialogMergeResult {}
+
+type DialogWenanTimelineTimelinesItem = {
+  int end;
+  int start;
+};
+
+type DialogWenanTimelineRoleWenanTimelineItem = {
+  string role;
+  array<DialogWenanTimelineTimelinesItem> timelines;
+  array<string> wenan;
+};
+
+type DialogWenanTimelineResult = {
+  string error;
+  array<DialogWenanTimelineRoleWenanTimelineItem> roleWenanTimeline;
+};
+
+function dialog_wenan_timeline(array<any> roleDialogs = [], array<any> timelines = []) -> DialogWenanTimelineResult {}

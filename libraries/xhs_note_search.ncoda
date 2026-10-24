@@ -1,0 +1,75 @@
+// xhs_note_search.ncoda — capability header (library = file name)
+// desc: 小红书笔记搜索
+// 来源: collector.db 同步 + 语料实际调用契约
+
+@language nodecoda/1
+library xhs_note_search @ 0.1.0;
+
+type SearchNotesImagesListItem = {
+  any height;
+  string url;
+  string url_size_large;
+  any width;
+};
+
+type SearchNotesUserData = {
+  string images;
+  string nickname;
+  string red_id;
+  bool red_official_verified;
+  any red_official_verify_type;
+  bool show_red_official_verify_icon;
+  string userid;
+};
+
+type SearchNotesImageData = {
+  string thumbnail;
+  string thumbnail_dim;
+};
+
+type SearchNotesVideoInfoV2Data = {
+  array<string> _video_urls;
+  SearchNotesImageData image;
+};
+
+type SearchNotesNoteData = {
+  any collected_count;
+  any comments_count;
+  any cover_image_index;
+  string desc;
+  bool has_music;
+  string id;
+  array<SearchNotesImagesListItem> images_list;
+  any liked_count;
+  any nice_count;
+  any shared_count;
+  any timestamp;
+  string title;
+  string $type;
+  SearchNotesUserData user;
+  SearchNotesVideoInfoV2Data video_info_v2;
+};
+
+type SearchNotesItemsItem = {
+  string model_type;
+  SearchNotesNoteData note;
+};
+
+type SearchNotesDataData2 = {
+  array<SearchNotesItemsItem> items;
+};
+
+type SearchNotesDataData = {
+  SearchNotesDataData2 data;
+  string search_id;
+  string session_id;
+};
+
+type SearchNotesResult = {
+
+  float $code;
+  SearchNotesDataData data;
+  string message;
+};
+
+function search_notes(string api_key = "", string filter_note_time = "", string filter_note_type = "", string keyword = "", string page = "", string search_id = "", string session_id = "", string sort_type = "") -> SearchNotesResult {}
