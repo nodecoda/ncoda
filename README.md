@@ -35,7 +35,7 @@ program mean something in the language?"**. Platform representability
 4. **Adapters are plugins.** Moving an adapter in or out must never change a
    language verdict.
 5. **No platform spelling in the kernel.** A platform name in a kernel
-   identifier is a dependency, not a comment. `scripts/audit_split.py` S6
+   identifier or file path is a dependency, not a comment. `scripts/audit_split.py` S6
    enforces it in both directions: an unregistered platform identifier fails,
    and a ledger entry whose identifier is gone fails too. The complete,
    reviewed residue list is `docs/PLATFORM-IDENTITY-RESIDUALS.yaml`.

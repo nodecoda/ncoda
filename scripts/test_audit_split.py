@@ -69,6 +69,13 @@ class AuditSplit(unittest.TestCase):
         self.touch("pkg/x.go", "package x\n\nvar cozeAxes = 1\n")
         self.assertEqual(self.mod.check_platform_identity(self.tmp), [])
 
+    def test_platform_identity_flags_a_platform_named_path(self):
+        self.write_ledger([])
+        self.touch("tests/fixtures/dify-skill.ncoda", "function main() {}\n")
+        problems = self.mod.check_platform_identity(self.tmp)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("路径名", problems[0])
+
     def test_platform_identity_flags_a_stale_ledger_entry(self):
         # The ledger must shrink with the code, else it silently becomes a
         # blanket permission for the next platform-named identifier.

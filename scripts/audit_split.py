@@ -107,6 +107,15 @@ def check_platform_identity(root: str) -> list[str]:
                 if any(tok in low for tok in PLATFORM_IDENT_TOKENS):
                     found.setdefault(ident, rel)
     problems = []
+    # File and directory names are part of the published surface: a fixture
+    # called `acme-x.ncoda` ships the platform name even if no identifier does.
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in (".git", "vendor")]
+        for name in dirnames + filenames:
+            low = name.lower()
+            if any(tok in low for tok in PLATFORM_IDENT_TOKENS):
+                rel = os.path.relpath(os.path.join(dirpath, name), root)
+                problems.append(f"S6 {rel}: 路径名拼进平台名")
     for ident, rel in sorted(found.items()):
         if ident not in allowed:
             problems.append(f"S6 {rel}: 标识符 {ident} 拼进平台名（未登记）")

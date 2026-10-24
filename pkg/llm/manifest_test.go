@@ -36,7 +36,7 @@ func TestUnifiedLLMFixtureManifest(t *testing.T) {
 	if m.Version != 1 || m.Name != "unified-llm-semantics" || m.Runner != "credential-free" {
 		t.Fatalf("manifest header = %#v", m)
 	}
-	want := []string{"string-text", "scalar-int", "record-member", "record-whole", "nested-array-record", "map-optional-enum", "metadata-envelope", "retry-decode-failure", "coze-biz-batch-inner", "open-object", "open-object-array"}
+	want := []string{"string-text", "scalar-int", "record-member", "record-whole", "nested-array-record", "map-optional-enum", "metadata-envelope", "retry-decode-failure", "parallel-batch-inner", "open-object", "open-object-array"}
 	if len(m.Fixtures) != len(want) {
 		t.Fatalf("fixture count = %d, want %d", len(m.Fixtures), len(want))
 	}
