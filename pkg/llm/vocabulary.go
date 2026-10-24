@@ -22,16 +22,18 @@ package llm
 //	S：目标必须执行；做不到要报错（当前实现见 docs/LLM-PARAM-SEMANTICS.md）。
 //	T：目标尽力执行；未执行必须报账（warning，strict 升级）。
 //	C：调用控制，由 runtime 拥有，不发给模型。
-//	E：命名空间键（coze:* / openai:* / dify:* / x-*），只在声明目标生效；
+//	E：命名空间键（coze:* / openai:* / x-*），只在声明目标生效；
 //	   其他目标静默忽略是约定，不是丢值。
 //	U：不在词表里 = 原样透传；目标不消费时由目标侧报账（不在这里拒收）。
 //
 // 命名空间规则：
 //
-//	coze:*   → coze-biz 绑定层剥掉前缀后写线；其他目标静默忽略。
+//	coze:*   → coze 绑定层剥掉前缀后写线；其他目标静默忽略。
 //	openai:* → OpenAI 兼容 provider 绑定层剥前缀；其他目标静默忽略。
-//	dify:*   → Dify 绑定层；其他目标静默忽略。
 //	x-*      → 供应商自定义参数，按目标约定处理。
+//
+// 适配器自己的命名空间（例如某平台私有键）由适配器在绑定层处理：语言只声明
+// 词表里已有的规范名与前缀，不替任何平台预留命名空间。
 //
 // **平台拼写不进语言**：语言写 max_tokens / top_p；coze-biz 写 maxTokens /
 // topP，翻译在绑定层。本文件只写语言名与规范名（规范名可以带 coze: 前缀，
@@ -102,7 +104,7 @@ var vocabulary = []KeySpec{
 	{Name: "presence_penalty", Tier: TierTuning, Type: types.OptionalType(types.FloatType())},
 	{Name: "frequency_penalty", Tier: TierTuning, Type: types.OptionalType(types.FloatType())},
 	{Name: "reasoning_effort", Tier: TierTuning, Type: types.OptionalType(types.StringType())},
-	// reasoning_format：推理内容呈现方式（如 separated）；Dify 有载体，
+	// reasoning_format：推理内容呈现方式（如 separated）；平台有载体，
 	// coze-biz / gateway 目前无载体 ⇒ 由目标侧报账。
 	{Name: "reasoning_format", Tier: TierTuning, Type: types.OptionalType(types.StringType())},
 
@@ -140,7 +142,7 @@ var vocabulary = []KeySpec{
 }
 
 // namespacePrefixes = 扩展键前缀。顺序无关；只要命中就按 E 档处理。
-var namespacePrefixes = []string{"coze:", "openai:", "dify:", "x-"}
+var namespacePrefixes = []string{"coze:", "openai:", "x-"}
 
 // Vocabulary 返回词表副本（调用方可以排序/展示，但不能改内部状态）。
 func Vocabulary() []KeySpec {

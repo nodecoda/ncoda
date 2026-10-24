@@ -2477,8 +2477,8 @@ func (p *TargetValidationPass) validateHumanInputLLM(expr ast.Expr) *binding.Hum
 	// 串（与 `llm()` 同一个协议；非 coze: 前缀在本目标装不下 = 不静默降级）。
 	if llm.Model != nil && !carriesIntegerModelProtocol(*llm.Model, askTargetAxesOf(p.ctx.Profile).ModelProtocolPrefix) {
 		p.rejectAt(fmt.Sprintf(
-			"Human Input llm.model must be a \"coze:<digits>\" protocol string (the target carries the model as an integer modelType), got %q",
-			*llm.Model), values["model"].Span())
+			"Human Input llm.model must be an integer-model protocol string (prefix %q + digits; the target carries the model as an integer modelType), got %q",
+			askTargetAxesOf(p.ctx.Profile).ModelProtocolPrefix, *llm.Model), values["model"].Span())
 	}
 	if len(p.ctx.Diagnostics) != before {
 		return nil

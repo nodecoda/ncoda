@@ -122,7 +122,6 @@ type TargetProfile struct {
 func DefaultTargetProfile() *TargetProfile {
 	return &TargetProfile{
 		Name:                                 NativeTargetName,
-		Carrier:                              referenceCarrier(),
 		Operations:                           defaultOperations(),
 		MaxParallelism:                       10,
 		Capabilities:                         DefaultCapabilityManifest(),

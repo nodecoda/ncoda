@@ -40,7 +40,7 @@ func TestAliasesPointAtCanonicalEntries(t *testing.T) {
 }
 
 func TestNamespacedKeysAreExtensions(t *testing.T) {
-	for _, key := range []string{"coze:anything", "openai:seed", "dify:reasoning_format", "x-custom"} {
+	for _, key := range []string{"coze:anything", "openai:seed", "openai:reasoning_format", "x-custom"} {
 		spec, ok := Lookup(key)
 		if !ok {
 			t.Errorf("Lookup(%q) not found", key)

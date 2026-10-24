@@ -191,6 +191,10 @@ func runtimeCarrier() CarrierProfile {
 // adapters injected a Carrier (kernel tag + commercial bump = P2d release
 // batch). It is the only place in the open kernel that maps a historical
 // target name to facts; delete it once every adapter sets Carrier.
+//
+// The language's own name resolves to the reference carrier: profiles are
+// routinely built by copying DefaultTargetProfile() and renaming, so the
+// carrier must follow the *name*, not ride along in the struct.
 func carrierFromName(name string) CarrierProfile {
 	switch {
 	case name == NativeTargetName, strings.HasPrefix(name, "dify"):

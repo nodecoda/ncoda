@@ -729,7 +729,7 @@ func (p *CapabilityGatePass) visitForExpr(node *ast.ForExpr) ast.Visitor {
 	p.forExprDepth--
 	if !p.hasNewError(diagnosticCount) && p.rejected(CapabilityShapeForExpressionWithYield) {
 		p.emitTargetNotLowerable(CapabilityShapeForExpressionWithYield,
-			"for expression is not supported without DIFY-FOREXPR-01 runtime evidence", node.Span())
+			"for expression is not supported without target runtime evidence (probe FOREXPR-01)", node.Span())
 	}
 	return nil
 }
@@ -759,7 +759,7 @@ func (p *CapabilityGatePass) visitParallelForExpr(node *ast.ParallelForExpr) ast
 	p.forExprDepth--
 	if !p.hasNewError(diagnosticCount) && p.rejected(CapabilityShapeForExpressionWithYield) {
 		p.emitTargetNotLowerable(CapabilityShapeForExpressionWithYield,
-			"for expression is not supported without DIFY-FOREXPR-01 runtime evidence", node.Span())
+			"for expression is not supported without target runtime evidence (probe FOREXPR-01)", node.Span())
 	}
 	return nil
 }
@@ -777,7 +777,7 @@ func (p *CapabilityGatePass) visitForStmt(node *ast.ForStmt) ast.Visitor {
 	p.loopDepth--
 	if !p.hasNewError(diagnosticCount) && p.rejected(CapabilityShapeForStatementPlain) {
 		p.emitTargetNotLowerable(CapabilityShapeForStatementPlain,
-			"for statement is not supported without DIFY-FOR-01 runtime evidence", node.Span())
+			"for statement is not supported without target runtime evidence (probe FOR-01)", node.Span())
 	}
 	return nil
 }

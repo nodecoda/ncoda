@@ -454,7 +454,7 @@ function main(string value) -> string {
 `
 	res := DefaultPipeline().Run(src, "t.dc", rejectedProfile(CapabilityShapeForStatementPlain))
 	assertSingleGateError(t, res, diag.TARGET_NOT_LOWERABLE, 4, 5,
-		"for statement is not supported without DIFY-FOR-01 runtime evidence")
+		"for statement is not supported without target runtime evidence (probe FOR-01)")
 }
 
 func TestForExpressionIsRejectedWithoutRuntimeEvidence(t *testing.T) {
@@ -469,7 +469,7 @@ function main() -> int {
 `
 	res := DefaultPipeline().Run(src, "t.dc", rejectedProfile(CapabilityShapeForExpressionWithYield))
 	assertSingleGateError(t, res, diag.TARGET_NOT_LOWERABLE, 4, 19,
-		"for expression is not supported without DIFY-FOREXPR-01 runtime evidence")
+		"for expression is not supported without target runtime evidence (probe FOREXPR-01)")
 }
 
 func TestParallelMultiBranchIsRejectedWithoutRuntimeSemantics(t *testing.T) {
@@ -570,7 +570,7 @@ func TestParallelForIsDispatchedToForExpressionGate(t *testing.T) {
 	// visit_for_expr — a parallel-for runs the full for-expression gate
 	// (loop_targets "for_expr" entry + FOR_EXPRESSION_WITH_YIELD). Oracle:
 	// REJECTED manifest + with-yield parallel-for → E1034 line 4 col 19
-	// "for expression is not supported without DIFY-FOREXPR-01 runtime
+	// "for expression is not supported without target runtime (probe FOREXPR-01)
 	// evidence" (with-yield so the yield contract passes and the gate runs).
 	const src = `
 function main() -> int {
@@ -583,7 +583,7 @@ function main() -> int {
 `
 	res := DefaultPipeline().Run(src, "t.dc", rejectedProfile(CapabilityShapeForExpressionWithYield))
 	assertSingleGateError(t, res, diag.TARGET_NOT_LOWERABLE, 4, 19,
-		"for expression is not supported without DIFY-FOREXPR-01 runtime evidence")
+		"for expression is not supported without target runtime evidence (probe FOREXPR-01)")
 }
 
 func TestBreakInsideParallelForTargetsItsOwnLoop(t *testing.T) {
