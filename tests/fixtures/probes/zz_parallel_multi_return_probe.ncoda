@@ -1,0 +1,27 @@
+@language nodecoda/1
+// P5 #4 多 value-return：parallel 两个分支都 return 值 —— 任一先到 end
+// 即流程结束（first-to-end wins），"after" 不可达。值类型必须一致
+// （本探针两分支都是 string，函数 -> string）。
+@mode workflow
+
+function main(string seed = "x") -> string {
+    parallel {
+        left: {
+            let l = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"left:{seed}"}`;
+            };
+            return l;
+        }
+        right: {
+            let r = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"right:{seed}"}`;
+            };
+            return r;
+        }
+    };
+
+    // 两个分支都 return：流程已结束，这里不可达
+    return "after";
+}

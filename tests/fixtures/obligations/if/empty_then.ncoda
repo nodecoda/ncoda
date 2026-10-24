@@ -1,0 +1,13 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=if a=A2 edge=branch-port expect=equivalent
+// P5: empty then arm closes on the continuation; the else arm keeps the merge.
+function main(string input) -> string {
+    string out;
+    out = "base";
+    if (input == "a") {
+    } else {
+        out = "neg";
+    }
+    return out;
+}

@@ -1,0 +1,4 @@
+# P1a-2 test fixture: the coze-biz code projection.
+prefill: zero
+postfill: nil
+evidence: platform_model.yaml#node_kinds.code.prefill

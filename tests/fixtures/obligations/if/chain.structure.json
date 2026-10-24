@@ -1,0 +1,144 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "entry": "node",
+            "exits": [
+              "value"
+            ],
+            "terminal": "flow",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "entry": "node",
+            "exits": [
+              "value"
+            ],
+            "terminal": "flow",
+            "empty": false
+          }
+        ],
+        "merge": "merge#0"
+      },
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "entry": "node",
+            "exits": [
+              "value"
+            ],
+            "terminal": "flow",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "entry": "node",
+            "exits": [
+              "merge#0"
+            ],
+            "terminal": "flow",
+            "empty": false
+          }
+        ],
+        "merge": "merge#1"
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "false",
+        "group": "out",
+        "target": "merge#0",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "value"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "true",
+        "group": "out",
+        "target": "merge#0",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "value"
+        ]
+      },
+      {
+        "construct": 1,
+        "kind": "if",
+        "port": "false",
+        "group": "out",
+        "target": "merge#1",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "merge#0"
+        ]
+      },
+      {
+        "construct": 1,
+        "kind": "if",
+        "port": "true",
+        "group": "out",
+        "target": "merge#1",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "merge#0"
+        ]
+      }
+    ],
+    "refs": [
+      {
+        "producer": "merge#0",
+        "consumer": "merge#1",
+        "resolved": [
+          "merge#0"
+        ]
+      },
+      {
+        "producer": "value",
+        "consumer": "merge#0",
+        "resolved": [
+          "value"
+        ]
+      },
+      {
+        "producer": "value",
+        "consumer": "merge#0",
+        "resolved": [
+          "value"
+        ]
+      },
+      {
+        "producer": "value",
+        "consumer": "merge#1",
+        "resolved": [
+          "value"
+        ]
+      }
+    ]
+  }
+}

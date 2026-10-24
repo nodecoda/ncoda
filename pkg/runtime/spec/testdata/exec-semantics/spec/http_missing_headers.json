@@ -1,0 +1,22 @@
+{
+  "version": "v2",
+  "mode": "workflow",
+  "nodes": [
+    {
+      "id": "http_100020",
+      "kind": "http",
+      "config": {
+        "method": "GET",
+        "url": "https://example.invalid/probe",
+        "inputs": [],
+        "exception": {
+          "max_retry": 2,
+          "retry_interval_ms": 1000,
+          "timeout_ms": 30000,
+          "fail_branch": false
+        }
+      }
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,24 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=ask a=A1/A2/A8 edge=branch-port expect=equivalent
+// P5: empty action/timeout arms fall through to the continuation.
+enum ReviewAction { approve, reject }
+type ReviewForm = { string comment; }
+function main() -> string {
+    string out;
+    out = "base";
+    ask<ReviewForm, ReviewAction>({
+        content: "Review",
+        fields: { comment: { kind: "paragraph" } },
+        actions: {
+            approve: { title: "Approve", style: "primary" },
+            reject: { title: "Reject", style: "default" }
+        },
+        timeout: { value: 3, unit: "day" }
+    }) as review {
+        action ReviewAction.approve { }
+        action ReviewAction.reject { }
+        timeout { }
+    }
+    return out;
+}

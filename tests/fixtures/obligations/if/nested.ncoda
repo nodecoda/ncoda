@@ -1,0 +1,18 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=if a=A1/A2/A4 edge=branch-port expect=equivalent
+// P5: nested ifs produce two ordered merges; the inner closure is not shared.
+function main(string a, string b) -> string {
+    string out;
+    out = "";
+    if (a == "x") {
+        if (b == "y") {
+            out = "xy";
+        } else {
+            out = "x";
+        }
+    } else {
+        out = "n";
+    }
+    return out;
+}

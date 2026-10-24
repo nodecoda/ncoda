@@ -1,0 +1,24 @@
+@language nodecoda/1
+// return 在 parallel 分支内 = 流程结束，栅栏不等待其他分支
+@mode workflow
+
+function main(string seed = "x") -> string {
+    parallel {
+        left: {
+            let l = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"left:{seed}"}`;
+            };
+            return l;
+        }
+        right: {
+            let r = foreign code python3(string seed = seed) -> string {
+                source `def main(seed: str) -> dict:
+    return {"result": f"right:{seed}"}`;
+            };
+        }
+    };
+
+    // 若 return 短路生效，这里不应到达
+    return "after-parallel";
+}

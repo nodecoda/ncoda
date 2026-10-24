@@ -1,0 +1,12 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=if a=A9 edge=branch-port expect=diverged
+// Known gap: source arms return to the shared End; the decompiler hoists the
+// arm values into a Group1 merge accumulator (closed phi) instead.
+function main(string input) -> string {
+    if (input == "a") {
+        return "pos";
+    } else {
+        return "neg";
+    }
+}

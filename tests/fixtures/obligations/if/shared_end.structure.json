@@ -1,0 +1,47 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "entry": "node",
+            "terminal": "return",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "entry": "node",
+            "terminal": "return",
+            "empty": false
+          }
+        ]
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "false",
+        "group": "Group1",
+        "target": "\u003cnone\u003e",
+        "target_kind": "flow",
+        "status": "open"
+      },
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "true",
+        "group": "Group1",
+        "target": "\u003cnone\u003e",
+        "target_kind": "flow",
+        "status": "open"
+      }
+    ]
+  }
+}

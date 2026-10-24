@@ -1,0 +1,34 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=parallel a=A1/A8 edge=branch-port expect=equivalent
+// P5: the two branch bodies and the post-barrier join survive the round trip.
+function main(string seed) -> string {
+    parallel {
+        {
+            let left = foreign code python3(
+                string value = seed
+            ) -> string {
+                source `def main(value: str) -> dict:
+    return {"result": f"left:{value}"}`;
+            };
+        }
+        {
+            let right = foreign code python3(
+                string value = seed
+            ) -> string {
+                source `def main(value: str) -> dict:
+    return {"result": f"right:{value}"}`;
+            };
+        }
+    }
+
+    let joined = foreign code python3(
+        string left = left,
+        string right = right
+    ) -> string {
+        source `def main(left: str, right: str) -> dict:
+    return {"result": f"{left}|{right}"}`;
+    };
+
+    return joined;
+}

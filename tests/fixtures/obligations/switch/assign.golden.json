@@ -1,0 +1,105 @@
+{
+  "schema": "ncoda.obligations-p5-signature/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "switch",
+        "arms": [
+          {
+            "name": "branch_0",
+            "port": "branch_0",
+            "empty": false
+          },
+          {
+            "name": "branch_1",
+            "port": "branch_1",
+            "empty": false
+          },
+          {
+            "name": "default",
+            "port": "default",
+            "empty": false
+          }
+        ],
+        "merge": {
+          "out": {
+            "kind": "phi",
+            "candidates": [
+              "output",
+              "output",
+              "output"
+            ]
+          }
+        }
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "switch",
+        "port": "branch_0",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "output",
+          "output",
+          "output"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "switch",
+        "port": "branch_1",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "output",
+          "output",
+          "output"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "switch",
+        "port": "default",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "output",
+          "output",
+          "output"
+        ]
+      }
+    ],
+    "refs": [
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      }
+    ]
+  }
+}

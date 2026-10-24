@@ -1,0 +1,14 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=if a=A1/A2/A6 edge=branch-port expect=equivalent
+// P5: both arms assign the same merge output; the value closure is an ordered phi.
+function main(string input) -> string {
+    string out;
+    out = "";
+    if (input == "a") {
+        out = "pos";
+    } else {
+        out = "neg";
+    }
+    return out;
+}

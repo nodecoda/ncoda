@@ -27,7 +27,17 @@
    ├─ irdump                 IR 审计 dump（唯一正本，跨仓共用）
    ├─ codeparse              code 节点的 python 子集解析/校验
    ├─ pygen / pyast          code 节点的生成与翻译
-   └─ ncoda（stdlib 面）     内建节点、库、渲染公共面
+   ├─ ncoda（stdlib 面）     内建节点、库、渲染公共面
+   │
+   ├─ backend/flow           图投影（节点/边/执行序）
+   └─ runtime                执行器：spec.v1 的宿主语义
+        ├─ spec               图规格（节点配置 DTO、连线、sidecar）
+        ├─ compile            投影 → eino 图（唯一图执行引擎）
+        ├─ nodes              节点语义（start/end/llm/http/code/loop/qa/agent/…）
+        ├─ state / boundary   迭代状态、边界策略（prefill/merge/zero-nil）
+        ├─ plugin / naming    工具注册与名字规则
+        ├─ trace / diag       语义 trace、运行时诊断码（3xxx）
+        └─ host               宿主物理字段投射
 ```
 
 目标相关的承载事实（哪些轴装得下、线拼写是什么）由适配器通过
@@ -58,11 +68,25 @@
 | `pkg/codeparse` `pkg/pyast` `pkg/pygen` | code 节点的解析、生成、翻译 |
 | `pkg/ncoda` `pkg/builtin` | 内建节点、库单元、公共渲染面 |
 | `pkg/compiler` `pkg/cli` `cmd/nclang-compile` | 语言 lane：`--emit-ir --target __none__` |
+| `pkg/runtime/...` | 执行器（L2）：spec.v1 → eino 图 → 运行；含节点语义、状态、trace |
+| `pkg/observation` | 反向抽取视图（产物节点/边 → 义务报告），与目标无关 |
+| `pkg/runner` `cmd/ncoda-run` | 运行时 lane：`.ncoda` 源码 → 执行结果（离线 echo 模型） |
 | `pkg/diag` | 诊断码与线格式契约 |
 
-## 5. 工具链
+## 5. 执行引擎
+
+runtime 的图执行基于 `github.com/cloudwego/eino`（Apache-2.0）：它是**通用图
+执行库**，不含任何平台事实。语言语义（节点行为、状态、错误策略、trace）全部
+在本仓 `pkg/runtime` 里实现；eino 只负责调度与 checkpoint。
+
+这条边界是判据而不是口号：`scripts/audit_split.py` S2 禁止 runtime 的依赖闭包
+出现商业模块；`go list -deps ./cmd/ncoda-run` 里没有任何 `ncoda-commercial`。
+新增第三方依赖必须走 S5 许可闸门并进 `THIRD-PARTY-NOTICES.md`。
+
+## 6. 工具链
 
 - `make check`：fmt / vet / build / 契约 / 通告 / 测试。
 - `make conformance`：语言级一致性判据（L1）。
-- `make push`：语言 lane 烟测（L1 + L2 的最小闭环）。
+- `make push`：语言 lane + 运行时 lane 烟测（L1 + L2 的最小闭环）。
+- `ncoda-run <file.ncoda>`：不接平台、不联网，直接跑一份源码。
 - 语料执行账：`ncoda-corpus` 仓 + 本仓的语言 lane 二进制（L3）。

@@ -9,12 +9,15 @@ kernel and the language-level verdicts. Platform adapters are not here.
 - **Language CLI**: `cmd/nclang-compile` (stdin → `ncoda-ir/v1` on stdout)
 - **Public libraries / capability headers**: `libraries/`,
   `examples/coze-reference/capabilities-ncoda/`
-- **Runtime**: the target-free executor is the next migration step (P3);
-  this repo does not ship it yet.
+- **Runtime (L2)**: `pkg/runtime` — the target-free executor. It turns
+  `spec.v1` into an executable graph (node semantics, loop state, error
+  policy, trace) and ships as `cmd/ncoda-run`.
+- **Public test corpus**: `examples/nodecoda/` + `tests/fixtures/`
 
-The only accept/reject question the open repo answers is **"does this
-program mean something in the language?"**. Platform representability
-("can the target carry it?") belongs to the adapter, not to the language.
+The open repo answers two questions: **"does this program mean something in
+the language?"** (L1) and **"does it run without any platform?"** (L2).
+Platform representability ("can the target carry it?") belongs to the
+adapter, not to the language.
 
 ## What is not here
 
@@ -44,6 +47,23 @@ The qualifier in `import "acme.tool"` is validated by **shape**, never against
 a platform list: whether a target can satisfy the binding is an adapter
 question answered at build time (`rc=3`), because "the platform is unsupported"
 must not surface as a language error.
+
+## Running a workflow (runtime lane)
+
+```bash
+# compile + execute one source, no platform, no network
+go build -o ncoda-run ./cmd/ncoda-run
+./ncoda-run examples/nodecoda/00_minimal_start_llm_end.ncoda
+# {"output":"echo:openai_api_compatible/gpt-5.4"}
+
+# entry input, then a failure mode: language error rc=1, usage error rc=2
+./ncoda-run examples/nodecoda/03_conditional_branch.ncoda -p x=5
+./ncoda-run --model-factory acme examples/nodecoda/01_simple_chat.ncoda   # rc=2
+```
+
+The default model backend is `echo` (offline, deterministic). Real model
+backends are host capabilities and live with the adapters — the language
+runtime does not carry provider credentials.
 
 ## CLI contract (language lane)
 

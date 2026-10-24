@@ -1,0 +1,4 @@
+# ES-016/ES-098 ncoda policy fixture (platform required remains unverified).
+prefill: zero
+postfill: nil
+required_default: true

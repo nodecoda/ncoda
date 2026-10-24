@@ -12,10 +12,11 @@ from the private governance repository `godcc`.
 - `PROVENANCE`-relevant extraction transformations:
   1. Go module path rewritten from `nodecoda.com/lang/compiler` to
      `github.com/nodecoda/ncoda`.
-  2. Only the open substrate is included: `pkg/**`, the language-lane CLI
-     (`cmd/nclang-compile`) and open developer tools. Platform adapters
-     (`internal/backend/*`, `platforms/*`), the multi-target CLI, the foundry
-     and the corpus repository are not part of this tree.
+  2. Only the open substrate is included: `pkg/**` (language frontend, IR and
+     the target-free runtime), the language-lane CLI (`cmd/nclang-compile`),
+     the runtime-lane CLI (`cmd/ncoda-run`) and open developer tools. Platform
+     adapters (`internal/backend/*`, `platforms/*`), the multi-target commercial
+     CLI, the foundry and the corpus repository are not part of this tree.
   3. Platform contract data is not part of this tree. The open build declares
      the language's own contract only; adapter contracts are generated in the
      commercial repository (`internal/builtincoze/contracts.go`) and injected
@@ -26,5 +27,7 @@ from the private governance repository `godcc`.
      in this module (the commercial repository keeps the full scan surface).
 
 The commercial repository (`ncoda-commercial`) depends on this module and adds
-the closed backends and runtime. Dependency direction is strictly one-way:
-commercial → open core.
+the closed backends (compilation to platform artifacts, round-trip oracles,
+platform capability tables). The runtime moved into the open core in P2h
+(2026-10-25): it carries no platform fact. Dependency direction is strictly
+one-way: commercial → open core.

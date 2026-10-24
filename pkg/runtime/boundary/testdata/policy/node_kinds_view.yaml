@@ -1,0 +1,6 @@
+# Generated-view shape: node_kinds.code is the resolved projection.
+node_kinds:
+  code:
+    prefill: zero
+    postfill: nil
+    evidence: platform_model.yaml#node_kinds.code.prefill

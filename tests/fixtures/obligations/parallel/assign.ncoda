@@ -1,0 +1,18 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=parallel a=A1 edge=branch-port expect=equivalent
+// Carrier note: the two assignment-only branches are inlined into the final
+// text concat, so the parallel construct disappears. The value closure is
+// identical (locked by TestP5GapParallelAssignValue); the structure surface
+// still registers the construct loss separately.
+function main(string seed) -> string {
+    string left;
+    left = "L";
+    string right;
+    right = "R";
+    parallel {
+        { left = seed; }
+        { right = seed; }
+    }
+    return left + right;
+}

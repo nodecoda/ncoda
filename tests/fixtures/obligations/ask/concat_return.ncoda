@@ -1,0 +1,23 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=ask a=A1/A6 edge=branch-port expect=equivalent
+// Carrier note: the concatenated arm value is a native text concat on both
+// sides (output). The structure surface still hoists the arm returns into a
+// Group1 merge (registered as a structure gap).
+enum ReviewAction { approve, reject }
+type ReviewForm = { string comment; }
+function main() -> string {
+    ask<ReviewForm, ReviewAction>({
+        content: "Review",
+        fields: { comment: { kind: "paragraph" } },
+        actions: {
+            approve: { title: "Approve", style: "primary" },
+            reject: { title: "Reject", style: "default" }
+        },
+        timeout: { value: 3, unit: "day" }
+    }) as review {
+        action ReviewAction.approve { return review.comment + "!"; }
+        action ReviewAction.reject { return "no"; }
+        timeout { return "timed out"; }
+    }
+}

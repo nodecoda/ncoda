@@ -38,3 +38,26 @@ transitional_name_gates:
     unblock: >-
       IR 端口词汇表下沉为语言自有契约（builtins/ncoda-language.yaml 已是种子），
       各后端用自己的映射表把语言口名翻成平台口名。
+  - id: TN-5
+    file: pkg/runner/run.go
+    symbol: Run
+    what: >-
+      runtime lane 仍以 flow.Project 产出 spec.Build 需要的投影。
+    why: >-
+      spec.Build 现在的入参是 *flow.Projection；P4b 的落点是让它直接吃
+      Plan.Semantics。`pkg/backend/flow` 的边界闸门已经把这条登记为唯一的生产
+      例外（projectAllow），不是新增的隐式消费。
+    unblock: >-
+      spec.Build 改吃 obligation.Semantics，删掉 projectAllow 里的 pkg/runner/run.go。
+  - id: TN-6
+    file: pkg/runtime/spec
+    symbol: sidecar profile / exec-sem census 证据串
+    what: >-
+      runtime 侧测试仍引用平台 profile 名与平台文档路径（字符串字面量，S6 不判）。
+    why: >-
+      这些是随 runtime 一起搬过来的**继承事实**：sidecar 的 profile 字段与
+      exec-sem 字段普查的证据串写死了历史目标名。它们不参与内核二进制行为
+      （测试/数据面），但确实还带着平台词汇。
+    unblock: >-
+      sidecar profile 改为适配器声明的 profile 名（经 target 注册表注入），
+      census 证据串改为指向语料仓的稳定锚点。

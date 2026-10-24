@@ -1,0 +1,40 @@
+{
+  "version": "v2",
+  "mode": "workflow",
+  "nodes": [
+    {
+      "id": "code_100001",
+      "kind": "code",
+      "config": {
+        "code": "def main(x: string) -> string:\n    return x\n",
+        "language": "python",
+        "inputs": [
+          {
+            "path": [
+              "x"
+            ],
+            "block_id": "start_100000",
+            "name": "x",
+            "val": null
+          }
+        ],
+        "types": {
+          "x": {
+            "kind": "string",
+            "required": false
+          }
+        },
+        "out_order": [
+          "result"
+        ],
+        "exception": {
+          "max_retry": 2,
+          "retry_interval_ms": 1000,
+          "timeout_ms": 30000,
+          "fail_branch": false
+        }
+      }
+    }
+  ],
+  "edges": []
+}

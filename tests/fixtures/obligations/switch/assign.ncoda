@@ -1,0 +1,14 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=switch a=A1/A2/A6 edge=branch-port expect=equivalent
+// P5: three declared switch ports each contribute one ordered phi candidate.
+function main(string kind) -> string {
+    string out;
+    out = "base";
+    switch (kind) {
+        "a": { out = "A"; }
+        "b": { out = "B"; }
+        default: { out = "?"; }
+    }
+    return out;
+}

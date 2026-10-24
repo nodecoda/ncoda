@@ -4,7 +4,8 @@
 The open-core binary links third-party modules. Apache-2.0 §4(d) requires
 carrying upstream NOTICE files, and MIT/BSD require the copyright notice and
 permission text itself. So this file is a compliance artifact, not prose: it is
-generated from the actual dependency graph of `./cmd/nclang-compile`.
+generated from the actual dependency graph of every binary this repo ships
+(`./cmd/nclang-compile` and `./cmd/ncoda-run`).
 
 Usage:
   python3 scripts/gen_third_party_notices.py --out THIRD-PARTY-NOTICES.md
@@ -19,7 +20,7 @@ import os
 import subprocess
 import sys
 
-PACKAGE = "./cmd/nclang-compile"
+PACKAGES = ("./cmd/nclang-compile", "./cmd/ncoda-run")
 
 
 class CannotJudge(Exception):
@@ -28,19 +29,20 @@ class CannotJudge(Exception):
 
 def linked_modules(go: str = "go") -> list[dict]:
     fmt = "{{with .Module}}{{if not .Main}}{{.Path}}|{{.Version}}|{{.Dir}}|{{if .Replace}}yes{{end}}{{end}}{{end}}"
-    proc = subprocess.run([go, "list", "-deps", "-f", fmt, PACKAGE],
-                          capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise CannotJudge(f"go list -deps {PACKAGE} 失败：{proc.stderr.strip()[:300]}")
     seen, out = set(), []
-    for line in proc.stdout.splitlines():
-        if not line.strip():
-            continue
-        path, version, directory, replaced = (line.split("|") + ["", "", "", ""])[:4]
-        if not path or path in seen:
-            continue
-        seen.add(path)
-        out.append({"path": path, "version": version, "dir": directory, "replaced": replaced == "yes"})
+    for package in PACKAGES:
+        proc = subprocess.run([go, "list", "-deps", "-f", fmt, package],
+                              capture_output=True, text=True)
+        if proc.returncode != 0:
+            raise CannotJudge(f"go list -deps {package} 失败：{proc.stderr.strip()[:300]}")
+        for line in proc.stdout.splitlines():
+            if not line.strip():
+                continue
+            path, version, directory, replaced = (line.split("|") + ["", "", "", ""])[:4]
+            if not path or path in seen:
+                continue
+            seen.add(path)
+            out.append({"path": path, "version": version, "dir": directory, "replaced": replaced == "yes"})
     return sorted(out, key=lambda m: m["path"])
 
 

@@ -1,0 +1,27 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "parallel",
+        "arms": [
+          {
+            "name": "branch_0",
+            "port": "branch_0",
+            "entry": "\u003cnone\u003e",
+            "terminal": "none",
+            "empty": true
+          },
+          {
+            "name": "branch_1",
+            "port": "branch_1",
+            "entry": "\u003cnone\u003e",
+            "terminal": "none",
+            "empty": true
+          }
+        ]
+      }
+    ]
+  }
+}

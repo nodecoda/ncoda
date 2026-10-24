@@ -1,0 +1,102 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "ask",
+        "arms": [
+          {
+            "name": "branch_0",
+            "port": "branch_0",
+            "entry": "node",
+            "terminal": "return",
+            "empty": false
+          },
+          {
+            "name": "branch_1",
+            "port": "branch_1",
+            "entry": "node",
+            "terminal": "return",
+            "empty": false
+          },
+          {
+            "name": "default",
+            "port": "default",
+            "entry": "node",
+            "terminal": "return",
+            "empty": false
+          }
+        ],
+        "merge": "merge#0"
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "ask",
+        "port": "branch_0",
+        "group": "Group1",
+        "target": "merge#0",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "value",
+          "value"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "ask",
+        "port": "branch_1",
+        "group": "Group1",
+        "target": "merge#0",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "value",
+          "value"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "ask",
+        "port": "default",
+        "group": "Group1",
+        "target": "merge#0",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "value",
+          "value",
+          "value"
+        ]
+      }
+    ],
+    "refs": [
+      {
+        "producer": "value",
+        "consumer": "merge#0",
+        "resolved": [
+          "value"
+        ]
+      },
+      {
+        "producer": "value",
+        "consumer": "merge#0",
+        "resolved": [
+          "value"
+        ]
+      },
+      {
+        "producer": "value",
+        "consumer": "merge#0",
+        "resolved": [
+          "value"
+        ]
+      }
+    ]
+  }
+}

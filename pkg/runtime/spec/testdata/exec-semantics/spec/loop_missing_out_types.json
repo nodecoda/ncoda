@@ -1,0 +1,21 @@
+{
+  "version": "v2",
+  "mode": "workflow",
+  "nodes": [
+    {
+      "id": "loop_100010",
+      "kind": "loop",
+      "config": {
+        "loop_type": "by_array",
+        "input_arrays": [
+          "items"
+        ],
+        "inputs": [],
+        "output_sources": [],
+        "children": [],
+        "inner_edges": []
+      }
+    }
+  ],
+  "edges": []
+}

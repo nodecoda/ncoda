@@ -1,0 +1,12 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=switch a=A9 edge=branch-port expect=diverged
+// Known gap: switch arm returns are hoisted into a Group1 merge by the
+// decompiler; the source Semantics has open flow obligations and no closure.
+function main(string kind) -> string {
+    switch (kind) {
+        "a": { return "A"; }
+        "b": { return "B"; }
+        default: { return "?"; }
+    }
+}

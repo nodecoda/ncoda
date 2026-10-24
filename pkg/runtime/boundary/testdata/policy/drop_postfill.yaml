@@ -1,0 +1,3 @@
+# Negative control ES-074: deleting postfill nil makes ES-012/ES-043 red.
+prefill: zero
+postfill: none

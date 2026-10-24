@@ -1,0 +1,4708 @@
+{
+  "schema_version": 1,
+  "generated_from": {
+    "ir_module": "github.com/nodecoda/ncoda/pkg/ir",
+    "spec_package": "github.com/nodecoda/ncoda-commercial/internal/runtime/spec"
+  },
+  "ratchet": {
+    "total": 580,
+    "not_projected": 25,
+    "ratio": 0.043103,
+    "by_fact_class": {
+      "F1": 337,
+      "F2": 54,
+      "F3": 24,
+      "F4": 9,
+      "F5": 132,
+      "F6": 24
+    }
+  },
+  "class_floor": {
+    "F1": 1,
+    "F2": 1,
+    "F3": 1,
+    "F4": 1,
+    "F5": 1,
+    "F6": 1
+  },
+  "totals": {
+    "total": 580,
+    "not_projected": 25,
+    "ratio": 0.043103,
+    "by_fact_class": {
+      "F1": 337,
+      "F2": 54,
+      "F3": 24,
+      "F4": 9,
+      "F5": 132,
+      "F6": 24
+    }
+  },
+  "fields": [
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Exception",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Instruction",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.KnowledgeDatasetIDs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.KnowledgeTopK",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.MaxIteration",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Memory",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.MemoryWindow",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Model",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.PluginUniqueID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Query",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Strategy",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.StrategyLabel",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.StrategyName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.StrategyProviderName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentCall.Tools",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentToolWire.Alias",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentToolWire.PluginUniqueID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentToolWire.ProviderName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentToolWire.ProviderType",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AgentToolWire.ToolName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Aggregate.Groups",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Aggregate.ID",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Aggregate.RefName",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Aggregate.Refs",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Aggregate.ValueSources",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AggregateGroup.Name",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AggregateGroup.Owner",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AggregateGroup.Refs",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AggregateGroup.Type",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.ExtraPairs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.LoopID",
+      "fact_class": "F5",
+      "mapping": "loop state lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-assign-loop"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.LoopState",
+      "fact_class": "F5",
+      "mapping": "loop state lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-assign-loop"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.Operation",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Assign.VarName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AssignPair.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AssignPair.VarName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.Exit",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.Failure",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.FailureEnd",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.FlowExit",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.Op",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.Success",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.AttemptStmt.SuccessEnd",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.BranchWrites",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:49",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.Declared",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:42",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.LiteralWrites",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:46",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.MemberReads",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:44",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.MemberWrites",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:47",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.Name",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:41",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.OtherWrites",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:48",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.WholeReads",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:43",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BindingUsage.Writes",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/usage_prescan.go:45",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Block.Stmts",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BreakNode.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.BreakStmt.Node",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ChainArm.Block",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ChainArm.Cond",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ChainArm.Logic",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Code",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Condition",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Exception",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Identity",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.JSONSchema",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Language",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.OutOrder",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.OutTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Synthetic",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.Types",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.ZeroFields",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.CodeRun.ZeroOf",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Condition.Left",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Condition.Operator",
+      "fact_class": "F5",
+      "mapping": "branch selection lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-condition-operator"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Condition.Right",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ConfigPair.Key",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ConfigPair.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ContinueNode.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ContinueStmt.Node",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ConvVar.Default",
+      "fact_class": "F2",
+      "mapping": "zero-value default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ConvVar.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ConvVar.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.DefaultField.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.DefaultField.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.Answer",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ plain end node",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-end-answer"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.FlowExitMerge",
+      "fact_class": "F5",
+      "mapping": "flow-exit lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-end-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.Implicit",
+      "fact_class": "F5",
+      "mapping": "flow-exit lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-end-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.NamedReturn",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.Outputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.End.PortTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.EndAnswer.Bindings",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.EndAnswer.Streaming",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.EndAnswer.Template",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.EndOutput.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.EndOutput.Ref",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.DefaultFields",
+      "fact_class": "F2",
+      "mapping": "resolved error-policy defaults",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-fields"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.FailBranch",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.MaxRetry",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.ProcessType",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.RetryIntervalMS",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExceptionConfig.TimeoutMS",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionField.Description",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionField.GraphonType",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionField.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionField.Options",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionField.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionSpec.Fields",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionSpec.Instruction",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionSpec.MemoryTurns",
+      "fact_class": "F3",
+      "mapping": "runtime extraction memory policy",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-extraction-memory"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionSpec.Strategy",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ExtractionSpec.Vision",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ text-only extraction",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-extraction-vision"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.AllocatedNodeIDs",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time audit record (placement decisions / id-space bookkeeping); backend never consumes it",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:48",
+      "rule": "R1-graph-records"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.ConversationVars",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.Entry",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.Mode",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.Placements",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time audit record (placement decisions / id-space bookkeeping); backend never consumes it",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:42",
+      "rule": "R1-graph-records"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Graph.Root",
+      "fact_class": "F5",
+      "mapping": "structured program lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-graph-root"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Body",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Headers",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Method",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.Params",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPCall.URL",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPHeader.Name",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-header-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPHeader.Value",
+      "fact_class": "F4",
+      "mapping": "cozebiz http lowering (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-header-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPParam.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HTTPParam.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.HistoryCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.ChainArms",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.Cond",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.Else",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.Merge",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.Relay",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.IfStmt.Then",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineParam.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineParam.Source",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineParam.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.Body",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.Exit",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.Name",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.Params",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.ReturnType",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.InlineStmt.Value",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.KnowledgeCall.DatasetIDs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.KnowledgeCall.DatasetNames",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.KnowledgeCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.KnowledgeCall.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.KnowledgeCall.QueryName",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ default query",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-query-name"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Config",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Extraction",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Model",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.OutTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.OutputFormat",
+      "fact_class": "F2",
+      "mapping": "empty/0 ⇒ default response shape",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-output-format"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.ResponseFormat",
+      "fact_class": "F2",
+      "mapping": "empty/0 ⇒ default response shape",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-output-format"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMCall.Result",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMMetadataContract.FinishReason",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMMetadataContract.ReasoningContent",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMMetadataContract.Usage",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMResultContract.Metadata",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMResultContract.PayloadSchema",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ untyped payload",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-payload-schema"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMResultContract.Validation",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMResultContract.WholeEnvelopeConsumed",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMValidationContract.AttemptScope",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMValidationContract.ClosedRecord",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LLMValidationContract.Mode",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LanguageError.Code",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:41",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LanguageError.Column",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:47",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LanguageError.Line",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:46",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LanguageError.Message",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:42",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LanguageError.Name",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:45",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.FilterKey",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.FilterOp",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.FilterVal",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.ItemType",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.Limit",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.Operation",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.OrderKey",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.OrderVal",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ListOp.ResultType",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.ErrorHandleMode",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.FlattenOutput",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.FlattenPorts",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.InlineName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.InputArrays",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.IsParallel",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.LoopCount",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.LoopType",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.OutTypes",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.OutputSources",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.ParallelNums",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.ReturnValue",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.StateTypes",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.StateValues",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.Types",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Loop.VarName",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopReturnNode.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopReturnNode.Value",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.Body",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.Container",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.ErrorHandleMode",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.FlattenOutput",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.FlattenPorts",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.InlineName",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.InputArrays",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.Inputs",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.IsParallel",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.LoopCount",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.LoopType",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.OutTypes",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.OutputSources",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.ParallelNums",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.ReturnValue",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.StateTypes",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.StateValues",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.Types",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.Value",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.LoopStmt.VarName",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Message.Bindings",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Message.Content",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Message.Role",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.MissingDeclarationError.Capability",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:62",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.MissingDeclarationError.Message",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:63",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.NodeStmt.Node",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.NodeStmt.Value",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Operand.Ref",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Operand.Val",
+      "fact_class": "F2",
+      "mapping": "nil literal absorbed by the consumer",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-operand-val"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Output.Bindings",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Output.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Output.Streaming",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Output.Template",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ParallelStmt.Branches",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ParallelStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Param.Default",
+      "fact_class": "F2",
+      "mapping": "zero-value default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Param.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Param.Optional",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Param.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Placement.Construct",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:65",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Placement.Decision",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:66",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Placement.NodeID",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:64",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Placement.Reason",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:67",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Actions",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Bindings",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Choices",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.DynamicOptions",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.ExtractFromAnswer",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Fields",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.LLM",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.MaxAnswerCount",
+      "fact_class": "F3",
+      "mapping": "runtime question-answer wait policy",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-qa-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.OutTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Template",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.TextForm",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.Timeout",
+      "fact_class": "F3",
+      "mapping": "runtime question-answer wait policy",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-qa-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QA.TimeoutUnit",
+      "fact_class": "F3",
+      "mapping": "runtime question-answer wait policy",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-qa-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaAction.Member",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaAction.Style",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaAction.Title",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaBranch.Body",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaBranch.Port",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaField.Kind",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaField.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaField.Options",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.GenerationDiversity",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.MaxTokens",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.Model",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.ModelName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.ResponseFormat",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.SystemPrompt",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.Temperature",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaLlm.TopP",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaStmt.Branches",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaStmt.Merge",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.QaStmt.QA",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Ref.Output",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Ref.Producer",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.End",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.FlowEnd",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.Implicit",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.SharedEnd",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ReturnStmt.Value",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Selector.Conditions",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Selector.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Selector.Logic",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Source.BlockID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Source.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Source.Path",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Source.Val",
+      "fact_class": "F2",
+      "mapping": "nil literal absorbed by the consumer",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-source-val"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Start.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Start.Params",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.InFields",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.OutTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.SpaceID",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ declaration default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-space-id"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.WorkflowID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubWorkflowCall.WorkflowVersion",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubflowField.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SubflowField.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.Intents",
+      "fact_class": "F5",
+      "mapping": "switch/intent routing lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-switch-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.MaxTokens",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.Mode",
+      "fact_class": "F5",
+      "mapping": "switch/intent routing lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-switch-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.Model",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.ModelName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.Query",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.SystemPrompt",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.Temperature",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Switch.TopP",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchBranch.Body",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchBranch.Port",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchStmt.Branches",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchStmt.ID",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchStmt.Merge",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.SwitchStmt.Switch",
+      "fact_class": "F5",
+      "mapping": "control/graph lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-statements"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TemplateBinding.Name",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TemplateBinding.Ref",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TemplateBinding.Type",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.Answer",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.ConcatChar",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.Inputs",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.Method",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.Separators",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.TextProcess.Template",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil-ir"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.ID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.Operation",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.Params",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.ProviderID",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.ResultType",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolCall.ToolName",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolParam.Key",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolParam.Ref",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.ToolParam.Value",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.AllowedFileExtensions",
+      "fact_class": "F1",
+      "not_projected": true,
+      "gap": "populated by the IR builder but has no consumer in spec or the cozebiz lowering; EXEC-SEMANTICS §4.1 / spec.TypeSpec exclude file-upload constraints from the execution subset (AllowedFileTypes stays mapped: render_llm.go consumes it)",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:155",
+      "rule": "R1-unconsumed-file-constraints"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.AllowedFileTypes",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.AllowedFileUploadMethods",
+      "fact_class": "F1",
+      "not_projected": true,
+      "gap": "populated by the IR builder but has no consumer in spec or the cozebiz lowering; EXEC-SEMANTICS §4.1 / spec.TypeSpec exclude file-upload constraints from the execution subset (AllowedFileTypes stays mapped: render_llm.go consumes it)",
+      "evidence": "oss:v0.3.0:pkg/ir/ir.go:156",
+      "rule": "R1-unconsumed-file-constraints"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.Elem",
+      "fact_class": "F2",
+      "mapping": "nil element/props ⇒ scalar/empty (zero contract)",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-type-optional"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.Kind",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.Optional",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.Props",
+      "fact_class": "F2",
+      "mapping": "nil element/props ⇒ scalar/empty (zero contract)",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-type-optional"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.Type.Required",
+      "fact_class": "F1",
+      "mapping": "pkg/ir → cozebiz lowering → spec projection",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "ir",
+      "path": "ir.UnsupportedError.Construct",
+      "fact_class": "F6",
+      "not_projected": true,
+      "gap": "compile-time harness/diagnostic surface; not a runtime fact and never projected into spec or the artifact",
+      "evidence": "oss:v0.3.0:pkg/ir/build.go:28",
+      "rule": "R1-harness-structs"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Instruction",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Knowledge",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.MaxIteration",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Memory",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.MemoryWindow",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Model",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Query",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Strategy",
+      "fact_class": "F3",
+      "mapping": "runtime agent policy defaults",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-agent-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentConfig.Tools",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentKnowledgeConfig.DatasetIDs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentKnowledgeConfig.TopK",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentToolWire.Alias",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentToolWire.PluginUniqueID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentToolWire.ProviderName",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentToolWire.ProviderType",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AgentToolWire.ToolName",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateConfig.Groups",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateConfig.LegacyGroupName",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateConfig.Refs",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateGroup.Name",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateGroup.Refs",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AggregateGroup.Type",
+      "fact_class": "F5",
+      "mapping": "merge/phi lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-aggregate-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "AssignConfig.LoopID",
+      "fact_class": "F5",
+      "mapping": "loop state lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-assign-loop"
+    },
+    {
+      "pkg": "spec",
+      "path": "AssignConfig.LoopState",
+      "fact_class": "F5",
+      "mapping": "loop state lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-assign-loop"
+    },
+    {
+      "pkg": "spec",
+      "path": "AssignConfig.Operation",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AssignConfig.Value",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "AssignConfig.VarName",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "BuildOptions.Provenance",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "BuildOptions.SemanticsVersion",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "BuildOptions.TimeoutAxes",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Code",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Condition",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.KeepWhole",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Language",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.OutOrder",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.OutTypes",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Synthetic",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "CodeConfig.Types",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Condition.Left",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Condition.Operator",
+      "fact_class": "F5",
+      "mapping": "branch selection lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-condition-operator"
+    },
+    {
+      "pkg": "spec",
+      "path": "Condition.Right",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ConfigPair.Key",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ConfigPair.Value",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ConvVarSpec.Default",
+      "fact_class": "F2",
+      "mapping": "zero-value default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ConvVarSpec.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ConvVarSpec.Type",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "DefaultField.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "DefaultField.Value",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EdgeSpec.Source",
+      "fact_class": "F5",
+      "mapping": "graph build (arcs/ports)",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-edge-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "EdgeSpec.SourcePort",
+      "fact_class": "F5",
+      "mapping": "graph build (arcs/ports)",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-edge-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "EdgeSpec.Target",
+      "fact_class": "F5",
+      "mapping": "graph build (arcs/ports)",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-edge-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "EdgeSpec.TargetPort",
+      "fact_class": "F5",
+      "mapping": "graph build (arcs/ports)",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-edge-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndAnswerConfig.Bindings",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndAnswerConfig.Template",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndConfig.Answer",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndConfig.NamedReturn",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndConfig.Outputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndOutput.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EndOutput.Ref",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EntrySpec.ID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "EntrySpec.Params",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.DataOnErr",
+      "fact_class": "F2",
+      "mapping": "resolved error-policy defaults",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-fields-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.FailBranch",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.MaxRetry",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.ProcessType",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.RetryIntervalMS",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.TimeoutAxis",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ExceptionConfig.TimeoutMS",
+      "fact_class": "F3",
+      "mapping": "runtime retry/timeout/error-policy resolution",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-exception-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Body",
+      "fact_class": "F4",
+      "mapping": "runtime http node transport (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Headers",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Method",
+      "fact_class": "F4",
+      "mapping": "runtime http node transport (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.Params",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.SettingTimeoutSec",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPConfig.URL",
+      "fact_class": "F4",
+      "mapping": "runtime http node transport (host adapter)",
+      "evidence": "hand:internal/runtime/nodes/http.go:159",
+      "rule": "R3-http-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPKV.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "HTTPKV.Value",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "KnowledgeConfig.DatasetIDs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "KnowledgeConfig.DatasetNames",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "KnowledgeConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "KnowledgeConfig.QueryName",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ default query",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-query-name"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Config",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Model",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.OutputFormat",
+      "fact_class": "F2",
+      "mapping": "empty/0 ⇒ default response shape",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-output-format"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.ResponseFormat",
+      "fact_class": "F2",
+      "mapping": "empty/0 ⇒ default response shape",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-output-format"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Result",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMConfig.Vision",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMMetadataConfig.FinishReason",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMMetadataConfig.ReasoningContent",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMMetadataConfig.Usage",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMResultConfig.Metadata",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMResultConfig.PayloadSchema",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMResultConfig.Validation",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMUsageConfig.CompletionTokens",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMUsageConfig.PromptTokens",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMUsageConfig.TotalTokens",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMValidationConfig.AttemptScope",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMValidationConfig.ClosedRecords",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMValidationConfig.DuplicateKeys",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMValidationConfig.Mode",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LLMValidationConfig.NonFiniteNums",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.FilterKey",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.FilterOp",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.FilterVal",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.Limit",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.Operation",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.OrderKey",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ListOpConfig.OrderVal",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.Children",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.ErrorHandleMode",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.FlattenOutput",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.InnerEdges",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.InputArrays",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.IsParallel",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.LoopCount",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.LoopType",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.OutTypes",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.OutputSources",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.ParallelNums",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.ReturnValue",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.StateTypes",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.StateValues",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.Types",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopConfig.VarName",
+      "fact_class": "F2",
+      "mapping": "absent ⇒ empty table",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-loop-tables"
+    },
+    {
+      "pkg": "spec",
+      "path": "LoopReturnConfig.Value",
+      "fact_class": "F5",
+      "mapping": "loop control lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-loop-exit-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "NodeSpec.Config",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "NodeSpec.ID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "NodeSpec.Kind",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Operand.Ref",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Operand.Val",
+      "fact_class": "F2",
+      "mapping": "nil literal absorbed by the consumer",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-operand-val"
+    },
+    {
+      "pkg": "spec",
+      "path": "OutputConfig.Template",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ParamSpec.Default",
+      "fact_class": "F2",
+      "mapping": "zero-value default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-default-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "ParamSpec.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ParamSpec.Optional",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ParamSpec.Type",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ProvenanceRow.Evidence",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ProvenanceRow.Field",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ProvenanceRow.Node",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ProvenanceRow.Origin",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaConfig.Choices",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaConfig.Fields",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaConfig.Template",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ no template",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-qa-template"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaConfig.Timeout",
+      "fact_class": "F3",
+      "mapping": "runtime question-answer wait policy",
+      "evidence": "platform_model.yaml#node_kinds",
+      "rule": "R4-qa-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaField.Kind",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaField.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "QaField.Options",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Ref.Output",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Ref.Producer",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SelectorConfig.Conditions",
+      "fact_class": "F5",
+      "mapping": "branch selection lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-selector-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "SelectorConfig.Logic",
+      "fact_class": "F5",
+      "mapping": "branch selection lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-selector-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "Sidecar.Artifact",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Sidecar.Nodes",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Sidecar.Profile",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Sidecar.SemanticsVersion",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.Evidence",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.HostFields",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.Origin",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.Postfill",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.Prefill",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.RequiredDefault",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.TimeoutAxis",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SidecarNode.Wire",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Source.BlockID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Source.Name",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Source.Path",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Source.Val",
+      "fact_class": "F2",
+      "mapping": "nil literal absorbed by the consumer",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-source-val"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.ConvVars",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Edges",
+      "fact_class": "F5",
+      "mapping": "graph build (edges)",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-spec-edges"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Entry",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Mode",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Nodes",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Provenance",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.SemanticsVersion",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "Spec.Version",
+      "fact_class": "F6",
+      "mapping": "spec.DecodeJSON version-first dispatch (schema version)",
+      "evidence": "hand:internal/runtime/spec/build.go:810",
+      "rule": "R2-spec-schema-version"
+    },
+    {
+      "pkg": "spec",
+      "path": "StartConfig.Params",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SubWorkflowConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SubWorkflowConfig.OutTypes",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SubWorkflowConfig.SpaceID",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ declaration default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-space-id"
+    },
+    {
+      "pkg": "spec",
+      "path": "SubWorkflowConfig.WorkflowID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SubWorkflowConfig.WorkflowVersion",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.Intents",
+      "fact_class": "F5",
+      "mapping": "switch/intent routing lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-switch-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.MaxTokens",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.Mode",
+      "fact_class": "F5",
+      "mapping": "switch/intent routing lowering",
+      "evidence": "hand:internal/obligations/model.go:1",
+      "rule": "R5-switch-spec"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.Query",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.SystemPrompt",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.Temperature",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "spec",
+      "path": "SwitchConfig.TopP",
+      "fact_class": "F2",
+      "mapping": "zero/nil ⇒ model default",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-switch-params"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.Answer",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.ConcatChar",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.Inputs",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.Method",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.Separators",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TextConfig.Template",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.Exception",
+      "fact_class": "F2",
+      "mapping": "nil ⇒ no retry/timeout policy",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-exception-nil"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.NestedRefs",
+      "fact_class": "F2",
+      "mapping": "empty ⇒ no nested refs",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-nested-refs"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.Operation",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.Params",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.ProviderID",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolConfig.ToolName",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolParam.Key",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolParam.Ref",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "ToolParam.Value",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TypeSpec.Elem",
+      "fact_class": "F2",
+      "mapping": "nil element/props ⇒ scalar/empty (zero contract)",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-type-optional"
+    },
+    {
+      "pkg": "spec",
+      "path": "TypeSpec.Kind",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    },
+    {
+      "pkg": "spec",
+      "path": "TypeSpec.Props",
+      "fact_class": "F2",
+      "mapping": "nil element/props ⇒ scalar/empty (zero contract)",
+      "evidence": "hand:docs/PROJECT-CONTRACT.md:419",
+      "rule": "R6-type-optional"
+    },
+    {
+      "pkg": "spec",
+      "path": "TypeSpec.Required",
+      "fact_class": "F1",
+      "mapping": "spec.DecodeJSON/DecodeConfig → runtime consumer",
+      "evidence": "hand:docs/coze-biz-node-encoding.md:91",
+      "rule": "R0-declared"
+    }
+  ]
+}

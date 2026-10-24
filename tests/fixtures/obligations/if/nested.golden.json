@@ -1,0 +1,140 @@
+{
+  "schema": "ncoda.obligations-p5-signature/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "empty": false
+          }
+        ],
+        "merge": {
+          "out": {
+            "kind": "phi",
+            "candidates": [
+              "output",
+              "output"
+            ]
+          }
+        }
+      },
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "empty": false
+          }
+        ],
+        "merge": {
+          "out": {
+            "kind": "phi",
+            "candidates": [
+              "out",
+              "output"
+            ]
+          }
+        }
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "false",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "output",
+          "output"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "true",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "output",
+          "output"
+        ]
+      },
+      {
+        "construct": 1,
+        "kind": "if",
+        "port": "false",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "out",
+          "output"
+        ]
+      },
+      {
+        "construct": 1,
+        "kind": "if",
+        "port": "true",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "out",
+          "output"
+        ]
+      }
+    ],
+    "refs": [
+      {
+        "producer": "merge",
+        "output": "out",
+        "consumer": "merge",
+        "resolved": [
+          "out"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      }
+    ]
+  }
+}

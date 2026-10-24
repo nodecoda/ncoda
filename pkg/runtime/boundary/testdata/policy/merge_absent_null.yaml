@@ -1,0 +1,4 @@
+# Negative control ES-075: merging absent/null makes ES-001 red.
+prefill: zero
+postfill: nil
+merge_absent_null: true

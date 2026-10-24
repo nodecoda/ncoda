@@ -1,0 +1,16 @@
+@language nodecoda/1
+@mode workflow
+// @p5 construct=if a=A1/A2 edge=branch-port expect=equivalent
+// P5: else-if chain lowers to two constructs; each merges into the same output.
+function main(string input) -> string {
+    string out;
+    out = "";
+    if (input == "a") {
+        out = "A";
+    } else if (input == "b") {
+        out = "B";
+    } else {
+        out = "?";
+    }
+    return out;
+}

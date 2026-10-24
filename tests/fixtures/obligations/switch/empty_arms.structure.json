@@ -1,0 +1,47 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "switch",
+        "arms": [
+          {
+            "name": "branch_0",
+            "port": "branch_0",
+            "entry": "\u003cnone\u003e",
+            "terminal": "none",
+            "empty": true
+          },
+          {
+            "name": "default",
+            "port": "default",
+            "entry": "\u003cnone\u003e",
+            "terminal": "none",
+            "empty": true
+          }
+        ]
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "switch",
+        "port": "branch_0",
+        "group": "Group1",
+        "target": "end",
+        "target_kind": "flow",
+        "status": "closed"
+      },
+      {
+        "construct": 0,
+        "kind": "switch",
+        "port": "default",
+        "group": "Group1",
+        "target": "end",
+        "target_kind": "flow",
+        "status": "closed"
+      }
+    ]
+  }
+}

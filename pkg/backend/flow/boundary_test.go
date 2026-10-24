@@ -23,6 +23,10 @@ func TestSemanticsMigrationBoundary(t *testing.T) {
 	projectAllow := map[string]bool{
 		"pkg/tool/registry.go":      true, // capability registry: P4b pending
 		"cmd/ncoda-dualrun/main.go": true, // frozen baseline replay
+		// runtime lane: 它就是 spec.Build 的服务对象（source → IR → projection →
+		// spec.v1 → eino）。P4b 的落点是让 spec.Build 直接吃 Plan.Semantics；
+		// 在那之前，这里是唯一的生产入口，且只有这一个。
+		"pkg/runner/run.go": true,
 	}
 	fromPlanAllow := map[string]bool{
 		"cmd/ncoda-dualrun/plan_compare.go": true,

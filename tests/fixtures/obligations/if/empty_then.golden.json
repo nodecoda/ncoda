@@ -1,0 +1,76 @@
+{
+  "schema": "ncoda.obligations-p5-signature/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "if",
+        "arms": [
+          {
+            "name": "then",
+            "port": "true",
+            "empty": false
+          },
+          {
+            "name": "else",
+            "port": "false",
+            "empty": false
+          }
+        ],
+        "merge": {
+          "out": {
+            "kind": "phi",
+            "candidates": [
+              "result",
+              "output"
+            ]
+          }
+        }
+      }
+    ],
+    "obligations": [
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "false",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "result",
+          "output"
+        ]
+      },
+      {
+        "construct": 0,
+        "kind": "if",
+        "port": "true",
+        "group": "out",
+        "target_kind": "merge",
+        "status": "closed",
+        "candidates": [
+          "result",
+          "output"
+        ]
+      }
+    ],
+    "refs": [
+      {
+        "producer": "value",
+        "output": "output",
+        "consumer": "merge",
+        "resolved": [
+          "output"
+        ]
+      },
+      {
+        "producer": "value",
+        "output": "result",
+        "consumer": "merge",
+        "resolved": [
+          "result"
+        ]
+      }
+    ]
+  }
+}

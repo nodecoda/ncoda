@@ -1,0 +1,33 @@
+{
+  "schema": "ncoda.obligations-p5-structure/v1",
+  "target": "runtime",
+  "signature": {
+    "constructs": [
+      {
+        "kind": "parallel",
+        "arms": [
+          {
+            "name": "branch_0",
+            "port": "branch_0",
+            "entry": "node",
+            "exits": [
+              "value"
+            ],
+            "terminal": "flow",
+            "empty": false
+          },
+          {
+            "name": "branch_1",
+            "port": "branch_1",
+            "entry": "node",
+            "exits": [
+              "value"
+            ],
+            "terminal": "flow",
+            "empty": false
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 # build outputs (the root binaries produced by `go build ./cmd/...`)
 /nclang-compile
+/ncoda-run
 /ncoda-migrate-switch
 /ncoda-migrate-llm
 /ncoda-pin-bindings
