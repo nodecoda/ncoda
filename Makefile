@@ -53,7 +53,8 @@ dist:
 	  GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $$out ./cmd/nclang-compile; \
 	done
 	@# Apache-2.0 §4(d): ship the License and the NOTICE with the binaries.
-	@cp LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/
+	@# install (not cp) so a rerun can overwrite read-only LICENSE (0444).
+	@install -m 0644 LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/
 	@python3 scripts/gen_sbom.py --version $(VERSION) --out $(DIST)/sbom.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
 	@cd $(DIST) && sha256sum nclang-* sbom.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md > SHA256SUMS
