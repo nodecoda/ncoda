@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 06_tool_use.ncoda
-// Dify YAML: examples/yaml/06_tool_use.yml
 //
 // Flow: Start → Tool(google_search) → LLM → Answer
 //
@@ -9,7 +8,7 @@
 //   tool.result         → result.result
 
 @mode workflow
-import "dify.google_search";
+import "google_search";
 
 const MODEL = "openai_api_compatible/gpt-5.4";
 

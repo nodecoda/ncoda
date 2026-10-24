@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 16_basic_chatflow.ncoda
-// Dify YAML: examples/yaml/basic_chatflow.yml
 //
 // Flow: Start → LLM → Answer
 // Pattern: Advanced-chat mode with AnswerNode

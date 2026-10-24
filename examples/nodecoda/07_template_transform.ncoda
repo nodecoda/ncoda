@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 07_template_transform.ncoda
-// Dify YAML: examples/yaml/07_template_transform.yml
 //
 // Flow: Start(name, score) → Template → Answer
 //

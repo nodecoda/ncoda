@@ -1,20 +1,14 @@
 # NodeCoda Workflow Language 示例库
 
-编号 `00` 至 `38` 的 `.ncoda` Source 对应现有 Dify YAML，展示 Source 到目标产物的映射规则。
-`39` 至 `44` 是语言和 lowering 契约样例，`45` 起是部署能力与 reviewed contract 示例。完整语法见 [nodecoda-spec `spec/grammar.ebnf`](https://github.com/nodecoda/nodecoda-spec/blob/main/spec/grammar.ebnf)(单一事实源;原 `docs/dify-dsl.y` 已退役删除)。
+编号 `00` 至 `38` 的 `.ncoda` Source 是从真实工作流抽象出的语言样例，展示 Source 到 IR / 目标产物的映射规则。
+`39` 至 `44` 是语言和 lowering 契约样例，`45` 起是部署能力与 reviewed contract 示例。完整语法见 [nodecoda-spec `spec/grammar.ebnf`](https://github.com/nodecoda/nodecoda-spec/blob/main/spec/grammar.ebnf)(单一事实源)。
 
-> 权威语料（63 例，golden_diff 三方对账用）位于
-> `internal/compiler/testdata/examples/nodecoda/`；本目录为同源 vendored 副本，新增语料需同步。
+> 验收语料（869 例）是独立仓 `ncoda-corpus`；本目录只放语言样例，不放平台夹具。
 >
-> **目标面（2026-09-26）**：本目录是 **coze-biz 面**的示例集
-> （`scripts/five-step/roundtrip_contract.sh` 的默认源集）。但有两个源**自己不属 coze-biz**
-> —— `06_tool_use` / `38_chatflow_time_tool` 的源文本声明的是 dify 目标
-> （`import "dify.…"`），编译器按目标作用域明确拒绝拍它们：
-> `import "dify.google_search" targets platform "dify" but compile target is "coze-biz-1.0"`。
-> 它们**逐条**声明在 runner 的 `OUT_OF_TARGET`（不参与 coze-biz 往返，命中即打印），
-> 权威面 = 搁置的 dify 面 `internal/compiler/testdata/examples/`。
-> 为什么不改源：`dify.google_search` 在 coze-biz 侧没有同能力替代（最近的是 Bing 搜索）
-> ⇒ 改它等于**换一个示例**，不是修坏引用。
+> **平台无关（2026-10-25）**：本目录全部示例只使用语言构造。需要能力头时写**裸
+> provider 名**（`import "google_search";`）—— 平台限定符由适配器在构建时解析，
+> 开源仓不认识任何平台名。平台夹具、往返证据与目标产物示例住在适配器仓
+> （商业仓 `internal/backend/*`）。
 
 ## 编译状态
 
@@ -26,9 +20,9 @@
 | 03_conditional | IF→LLM | ✓ | ✓ | 可编译 |
 | 04_code | Code→LLM | ✓ | ✓ | 可编译 |
 | 05_http | HTTP→LLM | ✓ | ✓ | 可编译 |
-| 06_tool | Tool→LLM | ✓ | ✓ | **dify 目标**源（`import "dify.google_search"`）⇒ 不参与 coze-biz 往返（见上「目标面」） |
+| 06_tool | Tool→LLM | ✓ | ✓ | 平台无关的 tool 绑定示例（裸 provider 名） |
 | 07_template | Template+Conditionals | ✓ | ✓ | 可编译 |
-| 08_parallel | Parallel { LLM, LLM } | ✓ | ✓ | Dify 1.16 / Graphon 0.6 普通 DAG fan-out/fan-in |
+| 08_parallel | Parallel { LLM, LLM } | ✓ | ✓ | 普通 DAG fan-out/fan-in |
 | 09_iteration | FOR→LLM | ✓ | ✓ | plain ForStmt 生产启用 |
 | 39_code_typed_direct_output | Code direct result | ✓ | ✓ | 单输出直接值 |
 | 40_code_typed_structural_output | Code structural result | ✓ | ✓ | 多物理输出端口 |
@@ -37,7 +31,7 @@
 | 47_parallel_product | named parallel product | ✓ | ✓ | 五次 runtime 运行稳定 |
 | 48_response_accumulation | 多 End response | ✓ | ✓ | 三次 runtime 运行通过 |
 | 49_for_statement_plain | plain statement For | ✓ | ✓ | 三次 runtime 运行，每项执行一次 body |
-| 50_condition_direct | direct condition | ✓ | ✓ | Dify 原生 condition operator |
+| 50_condition_direct | direct condition | ✓ | ✓ | 原生 condition operator |
 | 51_condition_calculation | calculated condition | ✓ | ✓ | typed Code materialization 后判断 |
 | 57_parameter_extractor | schema-dependent extraction | ✓ | ✓ | flat required prompt shape；必须检查 `.ok` |
 
@@ -74,7 +68,7 @@
 
 ### 强类型 Code FFI
 
-Code 输入必须同时声明端口类型和绑定表达式；声明类型是静态分析、Dify 端口和本地运行时校验的唯一依据：
+Code 输入必须同时声明端口类型和绑定表达式；声明类型是静态分析、目标端口和本地运行时校验的唯一依据：
 
 ```dc
 let values = foreign code python3(int limit = max_items) -> array<int> {
@@ -98,7 +92,7 @@ let stats = foreign code python3(string text = query) -> {
 return stats.summary;
 ```
 
-每个结构字段映射到同一 Dify Code 节点上的独立输出端口。Python AST 检查仅验证 `main`
+每个结构字段映射到同一个 Code 节点上的独立输出端口。Python AST 检查仅验证 `main`
 参数和可见返回键，不推断或修改声明类型。当前只支持 `python3`，输入和输出契约均不支持
 `file`。旧 `code(...)` 和 `code python3(...)` 语法均不存在。
 

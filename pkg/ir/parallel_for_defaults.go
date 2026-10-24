@@ -21,7 +21,7 @@ package ir
 // 但三个目标的**平台自身缺省都是 10**：coze-studio 开源实现
 // （oss:backend/domain/workflow/internal/nodes/batch/batch.go，`concurrency == 0 → 10`）·
 // dify（`get_default_config` 的 `parallel_nums: 10`，且 `serialize.go` 写侧省略 10）·
-// runtime（`internal/runtime/compile/loop.go`，`workers <= 0 → 10`）。
+// runtime（`internal/runtime/（商业仓）compile/loop.go`，`workers <= 0 → 10`）。
 // ⇒ 「省」只发生在**语言表面**；产物里省不掉（平台缺键 = 硬报错，必须物化）。
 const (
 	// ParallelForDefaultConcurrency 是 `parallel for` 省略 `concurrency:` 时的并发度。

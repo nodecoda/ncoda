@@ -69,7 +69,7 @@ func takeBindingLabel(bindings *[]textBinding, port string) string {
 // （他的 `{{q}}` 是文本，平台的模板语法又没有转义），所以让位的是我们的名字。
 //
 // 无形态守卫：保留名来自**同一个模板槽的字面文本**，与端口名/节点类型/表达式
-// 形状无关（见 internal/backend/cozebiz/template_names.go 的另一半：渲染期合成
+// 形状无关（见 internal/backend/cozebiz/（商业仓）template_names.go 的另一半：渲染期合成
 // 的绑定名遵守同一条规则）。
 func takeBindingLabelReserved(bindings *[]textBinding, port string, reserved map[string]bool) string {
 	base := bindingLabel(port)

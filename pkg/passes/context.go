@@ -65,7 +65,7 @@ func defaultOperations() *Operations {
 // (base.py DSLPassContext.target_profile.operations), and the Phase-0
 // capability manifest (target_profile.py TargetProfile.capabilities, Task
 // 17C1) the CapabilityGatePass consults. A nil profile means the default
-// (dify-1.16-graphon-0.6, see DefaultTargetProfile).
+// (see DefaultTargetProfile).
 type TargetProfile struct {
 	Name           string
 	Operations     *Operations
@@ -104,18 +104,25 @@ type TargetProfile struct {
 	// mapping; a nil Codec falls back to it defensively (the Capabilities
 	// nil-guard precedent).
 	Codec target.Codec
+
+	// Carrier declares the target's representability facts (carrier.go).
+	// Adapters set it; a zero value falls back to the transitional name
+	// bridge so profiles built before the release batch keep their facts.
+	Carrier CarrierProfile
 }
 
-// DefaultTargetProfile returns the identity of the reference default target
-// (base.py get_target_profile() default), the analogue of the reference's
-// lazy _default_target_profile(). Name mirrors the reference target
-// identity DEFAULT_TARGET_NAME ("dify-1.16-graphon-0.6", target_profile.py
-// :27) — the Task 25d report records that earlier tasks used the
-// placeholder "default"; the name surfaces in the agent profile rejection
-// diagnostic, so it is aligned with the oracle.
+// DefaultTargetProfile returns the language's own default target profile —
+// the identity a standalone ncoda program is compiled and run against. It is
+// deliberately not a platform: adapters declare their own name and carrier.
+//
+// The carrier currently holds the reference node-graph facts because the
+// commercial adapters still build their profiles on top of this default
+// (P2d release batch); once they inject their own CarrierProfile the default
+// becomes the language-only carrier.
 func DefaultTargetProfile() *TargetProfile {
 	return &TargetProfile{
-		Name:                                 "dify-1.16-graphon-0.6",
+		Name:                                 NativeTargetName,
+		Carrier:                              referenceCarrier(),
 		Operations:                           defaultOperations(),
 		MaxParallelism:                       10,
 		Capabilities:                         DefaultCapabilityManifest(),

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 33_test_answer_order.ncoda
-// Dify YAML: examples/yaml/test-answer-order.yml
 //
 // Flow: Start → LLM → Answer1("--- answer 1 ---\nfoo\n") → Answer2(LLM text)
 // Pattern: advanced-chat with chained answer nodes

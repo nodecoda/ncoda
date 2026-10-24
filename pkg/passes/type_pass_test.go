@@ -961,7 +961,7 @@ func TestMultiReturnExitValueTypesConsistent(t *testing.T) {
 			// value resumes the enclosing loop), not function exits: they
 			// must not anchor the function's implicit return type. The
 			// real multi-line shape is locked by
-			// internal/runtime/compile/qa_loop_byarray_test.go; this is the
+			// internal/runtime/（商业仓）compile/qa_loop_byarray_test.go; this is the
 			// same mechanism through a for-statement body.
 			name:    "subscope loop return does not anchor the function type",
 			body:    `function main() { let items = ["a"]; for (x in items) { while (x != "") limit 2 { return 42; } } return "done"; }`,

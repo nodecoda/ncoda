@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 01_simple_chat.ncoda
-// Dify YAML: examples/yaml/01_simple_chat.yml
 //
 // Flow: Start(language) → LLM → Answer
 //

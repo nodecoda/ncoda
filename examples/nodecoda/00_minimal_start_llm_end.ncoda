@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 00_minimal_start_llm_end.ncoda
-// Dify YAML: examples/yaml/00_minimal_start_llm_end.yml
 //
 // Flow: Start ──→ LLM (Analyze) ──→ End
 //

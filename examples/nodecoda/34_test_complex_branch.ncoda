@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 34_test_complex_branch.ncoda
-// Dify YAML: examples/yaml/test_complex_branch.yml
 //
 // Flow: Start → IF(query contains "hello") →
 //   true:  Answer("contains 'hello'")

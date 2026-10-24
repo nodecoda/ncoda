@@ -821,7 +821,7 @@ func (a *Aggregate) SingleGroupRef() Ref {
 // 本方法是它对**包外**（渲染器 / 后端）的适配，供消费者直接取绑定值。
 // 包外消费点**不得**重新判定（例如手写 `len(Exit.Groups) == 0`）——那正是
 // 同一规则两份实现、其中一份缺 `Refs > 0` 的复发形态（2026-09-23 N1 收口前：
-// `internal/backend/cozebiz/render_stmt.go` 的 attempt flow-tail）。
+// `internal/backend/cozebiz/（商业仓）render_stmt.go` 的 attempt flow-tail）。
 func (a *Aggregate) TailValueRef() *Ref {
 	vr := junctionTailRef(a)
 	if vr == nil {
@@ -945,7 +945,7 @@ type QA struct {
 // 平台类型 `SimpleLLMParam` = **扁平标量表**）。IR 不依赖 frontend 包，故按
 // `QaField` / `QaAction` 先例在这里重复声明一份（与 `binding.HumanInputLLM` 字段
 // 一一对应）。`Model` 保持**协议串原文**（`"coze:<n>"`）—— 把它翻成平台的整数
-// `modelType` 是**目标层**的事（`internal/backend/cozebiz/cozemodel`），语言层不认
+// `modelType` 是**目标层**的事（`internal/backend/cozebiz/（商业仓）cozemodel`），语言层不认
 // 平台协议（判据 = internal/archgate 的语言内核轴）。
 //
 // **指针 = presence**：nil = 平台导出没写这个键（语言面也不写）。
@@ -1077,7 +1077,7 @@ type Switch struct {
 	// Model / ModelName = 分类器模型的载体（R-70 甲，用户 2026-09-25 批准）。
 	// Model 走与 llm() **同一协议**（`coze:<modelType>`，见 internal/cozemodel）；
 	// ModelName 是平台**显示名**的载体（名字不是 id 的函数 ⇒ 原样携带，不作为
-	// 平台参数下传；消费点 = internal/backend/cozebiz/switch_model.go）。
+	// 平台参数下传；消费点 = internal/backend/cozebiz/（商业仓）switch_model.go）。
 	// "" = 未携带 ⇒ lowering 写回平台默认对（1 / 豆包·工具调用）。
 	Model     string
 	ModelName string

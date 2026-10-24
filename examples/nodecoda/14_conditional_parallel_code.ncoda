@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 14_conditional_parallel_code.ncoda
-// Dify YAML: examples/yaml/conditional_parallel_code_execution_workflow.yml
 //
 // Flow: Start(switch) → IF(switch==1) →
 //   true:  parallel { code1, code2 }

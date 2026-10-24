@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 36_response_stream_filter.ncoda
-// Dify YAML: examples/yaml/response_stream_filter_issue_170_workflow.yml
 //
 // Flow: Start → LLM1(Li Bai poem) → LLM2(Du Fu poem) → Answer(combined)
 // Pattern: advanced-chat with sequential LLM chain

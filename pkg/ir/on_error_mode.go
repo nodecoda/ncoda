@@ -1,33 +1,46 @@
 package ir
 
-// on_error_mode.go —— `on_error:` 模式 → 平台拼写的**闭集只有一个定义处**。
+import "github.com/nodecoda/ncoda/pkg/capability"
+
+// on_error_mode.go —— `on_error:` 模式 → IR 线拼写的**唯一落点**。
 //
-// 背景（2026-09-21，「两处实现」普查）：`parallel for` 的语句形
-// （`build_stmt.go`，`*ast.ForStmt`）与值形（`build_call.go`，`*ast.ParallelForExpr`）
-// 各自把这张三项表**逐字写了一遍** —— 同一份映射的两份实现。今天它们字节相同是
-// 巧合，不是结构（改一处、另一处静默保持旧拼写正是本仓反复复发的形态）。
-// 现收口为**一张表 + 一个函数**：新增/改名模式只改本文件。
+// 两层分开：
+//   - **语言闭集**（作者能写的三个模式名）归 parser；本文件只校验「在闭集里」。
+//   - **线拼写**由目标声明（`capability.Table.OnErrorWire`）。未声明的目标原样
+//     携带语言名 —— 这就是「IR 只带语义名」的缺省，平台拼写不进语言。
 //
-// 与相邻规则的关系：ncoda 侧的**语言闭集**（作者能写的三个模式名）归
-// `internal/parser` 的 `ncodaOnErrorModes`；本表是**平台拼写**（lowering 的职责）。
-// 两张表不合并 —— 语言语义不因平台拼写而变形。
-var cozeOnErrorModeByNcoda = map[string]string{
-	"terminate":     "terminated",
-	"keep_null":     "continue-on-error",
-	"remove_failed": "remove-abnormal-output",
+// 两个宿主（`build_stmt.go` 的语句形 / `build_call.go` 的值形）都只调用本函数，
+// 不得各写一份表（判据 on_error_mode_single_implementation_test.go）。
+//
+// 空串 = 作者**没写**该键 ⇒ 语言缺省（`ParallelForDefaultOnError`）。缺省在
+// **这里**落地而不是在 parser：AST 上「写了缺省」与「没写」不可分辨，前端只记
+// 「未设」（一处定义，两处消费 —— 解析与物化同源）。
+var languageOnErrorModes = map[string]bool{
+	"terminate":     true,
+	"keep_null":     true,
+	"remove_failed": true,
 }
 
-// cozeOnErrorMode maps a language-level on_error mode to the coze spelling.
-// ok=false means the mode is outside the closed set (caller reports it).
-//
-// 空串 = 作者**没写**该键 ⇒ 语言缺省（`ParallelForDefaultOnError`，见
-// `parallel_for_defaults.go`）。缺省在**这里**落地而不是在 parser：AST 上
-// 「写了缺省」与「没写」不可分辨，前端只记「未设」（一处定义，两处消费
-// —— 解析与物化同源）。
-func cozeOnErrorMode(name string) (string, bool) {
+// onErrorWire maps a language-level on_error mode to the target's wire
+// spelling. ok=false means the mode is outside the language closed set
+// (caller reports it). A nil table, or a table without OnErrorWire, carries
+// the language spelling unchanged.
+func onErrorWire(caps *capability.Table, name string) (string, bool) {
 	if name == "" {
 		name = ParallelForDefaultOnError
 	}
-	mode, ok := cozeOnErrorModeByNcoda[name]
-	return mode, ok
+	if !languageOnErrorModes[name] {
+		return "", false
+	}
+	if caps != nil && caps.OnErrorWire != nil {
+		if wire, ok := caps.OnErrorWire[name]; ok {
+			return wire, true
+		}
+	}
+	if caps != nil {
+		if wire, ok := legacyOnErrorWire(caps.Target, name); ok {
+			return wire, true
+		}
+	}
+	return name, true
 }

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 03_conditional_branch.ncoda
-// Dify YAML: examples/yaml/03_conditional_branch.yml
 //
 // Flow: Start(language) → IF → LLM(zh/en) → Answer
 //

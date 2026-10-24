@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 08_variable_aggregator.ncoda
-// Dify YAML: examples/yaml/08_variable_aggregator.yml
 //
 // Flow: Start → Parallel { LLM(summary), LLM(keywords) } → Aggregator → LLM(final) → Answer
 //

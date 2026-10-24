@@ -2,7 +2,6 @@
 @mode workflow
 
 // 61_request_input.ncoda — request_input 挂起 + 穷尽恢复分支。
-// Dify YAML: /tmp/hitl_py.yml (human_input_2 → end_3/end_4/code_5 + end_6)
 //
 // Flow: Start → Human Input → (approve → End | reject → End | __timeout
 // → Code → End)

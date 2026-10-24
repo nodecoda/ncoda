@@ -2,7 +2,7 @@ package codeparse
 
 // strip.go — coze JavaScript/TypeScript code 节点的签名层 TS 剥离。
 //
-// 从 internal/runtime/nodes/jrun.go 迁出：runtime 执行器与编译期/加载期
+// 从 internal/runtime/（商业仓）nodes/jrun.go 迁出：runtime 执行器与编译期/加载期
 // 语法预检必须用**同一份**剥离规则，否则预检会对 `{ params }: Args` 这类
 // coze 模板全量假阳性（语料 1538 个 JS 节点里 92% 是同一模板）。
 

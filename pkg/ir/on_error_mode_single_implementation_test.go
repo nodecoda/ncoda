@@ -7,8 +7,9 @@ import (
 
 // on_error_mode_single_implementation_test.go —— 「一份规则、一处定义」（2026-09-21）。
 //
-// 被判的对象：`on_error:` 模式的**平台拼写表**（`terminate → terminated` /
-// `keep_null → continue-on-error` / `remove_failed → remove-abnormal-output`）。
+// 被判的对象：**过渡桥**里的 `on_error:` 线拼写表（`terminate → terminated` /
+// `keep_null → continue-on-error` / `remove_failed → remove-abnormal-output`）——
+// 只服务尚未声明 `capability.Table.OnErrorWire` 的旧适配器（P2d 发版批次删除）。
 //
 // 为什么这是判据而不是风格：同表曾在**两个宿主**（`build_stmt.go` 的语句形、
 // `build_call.go` 的值形）逐字各写一遍；两处当天字节相同纯属巧合 —— 改一处、
@@ -21,7 +22,7 @@ import (
 //
 // 判据自检（另一半）：另一个文件里塞进同样的三个拼写必须被抓到；一个都没有
 // 必须判成「判据失效」而不是「通过」。
-const onErrorModeFile = "on_error_mode.go"
+const onErrorModeFile = "legacy_target_axes.go"
 
 var onErrorModeMarkers = []string{`"terminated"`, `"continue-on-error"`, `"remove-abnormal-output"`}
 
@@ -51,7 +52,7 @@ func TestOnErrorModeTableHasSingleImplementation(t *testing.T) {
 	}
 	if len(files) != 1 || files[0] != onErrorModeFile {
 		t.Fatalf("on_error 的平台拼写表只允许在 %s（唯一实现），实测：%v\n"+
-			"  ⇒ 宿主只准调用 cozeOnErrorMode(...)，不得各自再写一遍这张表\n"+
+			"  ⇒ 宿主只准调用 onErrorWire(...)，不得各自再写一遍这张表\n"+
 			"  ⇒ 若确要搬家：改 onErrorModeFile 常量并写明理由（本判据刻意钉位置）。",
 			onErrorModeFile, files)
 	}

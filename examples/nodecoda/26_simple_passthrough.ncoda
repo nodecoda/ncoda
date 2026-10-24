@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 26_simple_passthrough.ncoda
-// Dify YAML: examples/yaml/simple_passthrough_workflow.yml
 //
 // Flow: Start(query) → End(query)
 // Pattern: Simple pass-through workflow

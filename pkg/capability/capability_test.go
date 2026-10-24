@@ -1,6 +1,9 @@
 package capability
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 // TestConservativeSurface locks the kernel default: ref × literal only.
 // The table must not depend on the target string — if it did, the kernel
@@ -26,7 +29,7 @@ func TestConservativeSurface(t *testing.T) {
 func TestForMatchesConservative(t *testing.T) {
 	for _, name := range []string{"", "adapter-target-a", "adapter-target-b"} {
 		got, want := For(name), Conservative(name)
-		if *got != *want {
+		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("For(%q) = %+v, want %+v", name, got, want)
 		}
 	}

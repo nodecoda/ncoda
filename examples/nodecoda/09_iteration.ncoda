@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 09_iteration.ncoda
-// Dify YAML: examples/yaml/09_iteration.yml
 //
 // Flow: Start(items) → Iteration → LLM; main then falls through without a Response node
 //

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 19_http_request_json_tool.ncoda
-// Dify YAML: examples/yaml/http_request_with_json_tool_workflow.yml
 //
 // Flow: Start → HTTP Request → Code(parse JSON) → End
 // Pattern: HTTP request with JSON parsing

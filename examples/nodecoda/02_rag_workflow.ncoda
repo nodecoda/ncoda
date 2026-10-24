@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 02_rag_workflow.ncoda
-// Dify YAML: examples/yaml/02_rag_workflow.yml
 //
 // Flow: Start → Knowledge Retrieval → LLM → Answer
 //

@@ -38,7 +38,44 @@ type Table struct {
 	TextSplit    bool      // native text-split node
 	JSONSerial   bool      // native JSON-serialize node
 	JSONDeserial bool      // native JSON-deserialize node
+
+	// LoopReturnShape declares how an early `return` inside a loop body is
+	// materialised. Zero = the target carries the shape directly.
+	LoopReturnShape LoopReturnShape
+
+	// OnErrorWire maps the language on_error mode ("terminate" /
+	// "keep_null" / "remove_failed") to the target's wire spelling. nil =
+	// the language spelling passes through unchanged. Platform wire
+	// vocabulary lives with the adapter, never in the language.
+	OnErrorWire map[string]string
+
+	// LLMEnvelopePlacement declares how a consumed LLMResponse envelope is
+	// placed. Zero = the adapter states nothing and no placement is recorded.
+	LLMEnvelopePlacement EnvelopePlacement
 }
+
+// LoopReturnShape is how a target materialises an early return from a loop.
+type LoopReturnShape int
+
+const (
+	// LoopReturnNative: the target's graph carries the return directly.
+	LoopReturnNative LoopReturnShape = iota
+	// LoopReturnStateGate: the target needs a state pair written in the body
+	// plus a break and a post-loop gate (compiler-owned statement rewrite).
+	LoopReturnStateGate
+)
+
+// EnvelopePlacement is where a consumed LLMResponse envelope is hosted.
+type EnvelopePlacement int
+
+const (
+	// EnvelopeUnspecified: the adapter states nothing.
+	EnvelopeUnspecified EnvelopePlacement = iota
+	// EnvelopeShim: a compiler-owned shim assembles the envelope.
+	EnvelopeShim
+	// EnvelopeNative: the target exposes the envelope directly.
+	EnvelopeNative
+)
 
 // Conservative returns the table for a target that has not declared native
 // nodes: ref × literal conditions are native (the one shape every supported

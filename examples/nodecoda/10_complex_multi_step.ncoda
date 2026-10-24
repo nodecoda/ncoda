@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 10_complex_multi_step.ncoda
-// Dify YAML: examples/yaml/10_complex_multi_step.yml
 //
 // Flow: Start(query) → IF(contains "知识") →
 //   true:  knowledge → http → llm-rag → answer

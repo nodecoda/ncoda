@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 18_file_upload.ncoda
-// Dify YAML: examples/yaml/file-upload.yml
 //
 // Flow: Start(file) → End
 // Pattern: File upload handling

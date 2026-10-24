@@ -2010,7 +2010,7 @@ func (g *Builder) aggregateFieldPort(ref varRef, field string) string {
 		// 只认整段会把 `v = r.text.date_info;` 后的 `v.date` 退化成**裸字段口**
 		// `date` ⇒ 后端投影加不上物理前缀（`value.`）⇒ 产物引用悬空
 		// （`ref 100002.date does not resolve: node 100002 declares ports [value]`）。
-		// 与 `internal/backend/cozebiz/render.go`（`strings.HasPrefix(path, "text.")`）
+		// 与 `internal/backend/cozebiz/（商业仓）render.go`（`strings.HasPrefix(path, "text.")`）
 		// 和 `render_loop.go` 的同族判据同一把尺子：**首段是 payload 口 ⇒ 下钻**。
 		if ref.output == LLMPayloadOutput || strings.HasPrefix(ref.output, LLMPayloadOutput+".") {
 			return ref.output + "." + field

@@ -1,59 +1,65 @@
 schema: ncoda.open.platform-identity-residuals/v1
 #
-# 开源内核里**仍然拼着平台名**的代码位置（ASSET-BOUNDARY D8 / P2f）。
+# 开源内核里**仍然与平台身份有关**的代码位置（ASSET-BOUNDARY D8 / P2f）。
 #
 # 判据：scripts/audit_split.py S6 扫内核 Go 标识符（去注释、去字符串后），
-# 任何含 dify/coze 的标识符都必须在本台账登记；反之，台账登记了但代码里
-# 已不存在也判红（台账必须随代码一起缩小）。所以本文件是**完整、已审阅**的
-# 平台身份残留清单，不是快照。
+# 任何含 dify/coze 的标识符都必须在本文件的 items 里登记；反之，登记了但代码里
+# 已不存在也判红（台账必须随代码一起缩小）。
 #
-# 登记门槛：必须写清 what（残留是什么）/ why（为什么这轮搬不走）/ unblock
-# （什么条件能搬）。缺一不进台账。
-items:
-  - id: OI-1
-    file: pkg/passes/target_validation.go
-    identifiers:
-      - isDifyProfile
-      - isCozeBizProfile
-      - isCozeStudioProfile
-      - isCozeModelProtocolString
-      - cozeAxes
+# 2026-10-25：**items 已清空** —— 内核不再有平台标识符。dify 适配器、目标名、
+# 能力表、夹具与文档均已在商业仓（internal/backend/dify · platforms/dify ·
+# internal/targets）。剩余的耦合只以**字符串字面量**形式存在（S6 口径：字符串是
+# 值，不是依赖），逐条登记在下面的 transitional_name_gates，随 P2d 发版批次删除。
+items: []
+
+# 过渡桥：内核仍认识「历史目标名」，因为商业仓 v0.6.0 的 profile / capability
+# 表还没有显式声明这些轴。每条都必须写清 what / why / unblock。
+transitional_name_gates:
+  - id: TN-1
+    file: pkg/passes/carrier.go
+    symbol: carrierFromName
     what: >-
-      目标画像校验层（1575 行 Python 移植）按平台家族分档：dify 的 chatflow
-      入口/显式 null、coze 的 settingOnError 载体、coze 模型协议串
-      `coze:<digits>`、ask 节点的 question 参数轴。
+      未声明 CarrierProfile 的 profile 按名字前缀取承载事实（reference / biz /
+      studio / runtime 四档）。
     why: >-
-      这一层决定 869 语料里 frontend_ok 的判定，不是"改名"能解决的：分档
-      依据是平台能力事实，属适配器；但 kernel 的 passes 管线今日没有适配器
-      句柄（DefaultPipeline().Run(src, file, toolPaths) 无 target 参数），
-      先搬会同时改 passes/binding/ir 三处 API 与商业仓调用点，必须与发版
-      批量走。R-185（DefaultTargetProfile 名）同族。
+      商业仓 v0.6.0（当前 go.mod 钉的版本）按名字构 profile，且内核默认
+      profile（ncoda-native-1.0）仍被 dify lane 复用；此刻删掉回退会改变
+      dify/coze 三条 lane 的降级报账与形状约束。
     unblock: >-
-      passes 管线接受适配器注入（profile 分档表由适配器提供）后，把本文件
-      的 coze/dify 分支搬进商业仓 internal/backend/<platform>/validation.go。
-  - id: OI-2
-    file: pkg/ir/on_error_mode.go
-    identifiers:
-      - cozeOnErrorMode
-      - cozeOnErrorModeByNcoda
+      内核打 tag（v0.7.0）→ 商业仓 bump → internal/compiler 为每个 target 注入
+      CarrierProfile（后端各自声明）→ 删除 carrierFromName 及四档构造函数。
+  - id: TN-2
+    file: pkg/ir/legacy_target_axes.go
+    symbol: legacyOnErrorWire / legacyLoopReturnStateGate / legacyEnvelopePlacement
     what: >-
-      语言级 on_error 模式 → 平台拼写的映射表（IR 节点字段值）。
+      IR 的线拼写（on_error）、循环早退形状、LLM 信封落点，在适配器未声明
+      capability.Table 轴时按历史目标名给旧值。
     why: >-
-      on_error 的落点是 IR 节点字段，而 IR 节点形状今日由 kernel 统一物化
-      （商业仓消费同一份 IR）。映射表搬走需要 IR 增加"目标字段值"轴，
-      属跨仓 API 变更（与 whole-envelope 落点同族，P2f-3）。
+      同上：v0.6.0 的适配器表没有 OnErrorWire / LoopReturnShape /
+      LLMEnvelopePlacement 三个字段；删掉回退会改变 dify/coze 产物。
     unblock: >-
-      IR 增加平台字段值注入点（BuildOption），适配器提供 on_error 拼写表。
-  - id: OI-3
-    file: pkg/ir/loop_return_materialize.go
-    identifiers:
-      - cozeBizLoopReturnTarget
+      bump 后由 internal/backend/{dify,coze,cozebiz} 的 CapabilityTable() 填三个
+      字段，删除本文件（判据 on_error_mode_single_implementation_test.go 随迁）。
+  - id: TN-3
+    file: pkg/passes/capability.go
+    symbol: CapabilityManifestForTarget
     what: >-
-      M17（循环体内带值 return）的物化门控：按 target 名判断是否走
-      coze-biz 的「状态对 + break + 循环后门控」形状。
+      保留一个历史目标名的分支（能力清单按平台名返回）。
     why: >-
-      与 OI-2 同一病灶：物化形状是平台事实，但物化代码在 kernel 的 IR
-      builder 里，按 target 名开关。搬走需要 IR 形状描述由适配器提供。
+      商业仓 archgate 的 v0.6.0/HEAD 双态台账要求该函数在两个版本都存在；
+      v0.6.0 的调用点仍按名查表。函数体已不是任何平台事实的正本（正本在
+      internal/backend/*/capability_manifest.go）。
     unblock: >-
-      IR builder 接受"循环早退形状"策略（适配器实现），本文件降为语言级
-      默认形状。
+      bump 后消费方改指适配器清单（internal/compiler.capabilityManifestForTarget
+      已先行），删除该函数并从 archgate 的 targetLayerFiles 摘除。
+  - id: TN-4
+    file: pkg/ir/build.go
+    symbol: IRPortVocabularyTarget / choosePortVocabularyTarget
+    what: >-
+      IR 端口词汇表仍优先取一个历史目标名对应的 builtin 契约。
+    why: >-
+      多平台构建的历史口径要求「含该契约时优先取它」；改动会改变 IR 端口名，
+      属「IR 只带语言名」的独立切片（设计债已登记在函数头注）。
+    unblock: >-
+      IR 端口词汇表下沉为语言自有契约（builtins/ncoda-language.yaml 已是种子），
+      各后端用自己的映射表把语言口名翻成平台口名。

@@ -1,5 +1,7 @@
 package ir
 
+import "github.com/nodecoda/ncoda/pkg/capability"
+
 // loop_return_materialize.go — M17（循环体内 return）的 coze-biz 物化
 // （2026-09-13，E15 主体；设计见
 // docs/ideas-todo/2026-09-13-cozebiz-loop-return-lowering-design.md）。
@@ -50,9 +52,18 @@ const (
 	loopReturnStateValue = "return_value"
 )
 
-// cozeBizLoopReturnTarget 报告该目标是否由本文件物化 M17。
-func cozeBizLoopReturnTarget(target string) bool {
-	return target == "coze-biz-1.0"
+// loopReturnNeedsStateGate reports whether this target needs the M17
+// statement rewrite. The shape is declared by the adapter
+// (capability.Table.LoopReturnShape); the legacy name bridge keeps pre-
+// declaration tables on their old shape.
+func loopReturnNeedsStateGate(caps *capability.Table) bool {
+	if caps == nil {
+		return false
+	}
+	if caps.LoopReturnShape == capability.LoopReturnStateGate {
+		return true
+	}
+	return legacyLoopReturnStateGate(caps.Target)
 }
 
 // materializeLoopReturns 在 IR 建成后、flow-exit phi 物化前，把目标平台无法直接
@@ -60,7 +71,7 @@ func cozeBizLoopReturnTarget(target string) bool {
 // 种类（for / while）、return 站点所在的臂（裸体 / if 臂 / 任意嵌套）、站点数量、
 // 值类型一律同一处理；唯一例外是 batch（另案，见文件头）。
 func (g *Builder) materializeLoopReturns() {
-	if g.caps == nil || !cozeBizLoopReturnTarget(g.caps.Target) {
+	if !loopReturnNeedsStateGate(g.caps) {
 		return
 	}
 	g.materializeLoopReturnsIn(g.root)

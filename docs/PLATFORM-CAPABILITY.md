@@ -1,5 +1,9 @@
 # 平台能力清单（Platform Capability Table）— 目标平台不可表达之物的单一声明点
 
+> **历史快照（2026-10-25 注）**：平台适配器、平台证据与平台判据已随适配器移出开源仓
+> （商业仓 `internal/backend/*`、`platforms/*`）。本文只用于追溯当时的平台映射/契约，
+> 不得据此把平台代码或平台判据加回开源仓；开源仓的定位见 `README.md`。
+
 > **等级**：**B 设计**（代码侧的对应物 = `pkg/passes/CapabilityManifestForTarget`
 > 与 `capabilityShapeVerdict`；契约语义见 AGENTS.md「错误分类契约」）。
 > **纪律**：本表每新增一行，**必须**同时给出：① 平台证据（源码 `file:line` 或语料

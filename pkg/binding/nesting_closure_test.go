@@ -7,7 +7,7 @@ package binding
 // 顶层 / 只能在某个特定父里出现，就是「枚举式推广」，必须显式登记理由（见 exceptions）。
 //
 // 判据层 = 语言前端（parse + bind），**不落任何 target** —— 平台承载不了（如 coze loop/batch
-// 不能有父容器 ⇒ ADAPTER_ERROR "nests a loop container"，见 internal/backend/cozebiz/render_loop.go
+// 不能有父容器 ⇒ ADAPTER_ERROR "nests a loop container"，见 internal/backend/cozebiz/（商业仓）render_loop.go
 // + cozebiz_loop_state_nested_host_contract_test.go）是**平台**的事，按 N-LANG-1（平台不匹配改
 // lowering/raising，不改语言）不影响本判据。
 //

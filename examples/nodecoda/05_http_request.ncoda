@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 05_http_request.ncoda
-// Dify YAML: examples/yaml/05_http_request.yml
 //
 // Flow: Start(url) → HTTP → LLM → Answer
 //

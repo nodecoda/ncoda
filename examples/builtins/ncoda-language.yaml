@@ -2,8 +2,8 @@
 # 口径见本目录 README.md。
 #
 # 这里声明的是**语言层**的结果口词汇：HTTPResponse 的字段名就是 IR 口名。
-# 平台物理口（dify 的 status_code、coze 的 statusCode …）由各适配器在商业仓
-# 声明并经 pkg/builtin.RegisterContracts 注入；开源仓不认识任何平台。
+# 平台的物理口名由各适配器在商业仓声明，并经 pkg/builtin.RegisterContracts
+# 注入；开源仓不认识任何平台（本文件也不列举平台）。
 schema_version: 1
 target: ncoda-language
 builtins:

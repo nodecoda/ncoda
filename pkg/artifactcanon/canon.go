@@ -538,7 +538,7 @@ func canonValue(n *yaml.Node, key string, names map[string]string) *yaml.Node {
 			// within canvas」，执行域无消费者），语料实证是自由浮点
 			// （`7542708432375382016_File2URL`：x=-459.36260992434626）。
 			// 我方 lowering 也只是按**发射序**给的布局行
-			// （`internal/backend/cozebiz/render*.go`：`Position = &Position{X: row*340}`）
+			// （`internal/backend/cozebiz/（商业仓）render*.go`：`Position = &Position{X: row*340}`）
 			// ⇒ 它是**已被抹除的文档顺序**的函数，把它留在规范形里等于让顺序噪声
 			// 从后门回到比较面（实测：03_conditional_branch 的三节点坐标轮换
 			// 1700/1020/1360 只有顺序变了，语义一字未改）。
@@ -638,7 +638,7 @@ func canonRefName(n *yaml.Node, names map[string]string) *yaml.Node {
 // canonNodeTitle：节点条目的 `title` —— **基名是内容，去重后缀 `_<n>` 不是**。
 //
 // 理由与 `position` 逐字同源（见 canonValue 里那段注释）：后缀是**发射序的函数**
-// —— 唯一生产者 `internal/backend/cozebiz/render.go::dedupeNodeTitles` 按
+// —— 唯一生产者 `internal/backend/cozebiz/（商业仓）render.go::dedupeNodeTitles` 按
 // `doc.Nodes` 的**列序**给重名节点编号，而列序正是 canon 要抹掉的文档顺序
 // （「把它留在规范形里等于让顺序噪声从后门回到比较面」，2026-09-15 拍板）。
 //

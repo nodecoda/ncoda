@@ -1,6 +1,6 @@
 // The IR builder: lowers a TypedBoundProgram into a platform-neutral
 // workflow graph (docs/WORKFLOW-IR.md). The lowering state machine was
-// migrated from the Coze generator (internal/backend/coze/gen.go) so the
+// migrated from the Coze generator (internal/backend/coze/（商业仓）gen.go) so the
 // Coze backend becomes a pure IR→Canvas renderer — semantics live in one
 // place, platform shape in the backend mapping table.
 package ir
@@ -634,14 +634,17 @@ func (g *Builder) build() (*Graph, error) {
 		if !ok || call.Result == nil || !call.Result.WholeEnvelopeConsumed || g.caps == nil {
 			continue
 		}
-		// The placement decision is still keyed by target identity because the
-		// open kernel cannot add a capability axis without breaking the
-		// commercial module's v0.6.0 pin (cross-repo release lag, §5.1).
-		// Moving this to a Table axis is a P2f follow-up.
-		switch g.caps.Target {
-		case "dify-1.16-graphon-0.6", "coze-studio-flow-1.0", "coze-1.0", "coze-biz-1.0":
+		// The placement is declared by the adapter
+		// (capability.Table.LLMEnvelopePlacement); the legacy name bridge
+		// keeps pre-declaration tables on their old placement.
+		placement := g.caps.LLMEnvelopePlacement
+		if placement == capability.EnvelopeUnspecified {
+			placement = legacyEnvelopePlacement(g.caps.Target)
+		}
+		switch placement {
+		case capability.EnvelopeShim:
 			g.recordPlacement(call.ID, placementConstruct("llm", "whole-envelope"), PlacementShim, placementReason(PlacementCauseContract, "target assembles LLMResponse<T> from native payload/metadata paths and literal nulls"))
-		case "coze-runtime-1.0":
+		case capability.EnvelopeNative:
 			g.recordPlacement(call.ID, placementConstruct("llm", "whole-envelope"), PlacementNative, placementReason(PlacementCauseContract, "runtime exposes the normalized LLMResponse<T> directly"))
 		}
 	}
@@ -809,7 +812,7 @@ func bindingPathString(e ast.Expr) string {
 //     （推断型静默 fallback；未构造出改变产物的形状）；
 //   - **N1（attempt flow-tail 判据分叉）= 本日收口**：渲染器不再手写
 //     `len(Groups)==0`，改为消费 `Aggregate.TailValueRef()`（本判据的包外出口）；
-//     包外重判 = 红，判据 = `internal/backend/cozebiz/junction_tail_value_single_source_contract_test.go`。
+//     包外重判 = 红，判据 = `internal/backend/cozebiz/（商业仓）junction_tail_value_single_source_contract_test.go`。
 //
 // 该通道表**目前没有「账本新鲜」的机器判据** —— 本日复核即发现它与事实已漂
 // （②列为未收口而实际已收口、③/⑤ 的形态已分别变语言错 / 变 fail loud）。

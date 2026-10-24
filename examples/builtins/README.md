@@ -16,7 +16,6 @@ commercial repo, injecting them through `pkg/builtin.RegisterContracts`. The
 two sides are joined by the language field name; neither side can derive the
 other's vocabulary from the wire, so each is declared once.
 
-The open core declares only `ncoda-language`. Dify was declared here before
-P2c; it now travels with the commercial adapter. Closed backends
-(coze / coze-biz / coze-studio / dify) keep their own declaration source and
-never link into the open module.
+The open core declares only `ncoda-language`. Platform declarations used to live
+here; they now travel with each commercial adapter, which declares its own
+source and never links into the open module.

@@ -736,7 +736,7 @@ function main(string query) {
 // 中性形 = **(op, 右值)**：前端把 `v += e` desugar 成 `v + e`（左操作数是「读回 v」的
 // 产物），IR 拆掉左操作数、**保留 op**。每个后端自己决定 op 轴能不能承：
 //
-//	· dify/Graphon 有 op 轴（`pkg/backend/dify/render_nodes.go` 的
+//	· dify/Graphon 有 op 轴（`internal/backend/dify/（商业仓）render_nodes.go` 的
 //	  `Operation: assignerOperation(n.Operation)` → wire 的 `operation` 字段）⇒ 承载；
 //	· coze-biz 的 `assign_variable` 是**纯 set** ⇒ 后端 fail loud（判据在
 //	  `internal/compiler/cozebiz_conv_var_assign_value_contract_test.go`）。

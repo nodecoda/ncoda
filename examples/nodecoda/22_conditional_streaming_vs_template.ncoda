@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 22_conditional_streaming_vs_template.ncoda
-// Dify YAML: examples/yaml/conditional_streaming_vs_template_workflow.yml
 //
 // Flow: Start → IF → LLM(streaming) / TemplateTransform → End
 // Pattern: Conditional with streaming vs template

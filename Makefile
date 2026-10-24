@@ -33,7 +33,7 @@ push:
 	@$(GO) build -o /tmp/nclang-smoke-$(VERSION) ./cmd/nclang-compile
 	@printf '' | /tmp/nclang-smoke-$(VERSION) >/dev/null 2>&1; test $$? -eq 1
 	@cat examples/nodecoda/00_minimal_start_llm_end.ncoda | /tmp/nclang-smoke-$(VERSION) | grep -q '"schema": "ncoda-ir/v1"'
-	@printf '' | /tmp/nclang-smoke-$(VERSION) --target dify-1.16-graphon-0.6 >/dev/null 2>&1; test $$? -eq 2
+	@printf '' | /tmp/nclang-smoke-$(VERSION) --target acme-1.0 >/dev/null 2>&1; test $$? -eq 2
 	@echo "cli_smoke: ok"
 
 nightly:

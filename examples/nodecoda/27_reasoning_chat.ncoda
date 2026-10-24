@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 27_reasoning_chat.ncoda
-// Dify YAML: examples/yaml/reasoning-chat.yml
 //
 // Flow: Start → LLM(separated reasoning) → Answer
 // Pattern: advanced-chat with reasoning_format=separated

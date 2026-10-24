@@ -54,7 +54,7 @@ type LLMNode struct {
 	TopP                *float64
 	// GenerationDiversity 是平台 llmParam 的生成多样性旋钮（default_val 之外的
 	// balance/creative/precise）。本语言**已有**载体（`generation_diversity` config 键，
-	// 见 pkg/ir/build_node.go / internal/backend/cozebiz/render_node.go）⇒ 必须读
+	// 见 pkg/ir/build_node.go / internal/backend/cozebiz/（商业仓）render_node.go）⇒ 必须读
 	// 出来才能往返保真（R-73：修前不读 ⇒ 543/776 个非默认值静默消失）。空串 = 该导出
 	// 没有这个键。
 	GenerationDiversity  string
@@ -422,7 +422,7 @@ func (n *HTTPRequesterNode) ToConfigDict() map[string]any {
 // node_outputs）。
 //
 // 为什么必须逐字（而不是只用下面解析出的语义字段）：lowering 侧对数据库族的
-// 参数子树是**逐字承载**（internal/backend/cozebiz/database_wire_shape.go），
+// 参数子树是**逐字承载**（internal/backend/cozebiz/（商业仓）database_wire_shape.go），
 // 而 canvas 归一**有损** —— yaml 方言 `input.value: <裸值>` 被包成 canvas 方言
 // `{type: literal, content: …}`，node_outputs 被折成 canvas outputs 数组（类型
 // 名映射 / required 归一）。只用语义字段会造出**平台不认的方言**。

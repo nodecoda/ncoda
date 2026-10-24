@@ -120,7 +120,7 @@ func TestStartInputShapesRejectNonRepresentable(t *testing.T) {
     return "x";
 }
 `,
-			message: "map Start input is not representable by the Dify target",
+			message: "map Start input is not representable by this target",
 		},
 		{
 			name: "record",
@@ -129,7 +129,7 @@ function main(T t) -> string {
     return "x";
 }
 `,
-			message: "record Start input is not representable by the Dify target",
+			message: "record Start input is not representable by this target",
 		},
 	}
 	for _, c := range cases {
@@ -233,7 +233,7 @@ function main(string query) {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 2, 1,
-		"conversation variable type is not supported by Dify")
+		"conversation variable type is not supported by this target")
 }
 
 // TestConversationVariableNonLiteralDefault pins the optional+null case:
@@ -251,7 +251,7 @@ function main(string query) {
 		struct {
 			line, col int
 			message   string
-		}{2, 1, "conversation variable type is not supported by Dify"},
+		}{2, 1, "conversation variable type is not supported by this target"},
 		struct {
 			line, col int
 			message   string
@@ -381,12 +381,12 @@ func TestSingleFileFieldAccessRejected(t *testing.T) {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 2, 13,
-		"single file field access is not representable by the Dify target")
+		"single file field access is not representable by this target")
 }
 
 // TestFileFieldAccessResultRejected covers the result-is-file branch: a
 // record field access whose RESULT is a file also rejects (Python oracle:
-// 'single file field access is not representable by the Dify target').
+// 'single file field access is not representable by this target').
 func TestFileFieldAccessResultRejected(t *testing.T) {
 	src := `type F = { file<document> doc; }
 function main(F f) -> string {
@@ -406,7 +406,7 @@ function main(F f) -> string {
 	}
 	found := false
 	for _, m := range messages {
-		if m == "single file field access is not representable by the Dify target" {
+		if m == "single file field access is not representable by this target" {
 			found = true
 		}
 	}
@@ -438,7 +438,7 @@ function main(file<image> a, file<image> b) -> string {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 3, 39,
-		"vision requires a selector-backed scalar file for the Dify target")
+		"vision requires a selector-backed scalar file for this target")
 }
 
 // ── 7. extract_text operand (:1186-1192) — whitebox ────────────────────
@@ -504,7 +504,7 @@ function main(file<document; .txt> f) -> map<string, map<string, file>> {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 3, 33,
-		"single-file Code input is not JSON-safe for the Dify target")
+		"single-file Code input is not JSON-safe for this target")
 }
 
 // TestGeneratedCodeAnswerMapRejected pins the answer-stmt path (Python
@@ -516,7 +516,7 @@ function main(file<document; .txt> query) {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 3, 21,
-		"single-file Code input is not JSON-safe for the Dify target")
+		"single-file Code input is not JSON-safe for this target")
 }
 
 // TestGeneratedCodeReturnBinaryRejected pins the non-map return path (Python
@@ -528,7 +528,7 @@ function main(file<document; .txt> a, file<document; .txt> b) -> string {
 }
 `
 	assertTargetValidationError(t, DefaultPipeline().Run(src, "t.dc", nil), 3, 18,
-		"single-file Code input is not JSON-safe for the Dify target")
+		"single-file Code input is not JSON-safe for this target")
 }
 
 // ── 9. Human Input (visit_request_input_stmt :404-690) ─────────────────
@@ -1304,7 +1304,7 @@ func TestRequestInputSubtreeErrorPreventsContractPublication(t *testing.T) {
 			ctx, _ := runTargetValidationWhiteBox(t, src, nil)
 			found := false
 			for _, d := range ctx.Diagnostics {
-				if d.Code == diag.TARGET_NOT_LOWERABLE && d.Message == "single file field access is not representable by the Dify target" {
+				if d.Code == diag.TARGET_NOT_LOWERABLE && d.Message == "single file field access is not representable by this target" {
 					found = true
 				}
 			}
@@ -1418,7 +1418,7 @@ func TestAgentValidation_DefaultTargetRejected(t *testing.T) {
 		struct {
 			line, col int
 			message   string
-		}{5, 18, "Agent profile 'function-calling-v1' is not installed in target 'dify-1.16-graphon-0.6'"},
+		}{5, 18, "Agent profile 'function-calling-v1' is not installed in target 'ncoda-native-1.0'"},
 		struct {
 			line, col int
 			message   string
@@ -1502,7 +1502,7 @@ func TestAgentValidation_MissingProfileKey(t *testing.T) {
 		struct {
 			line, col int
 			message   string
-		}{4, 49, "Agent profile None is not installed in target 'dify-1.16-graphon-0.6'"},
+		}{4, 49, "Agent profile None is not installed in target 'ncoda-native-1.0'"},
 		struct {
 			line, col int
 			message   string
@@ -1526,7 +1526,7 @@ func TestAgentValidation_ProfileNonString(t *testing.T) {
 		struct {
 			line, col int
 			message   string
-		}{5, 18, "Agent profile None is not installed in target 'dify-1.16-graphon-0.6'"},
+		}{5, 18, "Agent profile None is not installed in target 'ncoda-native-1.0'"},
 		struct {
 			line, col int
 			message   string
@@ -2115,7 +2115,7 @@ function main(string text) {
 				"output(extracted.value.city);",
 				"output(extracted.value.extras);"),
 			line: 11, col: 21,
-			message: "Extraction field 'extras' has unsupported scalar map NodeCoda type for target 'dify-1.16-graphon-0.6'; supported field types: string, float, bool, string[], float[], bool[], map<string, any>[], and required scalar enum fields",
+			message: "Extraction field 'extras' has unsupported scalar map NodeCoda type for target 'ncoda-native-1.0'; supported field types: string, float, bool, string[], float[], bool[], map<string, any>[], and required scalar enum fields",
 		},
 		{
 			name: "function-call-uncertified",
@@ -2123,7 +2123,7 @@ function main(string text) {
 				replace(extractionSource, `"provider/model"`, `"openai/gpt-4o"`),
 				`"prompt"`, `"function_call"`),
 			line: 11, col: 21,
-			message: "Extraction function_call model 'openai/gpt-4o' has no certified tool-call evidence for target 'dify-1.16-graphon-0.6'",
+			message: "Extraction function_call model 'openai/gpt-4o' has no certified tool-call evidence for target 'ncoda-native-1.0'",
 		},
 	}
 	for _, c := range cases {
@@ -2158,7 +2158,7 @@ function main(string text) {
 }
 `, nil)
 	for _, d := range ctx.Diagnostics {
-		if d.Code == diag.TARGET_NOT_LOWERABLE && d.Line == 9 && d.Column == 17 && d.Message == "vision requires a selector-backed scalar file for the Dify target" {
+		if d.Code == diag.TARGET_NOT_LOWERABLE && d.Line == 9 && d.Column == 17 && d.Message == "vision requires a selector-backed scalar file for this target" {
 			return
 		}
 	}
@@ -2195,7 +2195,7 @@ function main(string text) -> string {
 			name: "limit-exceeded",
 			src:  replace(base, "memory: 3", "memory: 100"),
 			line: 5, col: 21,
-			message: "Extraction memory value 100 exceeds target 'dify-1.16-graphon-0.6' limit 99",
+			message: "Extraction memory value 100 exceeds target 'ncoda-native-1.0' limit 99",
 		},
 		{
 			name: "non-prompt-strategy",

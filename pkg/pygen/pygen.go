@@ -175,7 +175,7 @@ func IsLowerable(name string) bool {
 // Template renders a calculation builtin call as a Python source string,
 // given already-rendered argument strings. It is the parity-compat layer of
 // the generator: the string templates calcBuiltinPython (pkg/ir) and
-// renderCall (pkg/backend/dify/legacy) used to carry, consolidated
+// renderCall (internal/backend/dify/（商业仓）legacy) used to carry, consolidated
 // here so both legacy consumers and the IR fallback call ONE definition
 // (P5.3 — parity by construction; byte equivalence with the pyast form is
 // locked by TestTemplateMatchesPyast). Template's arg order follows the

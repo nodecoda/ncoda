@@ -4,7 +4,7 @@
 
 @mode workflow
 
-function main(string text = "Hello Dify") -> string {
+function main(string text = "Hello ncoda") -> string {
     let stats = foreign code python3(
         string text = text
     ) -> {

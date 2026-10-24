@@ -1,5 +1,10 @@
 package passes
 
+// 平台证据注记（2026-10-25）：本文引用的平台源码/产物路径是**审计追溯**（当年判据的
+// 一手证据）；平台实现与证据正本已随适配器移入商业仓（internal/backend/*、platforms/*）。
+// 判据读的是 TargetProfile.Carrier / capability.Table 的轴，代码不认识平台名。
+//
+
 // Immutable target-capability contracts, ported from
 // src/nclang/lang/capabilities.py (347 lines) — the Phase-0 shape/state
 // table the CapabilityGatePass consults (capability_gate.py:444-452).

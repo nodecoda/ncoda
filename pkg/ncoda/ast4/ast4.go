@@ -99,7 +99,7 @@ type For struct {
 	Concurrency int
 	OnError     string
 	// WireIterVar: 该容器**迭代源输入口在 wire 上的字段名**（T3）。lowering 把它
-	// 写成容器的 `node_inputs[0].name`（internal/backend/cozebiz/render_loop.go:
+	// 写成容器的 `node_inputs[0].name`（internal/backend/cozebiz/（商业仓）render_loop.go:
 	// `inputs[0].Name = s.VarName`），体内对该元素的引用是
 	// `{ref_node: <容器>, path: [<该名字>, …]}` —— 即它是**局部键**（322 份真实
 	// 导出 · 488 条容器输入里只有 96 条与源端口 path 相等 ⇒ 平台不要求它等于任何
@@ -157,7 +157,7 @@ type ForExpr struct {
 	Concurrency int
 	OnError     string
 	// WireIterVar: 该容器**迭代源输入口在 wire 上的字段名**（T3）。lowering 把它
-	// 写成容器的 `node_inputs[0].name`（internal/backend/cozebiz/render_loop.go:
+	// 写成容器的 `node_inputs[0].name`（internal/backend/cozebiz/（商业仓）render_loop.go:
 	// `inputs[0].Name = s.VarName`），体内对该元素的引用是
 	// `{ref_node: <容器>, path: [<该名字>, …]}` —— 即它是**局部键**（322 份真实
 	// 导出 · 488 条容器输入里只有 96 条与源端口 path 相等 ⇒ 平台不要求它等于任何

@@ -6,67 +6,54 @@ fixtures:
     source: string-text.ncoda
     schema: string
     expected: "r.text"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
+    profiles: [ncoda-native-1.0]
   - id: scalar-int
     source: scalar-int.ncoda
     schema: int64
     expected: "r.text"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: &external-structured-native
-      dify-1.16-graphon-0.6: native
-      coze-studio-flow-1.0: native
-      coze-1.0: native
-      coze-biz-1.0: native
+    profiles: [ncoda-native-1.0]
   - id: record-member
     source: record-member.ncoda
     schema: record:Answer
     expected: "r.text.answer"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: record-whole
     source: record-whole.ncoda
     schema: record:Answer
     expected: "r.text"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: nested-array-record
     source: nested-array-record.ncoda
     schema: array<record:Answer>
     expected: "r.text[0].answer"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: map-optional-enum
     source: map-optional-enum.ncoda
     schema: record:Envelope
     expected: "r.text.values"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: metadata-envelope
     source: metadata-envelope.ncoda
     schema: record:Answer
     expected: "return r"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: retry-decode-failure
     source: retry-decode-failure.ncoda
     schema: record:Answer
     expected: "decode failure consumes one operation attempt"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
-    outcomes: *external-structured-native
+    profiles: [ncoda-native-1.0]
   - id: parallel-batch-inner
     source: parallel-batch-inner.ncoda
     schema: record:Answer
     expected: "r.text.answer"
-    profiles: [coze-biz-1.0, coze-runtime-1.0]
-    outcomes:
-      coze-biz-1.0: native
+    profiles: [ncoda-native-1.0]
   - id: open-object
     source: open-object.ncoda
     schema: object
     expected: "r.text"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
+    profiles: [ncoda-native-1.0]
   - id: open-object-array
     source: open-object-array.ncoda
     schema: array<object>
     expected: "r.text"
-    profiles: [dify-1.16-graphon-0.6, coze-studio-flow-1.0, coze-1.0, coze-biz-1.0, coze-runtime-1.0]
+    profiles: [ncoda-native-1.0]

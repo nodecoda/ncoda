@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 20_array_iteration_formatting.ncoda
-// Dify YAML: examples/yaml/array_iteration_formatting_workflow.yml
 //
 // Flow: Start(items) → Iteration → Code(format) → End
 // Pattern: Array iteration with formatting

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 17_echo_workflow.ncoda
-// Dify YAML: examples/yaml/echo-workflow.yml
 //
 // Flow: Start(x, num, select, text) → Code(echo) → End
 // Pattern: Simple code execution with multiple inputs

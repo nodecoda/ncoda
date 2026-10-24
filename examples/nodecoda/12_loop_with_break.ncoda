@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 12_loop_with_break.ncoda
-// Dify YAML: examples/yaml/increment_loop_with_break_condition_workflow.yml
 //
 // Flow: Start → Loop(init num=1, break when num >= 5) →
 //   body: assigner(num += 1)

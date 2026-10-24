@@ -14,12 +14,12 @@ kernel and the language-level verdicts. Platform adapters are not here.
 
 The only accept/reject question the open repo answers is **"does this
 program mean something in the language?"**. Platform representability
-("can Dify carry it?") belongs to the adapter, not to the language.
+("can the target carry it?") belongs to the adapter, not to the language.
 
 ## What is not here
 
-- **Platform adapters**: Dify, Coze, Coze-Studio, Coze-Biz. They live in the
-  commercial repo; the open module never imports them.
+- **Platform adapters**: every platform backend lives in the commercial
+  repo; the open module never imports them.
 - **Round-trip oracles and platform fixtures**: those are adapter evidence.
 - **The private corpus**: the corpus is a separate artifact; the open tests
   use `examples/` and `tests/fixtures/`.
@@ -55,7 +55,7 @@ cat examples/nodecoda/00_minimal_start_llm_end.ncoda | nclang-compile
 printf '' | nclang-compile
 
 # platform target -> usage error, rc=2 (the open build has no adapter)
-printf '' | nclang-compile --target dify-1.16-graphon-0.6
+printf '' | nclang-compile --target acme-1.0
 ```
 
 `--target` accepts only `__none__` (the language lane). There is no silent

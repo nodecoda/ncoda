@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 04_code_execution.ncoda
-// Dify YAML: examples/yaml/04_code_execution.yml
 //
 // Flow: Start(text) → Code → LLM → Answer
 //

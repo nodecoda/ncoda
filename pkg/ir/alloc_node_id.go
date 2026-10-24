@@ -6,7 +6,7 @@ import "strconv"
 //
 // 为什么 pass 也可以铸 id：id 的**值**不是契约（AGENTS.md「产物 id 不是契约」），
 // 契约是「同一个语义 ⇒ 同一套 id」——由产物出口那条对删除/新增路径**无知**的规则
-// 保证（`internal/backend/cozebiz/compact_pruned_ids.go`：分配集合 − 落地集合）。
+// 保证（`internal/backend/cozebiz/（商业仓）compact_pruned_ids.go`：分配集合 − 落地集合）。
 // 于是新增分配只要**登记**进 `AllocatedNodeIDs` 就自动闭合，不需要逐 pass 自报足迹
 // ——这正是那条规则从「单 pass 足迹」推广出来的理由（逐 pass 闭合必然漏）。
 //

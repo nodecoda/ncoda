@@ -1153,7 +1153,7 @@ func (p *Parser) parseSwitchStmt() (*ast.SwitchStmt, *ParseError) {
 // 无标签推进口**（coze-studio `nodes/qa/question_answer.go::ExpectPorts`:
 // `AnswerType != option ⇒ 不声明任何分支口`；本仓同解处 =
 // `platforms/cozestudio/checker/validator.go::expectedPorts` 与
-// `internal/backend/cozebiz/verify.go::branchHostPorts`）。没有臂就没有块：
+// `internal/backend/cozebiz/（商业仓）verify.go::branchHostPorts`）。没有臂就没有块：
 // 无动作形态**只有一种拼写**（`;` 结尾）；写出分支体时本刀只接受**空体**，
 // 任何 action / timeout 臂都是错（`docs/ASK-SYNTAX.md` §2；J §33）。
 //

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 35_multilingual_parallel_llm.ncoda
-// Dify YAML: examples/yaml/multilingual_parallel_llm_streaming_workflow.yml
 //
 // Flow: Start → parallel { LLM1(English), LLM2(Chinese) } → Answer(combined)
 // Pattern: advanced-chat with parallel LLMs

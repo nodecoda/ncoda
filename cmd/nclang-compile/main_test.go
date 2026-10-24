@@ -62,7 +62,7 @@ func TestLanguageBuildMinimalProgramEmitsIR(t *testing.T) {
 }
 
 func TestLanguageBuildPlatformTargetIsUsageError(t *testing.T) {
-	code, _, _ := runCLITest(t, "", "--target", "dify-1.16-graphon-0.6")
+	code, _, _ := runCLITest(t, "", "--target", "ncoda-native-1.0")
 	if code != 2 {
 		t.Fatalf("exit=%d, want 2: the open distribution ships no platform adapter", code)
 	}

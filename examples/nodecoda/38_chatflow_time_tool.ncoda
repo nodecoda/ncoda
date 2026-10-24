@@ -1,12 +1,11 @@
 @language nodecoda/1
 // 38_chatflow_time_tool.ncoda
-// Dify YAML: examples/yaml/chatflow_time_tool_static_output_workflow.yml
 //
-// Flow: Start → CurrentTime(tool) → Template("hello, dify!") → Answer
+// Flow: Start → CurrentTime(tool) → Template("hello, ncoda!") → Answer
 // Pattern: advanced-chat with tool + static template
 
 @mode advanced-chat
-import "dify.time";
+import "time";
 
 function main(string query) {
     let now = time.current_time({
@@ -14,5 +13,5 @@ function main(string query) {
         "timezone": "UTC"
     });
 
-    return "hello, dify!";
+    return "hello, ncoda!";
 }

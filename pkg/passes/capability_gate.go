@@ -704,7 +704,7 @@ func (p *CapabilityGatePass) visitCallExpr(node *ast.CallExpr) ast.Visitor {
 			resultTypeText = resultType.String()
 		}
 		p.emitTargetNotLowerable(CapabilityShapeConditionCalculation,
-			fmt.Sprintf("%s result type %s is not safely lowerable: Dify requires a "+
+			fmt.Sprintf("%s result type %s is not safely lowerable: this target requires a "+
 				"proven runtime array source, and Code output cannot carry file, any, or "+
 				"nested arrays", name, resultTypeText), node.Span())
 	}

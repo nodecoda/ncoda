@@ -1,5 +1,10 @@
 package passes
 
+// 平台证据注记（2026-10-25）：本文引用的平台源码/产物路径是**审计追溯**（当年判据的
+// 一手证据）；平台实现与证据正本已随适配器移入商业仓（internal/backend/*、platforms/*）。
+// 判据读的是 TargetProfile.Carrier / capability.Table 的轴，代码不认识平台名。
+//
+
 // TargetValidationPass enforces the target-specific declaration checks kept
 // outside the language type system, ported from
 // src/nclang/lang/passes/target_validation.py (1575 lines). This task
@@ -212,7 +217,7 @@ type TargetValidationPass struct {
 	reportedScalarFileExprs map[binding.AstNodeID]bool
 	// fileCapacity 当前目标的 file 契约承载能力（Run 解析一次；一处定义见
 	// fileContractCapacityOf）。**两条分支共用** —— dify 也消费它。
-	fileCapacity fileContractCapacity
+	fileCapacity FileContractCarrier
 }
 
 // Run mirrors run (:161-168). The pass enforces the Dify target's
@@ -244,7 +249,7 @@ func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 	// `pkg/ir/zero_arm_default_gate_contract_test.go`（构造期）+
 	// `internal/compiler/cozebiz_zero_path_arm_gating_contract_test.go`（产物面）锁定；
 	// 退役裁决与证据 = `docs/five-step/rulings/2026-09-28-ruling-sheet-r26.md`。
-	if !isDifyProfile(ctx.Profile) {
+	if !carrierOf(ctx.Profile).NodeGraphShapes {
 		// ── 非 dify 目标（2026-09-21 Stage A）──
 		//
 		// 旧实现整段 return，于是「语言级的那半」也一起被跳过了：
@@ -289,52 +294,13 @@ func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 	ast.Walk(p, program)
 }
 
-// isDifyProfile reports whether the active target profile is the dify family
-// (the only family whose shape constraints this pass enforces in full).
-func isDifyProfile(profile *TargetProfile) bool {
-	if profile == nil {
-		return true // 缺省 profile = dify（DefaultTargetProfile）
-	}
-	return strings.HasPrefix(profile.Name, "dify")
-}
-
-// fileContractCapacity 一个目标**物理承载** file 契约三轴的能力 —— **一处定义**。
-//
-// 依据 = 渲染器**实际发出的字段**（实测，不是愿望）：
-//
-//   - dify（`pkg/backend/dify/serialize.go`）：三个 YAML 键
-//     `allowed_file_types` / `allowed_file_extensions` /
-//     `allowed_file_upload_methods`，且都是**列表** ⇒ 三轴俱载、都承载集合。
-//     判据 = `TestDifyFileContractAxesAreCarriedWithoutDegradation`。
-//   - coze-biz：canvas `assistType` 是**单个整数**、yaml 通道 `type: <image|…>`
-//     也是单值 ⇒ kind 只承载**单值**；ext / upload **无字段**
-//     （覆盖登记见 `docs/coze-biz-schema-audit.md` §6.9 F-AXES-4/5/6）。
-//   - coze-studio（`coze-1.0` / `coze-studio-flow-1.0`）：**实测无族承载面** ——
-//     `function main(file<image> d)` 的 start 口产物是 `{type: "string"}`，
-//     整份产物里 `assistType` 出现 **0 次**。故 kind 也不承载
-//     （连「这是 file」都没说，更别说族）。
-//   - **未知目标 ⇒ 什么都不承载**（保守 = 不发明能力）。宁可多报一条**可见**的降级
-//     警告，也不要静默丢掉约束 —— ④「要么报账、要么不存在」的失败侧是**静默**。
-type fileContractCapacity struct {
-	kinds        bool // 有 kind 承载面
-	kindsAreSets bool // 承载集合（多值）；false = 只承载单值
-	exts         bool // 有扩展名承载面
-	uploads      bool // 有上传方式承载面
-}
-
 // fileContractCapacityOf 目标 → 承载能力。**表外目标 = 零值（什么都不承载）**：
 // 加目标要显式加一行，这是有意的 —— 不发明能力。
-func fileContractCapacityOf(profile *TargetProfile) fileContractCapacity {
-	switch {
-	case isDifyProfile(profile):
-		return fileContractCapacity{kinds: true, kindsAreSets: true, exts: true, uploads: true}
-	case isCozeBizProfile(profile):
-		return fileContractCapacity{kinds: true}
-	}
-	return fileContractCapacity{}
+func fileContractCapacityOf(profile *TargetProfile) FileContractCarrier {
+	return carrierOf(profile).FileContract
 }
 
-// timeoutCarrierAxis 目标上**非 http 面**的「超时」载体表达的是哪个轴 —— **一处定义**。
+// TimeoutCarrierAxis 目标上**非 http 面**的「超时」载体表达的是哪个轴 —— **一处定义**。
 //
 // 为什么需要它：语言裁定 `with timeout(D)` 的 D = **每次尝试**（2026-09-16 用户拍板，与
 // runtime / dify 两侧一致）。平台上「超时」有两个载体，轴**不同**：
@@ -355,60 +321,29 @@ func fileContractCapacityOf(profile *TargetProfile) fileContractCapacity {
 // 单次的界），但后续重试可能拿不到时间片。这是**目标承载**问题的报账对象，不是语言错
 // （语言裁定未变、源码合法）⇒ 处置 = 软降级 + **报账**（不许静默），与 file 三轴 /
 // 枚举值集 / 显式 null 同一条纪律：**不升级成 error**（那会拒收合法源码）。
-type timeoutCarrierAxis int
-
-const (
-	// timeoutAxisUnknown 该目标的载体轴**无证据** ⇒ **不发结论**（既不报账也不声称承载）。
-	//
-	// 与 file 三轴口径的差别是有意的：那里「表外目标 = 不承载」是**保守地多报一条可见
-	// 警告**（宁可多报）；这里表外目标若照报，等于**捏造一个我们没验过的轴**（说「平台
-	// 按总预算读」而其实不知道）⇒ 谎报比沉默更坏。未知面登记在
-	// `docs/five-step/residuals.yaml#R-89`。
-	timeoutAxisUnknown timeoutCarrierAxis = iota
-	// timeoutAxisPerAttempt 载体逐次生效（与语言裁定同轴）⇒ 不报。
-	timeoutAxisPerAttempt
-	// timeoutAxisSharedBudget 载体是全部尝试共享的总预算 ⇒ 与语言轴**不同** ⇒ 报账。
-	timeoutAxisSharedBudget
-)
-
 // nonHTTPTimeoutAxisOf 目标 → **非 http 面**的超时载体轴。
 //
-//   - dify：`pkg/backend/dify/render_nodes.go:288-291` 发
+//   - dify：`internal/backend/dify/（商业仓）render_nodes.go:288-291` 发
 //     `timeout{max_connect_timeout, max_read_timeout}`（每次请求各一份）⇒ 每次尝试。
 //   - coze-biz / coze-studio：非 http 节点只有 `settingOnError.timeoutMs`
-//     （`internal/backend/cozebiz/render_node.go::errorPolicySetting` ·
-//     `internal/backend/coze/marshal.go:833`）⇒ 总预算。平台证据同上（coze-studio 的
+//     （`internal/backend/cozebiz/（商业仓）render_node.go::errorPolicySetting` ·
+//     `internal/backend/coze/（商业仓）marshal.go:833`）⇒ 总预算。平台证据同上（coze-studio 的
 //     OSS 实现就是该平台的运行期实现；coze-biz 与该实现同源 —— 本仓既有口径亦如此，
-//     见 `internal/backend/cozebiz/http_setting.go` 的引用）。
-//   - 表外目标 ⇒ `timeoutAxisUnknown`（不发明结论）。
-func nonHTTPTimeoutAxisOf(profile *TargetProfile) timeoutCarrierAxis {
-	switch {
-	case isDifyProfile(profile):
-		return timeoutAxisPerAttempt
-	case isCozeBizProfile(profile), isCozeStudioProfile(profile):
-		return timeoutAxisSharedBudget
-	}
-	return timeoutAxisUnknown
-}
-
-// isCozeStudioProfile 目标是否 coze-studio 家族（与 coze-biz 共用 settingOnError 载体）。
-func isCozeStudioProfile(profile *TargetProfile) bool {
-	if profile == nil {
-		return false
-	}
-	return strings.HasPrefix(profile.Name, "coze-studio") ||
-		strings.HasPrefix(profile.Name, "coze-1.")
+//     见 `internal/backend/cozebiz/（商业仓）http_setting.go` 的引用）。
+//   - 表外目标 ⇒ `TimeoutAxisUnknown`（不发明结论）。
+func nonHTTPTimeoutAxisOf(profile *TargetProfile) TimeoutCarrierAxis {
+	return carrierOf(profile).TimeoutAxis
 }
 
 // hasPerAttemptTimeoutCarrier 操作符在**该目标**上是否有「逐次生效」的超时载体。
 //
 // 唯一为真的是 **http 内建**（`parameters.setting.timeout`）：实现在
-// `internal/backend/cozebiz/http_setting.go::httpNodeSetting`（该文件同时钉了本判据的
+// `internal/backend/cozebiz/（商业仓）http_setting.go::httpNodeSetting`（该文件同时钉了本判据的
 // 反面：http 面若走 settingOnError 就是轴错）。其余操作符（`foreign code` / 插件 / llm）
 // 都只有 `settingOnError.timeoutMs`。
 //
 // **这是载体选择的镜像，不是第二份定义**：两者的唯一权威 = 后端的目标剖面
-// （`internal/backend/cozebiz/http_setting.go` 的表 + `errorPolicySetting` 的调用点）。
+// （`internal/backend/cozebiz/（商业仓）http_setting.go` 的表 + `errorPolicySetting` 的调用点）。
 // 契约测试 `internal/compiler/cozebiz_timeout_axis_contract_test.go` 用**两态对照**
 // （http 不报 / foreign code 报）把两侧钉在一起：载体剖面若改了而这里没改，该测试红。
 func hasPerAttemptTimeoutCarrier(op ast.Expr) bool {
@@ -461,7 +396,7 @@ func (v timeoutAxisChecker) Visit(n ast.Node) ast.Visitor {
 // 为什么不拒收：源码合法、语言裁定未变；平台只是**装不下这个轴**。按「平台无法表达
 // ⇒ 采用平台默认值（软降级）」处置，与 file 三轴 / 枚举值集 / 显式 null 同一条纪律。
 func (p *TargetValidationPass) reportTimeoutAxisDegradations(program *ast.Program) {
-	if nonHTTPTimeoutAxisOf(p.ctx.Profile) != timeoutAxisSharedBudget {
+	if nonHTTPTimeoutAxisOf(p.ctx.Profile) != TimeoutAxisSharedBudget {
 		return
 	}
 	ast.Walk(timeoutAxisChecker{pass: p}, program)
@@ -472,43 +407,24 @@ func (p *TargetValidationPass) reportTimeoutAxisDegradations(program *ast.Progra
 // 语言：`with retry(max: N, interval: D)` 的 D 是**两次尝试之间**的间隔，省略即 1s
 // （正本 = `docs/five-step/spec/F3-error-policy-value-axes.md` §①/§②）。
 //
-// 平台承载面（一手证据；与 timeoutCarrierAxis 同一条纪律：载体表按**实测的渲染器字段**
+// 平台承载面（一手证据；与 TimeoutCarrierAxis 同一条纪律：载体表按**实测的渲染器字段**
 // 写，不按愿望）：
 //
-//   - **dify**：`retry_interval`（毫秒，`pkg/backend/dify/render_nodes.go`）⇒ 承载。
-//   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/nodes/http.go` /
+//   - **dify**：`retry_interval`（毫秒，`internal/backend/dify/（商业仓）render_nodes.go`）⇒ 承载。
+//   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/（商业仓）nodes/http.go` /
 //     `llm.go` 真的按 `RetryIntervalMS` sleep ⇒ 语义被消费 ⇒ 承载。
 //   - **coze-biz / coze-studio**：**无载体** —— 平台的 http 重试循环里没有 sleep
 //     （`oss:backend/domain/workflow/internal/nodes/httprequester/http_requester.go:428` 的
 //     `for i := 0; i <= retryTimes; i++` 循环体无 sleep）；其错误策略载体只有
 //     `settingOnError{retryTimes, timeoutMs}` 与 http 的 `setting{retryTimes, timeout}`
-//     （表 = `internal/backend/cozebiz/http_setting.go`）⇒ 作者写的间隔整个不见。
+//     （表 = `internal/backend/cozebiz/（商业仓）http_setting.go`）⇒ 作者写的间隔整个不见。
 //   - **表外目标 ⇒ 不发结论**（与超时轴同一条有意口径；理由与登记 =
 //     `docs/five-step/residuals.yaml#R-89`）：说「这个目标丢了间隔」= 捏造一个我们
 //     没验过的平台事实 ⇒ 谎报比沉默更坏。
-type retryIntervalCarrier int
-
-const (
-	// retryIntervalUnknown 该目标的间隔载体**无证据** ⇒ 不发结论。
-	retryIntervalUnknown retryIntervalCarrier = iota
-	// retryIntervalCarried 目标真的消费该轴 ⇒ 不报。
-	retryIntervalCarried
-	// retryIntervalAbsent 目标**没有**间隔载体（立即重试）⇒ 报账。
-	retryIntervalAbsent
-)
-
+//
 // retryIntervalCarrierOf 目标 → 重试间隔的载体（一处定义；表见上方注释）。
-func retryIntervalCarrierOf(profile *TargetProfile) retryIntervalCarrier {
-	switch {
-	case isDifyProfile(profile):
-		return retryIntervalCarried
-	case isCozeBizProfile(profile), isCozeStudioProfile(profile):
-		return retryIntervalAbsent
-	}
-	if profile != nil && strings.Contains(profile.Name, "runtime") {
-		return retryIntervalCarried
-	}
-	return retryIntervalUnknown
+func retryIntervalCarrierOf(profile *TargetProfile) RetryIntervalCarrier {
+	return carrierOf(profile).RetryInterval
 }
 
 // retryIntervalChecker 找**作者显式写了** `interval:` 的策略表达式（= 无载体目标上会
@@ -551,7 +467,7 @@ func (v retryIntervalChecker) Visit(n ast.Node) ast.Visitor {
 // 为什么不拒收：源码合法、语言裁定未变；平台只是**装不下这个轴** ⇒ 按「平台无法表达
 // ⇒ 采用平台默认值（软降级）+ 报账」，与 file 三轴 / 枚举值集 / 超时轴同一条纪律。
 func (p *TargetValidationPass) reportRetryIntervalAxisDegradations(program *ast.Program) {
-	if retryIntervalCarrierOf(p.ctx.Profile) != retryIntervalAbsent {
+	if retryIntervalCarrierOf(p.ctx.Profile) != RetryIntervalAbsent {
 		return
 	}
 	ast.Walk(retryIntervalChecker{pass: p}, program)
@@ -560,11 +476,11 @@ func (p *TargetValidationPass) reportRetryIntervalAxisDegradations(program *ast.
 // parallelForErrorModeCarried 目标**是否承载 `parallel for` 的 `on_error` 轴** —— 一处定义。
 //
 // 承载：
-//   - **dify**：`error_handle_mode`（`pkg/backend/dify/nodes.go:553/661`，
+//   - **dify**：`error_handle_mode`（`internal/backend/dify/（商业仓）nodes.go:553/661`，
 //     `serialize.go` 非默认值才写）；三值 = `terminated` / `continue-on-error` /
 //     `remove-abnormal-output`（`pkg/ir/on_error_mode.go` 的落点）。
-//   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/spec/configs.go`
-//     把该轴送进执行器、`internal/runtime/compile/loop.go` 按它决定失败迭代的处置
+//   - **runtime 执行目标**（`coze-runtime-1.0`）：`internal/runtime/（商业仓）spec/configs.go`
+//     把该轴送进执行器、`internal/runtime/（商业仓）compile/loop.go` 按它决定失败迭代的处置
 //     ⇒ 语义真被消费。
 //
 // 不承载（**一手证据**，2026-09-29）：
@@ -582,13 +498,7 @@ func (p *TargetValidationPass) reportRetryIntervalAxisDegradations(program *ast.
 // AGENTS.md「ncoda 覆盖承诺」采用平台默认值（软降级）**并报账**（`失配 ≠ 静默丢弃`）。
 // 不升级成 error：源码合法、语言裁定未变，升级会拒收合法源码。
 func parallelForErrorModeCarried(profile *TargetProfile) bool {
-	if profile == nil {
-		return true // 缺省 profile = dify（DefaultTargetProfile）
-	}
-	if isDifyProfile(profile) {
-		return true
-	}
-	return strings.Contains(profile.Name, "runtime")
+	return carrierOf(profile).ParallelOnError
 }
 
 // parallelForErrorModeChecker 找**写了非平台默认** `on_error` 的 `parallel for`。
@@ -629,25 +539,17 @@ func (p *TargetValidationPass) reportParallelForErrorModeDegradations(program *a
 	ast.Walk(parallelForErrorModeChecker{pass: p}, program)
 }
 
-// isCozeBizProfile 目标是否 coze-biz 家族（唯一的**单值 kind** 承载面）。
-func isCozeBizProfile(profile *TargetProfile) bool {
-	if profile == nil {
-		return false
-	}
-	return strings.HasPrefix(profile.Name, "coze-biz")
-}
-
 // enumValueSetCapacityOf 目标**是否承载枚举的值集**（一处定义）。
 //
 // 依据 = 渲染器**实际发出的字段**（实测，不是愿望）：
 //
-//   - dify：**LLM payload 面**承载 —— `pkg/backend/dify/render_nodes.go:134`
+//   - dify：**LLM payload 面**承载 —— `internal/backend/dify/（商业仓）render_nodes.go:134`
 //     把 `llm.Enum` 渲成 `{"type": "string", "enum": [...]}`，反编译端
-//     `platforms/dify/decompile/convert.go:911` 读回 ⇒ 值集在产物里存在。
-//   - coze-biz：**无承载面** —— `internal/backend/cozebiz/render_node.go::llmSchemaDecl`
+//     `platforms/dify/（商业仓）decompile/convert.go:911` 读回 ⇒ 值集在产物里存在。
+//   - coze-biz：**无承载面** —— `internal/backend/cozebiz/（商业仓）render_node.go::llmSchemaDecl`
 //     的 `llm.KindEnum` ⇒ `"string"`（该处注释已自认 soft degradation）；非 payload
 //     面更早在**共享**中性 IR 塌成 `TObject{value: string}`（`pkg/ir/build.go:1230`）。
-//   - coze-studio：**无承载面** —— `internal/backend/coze/render.go::llmSchemaTypeInfo`
+//   - coze-studio：**无承载面** —— `internal/backend/coze/（商业仓）render.go::llmSchemaTypeInfo`
 //     的 `llm.KindEnum` ⇒ `DataTypeString`。
 //   - **表外 / 未知目标 = 不承载**（保守 = 不发明能力）：宁可多报一条**可见**的降级
 //     警告，也不要静默丢掉作者声明的值域约束。
@@ -656,7 +558,7 @@ func isCozeBizProfile(profile *TargetProfile) bool {
 // 塌缩与目标无关）——本判据只对「连 payload 面都不承载」的目标报账；dify 面属搁置面
 // （AGENTS.md「开发主线与平台优先级」），不在主线动。
 func enumValueSetCapacityOf(profile *TargetProfile) bool {
-	return isDifyProfile(profile)
+	return carrierOf(profile).EnumValueSet
 }
 
 // reportEnumValueSetDegradations 枚举的**值集**在该目标上承载不了 ⇒ 软降级必须报账
@@ -690,12 +592,12 @@ func enumValueSetCapacityOf(profile *TargetProfile) bool {
 //	  coze 平台定义为不区分 nil/null/zero，coze-biz 更被显式定义为**不支持 nil/null** 的平台
 //	  （2026-09-08 A 级定义）⇒ 报账。
 //	· dify = **格式层已验能承载、绑定层不可观测**：dify 的序列化面能写 null
-//	  （`pkg/backend/dify/yaml.go` 的 `yamlNullRe` / `writePlain("null")`、
+//	  （`internal/backend/dify/（商业仓）yaml.go` 的 `yamlNullRe` / `writePlain("null")`、
 //	  `render_nodes.go` 的 `{"type":"null"}` anyOf 一手证据）⇒ 不出降级账；
 //	  但「dify 把 `let x = null;` 渲成什么样」**今天观测不到** —— 读 null 型值在三目标都
 //	  fail loud（`residuals.yaml#R-65`）⇒ 无消费点可看产物。**不声称**它承载，只是不报账
 //	  （不撒谎的底线：没有证据就不发结论，也不发反向结论）。
-func explicitNullCarried(profile *TargetProfile) bool { return isDifyProfile(profile) }
+func explicitNullCarried(profile *TargetProfile) bool { return carrierOf(profile).ExplicitNull }
 
 // nullBindingChecker 找**声明位**的显式 null 初值（`let x = null;`）。
 type nullBindingChecker struct{ pass *TargetValidationPass }
@@ -758,14 +660,7 @@ func (p *TargetValidationPass) reportEnumValueSetDegradations(program *ast.Progr
 // （= 存在 QA 选项表载体）。已知目标逐条列举（`docs/ASK-SYNTAX.md` §4 的落地列），
 // 表外 = false（保守 = 不发明能力）。
 func qaActionCarriesEnumValueSet(profile *TargetProfile) bool {
-	switch {
-	case profile == nil:
-		return false
-	case isDifyProfile(profile) || isCozeStudioProfile(profile) || isCozeBizProfile(profile):
-		return true
-	default:
-		return false
-	}
+	return carrierOf(profile).QAActionValueSet
 }
 
 // askActionEnumNames 收集全部 `ask<Form, Action>` 的 **Action 具名类型**（值集被 QA
@@ -839,7 +734,7 @@ func (v languageContractChecker) Visit(n ast.Node) ast.Visitor {
 // 方向纪律（2026-09-21 用户裁定）：**只许放宽，不许收紧**。多值的并集在单值目标上
 // 落成「无约束」（`yamlFileKindName` 的放宽），不是「取首」—— 取首会拒收作者允许的
 // 输入，方向与「平台无法表达 ⇒ 采用平台默认值」相反。
-func (p *TargetValidationPass) reportFileContractDegradations(c ast.FileTypeConstraints, span ast.Span, capacity fileContractCapacity) {
+func (p *TargetValidationPass) reportFileContractDegradations(c ast.FileTypeConstraints, span ast.Span, capacity FileContractCarrier) {
 	// 判「多值」用**去重后的集合**，不是书写的元素个数：`types` 轴的语义是集合，
 	// `file<image, image>` 与 `file<image>` 是同一个约束 ⇒ 单值承载面装得下它，
 	// 不构成降级。这条与渲染器的规范形（`canonicalFileKindSet` = 去重 + 排序）是
@@ -847,21 +742,21 @@ func (p *TargetValidationPass) reportFileContractDegradations(c ast.FileTypeCons
 	// （实测过：`file<image, image>` 曾被报成放宽）。
 	kinds := dedupeSorted(c.Types)
 	switch {
-	case len(kinds) > 0 && !capacity.kinds:
+	case len(kinds) > 0 && !capacity.Kinds:
 		p.ctx.Emit(diag.TARGET_CONTRACT_DEGRADED, diag.Warning,
 			fmt.Sprintf("target has no file-kind field: the kind constraint [%s] is dropped",
 				strings.Join(kinds, ", ")), span)
-	case len(kinds) > 1 && !capacity.kindsAreSets:
+	case len(kinds) > 1 && !capacity.KindsAreSets:
 		p.ctx.Emit(diag.TARGET_CONTRACT_DEGRADED, diag.Warning,
 			fmt.Sprintf("target carries a single file kind: the set [%s] is widened to the unconstrained file kind (narrowing to one member would reject files the author allows)",
 				strings.Join(kinds, ", ")), span)
 	}
-	if len(c.Extensions) > 0 && !capacity.exts {
+	if len(c.Extensions) > 0 && !capacity.Extensions {
 		p.ctx.Emit(diag.TARGET_CONTRACT_DEGRADED, diag.Warning,
 			fmt.Sprintf("target has no file-extension field: the extension constraint [%s] is dropped",
 				strings.Join(dedupeSorted(c.Extensions), ", ")), span)
 	}
-	if len(c.UploadMethods) > 0 && !capacity.uploads {
+	if len(c.UploadMethods) > 0 && !capacity.Uploads {
 		p.ctx.Emit(diag.TARGET_CONTRACT_DEGRADED, diag.Warning,
 			fmt.Sprintf("target has no upload-method field: the upload-method constraint [%s] is dropped",
 				strings.Join(dedupeSorted(c.UploadMethods), ", ")), span)
@@ -910,9 +805,9 @@ func (p *TargetValidationPass) validateStartInputShapes(program *ast.Program, ct
 				p.rejectAt("array Start input has no element type", param.Span())
 			}
 		case types.Map:
-			p.rejectAt("map Start input is not representable by the Dify target", param.Span())
+			p.rejectAt("map Start input is not representable by this target", param.Span())
 		case types.Record:
-			p.rejectAt("record Start input is not representable by the Dify target", param.Span())
+			p.rejectAt("record Start input is not representable by this target", param.Span())
 		}
 	}
 }
@@ -1940,15 +1835,15 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 		// dify ⇒ `human_input` 之后没有 `end`、`inputs: []`（表单字段与尾巴一起丢，
 		// 仍 SUCCEEDED）；coze-studio ⇒ `answer_type: option` + 只连 1 条边。
 		axes := askTargetAxesOf(p.ctx.Profile)
-		if axes.known && !axes.carriesActionless {
-			name := "dify"
+		if axes.Known && !axes.Actionless {
+			name := "this target"
 			if p.ctx.Profile != nil && p.ctx.Profile.Name != "" {
 				name = p.ctx.Profile.Name
 			}
 			p.rejectAt(fmt.Sprintf(
 				"Human Input without an action type (ask<Form>({...}) as r;, the platform's answer_type: text) "+
 					"has no carrier on target %s yet — the target's question widget is not wired for the actionless form; "+
-					"supported target so far: coze-biz-1.0 (the source is not silently degraded)", name), node.Span())
+					"supported by the adapters that declare the question parameter face (the source is not silently degraded)", name), node.Span())
 			return nil
 		}
 	}
@@ -2015,19 +1910,19 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 	// 目标能力：新键在 dify / coze-studio / runtime 上**没有载体**（那些 question
 	// widget 不持有这些参数）⇒ 与「无动作形态」同一条处置：**fail loud 点名**，
 	// 不静默降级（r38 §六.2 先例）。
-	cozeAxes := askTargetAxesOf(p.ctx.Profile)
-	if cozeAxes.known && !cozeAxes.carriesQuestionParams {
+	askAxes := askTargetAxesOf(p.ctx.Profile)
+	if askAxes.Known && !askAxes.QuestionParams {
 		for _, key := range []string{"limit", "extra_output", "llm", "dynamic_options"} {
 			if _, present := config[key]; !present {
 				continue
 			}
-			name := "dify"
+			name := "this target"
 			if p.ctx.Profile != nil && p.ctx.Profile.Name != "" {
 				name = p.ctx.Profile.Name
 			}
 			p.rejectAt(fmt.Sprintf(
 				"Human Input config key %q has no carrier on target %s yet — that target's question widget holds no such parameter; "+
-					"supported target so far: coze-biz-1.0 (the source is not silently degraded)", key, name), node.Config().Span())
+					"supported by the adapters that declare the question parameter face (the source is not silently degraded)", key, name), node.Config().Span())
 		}
 	}
 	maxAnswerCount := 0
@@ -2086,7 +1981,7 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 		// dify 目标这一格**没有名额载体**（本拼写装不下）⇒ 拒收并点名，不静默丢
 		// ——与同文件「无动作形态 + timeout 无载体」同一条处置。
 		content = ce.Text()
-		if isDifyProfile(p.ctx.Profile) && len(ce.Bindings()) > 0 {
+		if axes := askTargetAxesOf(p.ctx.Profile); axes.Known && axes.NoTemplateSlotCarrier && len(ce.Bindings()) > 0 {
 			p.rejectAt(
 				"Human Input content template has no slot carrier on this target (unsupported in this spelling)",
 				contentExpr.Span(),
@@ -2165,14 +2060,14 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 //     （超时臂的落点），没有时长配置。
 //
 // 逐目标列举（**表外 ⇒ 不发结论**：说「这个目标丢了 X」= 捏造一个我们没验过的
-// 平台事实 ⇒ 谎报比沉默更坏，同 `retryIntervalCarrierOf` / `timeoutCarrierAxis`）：
+// 平台事实 ⇒ 谎报比沉默更坏，同 `retryIntervalCarrierOf` / `TimeoutCarrierAxis`）：
 //
-//   - **dify**：三轴全承（`pkg/backend/dify/nodes.go::UserAction{Title, Label,
+//   - **dify**：三轴全承（`internal/backend/dify/（商业仓）nodes.go::UserAction{Title, Label,
 //     ButtonStyle}` + `HumanInputDataNode{Timeout, TimeoutUnit}`）。
 //   - **coze-biz / coze-studio**：三轴俱无（上面那条 QA 结构；语料
 //     `7574994076144779304_calendar_helper/workflow.yaml` 的 2/2 例也只有
 //     question/options/limit/extra_output/llmParam 键）。
-//   - **runtime / 表外**：不发结论（`internal/runtime/spec/configs.go::QaConfig` 有
+//   - **runtime / 表外**：不发结论（`internal/runtime/（商业仓）spec/configs.go::QaConfig` 有
 //     `timeout` 值槽但**无单位槽** —— 半载属另一条轴的账，不在本表裁）。
 //
 // askTargetAxes = ask 的**目标轴表**：三根保真（F）轴的载体 + 该目标是否施加
@@ -2187,50 +2082,10 @@ func (p *TargetValidationPass) validateHumanInputStmt(node *ast.RequestInputStmt
 //     选项名是任意文本，套用 dify 契约会让真实平台导出读不回来）。
 //     语言级只剩「非空」——作者写的成员本来就是枚举成员 token，标识符规则由
 //     解析器保证。
-type askTargetAxes struct {
-	known            bool
-	carriesTitle     bool
-	carriesStyle     bool
-	carriesTimeout   bool
-	requiresActionID bool
-	// carriesQuestionParams：该目标**已落地** `question` 参数面 ②③ 的载体
-	// （`limit` / `extra_output` / `llm` / `dynamic_options`，2026-10-10 用户批准
-	// 「丙·扩语言」）。同 carriesActionless —— 这是**本仓实施现状**而不是平台事实：
-	// 其余目标（dify / coze-studio / runtime）的 question widget 不持有这些参数
-	// ⇒ 接了也是死载体 ⇒ fail loud（r38 §六.2 处置）。
-	carriesQuestionParams bool
-
-	// carriesActionless：该目标**已落地**「无动作形态」（S1，`ask<Form>({…}) as r;`
-	// —— 平台 `answer_type: text` 的只问不选）的载体。
-	//
-	// **与上面三根 F 轴不同**：那三根说的是「平台装不下」（平台事实）；这一根说的是
-	// **本仓的实施现状**（我们还没把载体接上去）——故它的 false 不是报账，而是
-	// **fail loud**：接不上的目标要是静默放行，产物会丢尾巴/丢字段还标 SUCCEEDED
-	// （一手 2026-10-01：dify ⇒ `human_input` 后无 `end`、`inputs` 空；coze-studio ⇒
-	// `answer_type: option` 且只连 1 条边）。
-	//
-	// 依据（用户 2026-10-01 批准的 r38 §六.2）：dify / coze-studio 按平台优先级**搁置**
-	// ⇒ 只做「不产错产物的最低限度」= 点名拒收 + 登记，不在本刀改这两个后端。
-	// coze-biz = true（本刀主线，读写两侧均已落地，判据 =
-	// `internal/compiler/cozebiz_qa_text_form_contract_test.go`）。
-	carriesActionless bool
-}
-
+//
 // askTargetAxesOf 目标 → ask 的目标轴（一处定义；表见上方注释）。
-func askTargetAxesOf(profile *TargetProfile) askTargetAxes {
-	switch {
-	case isDifyProfile(profile):
-		return askTargetAxes{known: true, carriesTitle: true, carriesStyle: true, carriesTimeout: true, requiresActionID: true}
-	case isCozeStudioProfile(profile):
-		// 三根 F 轴俱无（同 coze-biz）；无动作形态**本刀未落地**（搁置面）。
-		return askTargetAxes{known: true}
-	case isCozeBizProfile(profile):
-		// 三根 F 轴俱无；无动作形态**已落地**（`render_loop.go::renderQa` 的
-		// `qa.TextForm` 分支 + `emitRequestInput` 的无臂直通）；`question` 参数面
-		// ②③（limit/extra_output/llm/dynamic_options）**已落地**（r57）。
-		return askTargetAxes{known: true, carriesActionless: true, carriesQuestionParams: true}
-	}
-	return askTargetAxes{}
+func askTargetAxesOf(profile *TargetProfile) AskCarrierAxes {
+	return carrierOf(profile).Ask
 }
 
 // reportAskFidelityLosses 该目标装不下的 F 轴 ⇒ **一条声明一条账**（与枚举值集 /
@@ -2240,11 +2095,11 @@ func askTargetAxesOf(profile *TargetProfile) askTargetAxes {
 // 装不下」在产物上不可观察地等价 ⇒ 报了就是噪音（同 `IntervalExplicit()` 的口径）。
 func (p *TargetValidationPass) reportAskFidelityLosses(c *binding.ValidatedHumanInputContract, node *ast.RequestInputStmt) {
 	carrier := askTargetAxesOf(p.ctx.Profile)
-	if !carrier.known {
+	if !carrier.Known {
 		return
 	}
 	lost := []string{}
-	if !carrier.carriesTitle {
+	if !carrier.Title {
 		for _, a := range c.Actions {
 			if a.Title == a.Member {
 				continue
@@ -2252,7 +2107,7 @@ func (p *TargetValidationPass) reportAskFidelityLosses(c *binding.ValidatedHuman
 			lost = append(lost, fmt.Sprintf(`action title %s→%q`, a.Member, a.Title))
 		}
 	}
-	if !carrier.carriesStyle {
+	if !carrier.Style {
 		for _, a := range c.Actions {
 			if a.Style == binding.HumanInputActionStyleDefault {
 				continue
@@ -2260,7 +2115,7 @@ func (p *TargetValidationPass) reportAskFidelityLosses(c *binding.ValidatedHuman
 			lost = append(lost, fmt.Sprintf("action style %s:%s", a.Member, a.Style))
 		}
 	}
-	if !carrier.carriesTimeout && c.TimeoutValue > 0 {
+	if !carrier.Timeout && c.TimeoutValue > 0 {
 		lost = append(lost, fmt.Sprintf("timeout {%d %s}", c.TimeoutValue, c.TimeoutUnit))
 	}
 	if len(lost) == 0 {
@@ -2442,14 +2297,14 @@ func (p *TargetValidationPass) validateHumanInputActions(actionsExpr ast.Expr, a
 	var contracts []binding.HumanInputActionContract
 	axes := askTargetAxesOf(p.ctx.Profile)
 	for _, member := range actionType.EnumMembers {
-		if axes.requiresActionID && !binding.IsCanonicalHumanInputActionID(member) {
+		if axes.RequiresActionID && !binding.IsCanonicalHumanInputActionID(member) {
 			p.rejectAt(
 				fmt.Sprintf("Human Input action ID '%s' must match [A-Za-z_][A-Za-z0-9_]* and contain at most 20 characters", member),
 				actionsMap.Span(),
 			)
 			continue
 		}
-		if !axes.requiresActionID && member == "" {
+		if !axes.RequiresActionID && member == "" {
 			p.rejectAt("Human Input action member must not be empty", actionsMap.Span())
 			continue
 		}
@@ -2494,7 +2349,7 @@ func (p *TargetValidationPass) validateHumanInputActions(actionsExpr ast.Expr, a
 		style := binding.HumanInputActionStyleDefault
 		styleExpr := values["style"]
 		if styleExpr == nil {
-			if axes.carriesStyle {
+			if axes.Style {
 				p.rejectAt(fmt.Sprintf("Human Input action '%s' is missing required static style", member), configMap.Span())
 				continue
 			}
@@ -2510,7 +2365,7 @@ func (p *TargetValidationPass) validateHumanInputActions(actionsExpr ast.Expr, a
 			}
 			style = binding.HumanInputActionStyle(sl.Value())
 		}
-		if !axes.requiresActionID {
+		if !axes.RequiresActionID {
 			// coze 家族：成员是自由文本槽 `options[].name` 的值 ⇒ 只受语言级
 			// 约束（非空；标识符性由解析器保证），不套 dify 的 ≤20/ASCII 线格式。
 			// 上面已完成 title/style 的全部检查，故可直接构造。
@@ -2620,7 +2475,7 @@ func (p *TargetValidationPass) validateHumanInputLLM(expr ast.Expr) *binding.Hum
 	intPtr("response_format", &llm.ResponseFormat)
 	// `model` 的载体是平台 `modelType`（**整数**）⇒ 语言串必须是 `coze:<n>` 协议
 	// 串（与 `llm()` 同一个协议；非 coze: 前缀在本目标装不下 = 不静默降级）。
-	if llm.Model != nil && !isCozeModelProtocolString(*llm.Model) {
+	if llm.Model != nil && !carriesIntegerModelProtocol(*llm.Model, askTargetAxesOf(p.ctx.Profile).ModelProtocolPrefix) {
 		p.rejectAt(fmt.Sprintf(
 			"Human Input llm.model must be a \"coze:<digits>\" protocol string (the target carries the model as an integer modelType), got %q",
 			*llm.Model), values["model"].Span())
@@ -2637,11 +2492,15 @@ func (p *TargetValidationPass) validateHumanInputLLM(expr ast.Expr) *binding.Hum
 	return llm
 }
 
-// isCozeModelProtocolString 报「该串是 `coze:<digits>` 协议串」——ask 的
-// `llm.model` 载体是平台 `modelType`（整数），非该协议串在本目标装不下
-// （`llm()` 的 model 位置参数同协议；此处只做**可承载性**校验，不做注册表查询）。
-func isCozeModelProtocolString(model string) bool {
-	const prefix = "coze:"
+// carriesIntegerModelProtocol reports whether the string uses the target's
+// integer-model protocol form ("<prefix><digits>"). The node's model carrier is
+// an integer, so the language string must use that protocol; the prefix is
+// declared by the adapter (AskCarrierAxes.ModelProtocolPrefix; empty = no
+// protocol requirement). Carriability only — no registry lookup.
+func carriesIntegerModelProtocol(model, prefix string) bool {
+	if prefix == "" {
+		return true
+	}
 	if !strings.HasPrefix(model, prefix) {
 		return false
 	}
@@ -2835,7 +2694,7 @@ func (p *TargetValidationPass) validateGeneratedCodeExpr(expr ast.Expr, ctx *Con
 			p.reportedScalarFileExprs[id] = true
 		}
 	}
-	p.rejectAt("single-file Code input is not JSON-safe for the Dify target", unreported[0].Span())
+	p.rejectAt("single-file Code input is not JSON-safe for this target", unreported[0].Span())
 }
 
 // validateExtractTextOperand mirrors _validate_extract_text_operand
@@ -2855,7 +2714,7 @@ func (p *TargetValidationPass) validateVisionOperand(expr ast.Expr, ctx *Context
 	descriptor := exprTypeOf(ctx, expr)
 	if !isSelectorExpr(expr) || !isScalarFile(descriptor) {
 		p.rejectAt(
-			"vision requires a selector-backed scalar file for the Dify target",
+			"vision requires a selector-backed scalar file for this target",
 			expr.Span(),
 		)
 	}
@@ -2871,7 +2730,7 @@ func (p *TargetValidationPass) visitFieldAccessExpr(node *ast.FieldAccessExpr) a
 	objIsFile := objType != nil && types.UnwrapOptional(objType).Kind == types.File
 	resultIsFile := resultType != nil && types.UnwrapOptional(resultType).Kind == types.File
 	if objIsFile || resultIsFile {
-		p.rejectAt("single file field access is not representable by the Dify target", node.Span())
+		p.rejectAt("single file field access is not representable by this target", node.Span())
 	}
 	ast.Walk(p, node.Obj())
 	return nil
@@ -2968,13 +2827,13 @@ func (p *TargetValidationPass) validateConversationDeclarations(program *ast.Pro
 			p.reject("Conversation variables (@conversation) require @mode advanced-chat", decl)
 		}
 		if !conversationStoreSupported(descriptor) {
-			p.reject("conversation variable type is not supported by Dify", decl)
+			p.reject("conversation variable type is not supported by this target", decl)
 		}
 		if def := decl.Default(); def != nil {
 			if !isLiteral(def) {
 				p.reject("conversation variable defaults must be representable literals", def)
 			} else if !defaultSupported(descriptor, def, ctx) {
-				p.reject("conversation variable default cannot be represented by Dify", def)
+				p.reject("conversation variable default cannot be represented by this target", def)
 			}
 		}
 	}

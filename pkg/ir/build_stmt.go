@@ -61,7 +61,7 @@ func (g *Builder) emitAssign(s *ast.AssignStmt, prevIDs []string, firstPort stri
 		// 复合赋值的中性形 = **(op, 右值)**：前端把 `v += e` desugar 成 `v + e`
 		// （`pkg/parser/stmt.go`），左操作数是**读回 v** 的产物 ⇒ 这里把它
 		// 拆掉、只留右值 + op。**每个后端自己决定这个 op 轴能不能承**：
-		//   · dify/Graphon 有 op 轴（`pkg/backend/dify/render_nodes.go` 的
+		//   · dify/Graphon 有 op 轴（`internal/backend/dify/（商业仓）render_nodes.go` 的
 		//     `Operation: assignerOperation(n.Operation)`）⇒ 直接承载；
 		//   · coze-biz 的 assigner 是**纯 set**（一手：coze-studio
 		//     `internal/nodes/variableassigner/variable_assign.go` 的 `Invoke`
@@ -653,7 +653,7 @@ func (g *Builder) emitForStmt(s *ast.ForStmt, prevIDs []string, firstPort string
 		return nil, "", err
 	}
 	if s.IsParallel() {
-		mode, ok := cozeOnErrorMode(s.OnError())
+		mode, ok := onErrorWire(g.caps, s.OnError())
 		if !ok {
 			return nil, "", &UnsupportedError{Construct: "parallel for on_error " + s.OnError()}
 		}
@@ -1219,7 +1219,7 @@ func (g *Builder) emitContinue(prevIDs []string, firstPort string) ([]string, st
 // refPortMatchesEnvelopeKey 报告「折出来的 wire 口名」是否就是信封成员名。
 // 平台的容器行值恒等式是「成员名 = 体内产出端口名」，所以这是折叠的正确性守卫；
 // 唯一的别名是 LLM：语义口 `text` 在渲染端落物理口 output/value
-// （internal/backend/cozebiz/render_loop.go 里那一对，语料实证 X70 原生导出 =
+// （internal/backend/cozebiz/（商业仓）render_loop.go 里那一对，语料实证 X70 原生导出 =
 // 声明 {output} + 绑定 path 落 output）—— 按同一对放行，不另立映射。
 func refPortMatchesEnvelopeKey(refOut, key string) bool {
 	if refOut == key {

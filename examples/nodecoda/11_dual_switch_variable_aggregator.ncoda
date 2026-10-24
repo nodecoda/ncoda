@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 11_dual_switch_variable_aggregator.ncoda
-// Dify YAML: examples/yaml/dual_switch_variable_aggregator_workflow.yml
 //
 // Flow: Start(switch1, switch2) →
 //   IF(switch1==1) → template "switch 1 on" / "switch 1 off" → agg Group1

@@ -200,9 +200,9 @@ var NodeTypeByID = map[string]NodeType{
 	// 16 / 23 / 65 都是 coze-biz canvas 面的**真实码**（2026-09-30 一手复算：
 	// 350 份 workflow.json 里 16×165 图像生成 · 23×112 画板 · 65×10 视频生成，
 	// 65 的 nodeMeta.title 全为「视频生成」）。**65 是 coze-biz 的扩展码**
-	// （开源名册 internal/backend/coze/node_type.go 无此码）。
+	// （开源名册 internal/backend/coze/（商业仓）node_type.go 无此码）。
 	// yaml 侧适配器（platforms/cozebiz/decompile/adapter.go::YamlTypeToCanvasID）
-	// 走具名枚举，与数字码**同解**；码面权威 = internal/backend/cozebiz/
+	// 走具名枚举，与数字码**同解**；码面权威 = internal/backend/cozebiz/（商业仓）
 	// node_types.go::NodeTypeTable；两侧同解由判据
 	// platforms/cozebiz/decompile/canvas_numeric_code_contract_test.go 锁住。
 	"65":   NodeTypeVideoGeneration,

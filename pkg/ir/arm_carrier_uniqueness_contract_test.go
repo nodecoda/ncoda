@@ -21,7 +21,7 @@ package ir
 //
 // 本文件锁**规则本身**（与遍历序无关）：`canonicalizeSplicedCandidates` 必须在
 // 门控后按值的来源身份去重，且同臂同源已有载体时必须**复用**而不是再铸一份。
-// 端到端面（值表 + 逐字节确定性）见 internal/runtime/compile 的
+// 端到端面（值表 + 逐字节确定性）见 internal/runtime/（商业仓）compile 的
 // `nested_chain_depth2_contract_test.go`；正本 = J §46。
 
 import "testing"

@@ -1,6 +1,5 @@
 @language nodecoda/1
 // 30_workflow_llm.ncoda
-// Dify YAML: examples/dify/workflow_llm.yml
 //
 // Flow: Start(question) → LLM(gpt-4o) → End(answer)
 // Pattern: Workflow mode LLM with question input

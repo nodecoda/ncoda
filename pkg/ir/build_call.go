@@ -565,7 +565,7 @@ func (g *Builder) emitVarDeclAs(s *ast.VarDeclStmt, prevIDs []string, firstPort 
 		if ferr != nil {
 			return nil, firstPort, ferr
 		}
-		mode, ok := cozeOnErrorMode(in.OnError())
+		mode, ok := onErrorWire(g.caps, in.OnError())
 		if !ok {
 			return nil, firstPort, &UnsupportedError{Construct: "parallel for on_error " + in.OnError()}
 		}
