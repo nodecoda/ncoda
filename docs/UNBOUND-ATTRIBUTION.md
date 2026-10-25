@@ -55,7 +55,7 @@ libraries:
     evidence: "header desc「字幕音频对齐」表明需要远程服务"
   audio_timeline_merge:
     class: local-todo
-    evidence: "纯时间线算术（header 输入是 main_timeline/pre_timeline，不涉及音频解码）；10 个输出字段（all_* / gap_us_timeline / contact）的排布语义未由语料消费面证实，暂不实现。原归因写「需要解码音频时长」与 header 不符，已纠正"
+    evidence: "纯时间线算术已确认；语料 JS（7535503584906215458:247）以 all_timeline[0].start 为基准，要求 pre 是 all 的前缀；gap_us_timeline 与 mp3_urls 一一对应（每个 gap 一段）。仍未证实 gap 的插入位置（pre/main 之间 还是 main 段之间）与 all_* 的包含关系，猜错会静默污染下游时间线，故暂不实现"
   audio_toolkit:
     class: env-missing
     evidence: "需要真实音频编解码（ffmpeg 级）；本仓只做 WAV 生成/时长读取"
@@ -390,7 +390,7 @@ libraries:
     evidence: "header desc「视频生成（内置节点 doubao-seedance;动态输入 + 静态配置透传,输出 video）」表明需要远程服务"
   video_image_split:
     class: local-todo
-    evidence: "header 输入只有 texts / image_num / video_num / timelines，不涉及媒体解码；真正未知的是 image_Arr_String / video_Arr_String 的内容与槽位分配规则（无语料证据）。可实现但语义待证；原归因「需要真实媒体处理」与 header 不符，已纠正"
+    evidence: "video_imge_split 把文案拆成 image_text/video_text 并给出计数；Video_Image_Merging 用 image_num/video_num 把每条 timeline 切成图片/视频槽位。槽位顺序与 image_Arr_String 的内容无语料证据，暂不实现"
   video_montage:
     class: env-missing
     evidence: "混剪需要真实媒体处理"
