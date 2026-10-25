@@ -24,7 +24,7 @@ LIBRARIES = [
     {"library": "capcut_draft_data",
      "functions": ["timelines", "str_to_list", "caption_splitter"]},
     {"library": "capcut_data",
-     "functions": ["timeline_keyframe"]},
+     "functions": ["timeline_keyframe", "asr_timelines"]},
 ]
 
 
@@ -63,6 +63,19 @@ def as_text(v, name="arg"):
     if isinstance(v, (int, float)):
         return str(v)
     raise ValueError("%s: want string, got %s" % (name, type(v).__name__))
+
+
+def as_float(v, default=0.0, name="arg"):
+    if v in (None, "", 0):
+        return default
+    if isinstance(v, bool):
+        return float(v)
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(str(v).strip())
+    except (TypeError, ValueError):
+        raise ValueError("%s: want number, got %r" % (name, v))
 
 
 def as_items(v, name="arg"):
@@ -232,11 +245,45 @@ def fn_timeline_keyframe(args):
     return {"offsets": offsets, "values": values}
 
 
+# ── capcut_data.asr_timelines ────────────────────────────────────────────
+
+ASR_US_PER_SECOND = 1_000_000
+
+
+def fn_asr_timelines(args):
+    """ASR content_chunks（秒）→ texts + 微秒时间线。
+
+    证据：语料 `7599126239110774822` 声明了 chunk 形状
+    `{end_time: float, index: string, start_time: float, text: string}`，
+    并把 `asr_timelines(...).timelines` 赋给 `array<{start:int,end:int}>`。
+    """
+    chunks = as_items(arg(args, "content_chunks"), "content_chunks")
+    texts, timelines = [], []
+    for i, ch in enumerate(chunks):
+        if not isinstance(ch, dict):
+            raise ValueError("content_chunks[%d]: want object, got %s" % (i, type(ch).__name__))
+        if "start_time" in ch or "end_time" in ch:
+            start = int(round(as_float(ch.get("start_time"), name="start_time") * ASR_US_PER_SECOND))
+            end = int(round(as_float(ch.get("end_time"), name="end_time") * ASR_US_PER_SECOND))
+        else:
+            # 兜底：已经是微秒的 start/end（语料未见，loss 已写明）
+            start = as_int(ch.get("start"), name="start")
+            end = as_int(ch.get("end"), name="end")
+        if end < start:
+            start, end = end, start
+        texts.append(as_text(ch.get("text", ""), "text"))
+        timelines.append({"start": start, "end": end})
+    # all_timelines 无语料证据表明与 timelines 不同 ⇒ 别名（清单写 loss）。
+    return {"texts": texts, "timelines": timelines,
+            "all_timelines": [dict(t) for t in timelines]}
+
+
 HANDLERS = {
     "capcut_draft_data.timelines": fn_timelines,
     "capcut_draft_data.str_to_list": fn_str_to_list,
     "capcut_draft_data.caption_splitter": fn_caption_splitter,
     "capcut_data.timeline_keyframe": fn_timeline_keyframe,
+    "capcut_data.asr_timelines": fn_asr_timelines,
 }
 
 

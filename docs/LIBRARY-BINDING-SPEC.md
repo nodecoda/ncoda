@@ -46,8 +46,8 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号        74（内建 32 + 进程外 42）
-未绑定符号       238（remote-api 152 / server-state 38 / schema-unknown 24 / env-missing 23 / local-todo 1）
+已绑定符号        75（内建 32 + 进程外 43）
+未绑定符号       237（remote-api 152 / server-state 38 / schema-unknown 23 / env-missing 23 / local-todo 1）
 local-todo         1（audio_timeline_merge.timeline_merge：纯算术，输出字段语义待证）
 ```
 
@@ -225,7 +225,7 @@ after(local):complete_exec 168 · complete_real 86 · symbols_bound 21 · unboun
 after(plugin):plugin_bound 8（capcut_data 7 real + 1 partial）        · unbound 281
 after(D-1):  local 22（+ capcut_video_compose.get_audio_duration）    · unbound 280
 after(fill): local 32 · plugin 38（4 个插件 / 38 符号）               · unbound 242
-after(timeline): plugin 42（5 个插件 / 42 符号）                      · unbound 238
+after(timeline): plugin 43（5 个插件 / 43 符号）                      · unbound 237
              complete_exec 171 · complete_real 86 · local-todo 1
 ```
 
@@ -334,7 +334,7 @@ after(timeline): plugin 42（5 个插件 / 42 符号）                      · 
 > `plugins/compose_toolkit/`（2 库 18 符号）、`plugins/codel_toolkit/`（1 库 2 符号）；
 > 内建 timer 家族 + 本地文档读取（`file_read` / `text_file_reader` /
 > `document_to_text` / `document_reader`）共 10 个符号；`plugins/timeline_toolkit/`
-> （2 库 4 符号，全部 partial）补时间线/字幕纯函数。插件符号合计 42，全部
+> （2 库 5 符号，全部 partial）补时间线/字幕纯函数。插件符号合计 43，全部
 > 登记在 `plugins/*/ncoda-plugin.yaml`。
 
 

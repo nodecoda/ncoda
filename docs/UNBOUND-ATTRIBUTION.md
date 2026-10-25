@@ -79,7 +79,7 @@ libraries:
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
   capcut_data:
     class: schema-unknown
-    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos/asr_timelines/search_sticker 无语料可证 schema；timeline_keyframe 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
+    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos/search_sticker 无语料可证 schema；timeline_keyframe / asr_timelines 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
   capcut_data_fast:
     class: schema-unknown
     evidence: "与 capcut_data 同族的 *_infos 生成器：草稿 JSON 片段，无 schema 证据"

@@ -766,3 +766,54 @@ function main() -> any {
 		t.Fatalf("stderr must name the failing symbol/contract: %s", errs)
 	}
 }
+
+// asr_timelines：语料 7599126239110774822 声明了 chunk 形状
+// {end_time:float, index:string, start_time:float, text:string}，且把结果赋给
+// array<{start:int,end:int}>。这里用 json.parse 构造同一形状，断言秒→微秒。
+func TestAsrTimelinesPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_data";
+
+type Chunk = {
+  float start_time;
+  float end_time;
+  string text;
+};
+
+function main() -> any {
+    let chunks = json.parse<array<Chunk>>("[{\"start_time\":0.5,\"end_time\":1.25,\"text\":\"a\"},{\"start_time\":1.25,\"end_time\":2.0,\"text\":\"b\"}]");
+    let a = capcut_data.asr_timelines({ "content_chunks": chunks });
+    return { "texts": a.texts, "timelines": a.timelines, "all": a.all_timelines };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Texts     []string                     `json:"texts"`
+		Timelines []struct{ Start, End int64 } `json:"timelines"`
+		All       []struct{ Start, End int64 } `json:"all"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Texts) != 2 || got.Texts[0] != "a" || got.Texts[1] != "b" {
+		t.Fatalf("texts = %v", got.Texts)
+	}
+	if len(got.Timelines) != 2 || got.Timelines[0].Start != 500000 ||
+		got.Timelines[0].End != 1250000 || got.Timelines[1].End != 2000000 {
+		t.Fatalf("timelines = %+v", got.Timelines)
+	}
+	if len(got.All) != len(got.Timelines) {
+		t.Fatalf("all_timelines = %+v", got.All)
+	}
+}

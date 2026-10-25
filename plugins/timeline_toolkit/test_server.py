@@ -134,5 +134,53 @@ class TimelineKeyframeTest(unittest.TestCase):
         self.assertEqual(server.fn_timeline_keyframe({}), {"offsets": [], "values": []})
 
 
+class AsrTimelinesTest(unittest.TestCase):
+    def test_seconds_become_microseconds(self):
+        got = server.fn_asr_timelines({"content_chunks": [
+            {"start_time": 0.5, "end_time": 1.25, "text": "你好", "index": "1"},
+        ]})
+        self.assertEqual(got["timelines"], [{"start": 500000, "end": 1250000}])
+        self.assertEqual(got["texts"], ["你好"])
+
+    def test_order_and_texts_preserved(self):
+        got = server.fn_asr_timelines({"content_chunks": [
+            {"start_time": 0, "end_time": 1, "text": "a"},
+            {"start_time": 1, "end_time": 2, "text": "b"},
+        ]})
+        self.assertEqual(got["texts"], ["a", "b"])
+        self.assertEqual([t["start"] for t in got["timelines"]], [0, 1000000])
+
+    def test_all_timelines_is_alias_but_not_shared_object(self):
+        got = server.fn_asr_timelines({"content_chunks": [
+            {"start_time": 0, "end_time": 1, "text": "a"},
+        ]})
+        self.assertEqual(got["all_timelines"], got["timelines"])
+        self.assertIsNot(got["all_timelines"][0], got["timelines"][0])
+
+    def test_fallback_to_microsecond_start_end(self):
+        got = server.fn_asr_timelines({"content_chunks": [
+            {"start": 10, "end": 20, "text": "x"},
+        ]})
+        self.assertEqual(got["timelines"], [{"start": 10, "end": 20}])
+
+    def test_reversed_chunk_is_normalised(self):
+        got = server.fn_asr_timelines({"content_chunks": [
+            {"start_time": 2, "end_time": 1, "text": "x"},
+        ]})
+        self.assertEqual(got["timelines"], [{"start": 1000000, "end": 2000000}])
+
+    def test_missing_text_is_empty_not_error(self):
+        got = server.fn_asr_timelines({"content_chunks": [{"start_time": 0, "end_time": 1}]})
+        self.assertEqual(got["texts"], [""])
+
+    def test_negative_control_non_object_chunk_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_asr_timelines({"content_chunks": ["x"]})
+
+    def test_empty(self):
+        self.assertEqual(server.fn_asr_timelines({}),
+                         {"texts": [], "timelines": [], "all_timelines": []})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

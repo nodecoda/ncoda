@@ -11,6 +11,7 @@
 | `capcut_draft_data` | `str_to_list` | partial | header 返回 `{result: array<string>}`；语料把单个 `bgm_url` 传进来，消费 `.result` 作为 urls 列表 |
 | `capcut_draft_data` | `caption_splitter` | partial | header 返回 `{texts[], timelines[]}`；语料 `max_char_count=12`，输出直接进 `text_infos(texts, timelines)` |
 | `capcut_data` | `timeline_keyframe` | partial | header 返回 `{offsets: array<string>, values: array<string>}`；语料 `presetOffsets="0|100"`，输出 `json.stringify` 后进 `add_keyframe` |
+| `capcut_data` | `asr_timelines` | partial | 语料 `7599126239110774822` 声明 chunk 形状 `{end_time:float, index:string, start_time:float, text:string}`，结果赋给 `array<{start:int,end:int}>`（µs） |
 
 ## 取舍（loss）
 

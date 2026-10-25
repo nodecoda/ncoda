@@ -27,3 +27,5 @@ libraries:
     functions:
       - name: timeline_keyframe
         loss: "偏移按每条时间线内的百分比线性插值（0%→start，100%→end），多段时间线顺序拼接；原实现的绝对/相对基准与去重策略未证实"
+      - name: asr_timelines
+        loss: "start_time/end_time 按「秒」×1e6 转微秒（语料把结果赋给 int 时间线）；all_timelines 暂为 timelines 的别名（无语料证据表明两者不同）；chunk 顺序按输入顺序，index 字段不参与排序"
