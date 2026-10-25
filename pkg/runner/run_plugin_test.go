@@ -673,3 +673,96 @@ func TestShippedPluginsExposeAllDeclaredSymbols(t *testing.T) {
 		}
 	}
 }
+
+// timeline_toolkit：纯时间线/字幕函数必须能从仓库内 plugins/ 直接驱动。
+// 正控覆盖 4 个符号；负控（参数类型错）证明契约错误以非 0 暴露而不是静默空值。
+func TestTimelineToolkitPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_draft_data";
+import "capcut_data";
+
+function main() -> any {
+    let t = capcut_draft_data.timelines({ "duration": 3000000, "number": 3 });
+    let l = capcut_draft_data.str_to_list({ "value": "a\nb\nc" });
+    let c = capcut_draft_data.caption_splitter({ "max_char_count": 4, "texts": ["abcdefgh"], "timelines": t.timelines });
+    let k = capcut_data.timeline_keyframe({ "presetOffsets": "0|100", "presetValues": "-1540|1540", "timelines": t.timelines });
+    return { "segments": t.timelines, "end": t.end, "list": l.result,
+             "chunks": c.texts, "offsets": k.offsets, "values": k.values };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Segments []struct{ Start, End int64 } `json:"segments"`
+		End      int64                        `json:"end"`
+		List     []string                     `json:"list"`
+		Chunks   []string                     `json:"chunks"`
+		Offsets  []string                     `json:"offsets"`
+		Values   []string                     `json:"values"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Segments) != 3 || got.Segments[0].Start != 0 || got.Segments[2].End != 3000000 {
+		t.Fatalf("segments = %+v", got.Segments)
+	}
+	for i := 1; i < len(got.Segments); i++ {
+		if got.Segments[i-1].End != got.Segments[i].Start {
+			t.Fatalf("gap between segments: %+v", got.Segments)
+		}
+	}
+	if got.End != 3000000 {
+		t.Fatalf("end = %d", got.End)
+	}
+	if len(got.List) != 3 || got.List[0] != "a" || got.List[2] != "c" {
+		t.Fatalf("list = %v", got.List)
+	}
+	if len(got.Chunks) != 2 || got.Chunks[0] != "abcd" || got.Chunks[1] != "efgh" {
+		t.Fatalf("chunks = %v", got.Chunks)
+	}
+	// header 是 array<string>：偏移/取值必须以字符串过线。
+	if len(got.Offsets) != 6 || got.Offsets[0] != "0" || got.Offsets[5] != "3000000" {
+		t.Fatalf("offsets = %v", got.Offsets)
+	}
+	if len(got.Values) != 6 || got.Values[0] != "-1540" || got.Values[1] != "1540" {
+		t.Fatalf("values = %v", got.Values)
+	}
+}
+
+// 负控：把容器传给声明为 string 的参数，必须是退出码 1（运行期契约错误），
+// 不能被降级成空字符串静默通过。
+func TestTimelineToolkitBadArgsStaysRed(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_draft_data";
+
+function main() -> any {
+    let l = capcut_draft_data.str_to_list({ "value": { "url": "u" } });
+    return l.result;
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc == 0 {
+		t.Fatalf("rc=0, want non-zero; out=%s", out)
+	}
+	if !strings.Contains(errs, "str_to_list") && !strings.Contains(errs, "invalid-args") {
+		t.Fatalf("stderr must name the failing symbol/contract: %s", errs)
+	}
+}

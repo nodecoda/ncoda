@@ -317,7 +317,7 @@ make plugin-selftest
 
 ---
 
-## 12. 试点记录（已发布 4 个插件 / 38 个符号）
+## 12. 试点记录（已发布 5 个插件 / 42 个符号）
 
 | 插件 | 实现的库 | 符号 | `real` | `partial` | 关键证据 |
 |---|---|---:|---:|---:|---|
@@ -325,6 +325,7 @@ make plugin-selftest
 | `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` | 9 | 4 | 5 | 12～5 个调用文件；纯文本/数组变换，不触网 |
 | `plugins/compose_toolkit` | `capcut_helper` `suchuang_video_compose` | 18 | 3 | 15 | `corpus/7580659724749865001`、`7576926169774653449` 等；纯列表/时间轴变换 |
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
+| `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` | 4 | 0 | 4 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe`，分配/断句规则未证实 |
 
 **共享实现、独立契约**：`capcut_helper` / `suchuang_video_compose` 的同名函数
 （`text_splitter` / `timeline_merge` / `wenan_timeline_range` / `audio_link_collector`）
@@ -333,8 +334,8 @@ make plugin-selftest
 与同库 `real` 共存；`complete_real` 不因 partial 上升。
 
 **保持 unbound（有证据的拒绝，不是遗漏）**：
-- `capcut_data` 的 `*_infos` / `keyframes_infos` / `asr_timelines` / `search_sticker` /
-  `timeline_keyframe`：需要草稿 JSON schema 或网络；
+- `capcut_data` 的 `*_infos` / `keyframes_infos` / `asr_timelines` / `search_sticker`：
+  需要草稿 JSON schema 或网络（`timeline_keyframe` 已由 `timeline_toolkit` 以 partial 实现）；
 - `suchuang_video_compose` 的 `audio_timelines` / `video_timelines` /
   `get_audio_duration`：依赖服务端音频/视频探测；
 - `codel_video.keyframe_ani_scene_v1`：收 `api_token`、返回 `tip_url`，远程服务。

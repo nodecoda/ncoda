@@ -1,0 +1,29 @@
+schema: ncoda.plugin/v1
+id: timeline-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 证据：header 的返回类型是具体结构（不是不透明的 infos JSON 字符串），
+  # 语料调用点给出参数名与消费面。分配/断句规则未由语料证实 ⇒ 全部 partial。
+  - library: capcut_draft_data
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：仅实现 timelines / str_to_list / caption_splitter 三个纯函数；*_infos 依赖 CapCut 草稿 JSON schema，仍不实现"
+    functions:
+      - name: timelines
+        loss: "语料只出现 number=1；number>1 时按整数等分且余数并入末段。原实现的分配规则与 $type 语义未证实"
+      - name: str_to_list
+        loss: "只做 JSON 数组字符串解析与按行拆分；逗号/分号/空格等分隔符规则未由语料证实（单行输入原样作为单元素）"
+      - name: caption_splitter
+        loss: "按 max_char_count 硬切（不按标点断句），再按各段字符数比例分摊该条文本的 [start,end]；texts 与 timelines 数量不等时缺省时间段记 [0,0]"
+  - library: capcut_data
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：只补 timeline_keyframe 一个纯函数；其余 *_infos / audio_timelines 需要草稿 schema 或音频解码，仍不实现"
+    functions:
+      - name: timeline_keyframe
+        loss: "偏移按每条时间线内的百分比线性插值（0%→start，100%→end），多段时间线顺序拼接；原实现的绝对/相对基准与去重策略未证实"

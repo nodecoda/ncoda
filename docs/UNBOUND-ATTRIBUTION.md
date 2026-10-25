@@ -54,8 +54,8 @@ libraries:
     class: remote-api
     evidence: "header desc「字幕音频对齐」表明需要远程服务"
   audio_timeline_merge:
-    class: env-missing
-    evidence: "需要解码音频时长；MP3 只支持 CBR 估算（同 audio_duration 的 loss）"
+    class: local-todo
+    evidence: "纯时间线算术（header 输入是 main_timeline/pre_timeline，不涉及音频解码）；10 个输出字段（all_* / gap_us_timeline / contact）的排布语义未由语料消费面证实，暂不实现。原归因写「需要解码音频时长」与 header 不符，已纠正"
   audio_toolkit:
     class: env-missing
     evidence: "需要真实音频编解码（ffmpeg 级）；本仓只做 WAV 生成/时长读取"
@@ -79,7 +79,7 @@ libraries:
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
   capcut_data:
     class: schema-unknown
-    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos/asr_timelines/search_sticker/timeline_keyframe 无语料可证 schema"
+    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos/asr_timelines/search_sticker 无语料可证 schema；timeline_keyframe 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
   capcut_data_fast:
     class: schema-unknown
     evidence: "与 capcut_data 同族的 *_infos 生成器：草稿 JSON 片段，无 schema 证据"
@@ -88,7 +88,7 @@ libraries:
     evidence: "与 D-1 同族：草稿创建/保存"
   capcut_draft_data:
     class: schema-unknown
-    evidence: "草稿数据生成（audio_infos/timelines/text_infos 等）：草稿 JSON 片段，无 schema 证据"
+    evidence: "timelines / str_to_list / caption_splitter 已由 plugins/timeline_toolkit 实现（partial，分配/断句规则 loss 见清单）；audio_infos / text_infos / image_infos / keyframe_infos / video_infos 返回草稿 JSON 片段，无 schema 证据"
   capcut_draft_folder:
     class: server-state
     evidence: "与 D-1 同族：草稿文件夹（add_* 以 draft id 串联）"

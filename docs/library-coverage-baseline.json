@@ -3,7 +3,7 @@
  "corpus_size": 869,
  "complete_exec": 171,
  "complete_real": 86,
- "symbols_unbound": 242,
- "symbols_bound_plugin": 38,
- "reason": "插件补齐第二刀：capcut_data 增 timelines_format，compose_toolkit 增 timeline_align，新增 codel_toolkit（split_list/merge_list）；plugin_bound 34→38（计划目标≥38），unbound 244→242，complete_exec 171 / complete_real 86 不变（新增均为 partial 或语料无调用，不假涨）"
+ "symbols_unbound": 238,
+ "symbols_bound_plugin": 42,
+ "reason": "timeline_toolkit 绑定 capcut_draft_data.{timelines,str_to_list,caption_splitter} 与 capcut_data.timeline_keyframe 共 4 个纯函数符号（partial+loss）；plugin_bound 38→42，unbound 242→238，complete_real 不变"
 }
