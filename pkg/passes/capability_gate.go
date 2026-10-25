@@ -713,6 +713,13 @@ func (p *CapabilityGatePass) visitCallExpr(node *ast.CallExpr) ast.Visitor {
 
 // rejected mirrors _rejected (:491-493).
 func (p *CapabilityGatePass) rejected(shape CapabilityShape) bool {
+	// An explicitly empty capability manifest is the target-free language
+	// lane: no model is declared, so absence of an entry is not a rejection.
+	// A non-empty manifest keeps the closed-world contract (an undeclared
+	// shape is not carried by the target).
+	if p.ctx.Profile.NoCapabilityModel() {
+		return false
+	}
 	return p.manifest.Lookup(shape).State == CapabilityStateRejected
 }
 

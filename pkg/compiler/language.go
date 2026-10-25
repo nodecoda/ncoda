@@ -23,13 +23,14 @@ import (
 const TargetLanguageOnly = "__none__"
 
 // neutralLanguageProfile is the frontend profile for TargetLanguageOnly.
-// Capabilities are an empty closed world because the language lane must not
+// Capabilities are an explicit empty model because the language lane must not
 // consult any platform model; a program that needs a capability verdict
-// belongs to a target lane.
+// belongs to a target lane. TargetProfile.NoCapabilityModel makes the empty
+// table mean "no target", not "every shape is rejected".
 func neutralLanguageProfile() *passes.TargetProfile {
 	p := passes.DefaultTargetProfile()
 	p.Name = TargetLanguageOnly
-	p.Capabilities = passes.DefaultCapabilityManifest()
+	p.Capabilities = passes.LanguageOnlyCapabilityManifest()
 	// Nothing target-specific is carried: the language lane answers "does
 	// this program mean something?", never "can a product hold it?".
 	p.Carrier = passes.LanguageCarrier()

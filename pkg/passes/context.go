@@ -133,6 +133,15 @@ func DefaultTargetProfile() *TargetProfile {
 	}
 }
 
+// NoCapabilityModel reports whether the profile explicitly declares an empty
+// capability manifest — the target-free language lane. A nil profile or a nil
+// manifest keeps the historical default-manifest fallback; only an explicit
+// empty table means "no target model", where absence of an entry must not be
+// read as a target rejection.
+func (p *TargetProfile) NoCapabilityModel() bool {
+	return p != nil && p.Capabilities != nil && p.Capabilities.Len() == 0
+}
+
 // Context is the shared state threaded through every pass, mirroring
 // base.py DSLPassContext (base.py:200-243). Surfaces available in the Go
 // port:

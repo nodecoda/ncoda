@@ -232,6 +232,14 @@ func NewCapabilityManifest(version string, entries map[CapabilityShape]Capabilit
 	return &CapabilityManifest{Version: version, entries: newCapabilityEntryTable(entries)}
 }
 
+// LanguageOnlyCapabilityManifest is the target-free language lane's
+// capability surface: an explicit empty manifest. TargetProfile.
+// NoCapabilityModel reads it as "no platform model", so the language frontend
+// never rejects a language-legal construct for want of a capability entry.
+func LanguageOnlyCapabilityManifest() *CapabilityManifest {
+	return NewCapabilityManifest("language-only", nil)
+}
+
 // Lookup returns the declared entry or the immutable closed-world rejection,
 // mirroring CapabilityManifest.lookup (capabilities.py:132-134).
 func (m *CapabilityManifest) Lookup(shape CapabilityShape) CapabilityEntry {

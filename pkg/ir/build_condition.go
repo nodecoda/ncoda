@@ -862,6 +862,30 @@ func portTypeOfNode(n Node, output string) *Type {
 				return t
 			}
 		}
+	case *SubWorkflowCall:
+		// Subflow 声明调用的输出口 = 声明里的 output 字段（OutTypes）。
+		// 没有这条端口契约时，`v.text` / `v.timelines[0].start` 会被
+		// refType 判成「producer kind "sub_workflow" has no typed conclusion
+		// and no port contract」——那是 N-LANG-3 的 IR 类型缺口，不是语言
+		// 错误。字段名即口名；record 字段的下钻走同一把 portFieldType 尺子。
+		if t, ok := nd.OutTypes[output]; ok {
+			return t
+		}
+		// 数组元素的成员链：`v.timelines[0].start` 的常量下标在引用路径里
+		// 被折叠掉（E5-b），端口名因此是 `timelines.start`。先按首段取声明
+		// 口，再按同一把 dottedAggGroupField 尺子下钻（list 先取元素）。
+		if i := strings.Index(output, "."); i > 0 {
+			if base, ok := nd.OutTypes[output[:i]]; ok {
+				if t := dottedAggGroupField(base, output[i+1:]); t != nil {
+					return t
+				}
+				return base
+			}
+		}
+		if t := portFieldType(TObject(nd.OutTypes), output); t != nil {
+			return t
+		}
+		return nil
 	case *QA:
 		// QA 的输出口 = 表单字段（含 record 字段的下钻口 `priority.value`）。
 		// 逐段下钻与其它声明口宿主同一条规则（portFieldType）：只做精确键匹配

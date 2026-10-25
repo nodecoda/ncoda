@@ -488,9 +488,12 @@ func (b *binder) run() {
 		// which backend binding may satisfy the import; it is a build-time
 		// concern (--target), never a language concept
 		// (docs/SYMBOL-SPEC.md: ncoda does not know about bindings).
-		// Unknown qualifiers are still rejected so a typo cannot silently
-		// misroute bindings; validation lives here so it holds even without
-		// --tool-path.
+		// Only the *shape* is validated here (importns.Split): a bare import
+		// and a shape-valid qualifier naming a platform the target does not
+		// serve are both legal. Whether a qualifier is satisfiable is an
+		// adapter build-time question (UNSUPPORTED_BY_TARGET, rc=3), never a
+		// language error (SEM-S10-13). Shape validation lives here so it
+		// holds even without --tool-path.
 		raw := imp.Provider()
 		_, name, serr := importns.Split(raw)
 		if serr != nil {

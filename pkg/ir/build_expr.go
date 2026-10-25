@@ -257,6 +257,9 @@ func (g *Builder) isMaterializableOperation(call *ast.CallExpr) bool {
 	switch name {
 	case "llm", "http", "knowledge", "split", "extract":
 		return true
+		// json.parse is deliberately NOT listed: an unused `json.parse<T>(x);`
+		// statement is pure (no effects) and must stay node-free. Its value
+		// positions are handled by emitValueExpr's explicit branch (R-216).
 	}
 	return g.isQualifiedToolCall(call)
 }
@@ -740,6 +743,18 @@ func (g *Builder) emitValueExpr(prevIDs []string, firstPort string, portOnLast b
 				return varRef{}, cerr
 			}
 			g.recordPlacement(ref.nodeID, placementConstruct("calc", calleeName(e.Func())), PlacementShim, placementReason(PlacementCauseNoNativeNode, "no native node for generic form"))
+			return ref, nil
+		}
+		if calleeName(e.Func()) == "json.parse" {
+			// R-216: the same primitive must lower in every value position,
+			// not just when bound to a let. materializeCall is the single
+			// producer path the let / statement lanes already use, so the
+			// shim shape (record vs array, JSONSchema, placement record)
+			// cannot drift between positions.
+			_, ref, merr := g.materializeCall(e, prevIDs, firstPort)
+			if merr != nil {
+				return varRef{}, merr
+			}
 			return ref, nil
 		}
 		if calleeName(e.Func()) == "json.stringify" {

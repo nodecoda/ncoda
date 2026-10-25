@@ -28,7 +28,7 @@ function main(string payload) -> object {
 }
 `
 
-// 不支持形态：直接写在 return 里。见残债 R-216（kernel v0.6.0 值调用分支）。
+// 直接写在 return 里：R-216 收口后，return 位置与 let 绑定必须同权。
 const jsonParseShimReturnSrc = `@language nodecoda/1
 @mode workflow
 
@@ -67,10 +67,8 @@ func TestJsonParseShimContract(t *testing.T) {
 	}
 }
 
-// TestJsonParseInReturnPositionIsUnsupported 记录 **当前** 的缺口（R-216）：
-// 同一个原语，绑定到 let 就 lowering 成 shim，直接放 return 就是 unsupported。
-// 这是 characterization test —— kernel 修好后它会变红，届时应改成正侧断言
-// 并删掉 R-216。
+// TestJsonParseInReturnPositionIsSupported 锁定 R-216 的收口：
+// 同一个原语，绑到 let、写在 return、作为实参，三种位置必须同权。
 // findMapWithKey 在输出 map（可能被 end 节点 id 包一层）里找第一个含 key 的 map。
 func findMapWithKey(m map[string]any, key string) map[string]any {
 	if _, ok := m[key]; ok {
@@ -86,19 +84,60 @@ func findMapWithKey(m map[string]any, key string) map[string]any {
 	return nil
 }
 
-func TestJsonParseInReturnPositionIsUnsupported(t *testing.T) {
+func TestJsonParseInReturnPositionIsSupported(t *testing.T) {
 	res := passes.DefaultPipeline().Run(jsonParseShimReturnSrc, "repro.ncoda", nil)
 	if res.HasErrors() {
 		for _, d := range res.Errors() {
 			t.Logf("frontend: %s", d.Message)
 		}
-		t.Fatalf("frontend rejected the source (R-216 is an IR-level gap)")
+		t.Fatalf("frontend rejected the source")
 	}
-	_, err := ir.Build(res.Program)
-	if err == nil {
-		t.Fatal("return-position json.parse now compiles — kernel fixed R-216; flip this test and drop the residual")
+	if _, err := ir.Build(res.Program); err != nil {
+		t.Fatalf("return-position json.parse did not lower: %v", err)
 	}
-	if !strings.Contains(err.Error(), `value call "json.parse"`) {
-		t.Fatalf("diagnostic drifted: %v", err)
+
+	r := mustCompile(t, New(testRegistry()), qaLoopFromSource(t, jsonParseShimReturnSrc))
+	out := UnwrapOutput(mustInvoke(t, r, map[string]any{"payload": `{"jd_profile":{"role_title":"x"}}`}))
+	outer := findMapWithKey(out, "jd_profile")
+	if outer == nil {
+		t.Fatalf("out = %#v, want the parsed object under jd_profile", out)
+	}
+	if _, ok := outer["jd_profile"].(map[string]any); !ok {
+		t.Fatalf("jd_profile = %#v, want a parsed object", outer["jd_profile"])
+	}
+}
+
+// 实参位置：json.parse<T> 直接作为用户函数调用的参数，必须与 let / return
+// 同权（R-216 的第二种位置）。
+const jsonParseShimArgSrc = `@language nodecoda/1
+@mode workflow
+
+type Resp = { string name; };
+
+function pick(Resp r) -> string {
+    return r.name;
+}
+
+function main(string payload) -> string {
+    return pick(json.parse<Resp>(payload));
+}
+`
+
+func TestJsonParseInArgumentPositionIsSupported(t *testing.T) {
+	res := passes.DefaultPipeline().Run(jsonParseShimArgSrc, "repro.ncoda", nil)
+	if res.HasErrors() {
+		for _, d := range res.Errors() {
+			t.Logf("frontend: %s", d.Message)
+		}
+		t.Fatalf("frontend rejected the source")
+	}
+	if _, err := ir.Build(res.Program); err != nil {
+		t.Fatalf("argument-position json.parse did not lower: %v", err)
+	}
+
+	r := mustCompile(t, New(testRegistry()), qaLoopFromSource(t, jsonParseShimArgSrc))
+	out := UnwrapOutput(mustInvoke(t, r, map[string]any{"payload": `{"name":"A"}`}))
+	if got, _ := out["output"].(string); got != "A" {
+		t.Fatalf("pick(json.parse<Resp>(...)) = %#v, want \"A\"", out["output"])
 	}
 }

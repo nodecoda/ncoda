@@ -294,6 +294,16 @@ func (p *TargetValidationPass) Run(program *ast.Program, ctx *Context) {
 	ast.Walk(p, program)
 }
 
+// capabilityEnabled reports whether shape is enabled for this profile. An
+// explicit empty manifest is the target-free language lane: no shape is
+// target-rejected because no target model is declared.
+func (p *TargetValidationPass) capabilityEnabled(shape CapabilityShape) bool {
+	if p.ctx.Profile.NoCapabilityModel() {
+		return true
+	}
+	return p.manifest.Lookup(shape).State == CapabilityStateEnabled
+}
+
 // fileContractCapacityOf 目标 → 承载能力。**表外目标 = 零值（什么都不承载）**：
 // 加目标要显式加一行，这是有意的 —— 不发明能力。
 func fileContractCapacityOf(profile *TargetProfile) FileContractCarrier {
@@ -1429,8 +1439,7 @@ func (p *TargetValidationPass) validateExtractionCall(node *ast.CallExpr, ctx *C
 			)
 			return
 		}
-		memoryCapability := p.ctx.Profile.Capabilities.Lookup(CapabilityShapeStructuredExtractionMemory)
-		if memoryCapability.State != CapabilityStateEnabled {
+		if !p.capabilityEnabled(CapabilityShapeStructuredExtractionMemory) {
 			p.rejectAt(
 				fmt.Sprintf("%s is not lowerable by target '%s'",
 					CapabilityShapeStructuredExtractionMemory, p.ctx.Profile.Name),
@@ -1440,8 +1449,7 @@ func (p *TargetValidationPass) validateExtractionCall(node *ast.CallExpr, ctx *C
 		}
 	}
 	if visionExpr != nil {
-		visionCapability := p.ctx.Profile.Capabilities.Lookup(CapabilityShapeStructuredExtractionVision)
-		if visionCapability.State != CapabilityStateEnabled {
+		if !p.capabilityEnabled(CapabilityShapeStructuredExtractionVision) {
 			p.rejectAt(
 				fmt.Sprintf("%s is not lowerable by target '%s'",
 					CapabilityShapeStructuredExtractionVision, p.ctx.Profile.Name),
@@ -1466,8 +1474,7 @@ func (p *TargetValidationPass) validateExtractionCall(node *ast.CallExpr, ctx *C
 	if strategy == "function_call" {
 		capabilityShape = CapabilityShapeStructuredExtractionFunctionCall
 	}
-	capability := p.ctx.Profile.Capabilities.Lookup(capabilityShape)
-	if capability.State != CapabilityStateEnabled {
+	if !p.capabilityEnabled(capabilityShape) {
 		p.rejectAt(
 			fmt.Sprintf("%s is not lowerable by target '%s'", capabilityShape, p.ctx.Profile.Name),
 			node.Span(),
@@ -2768,7 +2775,7 @@ func (p *TargetValidationPass) visitAssignStmt(node *ast.AssignStmt) ast.Visitor
 		walkChildren()
 		return nil
 	}
-	if p.manifest.Lookup(CapabilityShapeStateAssignment).State != CapabilityStateEnabled {
+	if !p.capabilityEnabled(CapabilityShapeStateAssignment) {
 		p.reject("state.assignment is not certified for the selected target", node)
 		return nil
 	}
