@@ -27,6 +27,7 @@ library-coverage:
 
 library-coverage-check:
 	python3 scripts/library_coverage.py --check
+	python3 scripts/gen_stub_plugin.py --check
 
 # Unbound attribution is corpus-dependent too; keep it out of `check`.
 unbound-attribution-check:
@@ -112,7 +113,7 @@ dist:
 	  [ -d "$$d" ] || continue; \
 	  name=$$(basename "$$d"); \
 	  install -d "$(DIST)/plugins/$$name"; \
-	  find "$$d" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.py' -o -name '*.md' \) \
+	  find "$$d" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.py' -o -name '*.md' -o -name '*.json' \) \
 	    -exec install -m 0644 {} "$(DIST)/plugins/$$name/" \;; \
 	done
 	@install -m 0644 LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/

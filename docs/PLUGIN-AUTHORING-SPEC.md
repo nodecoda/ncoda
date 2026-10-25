@@ -317,7 +317,12 @@ make plugin-selftest
 
 ---
 
-## 12. 试点记录（已发布 6 个插件 / 61 个符号）
+## 12. 试点记录（已发布 7 个插件 / 312 个符号）
+
+其中 6 个是**真实现**插件（61 个 real/partial 符号），第 7 个 `corpus_stubs` 是
+**显式未实现层**（219 个 stub 符号）：让语料能 import、能列出符号，调用时以
+`NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` 失败。它不是实现，账本单列
+`symbols_bound_stub`，且只许降。
 
 | 插件 | 实现的库 | 符号 | `real` | `partial` | 关键证据 |
 |---|---|---:|---:|---:|---|
@@ -327,6 +332,7 @@ make plugin-selftest
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
 | `plugins/table_toolkit` | `super_table` | 2 | 1 | 1 | 语料把 `get_url` 用在纯文本/ID 上（`7531679871563989002:48,58`），紧跟 `str_list` 展平喂 `save_list`/`tts` ⇒ 纯 wire 助手，不是远程服务 |
 | `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` `capcut_data_fast` | 19 | 0 | 19 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |
+| `plugins/corpus_stubs` | 128 个尚未实现的库（共 133 个库 / 219 符号） | 219 | 0 | 219（全部 `stub`） | 由 `scripts/gen_stub_plugin.py` 从 `docs/UNBOUND-ATTRIBUTION.md` 生成；每个符号带 `<class>: <证据>`，调用只报错不返值 |
 
 **共享实现、独立契约**：`capcut_helper` / `suchuang_video_compose` 的同名函数
 （`text_splitter` / `timeline_merge` / `wenan_timeline_range` / `audio_link_collector`）
@@ -334,7 +340,12 @@ make plugin-selftest
 `partial` 一律用**函数级 fidelity** 声明（清单 `functions: [{name, fidelity, loss}]`），
 与同库 `real` 共存；`complete_real` 不因 partial 上升。
 
-**保持 unbound（有证据的拒绝，不是遗漏）**：
+**stub 层的三条硬约束**（`plugins/corpus_stubs/test_server.py` 是判据）：
+1. 清单与符号表同源生成，`scripts/gen_stub_plugin.py --check` 漂移即红；
+2. 每个符号的 `loss` = `<闭集 class>: <证据>`，空证据/`other` 类加载即拒绝；
+3. stub 调用只允许产出 JSON-RPC `error`，任何返回值都会让判据变红（负控已验证）。
+
+**尚未实现、以 stub 占位（有证据的拒绝，不是遗漏）**：
 - `capcut_data` / `capcut_data_fast`：语料调用的符号已全部绑定（`*_infos` 的 schema
   由语料手写结构固定；样式字段不写入 infos，见 loss）；`search_sticker` 无语料调用，
   仍是网络服务；

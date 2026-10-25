@@ -222,6 +222,47 @@ class AttributeGateTest(unittest.TestCase):
         finally:
             ua.BASELINE, ua.analyze = old_base, old_analyze
 
+    def test_stub_binding_keeps_the_symbol_in_the_attribution_ledger(self) -> None:
+        """stub 只是能加载，不是实现：归因必须继续覆盖它。"""
+        tpath = os.path.join(self.root, "stub.md")
+        write(tpath, table("  b:\n    class: remote-api\n    evidence: \"needs network\"\n"))
+        cov = {"symbols_unbound": 0,
+               "libraries": {"b": {"missing": [], "called": ["f"], "files": 3,
+                                    "declared": 1, "bound": ["f"], "fidelity": "stub",
+                                    "unused_bound": []}}}
+        old = (ua.lc.analyze, ua.stub_symbols, ua.validate_overrides)
+        ua.lc.analyze = lambda *a, **k: cov
+        ua.stub_symbols = lambda: {"b": {"f"}}
+        ua.validate_overrides = lambda *a, **k: None
+        try:
+            r = ua.analyze(None, tpath)
+        finally:
+            ua.lc.analyze, ua.stub_symbols, ua.validate_overrides = old
+        self.assertEqual(r["unbound_symbols"], 0)
+        self.assertEqual(r["stub_symbols"], 1)
+        self.assertEqual(r["not_implemented_symbols"], 1)
+        self.assertEqual(r["unclassified"]["symbols"], 0)
+        self.assertEqual(r["by_class"]["remote-api"]["symbols"], 1)
+
+    def test_unattributed_stub_is_unclassified(self) -> None:
+        """负控：没有归因行的 stub 必须落进 unclassified（而不是被静默放行）。"""
+        tpath = os.path.join(self.root, "stub-missing.md")
+        write(tpath, table())
+        cov = {"symbols_unbound": 0,
+               "libraries": {"b": {"missing": [], "called": ["f"], "files": 1,
+                                    "declared": 1, "bound": ["f"], "fidelity": "stub",
+                                    "unused_bound": []}}}
+        old = (ua.lc.analyze, ua.stub_symbols, ua.validate_overrides)
+        ua.lc.analyze = lambda *a, **k: cov
+        ua.stub_symbols = lambda: {"b": {"f"}}
+        ua.validate_overrides = lambda *a, **k: None
+        try:
+            r = ua.analyze(None, tpath)
+        finally:
+            ua.lc.analyze, ua.stub_symbols, ua.validate_overrides = old
+        self.assertEqual(r["unclassified"]["symbols"], 1)
+        self.assertEqual(r["unclassified"]["symbol_rows"][0]["symbol"], "f")
+
     def test_main_rejects_write_baseline_without_reason(self) -> None:
         tpath = os.path.join(self.root, "ok.md")
         write(tpath, table())

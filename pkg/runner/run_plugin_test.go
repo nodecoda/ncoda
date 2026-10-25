@@ -241,9 +241,12 @@ function main() -> array<any> {
 	}
 	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
 	if rc != 1 {
-		t.Fatalf("rc=%d, want 1 (unbound symbol); stdout=%s stderr=%s", rc, out, errs)
+		t.Fatalf("rc=%d, want 1 (unimplemented symbol); stdout=%s stderr=%s", rc, out, errs)
 	}
-	if !strings.Contains(errs, "RBINDING_MISSING") {
+	// 口径迁移：以前是 RBINDING_MISSING（没接线），现在由 corpus_stubs 显式占位，
+	// 失败串必须点名符号并带上归因 class —— 仍然红，但可区分「没实现」与「实现错」。
+	if !strings.Contains(errs, "not-implemented") ||
+		!strings.Contains(errs, "NOT_IMPLEMENTED capcut_data.audio_timelines") {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
@@ -531,7 +534,9 @@ function main() -> any {
 	if rc != 1 {
 		t.Fatalf("rc=%d, want 1; stdout=%s stderr=%s", rc, out, errs)
 	}
-	if !strings.Contains(errs, "RBINDING_MISSING") || !strings.Contains(errs, "audio_timelines") {
+	// 草稿状态机没有本地等价物：现在是 stub 的 not-implemented，仍是红的。
+	if !strings.Contains(errs, "not-implemented") ||
+		!strings.Contains(errs, "NOT_IMPLEMENTED suchuang_video_compose.audio_timelines") {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
@@ -1205,5 +1210,43 @@ function main() -> any {
 	}
 	if len(got.Lines) != 2 || got.Lines[0] != "l1" || got.Lines[1] != "l2" {
 		t.Fatalf("lines = %v", got.Lines)
+	}
+}
+
+// corpus_stubs：尚未实现的语料库函数必须「能链接、能加载」，调用时以
+// not-implemented 显式失败（带归因 class + 证据）。负控意义：如果哪天有人把
+// stub 改成返回空值/假值，本判据会因 rc=0 或缺少错误文本而变红。
+func TestCorpusStubsPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "arxiv_search";
+
+function main() -> any {
+    let r = arxiv_search.search({ "count": 10, "search_query": "diffusion" }) with timeout(30s);
+    return { "total": r.total };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "stub.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 1 {
+		t.Fatalf("rc=%d, want 1 (unimplemented call must fail, not pass); stdout=%s stderr=%s", rc, out, errs)
+	}
+	for _, needle := range []string{
+		"NOT_IMPLEMENTED arxiv_search.search",
+		"not-implemented",
+		"remote-api",
+	} {
+		if !strings.Contains(errs, needle) {
+			t.Fatalf("stderr missing %q: %s", needle, errs)
+		}
+	}
+	if out != "" {
+		t.Fatalf("stub must not emit a result value, got %q", out)
 	}
 }

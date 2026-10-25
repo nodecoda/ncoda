@@ -3,7 +3,9 @@
  "corpus_size": 869,
  "complete_exec": 171,
  "complete_real": 86,
- "symbols_unbound": 219,
- "symbols_bound_plugin": 61,
- "reason": "text_toolkit 增绑 capcut_draft.string_to_list（库级 server-state 下的纯字符串助手；语料把单 URL/视频链接传进来，result 喂 audio_infos/video_infos）；plugin_bound 60→61，unbound 220→219"
+ "symbols_unbound": 0,
+ "symbols_bound_plugin": 280,
+ "symbols_bound_stub": 219,
+ "complete_stub": 698,
+ "reason": "219 个未实现符号以 corpus_stubs stub 绑定：能链接/能加载/调用即 not-implemented；unbound 219→0，complete_exec 171 与 complete_real 86 不变，stub 单列 219"
 }

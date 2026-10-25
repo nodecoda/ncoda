@@ -46,8 +46,9 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号        93（内建 32 + 进程外 61）
-未绑定符号       219（remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 23 / local-todo 3）
+已绑定符号       312（内建 32 + 进程外 61 real/partial + 219 stub）
+未绑定符号         0
+未实现符号       219（stub：remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 23 / local-todo 3）
 local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
@@ -250,6 +251,9 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 ### 7.3 棘轮规则
 
 - `complete_exec` / `complete_real` 只许升；`symbols_unbound` 只许降。
+- `symbols_bound_stub` 只许降：stub 是「能链接、调用即显式失败」的占位，只能被
+  `real`/`partial` 取代。stub 变多意味着把已实现的符号退回了占位，判红。
+- `complete_stub` 单独记账，**不进** `complete_exec`/`complete_real`。
 - 基线只能通过 `--write-baseline --reason "<证据>"` 重定，且必须在 PR 说明里引用。
 - 语料规模变化 ⇒ 基线不可比 ⇒ rc 3（判不了 ≠ 通过）。
 
@@ -261,7 +265,8 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 
 | 类别 | 含义 | 例子 |
 |---|---|---|
-| `binding-missing` | 调用了未绑符号 | 219 个未绑符号（原 289） |
+| `binding-missing` | 调用了未绑符号 | 当前 0（原 289）；出现即说明 stub 清单漂移 |
+| `binding-not-implemented` | 调用了 stub（能加载、无实现） | 219 个 stub；错误串 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /
@@ -352,10 +357,18 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 | P1 | `prompt_optimize.sd_better_prompt` | partial | echo 模型；loss = 无提示词优化 |
 | P2 | ~~`string_to_array` / `null_fill` / `array_split_merge`~~ | partial（已落地） | `plugins/text_toolkit/`；loss 已声明，`complete_real` 不涨 |
 | P2 | `document_to_text` / `file_read`（已落地 partial）· `html2img`（env-missing） | partial | 只读本地 txt/md/xlsx；远程 URL 明确 `REMOTE_URL_UNSUPPORTED`；html2img 需 headless 浏览器 |
-| P3 | 搜索/SaaS（feishu/super_table/toutiao/xhs/link_reader…） | unsupported | 需要网络/凭证；不绑，保持 unbound |
+| P3 | 搜索/SaaS（feishu/super_table/toutiao/xhs/link_reader…） | stub | 需要网络/凭证；进 `plugins/corpus_stubs/`，调用即 `not-implemented` |
 
-**unsupported 的记账约定**：不写进 `bindings.yaml`。文件保持 unbound，
-账本显示为 L3 覆盖缺口；不得为了“消灭 unbound”而加 stub。
+**unsupported 的记账约定**：不写进 `bindings.yaml`（那是内建真实现）。它们以
+`fidelity: stub` 声明在 `plugins/corpus_stubs/`，由 `scripts/gen_stub_plugin.py`
+从 `docs/UNBOUND-ATTRIBUTION.md` 生成，做到三件事：import 能解析、符号能列出、
+调用以 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` 失败。
+
+stub **不是**「消灭 unbound」的捷径，判据有三道：
+1. `loss` 必填且必须是 `<闭集 class>: <真实证据>`（生成器 + 清单校验）；
+2. `symbols_bound_stub` 只许降，`complete_exec`/`complete_real` 不因 stub 上升；
+3. `plugins/corpus_stubs/test_server.py` 逐个符号断言「只有 error、没有 result」，
+   负控把实现改成返回值必须立刻变红。
 
 ---
 

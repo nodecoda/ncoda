@@ -10,7 +10,9 @@
   C1 每个被调用的符号必须能在 capability header 里找到（L1 缺口）
   C2 每个被调用的符号必须有绑定（L2 缺口）
   C3 保真度分级：real / partial / stub，文件级取所用符号的最差值
-  C4 基线棘轮：complete_exec / complete_real 不得下降，unbound 不得上升
+  C4 基线棘轮：complete_exec / complete_real 不得下降，unbound 不得上升；
+     stub 是「能链接、调用即显式失败」的占位实现，只能被 real/partial 取代，
+     因此 stub 符号数不得上升（C6）
 读不到语料 / 头文件 / 绑定表 => rc 3（判不了 ≠ 通过）。
 
 用法：
@@ -203,6 +205,9 @@ def analyze(corpus: str, headers_dir: str = HEADERS, bindings_path: str = BINDIN
     complete = [f for f in per_file if f["complete"]]
     complete_real = [f for f in complete if f["fidelity"] == "real"]
     complete_exec = [f for f in complete if f["fidelity"] in ("real", "partial")]
+    # stub 文件：所有符号都能解析，但没有一个真实现。它「能跑」，跑出来是
+    # not-implemented，所以既不算 complete_exec，也不许记成 real。
+    complete_stub = [f for f in complete if f["fidelity"] == "stub"]
 
     # 库级表：调用面 / 绑定面 / 缺口。
     stats = {}
@@ -239,12 +244,14 @@ def analyze(corpus: str, headers_dir: str = HEADERS, bindings_path: str = BINDIN
         "symbols_bound": len(bound),
         "symbols_bound_local": len(bindings),
         "symbols_bound_plugin": len(plugins),
+        "symbols_bound_stub": len([k for k in plugins if fidelity(plugins[k]) == "stub"]),
         "symbols_declared_twice": [f"{l}.{fn}" for l, fn in shadowed],
         "symbols_unbound": len(unbound_symbols),
         "undeclared_symbols": [f"{l}.{f}" for l, f in undeclared],
         "complete_exec": len(complete_exec),
         "complete_real": len(complete_real),
         "complete_any": len(complete),
+        "complete_stub": len(complete_stub),
         "files": len(files),
         "next_bindings": [
             {"symbol": f"{l}.{fn}", "unlocks": n}
@@ -278,6 +285,11 @@ def check(report: dict) -> list[str]:
     if report.get("symbols_bound_plugin", 0) < base.get("symbols_bound_plugin", 0):
         problems.append(
             f"插件符号减少：{report.get('symbols_bound_plugin')} < 基线 {base.get('symbols_bound_plugin', 0)}")
+    # stub 只是占位：增加 = 把已实现的符号退回占位（或新增了未实现的绑定），
+    # 这正是「把 unbound 改写成绿」的反向防护。
+    if report.get("symbols_bound_stub", 0) > base.get("symbols_bound_stub", 0):
+        problems.append(
+            f"stub 符号增加：{report.get('symbols_bound_stub')} > 基线 {base.get('symbols_bound_stub', 0)}")
     if report["undeclared_symbols"]:
         problems.append(f"未声明符号：{report['undeclared_symbols'][:5]}")
     return problems
@@ -312,6 +324,8 @@ def main(argv: list[str]) -> int:
             "complete_real": report["complete_real"],
             "symbols_unbound": report["symbols_unbound"],
             "symbols_bound_plugin": report["symbols_bound_plugin"],
+            "symbols_bound_stub": report["symbols_bound_stub"],
+            "complete_stub": report["complete_stub"],
             "reason": args.reason.strip(),
         }
         with open(BASELINE, "w", encoding="utf-8") as fh:

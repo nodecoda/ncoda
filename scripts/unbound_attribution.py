@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""unbound_attribution.py — 未绑符号的**归因账**。
+"""unbound_attribution.py — 未实现符号的**归因账**。
 
-不变量：每一个 unbound 符号所在的库都必须在 docs/UNBOUND-ATTRIBUTION.md 的
-归因表里有一个闭集 class。理由：unbound 不等于失败，但**不许无法解释**。
-新增未绑库不写归因 => 判红（rc=1），而不是默默留在“其他”。
+不变量：每一个「没有真实现」的符号（未绑定 ∪ 以 stub 绑定的）所在的库都必须
+在 docs/UNBOUND-ATTRIBUTION.md 的归因表里有一个闭集 class。理由：未实现不等于
+失败，但**不许无法解释**。新增未实现符号不写归因 => 判红（rc=1），而不是默默
+留在“其他”。stub 只是让语料「能链接、能加载、调用即显式失败」，不是实现。
 
 判据：
   A1 归因表可解析，schema 精确，class ∈ 闭集
   A2 每个含 unbound 符号的库都有 row（缺失 => unclassified）
-  A3 棘轮：unclassified 符号数不得高于基线
-  A4 统计与 library_coverage 的 unbound 总数一致（口径漂移 => 判不了）
+  A3 棘轮：unclassified / 各 class / stub 符号数都不得高于基线
+  A4 统计与 library_coverage 的（unbound + stub）总数一致（口径漂移 => 判不了）
   A5 符号级覆盖：`symbols: {fn: {class, evidence}}` 优先于库级；覆盖的
      library/function 必须真实存在（写错 => rc=2，不静默失效）
 读不到语料/表 => rc 3（判不了 ≠ 通过）；参数/表非法 => rc 2。
@@ -198,6 +199,19 @@ def classify(rep: dict, table: dict[str, dict]) -> dict:
     }
 
 
+def stub_symbols() -> dict[str, set[str]]:
+    """清单里以 stub 绑定的符号：能解析、能加载，但**没有**真实现。
+
+    这些符号必须继续留在归因账上，否则 219 条证据会在「unbound → 0」那一刻
+    失去落点，下一次退化成无从解释的占位实现。
+    """
+    out: dict[str, set[str]] = {}
+    for (lib, fn), meta in lc.load_plugins(lc.PLUGINS).items():
+        if lc.fidelity(meta) == "stub":
+            out.setdefault(lib, set()).add(fn)
+    return out
+
+
 def analyze(corpus: str | None = None, table_path: str = TABLE) -> dict:
     table = load_table(table_path)
     validate_overrides(table, lc.load_headers(lc.HEADERS))
@@ -205,7 +219,30 @@ def analyze(corpus: str | None = None, table_path: str = TABLE) -> dict:
         cov = lc.analyze(corpus or lc.DEFAULT_CORPUS)
     except lc.CannotJudge as e:  # 语料/header/bindings 读不到 => 判不了（rc=3）
         raise CannotJudge(str(e))
-    return classify(cov, table)
+
+    # 归因对象 = 未绑定 ∪ stub。stub 只统计**语料真的调用**的符号：
+    # 未被调用的声明不影响任何语料，另有生成器判据盯着漂移。
+    stubs = stub_symbols()
+    merged = {"libraries": {}, "symbols_unbound": 0}
+    used, unused = 0, []
+    for lib, st in cov["libraries"].items():
+        called = set(st.get("called") or [])
+        stub_here = {fn for fn in stubs.get(lib, ()) if fn in called}
+        unused.extend(f"{lib}.{fn}" for fn in stubs.get(lib, ()) if fn not in called)
+        missing = sorted(set(st["missing"]) | stub_here)
+        merged["libraries"][lib] = dict(st, missing=missing)
+        merged["symbols_unbound"] += len(missing)
+        used += len(stub_here)
+
+    report = classify(merged, table)
+    report["unbound_symbols"] = cov["symbols_unbound"]
+    report["stub_symbols"] = used
+    report["not_implemented_symbols"] = merged["symbols_unbound"]
+    report["stub_unused"] = sorted(unused)
+    for row in report["rows"]:
+        row["unbound"] = sorted(
+            set(cov["libraries"][row["library"]]["missing"]))
+    return report
 
 
 def check(report: dict) -> list[str]:
@@ -217,6 +254,12 @@ def check(report: dict) -> list[str]:
     want = int(base.get("unclassified_symbols", 0))
     if got > want:
         problems.append(f"未归因符号增加：{got} > 基线 {want}")
+    for key, label in (("unbound_symbols", "未绑符号"), ("stub_symbols", "stub 符号")):
+        if key not in base:
+            continue
+        now = int(report.get(key, 0))
+        if now > int(base[key]):
+            problems.append(f"{label}增加：{now} > 基线 {base[key]}")
     for cls, base_n in (base.get("by_class") or {}).items():
         now = report["by_class"].get(cls, {}).get("symbols", 0)
         if now > base_n:
@@ -258,7 +301,10 @@ def main(argv: list[str]) -> int:
             return 2
         base = {
             "schema": report["schema"],
-            "unbound_symbols": report["unbound_symbols"],
+            "unbound_symbols": int(report.get("unbound_symbols", 0)),
+            "stub_symbols": int(report.get("stub_symbols", 0)),
+            "not_implemented_symbols": int(report.get(
+                "not_implemented_symbols", report.get("unbound_symbols", 0))),
             "unclassified_symbols": report["unclassified"]["symbols"],
             "by_class": {k: v["symbols"] for k, v in report["by_class"].items()},
             "reason": args.reason.strip(),
@@ -281,6 +327,7 @@ def main(argv: list[str]) -> int:
             return 1
         print("[unbound-attribution] ✓ 归因账未退化"
               f"（unbound={report['unbound_symbols']}"
+              f" · stub={report['stub_symbols']}"
               f" · unclassified={report['unclassified']['symbols']}）")
         for cls, v in report["by_class"].items():
             print(f"  {cls:15s} libs={v['libraries']:3d} symbols={v['symbols']:3d}")
@@ -291,7 +338,9 @@ def main(argv: list[str]) -> int:
         print()
         return 0
 
-    print(f"unbound symbols: {report['unbound_symbols']} in {report['libraries_with_unbound']} libraries")
+    print(f"not implemented: {report['not_implemented_symbols']} "
+          f"(unbound {report['unbound_symbols']} + stub {report['stub_symbols']}) "
+          f"in {report['libraries_with_unbound']} libraries")
     for cls, v in report["by_class"].items():
         print(f"  {cls:15s} libs={v['libraries']:3d} symbols={v['symbols']:3d}")
     if report["unclassified"]["libraries"]:

@@ -1,6 +1,8 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
- "unbound_symbols": 219,
+ "unbound_symbols": 0,
+ "stub_symbols": 219,
+ "not_implemented_symbols": 219,
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 23,
@@ -10,5 +12,5 @@
   "server-state": 37,
   "unclassified": 0
  },
- "reason": "capcut_draft.string_to_list 已绑定（纯字符串助手，不随库级 server-state）；server-state 38→37，总 220→219"
+ "reason": "归因口径从 unbound 迁到未实现符号：unbound 0 + stub 219；五类分布不变（remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 23 / local-todo 3）"
 }

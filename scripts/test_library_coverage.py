@@ -123,6 +123,49 @@ class CoverageGateTest(unittest.TestCase):
         self.assertEqual(rep["symbols_bound_plugin"], 1)
         self.assertEqual(rep["symbols_unbound"], 0, "plugin-covered symbol must not stay unbound")
 
+    def test_stub_counts_as_linked_but_never_as_executable(self) -> None:
+        write(os.path.join(self.corpus, "x.ncoda"), 'import "a";\nfunction main() { a.f1(1); }\n')
+        self.bind("""  - provider: a
+    operation: f2
+    capability: a.f2
+    implementation: real
+""")
+        root = self.plugins(
+            "schema: ncoda.plugin/v1\nid: demo\nlibraries:\n"
+            "  - library: a\n    fidelity: stub\n    loss: \"stub\"\n    functions: [f1]\n")
+        rep = lc.analyze(self.corpus, self.headers, self.bindings, root)
+        self.assertEqual(rep["symbols_unbound"], 0, "stub must be loadable (no RBINDING_MISSING)")
+        self.assertEqual(rep["complete_any"], 1)
+        self.assertEqual(rep["complete_stub"], 1)
+        self.assertEqual(rep["symbols_bound_stub"], 1)
+        self.assertEqual(rep["complete_exec"], 0, "stub must not count as executable")
+        self.assertEqual(rep["complete_real"], 0, "stub must never count as real")
+
+    def test_stub_ratchet_is_red_when_stubs_grow(self) -> None:
+        write(os.path.join(self.corpus, "x.ncoda"), 'import "a";\nfunction main() { a.f1(1); }\n')
+        self.bind("""  - provider: a
+    operation: f2
+    capability: a.f2
+    implementation: real
+""")
+        root = self.plugins(
+            "schema: ncoda.plugin/v1\nid: demo\nlibraries:\n"
+            "  - library: a\n    fidelity: stub\n    loss: \"stub\"\n    functions: [f1]\n")
+        rep = lc.analyze(self.corpus, self.headers, self.bindings, root)
+        base = os.path.join(self.root, "baseline-stub.json")
+        write(base, json.dumps({"schema": rep["schema"], "corpus_size": rep["corpus_size"],
+                                "complete_exec": 0, "complete_real": 0,
+                                "symbols_unbound": 0, "symbols_bound_plugin": 1,
+                                "symbols_bound_stub": 0}))
+        old = lc.BASELINE
+        lc.BASELINE = base
+        try:
+            problems = lc.check(rep)
+        finally:
+            lc.BASELINE = old
+        self.assertTrue(any("stub" in p for p in problems),
+                        "growing the stub surface must turn the ratchet red: %s" % problems)
+
     def test_plugin_partial_requires_loss(self) -> None:
         root = self.plugins(
             "schema: ncoda.plugin/v1\nid: demo\nlibraries:\n"
