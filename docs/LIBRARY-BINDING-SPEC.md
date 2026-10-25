@@ -46,8 +46,8 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号        92（内建 32 + 进程外 60）
-未绑定符号       220（remote-api 152 / server-state 38 / schema-unknown 4 / env-missing 23 / local-todo 3）
+已绑定符号        93（内建 32 + 进程外 61）
+未绑定符号       219（remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 23 / local-todo 3）
 local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
@@ -229,6 +229,7 @@ after(text): plugin 44（5 个插件 / 44 符号）                          · 
 after(timeline): plugin 56（5 个插件 / 56 符号）                      · unbound 224
 after(draft-infos): plugin 58（5 个插件 / 58 符号）                   · unbound 222
 after(table): plugin 60（6 个插件 / 60 符号）                        · unbound 220
+after(draft-str): plugin 61（6 个插件 / 61 符号）                     · unbound 219
              complete_exec 171 · complete_real 86 · local-todo 3
 ```
 
@@ -260,7 +261,7 @@ after(table): plugin 60（6 个插件 / 60 符号）                        · u
 
 | 类别 | 含义 | 例子 |
 |---|---|---|
-| `binding-missing` | 调用了未绑符号 | 220 个未绑符号（原 289） |
+| `binding-missing` | 调用了未绑符号 | 219 个未绑符号（原 289） |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /

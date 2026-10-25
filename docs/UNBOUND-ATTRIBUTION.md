@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未绑定符号所在的库**一个闭集归因。目的不是「消灭 unbound」，
-而是让 220 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
+而是让 219 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
 schema 缺口、哪些是本仓环境没有的能力。**新增未绑库必须同时给出归因**，否则判红。
 当前 `local-todo` 只剩 3 个符号（`audio_timeline_merge.timeline_merge`、
 `video_image_split` 的 2 个），缺口是 gap 插入位置/槽位顺序的证据，不是实现难度。
@@ -90,7 +90,7 @@ libraries:
         evidence: "贴纸搜索走平台素材服务（网络/凭证）；原库级归因为 schema-unknown，已纠正"
   capcut_draft:
     class: server-state
-    evidence: "与 D-1 同族：草稿创建/保存"
+    evidence: "与 D-1 同族：草稿创建/保存；string_to_list 是纯字符串助手，已由 plugins/text_toolkit 实现（partial），不随库级归因"
   capcut_draft_data:
     class: schema-unknown
     evidence: "timelines / str_to_list / caption_splitter / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实"

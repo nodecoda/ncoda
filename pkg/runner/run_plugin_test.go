@@ -1161,3 +1161,49 @@ function main() -> any {
 		t.Fatalf("wrapped = %#v", got.Wrapped)
 	}
 }
+
+// capcut_draft.string_to_list：库级归因是 server-state（草稿操作），但
+// string_to_list 是纯字符串助手——语料把单个 URL / 视频链接传进来，`.result`
+// 直接当 array<string> 喂 audio_infos(mp3_urls)/video_infos（与
+// capcut_draft_data.str_to_list 同形）。
+func TestCapcutDraftStringToListPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_draft";
+
+function main() -> any {
+    let a = capcut_draft.string_to_list({ "obj": "https://x/a.mp4" });
+    let b = capcut_draft.string_to_list({ "obj": "[\"p\",\"q\"]" });
+    let c = capcut_draft.string_to_list({ "obj": "l1\n l2 \n" });
+    return { "single": a.result, "many": b.result, "lines": c.result };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Single []string `json:"single"`
+		Many   []string `json:"many"`
+		Lines  []string `json:"lines"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Single) != 1 || got.Single[0] != "https://x/a.mp4" {
+		t.Fatalf("single = %v", got.Single)
+	}
+	if len(got.Many) != 2 || got.Many[0] != "p" || got.Many[1] != "q" {
+		t.Fatalf("many = %v", got.Many)
+	}
+	if len(got.Lines) != 2 || got.Lines[0] != "l1" || got.Lines[1] != "l2" {
+		t.Fatalf("lines = %v", got.Lines)
+	}
+}

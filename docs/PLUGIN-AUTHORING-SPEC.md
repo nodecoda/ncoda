@@ -317,12 +317,12 @@ make plugin-selftest
 
 ---
 
-## 12. 试点记录（已发布 6 个插件 / 60 个符号）
+## 12. 试点记录（已发布 6 个插件 / 61 个符号）
 
 | 插件 | 实现的库 | 符号 | `real` | `partial` | 关键证据 |
 |---|---|---:|---:|---:|---|
 | `plugins/capcut_data` | `capcut_data` | 9 | 7 | 2 | 语料调用点 + 消费面（`get_url` 的 `outputList` 被 `yield` 成 batch 记录） |
-| `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` `kimi_chat_parser` | 10 | 4 | 6 | 纯文本/数组/解析变换，不触网；`kimi_chat_parser` 输入格式见 loss |
+| `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` `kimi_chat_parser` `capcut_draft` | 11 | 4 | 7 | 纯文本/数组/解析变换，不触网；`kimi_chat_parser` 输入格式见 loss |
 | `plugins/compose_toolkit` | `capcut_helper` `suchuang_video_compose` | 18 | 3 | 15 | `corpus/7580659724749865001`、`7576926169774653449` 等；纯列表/时间轴变换 |
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
 | `plugins/table_toolkit` | `super_table` | 2 | 1 | 1 | 语料把 `get_url` 用在纯文本/ID 上（`7531679871563989002:48,58`），紧跟 `str_list` 展平喂 `save_list`/`tts` ⇒ 纯 wire 助手，不是远程服务 |
@@ -338,6 +338,8 @@ make plugin-selftest
 - `capcut_data` / `capcut_data_fast`：语料调用的符号已全部绑定（`*_infos` 的 schema
   由语料手写结构固定；样式字段不写入 infos，见 loss）；`search_sticker` 无语料调用，
   仍是网络服务；
+- `capcut_draft` / `capcut_draft_folder` 的草稿操作：`string_to_list` 已绑定，
+  其余 `create_draft` / `add_*` 需要服务端草稿状态；
 - `super_table` 的 `get_table` / `save_list` / `super_table`：表格服务本体需要平台
   状态与凭证（`get_url` / `str_list` 已绑定）；
 - `capcut_draft_data` 的 `text_infos` / `video_infos` / `keyframe_infos`：消费面

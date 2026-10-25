@@ -46,3 +46,10 @@ libraries:
     fidelity: partial
     loss: "输入格式未由语料证实（唯一的调用点传入字符串）。只识别 JSON 消息数组（role/content）与「用户：/Kimi：」文本前缀；时间戳、引用块、多轮嵌套与转写标记不解析，无法识别的行忽略"
     functions: [kimi_chat_parser]
+  - library: capcut_draft
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：只补 string_to_list 这个纯字符串助手；create_draft/add_* 等需要服务端草稿状态，仍不实现"
+    functions:
+      - name: string_to_list
+        loss: "分隔符规则未证实（JSON 数组字符串 / 按行拆分 / 单值单元素）；文件或记录输入未证实，容器输入按契约错误拒绝"

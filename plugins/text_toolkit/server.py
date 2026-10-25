@@ -28,6 +28,7 @@ LIBRARIES = [
     {"library": "null_fill", "functions": ["null_value_filling"]},
     {"library": "array_split_merge", "functions": ["Str_list", "Str_merge"]},
     {"library": "kimi_chat_parser", "functions": ["kimi_chat_parser"]},
+    {"library": "capcut_draft", "functions": ["string_to_list"]},
 ]
 
 
@@ -328,6 +329,29 @@ def fn_kimi_chat_parser(args):
     return pair_messages(messages_from_text(text))
 
 
+def fn_string_to_list(args):
+    """string_to_list(obj) -> {result:[str]}   [partial]
+
+    证据：7567224704114540550:75 / 7531636692056047667:108 把单个 URL 传进来，
+    `.result` 直接当 array<string> 喂 `audio_infos(mp3_urls)` / `video_infos`。
+    与 capcut_draft_data.str_to_list 同形（同族不同库）；分隔符规则未证实。
+    """
+    value = arg(args, "obj", arg(args, "value"))
+    if isinstance(value, list):
+        return {"result": [s for s in (as_text(v, "obj") for v in value) if s]}
+    text = as_text(value, "obj").strip()
+    if not text:
+        return {"result": []}
+    if text.startswith("["):
+        try:
+            parsed = json.loads(text)
+        except ValueError:
+            parsed = None
+        if isinstance(parsed, list):
+            return {"result": [s for s in (as_text(v, "obj") for v in parsed) if s]}
+    return {"result": [ln.strip() for ln in text.splitlines() if ln.strip()]}
+
+
 HANDLERS = {
     "string_to_array.string_2_array": fn_string_2_array,
     "link_extract.extract_all_links": fn_extract_all_links,
@@ -339,6 +363,7 @@ HANDLERS = {
     "array_split_merge.Str_list": fn_Str_list,
     "array_split_merge.Str_merge": fn_Str_merge,
     "kimi_chat_parser.kimi_chat_parser": fn_kimi_chat_parser,
+    "capcut_draft.string_to_list": fn_string_to_list,
 }
 
 

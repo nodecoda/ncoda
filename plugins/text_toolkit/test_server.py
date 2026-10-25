@@ -211,5 +211,37 @@ class KimiChatParserTest(unittest.TestCase):
         self.assertEqual(server.fn_kimi_chat_parser({})["chunks"], [])
 
 
+class StringToListTest(unittest.TestCase):
+    """capcut_draft.string_to_list(obj) -> {result:[str]}
+
+    证据：7567224704114540550:75 / 7531636692056047667:108 等把单个 URL 传进来，
+    `.result` 直接当 array<string> 喂 audio_infos/video_infos（与
+    capcut_draft_data.str_to_list 同形，库级 server-state 不覆盖这个纯函数）。
+    """
+
+    def test_single_url_becomes_single_element(self):
+        self.assertEqual(server.fn_string_to_list({"obj": "https://x/a.mp4"}),
+                         {"result": ["https://x/a.mp4"]})
+
+    def test_json_array_string(self):
+        self.assertEqual(server.fn_string_to_list({"obj": "[\"a\",\"b\"]"}),
+                         {"result": ["a", "b"]})
+
+    def test_newlines_split(self):
+        self.assertEqual(server.fn_string_to_list({"obj": "a\n b \n\n"}),
+                         {"result": ["a", "b"]})
+
+    def test_existing_list_is_normalised(self):
+        self.assertEqual(server.fn_string_to_list({"obj": ["a", "", "b"]}),
+                         {"result": ["a", "b"]})
+
+    def test_empty(self):
+        self.assertEqual(server.fn_string_to_list({}), {"result": []})
+
+    def test_negative_control_container_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_string_to_list({"obj": {"nested": 1}})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
