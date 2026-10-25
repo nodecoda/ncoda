@@ -724,13 +724,10 @@ libraries:
   functions:
   - name: audio_timelines
     fidelity: stub
-    loss: 'server-state: 剩余 audio_timelines/get_audio_duration/video_timelines 需要服务端音频/视频探测；其余纯函数（含 timeline_align）已由 plugins/compose_toolkit 绑定'
-  - name: get_audio_duration
-    fidelity: stub
-    loss: 'server-state: 剩余 audio_timelines/get_audio_duration/video_timelines 需要服务端音频/视频探测；其余纯函数（含 timeline_align）已由 plugins/compose_toolkit 绑定'
+    loss: 'server-state: 剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定'
   - name: video_timelines
     fidelity: stub
-    loss: 'server-state: 剩余 audio_timelines/get_audio_duration/video_timelines 需要服务端音频/视频探测；其余纯函数（含 timeline_align）已由 plugins/compose_toolkit 绑定'
+    loss: 'server-state: 剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定'
 - library: suno_api
   fidelity: stub
   functions:

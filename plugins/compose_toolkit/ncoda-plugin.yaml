@@ -26,7 +26,7 @@ libraries:
         fidelity: partial
         loss: "滚动/重复策略未证实：duration_list 视为逐段时长做累加，str_list 不足时循环补齐"
 
-  # 速创视频合成：同族纯函数；草稿状态机与音频/视频探测保持 unbound。
+  # 速创视频合成：同族纯函数 + 本地 WAV 时长；草稿状态机与剩余 audio/video 探测保持 unbound。
   - library: suchuang_video_compose
     version: 0.1.0
     fidelity: real
@@ -66,3 +66,6 @@ libraries:
       - name: dialog_wenan_timeline
         fidelity: partial
         loss: "按 idx 顺序把 timelines 依次分配给各角色对话；与 dialog_merge 的严格对齐未证实"
+      - name: get_audio_duration
+        fidelity: partial
+        loss: "只解码本地 WAV（路径/file:///data:audio/wav;base64）：duration = data 字节数/byteRate；unit=微秒(或缺省)返回 µs，unit=秒返回秒（语料 39 处全部显式传，7554469499115765795 对秒值 ×1e6）；http(s) 默认显式 REMOTE_AUDIO_UNSUPPORTED，MP3 需解码，其他 unit 显式报错；远程分支只由测试 mock 钩子验证，不代表生产联网"

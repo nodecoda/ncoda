@@ -1,16 +1,16 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
  "unbound_symbols": 0,
- "stub_symbols": 212,
- "not_implemented_symbols": 212,
+ "stub_symbols": 211,
+ "not_implemented_symbols": 211,
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 18,
   "local-todo": 3,
   "remote-api": 150,
   "schema-unknown": 4,
-  "server-state": 37,
+  "server-state": 36,
   "unclassified": 0
  },
- "reason": "capcut_draft_data.get_audio_duration moved env-missing -> partial; env-missing 19->18, stub 213->212"
+ "reason": "suchuang_video_compose.get_audio_duration implemented partial; server-state 37->36, stub 212->211"
 }

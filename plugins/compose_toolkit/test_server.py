@@ -220,6 +220,117 @@ class TimelineAlignTest(unittest.TestCase):
             server.fn_timeline_align({"align": "end", "timelines": "nope"})
 
 
+
+class SuchuangAudioDurationTest(unittest.TestCase):
+    """suchuang_video_compose.get_audio_duration：本地 WAV → unit 决定的数值。
+
+    证据：39 个调用点全部显式传 unit；秒值在 7554469499115765795 的手写 JS 里
+    ×1000000，微秒值在 7560292374086385727 直接进 array<int> 时间线。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def wav(self, frames, rate=16000, channels=1, sampwidth=2):
+        import io
+        import wave
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(channels)
+            w.setsampwidth(sampwidth)
+            w.setframerate(rate)
+            w.writeframes(b"\x00" * (frames * channels * sampwidth))
+        return buf.getvalue()
+
+    def path(self, blob, name="a.wav"):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def test_microseconds_unit_returns_exact_us(self):
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(self.wav(16000)), "unit": "微秒"})
+        self.assertEqual(got["duration"], 1000000)
+        self.assertEqual(got["outputList"], [{"duration": 1000000}])
+
+    def test_seconds_unit_returns_seconds(self):
+        # 负控：消费方在 JS 里对它 ×1e6；若这里误返回 µs，会放大 1e6 倍。
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(self.wav(16000)), "unit": "秒"})
+        self.assertEqual(got["duration"], 1.0)
+
+    def test_missing_unit_defaults_to_microseconds(self):
+        got = server.fn_suchuang_get_audio_duration({"mp3_url": self.path(self.wav(8000, rate=8000))})
+        self.assertEqual(got["duration"], 1000000)
+
+    def test_rate_and_frames_are_respected(self):
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(self.wav(11025, rate=22050), "b.wav"), "unit": "微秒"})
+        self.assertEqual(got["duration"], 500000)
+
+    def test_data_url_is_accepted(self):
+        import base64
+        blob = self.wav(8000, rate=8000)
+        url = "data:audio/wav;base64," + base64.b64encode(blob).decode()
+        got = server.fn_suchuang_get_audio_duration({"mp3_url": url, "unit": "秒"})
+        self.assertEqual(got["duration"], 1.0)
+
+    def test_record_url_is_unwrapped(self):
+        p = self.path(self.wav(4000, rate=8000), "c.wav")
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": {"link": "file://" + p}, "unit": "微秒"})
+        self.assertEqual(got["duration"], 500000)
+
+    def test_remote_branch_can_be_mocked_without_network(self):
+        old = server._fetch_remote
+        seen = []
+
+        def fake(url):
+            seen.append(url)
+            return self.wav(16000)
+
+        server._fetch_remote = fake
+        try:
+            got = server.fn_suchuang_get_audio_duration(
+                {"mp3_url": "https://example.com/tts.wav", "unit": "秒"})
+        finally:
+            server._fetch_remote = old
+        self.assertEqual(got["duration"], 1.0)
+        self.assertEqual(seen, ["https://example.com/tts.wav"])
+
+    def test_remote_default_is_explicit_offline_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_suchuang_get_audio_duration(
+                {"mp3_url": "https://example.com/tts.wav", "unit": "微秒"})
+        self.assertIn("REMOTE_AUDIO_UNSUPPORTED", str(ctx.exception))
+
+    def test_unsupported_unit_is_explicit_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_suchuang_get_audio_duration(
+                {"mp3_url": self.path(self.wav(100)), "unit": "帧"})
+        self.assertIn("unsupported unit", str(ctx.exception))
+
+    def test_non_wav_is_explicit_error(self):
+        with self.assertRaises(ValueError):
+            server.fn_suchuang_get_audio_duration(
+                {"mp3_url": self.path(b"ID3\x04\x00", "d.mp3"), "unit": "微秒"})
+
+    def test_zero_frame_wav_is_non_positive_error(self):
+        with self.assertRaises(ValueError):
+            server.fn_suchuang_get_audio_duration(
+                {"mp3_url": self.path(self.wav(0), "e.wav"), "unit": "微秒"})
+
+    def test_empty_url_is_explicit_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_suchuang_get_audio_duration({"mp3_url": "", "unit": "微秒"})
+        self.assertIn("MISSING_INPUT", str(ctx.exception))
+
+
 class ManifestDeclarationTest(unittest.TestCase):
     def test_partial_entries_match_server_and_have_loss(self):
         import yaml

@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未实现符号所在的库**一个闭集归因。口径包含两类：真正没绑定的
-（当前 0 个）和以 `stub` 绑定的（212 个，见 `plugins/corpus_stubs/`）。stub 只让
+（当前 0 个）和以 `stub` 绑定的（211 个，见 `plugins/corpus_stubs/`）。stub 只让
 语料「能链接、能加载、调用即显式失败」，不是实现，因此仍然必须归因、仍然计入
 本表。目的不是「消灭 unbound 数字」，而是让每个缺口变成可排序的工单：哪些是
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
@@ -304,7 +304,7 @@ libraries:
     evidence: "header desc「字幕获取」表明需要远程服务"
   suchuang_video_compose:
     class: server-state
-    evidence: "剩余 audio_timelines/get_audio_duration/video_timelines 需要服务端音频/视频探测；其余纯函数（含 timeline_align）已由 plugins/compose_toolkit 绑定"
+    evidence: "剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定"
   suno_api:
     class: remote-api
     evidence: "header desc「suno_api」表明需要远程服务"

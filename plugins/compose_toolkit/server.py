@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """compose_toolkit —— 剪映/速创时间轴纯函数的进程外实现（ncoda-plugin/1）。
 
-覆盖：capcut_helper（5）+ suchuang_video_compose 的纯函数子集（13）。
-不触网、不读写草稿、不碰时钟；草稿状态机/媒体探测（audio_timelines /
-get_audio_duration / video_timelines）保持 unbound。
+覆盖：capcut_helper（5）+ suchuang_video_compose 的纯函数子集（14）。
+不触网、不读写草稿、不碰时钟；除 get_audio_duration 读取本地 WAV 外不读写文件。
+草稿状态机/剩余媒体探测（audio_timelines / video_timelines）保持 unbound。
 
 语义证据见 README；未证实的规则一律 partial + loss（清单里声明）。
 """
+import base64
 import json
 import re
+import struct
 import sys
+import urllib.parse
+import urllib.request
 
 PROTOCOL = "ncoda-plugin/1"
 PLUGIN_ID = "compose-toolkit"
@@ -20,7 +24,8 @@ CAPCUT_HELPER = ["audio_link_collector", "rolling_effect", "text_splitter",
 SUCHUANG = ["add_list", "audio_link_collector", "dialog_merge", "dialog_split",
             "dialog_wenan_timeline", "media_tile", "text_empty_removal", "text_splitter",
             "timeline_align", "timeline_generator", "timeline_merge",
-            "wenan_timeline_range", "wenan_timeline_range_merge"]
+            "wenan_timeline_range", "wenan_timeline_range_merge",
+            "get_audio_duration"]
 LIBRARIES = [
     {"library": "capcut_helper", "functions": CAPCUT_HELPER},
     {"library": "suchuang_video_compose", "functions": SUCHUANG},
@@ -447,6 +452,86 @@ def fn_dialog_wenan_timeline(args):
     return {"error": "", "roleWenanTimeline": [per_role[r] for r in order]}
 
 
+
+
+# ── suchuang_video_compose.get_audio_duration（本地 WAV）──────────────────
+#
+# 证据：39 个调用点全部显式传 unit —— "微秒"(30) 的消费方直接当 µs 用；
+# "秒"(9) 的消费方在 JS 里 ×1000000（7554469499115765795 的 mp3_druations）。
+# 因此 unit 必须参与换算，不能永远返回 µs。
+# WAV 解析与 plugins/timeline_toolkit、plugins/capcut_data 同构（进程隔离，
+# 各自独立实现；http(s) 默认离线显式失败，测试用 mock 钩子替换取数）。
+
+def _audio_scalar(v):
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, dict):
+        for k in ("link", "url", "mp3_url", "$output", "output", "value", "data", "src", "path"):
+            inner = v.get(k)
+            if isinstance(inner, str) and inner.strip():
+                return inner.strip()
+    return ""
+
+
+def _fetch_remote(url):
+    raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % url)
+
+
+def _audio_bytes(raw):
+    s = raw.strip()
+    low = s.lower()
+    if low.startswith(("http://", "https://")):
+        return _fetch_remote(s)
+    if low.startswith("data:"):
+        comma = s.find(",")
+        if comma < 0 or ";base64" not in low[:comma]:
+            raise ValueError("bad data url (want data:audio/...;base64,)")
+        return base64.b64decode(s[comma + 1:])
+    if low.startswith("file://"):
+        path = urllib.request.url2pathname(urllib.parse.urlparse(s).path)
+    else:
+        path = s
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def wav_duration_us(blob):
+    if len(blob) < 12 or blob[:4] != b"RIFF" or blob[8:12] != b"WAVE":
+        raise ValueError("not a WAV container (only local WAV is supported; MP3 needs decoding)")
+    pos, byte_rate, data_size, fmt = 12, 0, None, None
+    while pos + 8 <= len(blob):
+        cid = blob[pos:pos + 4]
+        size = struct.unpack("<I", blob[pos + 4:pos + 8])[0]
+        body = blob[pos + 8:pos + 8 + size]
+        if cid == b"fmt " and len(body) >= 16:
+            fmt, _channels, _rate, byte_rate = struct.unpack("<HHII", body[:12])
+        elif cid == b"data":
+            data_size = len(body)
+            break
+        pos += 8 + size + (size & 1)
+    if fmt is None or not byte_rate or data_size is None:
+        raise ValueError("WAV is missing fmt/data chunks")
+    if fmt not in (1, 3):
+        raise ValueError("unsupported WAV format tag %d (want PCM/IEEE float)" % fmt)
+    return int(round(data_size * 1000000.0 / byte_rate))
+
+
+def fn_suchuang_get_audio_duration(args):
+    url = _audio_scalar(arg(args, "mp3_url", ""))
+    if not url:
+        raise ValueError("MISSING_INPUT: mp3_url is required")
+    unit = as_text(arg(args, "unit", ""), "unit").strip()
+    us_units = ("", "微秒", "us", "µs", "microsecond", "microseconds")
+    sec_units = ("秒", "s", "sec", "second", "seconds")
+    if unit not in us_units and unit not in sec_units:
+        # 先校验 unit，再做任何 I/O：未知单位不该被文件错误掩盖。
+        raise ValueError("unsupported unit %r (want 秒/微秒)" % unit)
+    us = wav_duration_us(_audio_bytes(url))
+    if us <= 0:
+        raise ValueError("non-positive audio duration for %s" % url)
+    value = us if unit in us_units else us / 1000000.0
+    return {"duration": value, "outputList": [{"duration": value}]}
+
 HANDLERS = {
     "capcut_helper.audio_link_collector": fn_audio_link_collector,
     "capcut_helper.rolling_effect": fn_rolling_effect,
@@ -459,6 +544,7 @@ HANDLERS = {
     "suchuang_video_compose.dialog_split": fn_dialog_split,
     "suchuang_video_compose.dialog_wenan_timeline": fn_dialog_wenan_timeline,
     "suchuang_video_compose.media_tile": fn_media_tile,
+    "suchuang_video_compose.get_audio_duration": fn_suchuang_get_audio_duration,
     "suchuang_video_compose.text_empty_removal": fn_text_empty_removal,
     "suchuang_video_compose.text_splitter": fn_suchuang_text_splitter,
     "suchuang_video_compose.timeline_align": fn_timeline_align,

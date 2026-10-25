@@ -1587,3 +1587,77 @@ function main() -> any {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
+
+// suchuang_video_compose.get_audio_duration：unit 必须参与换算。
+// 语料 39 处全部显式传 unit：秒值消费方 ×1e6（7554469499115765795），
+// 微秒值直接进 array<int> 时间线（7560292374086385727）。
+func TestSuchuangAudioDurationHonoursUnit(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "tts";
+import "suchuang_video_compose";
+
+function main() -> any {
+    let v = tts.speech_synthesis({ "text": "你好世界你好世界你好世界" }) with timeout(60s);
+    let us = suchuang_video_compose.get_audio_duration({ "mp3_url": v.data.link, "unit": "微秒" }) with timeout(60s);
+    let sec = suchuang_video_compose.get_audio_duration({ "mp3_url": v.data.link, "unit": "秒" }) with timeout(60s);
+    return { "ttsSeconds": v.data.duration, "us": us.duration, "sec": sec.duration };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "suchuang_audio_duration.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifacts := t.TempDir()
+	rc, out, errs := runCLI(t, "", "--local-plugins=tts", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", "--artifact-dir", artifacts, srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		TTSSec float64 `json:"ttsSeconds"`
+		US     int64   `json:"us"`
+		Sec    float64 `json:"sec"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	wantUS := int64(got.TTSSec * 1e6)
+	if d := got.US - wantUS; d < -100 || d > 100 {
+		t.Fatalf("us = %d, want ≈%d", got.US, wantUS)
+	}
+	if d := got.Sec - got.TTSSec; d < -0.001 || d > 0.001 {
+		t.Fatalf("sec = %.6f, want ≈%.6f", got.Sec, got.TTSSec)
+	}
+}
+
+// 负控：unit 不认识时不许静默按 µs/秒处理。
+func TestSuchuangAudioDurationUnknownUnitIsExplicitError(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "suchuang_video_compose";
+
+function main() -> any {
+    let d = suchuang_video_compose.get_audio_duration({ "mp3_url": "/tmp/a.wav", "unit": "帧" }) with timeout(60s);
+    return { "us": d.duration };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "suchuang_audio_unit.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, _, errs := runCLI(t, "", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", srcPath)
+	if rc != 1 {
+		t.Fatalf("rc=%d, want 1; stderr=%s", rc, errs)
+	}
+	if !strings.Contains(errs, "unsupported unit") {
+		t.Fatalf("stderr = %s", errs)
+	}
+}
