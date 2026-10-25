@@ -27,7 +27,7 @@ PLUGIN_VERSION = "0.1.0"
 LIBRARIES = [
     {"library": "capcut_draft_data",
      "functions": ["timelines", "str_to_list", "caption_splitter",
-                    "audio_timelines", "audio_infos", "image_infos"]},
+                    "get_audio_duration", "audio_timelines", "audio_infos", "image_infos"]},
     {"library": "capcut_data",
      "functions": ["timeline_keyframe", "asr_timelines", "keyframes_infos",
                     "audio_infos", "caption_infos", "imgs_infos", "video_infos", "effect_infos"]},
@@ -598,11 +598,20 @@ def _audio_scalar(v):
     return ""
 
 
+def _fetch_remote(url):
+    """远程取数的默认策略：离线显式失败。
+
+    这是唯一的网络入口，测试用 monkeypatch 替换成合成 WAV（mock），
+    从而在不触网、不依赖 ffmpeg 的前提下验证「URL → 字节 → 微秒」这一段。
+    """
+    raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % url)
+
+
 def _audio_bytes(raw):
     s = raw.strip()
     low = s.lower()
     if low.startswith(("http://", "https://")):
-        raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % s)
+        return _fetch_remote(s)
     if low.startswith("data:"):
         comma = s.find(",")
         if comma < 0 or ";base64" not in low[:comma]:
@@ -637,6 +646,22 @@ def wav_duration_us(blob):
     return int(round(data_size * 1000000.0 / byte_rate))
 
 
+def fn_get_audio_duration(args):
+    """capcut_draft_data.get_audio_duration：url → {duration}（微秒整数）。
+
+    证据：7539744063333105727:96,107 把结果直接 yield 成 `array<int>`，并在手写
+    JS 里与 100000（100ms）相加/比较 ⇒ 单位是微秒；7566078917871140864:62,79-97
+    同样把 duration 当微秒用于 start+end。WAV 用 data 字节数/byteRate 精确换算。
+    """
+    url = _audio_scalar(arg(args, "url", ""))
+    if not url:
+        raise ValueError("empty audio url")
+    dur = wav_duration_us(_audio_bytes(url))
+    if dur <= 0:
+        raise ValueError("non-positive audio duration for %s" % url)
+    return {"duration": dur}
+
+
 def fn_audio_timelines(args):
     urls = arg(args, "urls", []) or []
     if not isinstance(urls, list):
@@ -662,6 +687,7 @@ HANDLERS = {
     "capcut_draft_data.caption_splitter": fn_caption_splitter,
     "capcut_draft_data.audio_infos": fn_draft_audio_infos,
     "capcut_draft_data.image_infos": fn_draft_image_infos,
+    "capcut_draft_data.get_audio_duration": fn_get_audio_duration,
     "capcut_draft_data.audio_timelines": fn_audio_timelines,
     "capcut_data.timeline_keyframe": fn_timeline_keyframe,
     "capcut_data.asr_timelines": fn_asr_timelines,

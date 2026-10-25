@@ -1518,3 +1518,72 @@ function main() -> any {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
+
+// capcut_draft_data.get_audio_duration：本地 TTS 的 WAV → 微秒。
+// 语料把结果直接 yield 成 array<int> 并与 100000（100ms）相加/比较，
+// 所以单位必须是微秒（见 7539744063333105727、7566078917871140864）。
+func TestCapcutDraftAudioDurationFromLocalTTS(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "tts";
+import "capcut_draft_data";
+
+function main() -> any {
+    let v = tts.speech_synthesis({ "text": "你好世界你好世界你好世界" }) with timeout(60s);
+    let d = capcut_draft_data.get_audio_duration({ "url": v.data.link }) with timeout(60s);
+    return { "seconds": v.data.duration, "us": d.duration };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "draft_audio_duration.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifacts := t.TempDir()
+	rc, out, errs := runCLI(t, "", "--local-plugins=tts", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", "--artifact-dir", artifacts, srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Seconds float64 `json:"seconds"`
+		US      int64   `json:"us"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	want := int64(got.Seconds * 1e6)
+	if d := got.US - want; d < -100 || d > 100 {
+		t.Fatalf("duration = %dus, want ≈%dus (tts says %.6fs)", got.US, want, got.Seconds)
+	}
+}
+
+// 负控：远程 URL 不许被静默当成 0 时长；离线默认显式失败。
+func TestCapcutDraftAudioDurationRemoteIsExplicitError(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_draft_data";
+
+function main() -> any {
+    let d = capcut_draft_data.get_audio_duration({ "url": "https://example.com/a.mp3" }) with timeout(60s);
+    return { "us": d.duration };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "draft_audio_remote.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, _, errs := runCLI(t, "", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", srcPath)
+	if rc != 1 {
+		t.Fatalf("rc=%d, want 1; stderr=%s", rc, errs)
+	}
+	if !strings.Contains(errs, "REMOTE_AUDIO_UNSUPPORTED") {
+		t.Fatalf("stderr = %s", errs)
+	}
+}

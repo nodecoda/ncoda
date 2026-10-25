@@ -440,5 +440,95 @@ class DraftAudioTimelinesTest(unittest.TestCase):
         self.assertEqual(out["end"], out["timelines"][-1]["end"])
 
 
+class DraftGetAudioDurationTest(unittest.TestCase):
+    """capcut_draft_data.get_audio_duration：本地 WAV → {duration}（微秒）。
+
+    单位证据：7539744063333105727:96,107 把结果声明成 array<int> 后直接与
+    100000（100ms）相加；7566078917871140864:62,79-97 把 duration 当微秒用于
+    start/end。测试用合成 WAV（mock TTS 产物），不依赖 ffmpeg/网络。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def wav(self, frames, rate=16000, channels=1, sampwidth=2):
+        import io
+        import wave
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(channels)
+            w.setsampwidth(sampwidth)
+            w.setframerate(rate)
+            w.writeframes(b"\x00" * (frames * channels * sampwidth))
+        return buf.getvalue()
+
+    def path(self, blob, name="a.wav"):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def test_one_second_is_exactly_one_million_us(self):
+        # 负控：若实现返回毫秒/秒，这里必红。
+        got = server.fn_get_audio_duration({"url": self.path(self.wav(16000))})
+        self.assertEqual(got, {"duration": 1000000})
+
+    def test_rate_and_frames_are_respected(self):
+        # 11025 帧 @22050Hz = 0.5s；不是按文件大小猜。
+        got = server.fn_get_audio_duration(
+            {"url": self.path(self.wav(11025, rate=22050), "b.wav")})
+        self.assertEqual(got["duration"], 500000)
+
+    def test_data_url_is_accepted(self):
+        import base64
+        blob = self.wav(8000, rate=8000)
+        url = "data:audio/wav;base64," + base64.b64encode(blob).decode()
+        self.assertEqual(server.fn_get_audio_duration({"url": url})["duration"], 1000000)
+
+    def test_record_url_is_unwrapped(self):
+        p = self.path(self.wav(4000, rate=8000), "c.wav")
+        got = server.fn_get_audio_duration({"url": {"link": "file://" + p}})
+        self.assertEqual(got["duration"], 500000)
+
+    def test_remote_branch_can_be_mocked_without_network(self):
+        # mock 取数钩子：证明 http(s) → 字节 → 微秒这一段，不触网。
+        old = server._fetch_remote
+        seen = []
+
+        def fake(url):
+            seen.append(url)
+            return self.wav(16000)
+
+        server._fetch_remote = fake
+        try:
+            got = server.fn_get_audio_duration({"url": "https://example.com/tts.wav"})
+        finally:
+            server._fetch_remote = old
+        self.assertEqual(got["duration"], 1000000)
+        self.assertEqual(seen, ["https://example.com/tts.wav"])
+
+    def test_remote_default_is_explicit_offline_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_get_audio_duration({"url": "https://example.com/tts.wav"})
+        self.assertIn("REMOTE_AUDIO_UNSUPPORTED", str(ctx.exception))
+
+    def test_non_wav_is_explicit_error(self):
+        with self.assertRaises(ValueError):
+            server.fn_get_audio_duration({"url": self.path(b"ID3\x04\x00", "d.mp3")})
+
+    def test_zero_frame_wav_is_non_positive_error(self):
+        with self.assertRaises(ValueError):
+            server.fn_get_audio_duration({"url": self.path(self.wav(0), "e.wav")})
+
+    def test_empty_url_is_explicit_error(self):
+        with self.assertRaises(ValueError):
+            server.fn_get_audio_duration({"url": ""})
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未实现符号所在的库**一个闭集归因。口径包含两类：真正没绑定的
-（当前 0 个）和以 `stub` 绑定的（213 个，见 `plugins/corpus_stubs/`）。stub 只让
+（当前 0 个）和以 `stub` 绑定的（212 个，见 `plugins/corpus_stubs/`）。stub 只让
 语料「能链接、能加载、调用即显式失败」，不是实现，因此仍然必须归因、仍然计入
 本表。目的不是「消灭 unbound 数字」，而是让每个缺口变成可排序的工单：哪些是
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
@@ -88,11 +88,7 @@ libraries:
     evidence: "与 D-1 同族：草稿创建/保存；string_to_list 是纯字符串助手，已由 plugins/text_toolkit 实现（partial），不随库级归因"
   capcut_draft_data:
     class: schema-unknown
-    evidence: "timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实"
-    symbols:
-      get_audio_duration:
-        class: env-missing
-        evidence: "返回单个 duration；缺的是音频解码（WAV 精确 / MP3 估算），远程 URL 本仓不联网"
+    evidence: "timelines / str_to_list / caption_splitter / get_audio_duration / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images infos 结构固定；get_audio_duration 只解码本地 WAV，单位微秒）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实"
   capcut_draft_folder:
     class: server-state
     evidence: "与 D-1 同族：草稿文件夹（add_* 以 draft id 串联）"

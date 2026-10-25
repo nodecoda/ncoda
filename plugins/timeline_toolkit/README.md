@@ -9,6 +9,7 @@
 |---|---|---|---|
 | `capcut_draft_data` | `timelines` | partial | header 返回 `{start,end,timelines[]}`；语料 `capcut_draft_data.timelines({"duration": v8.end, "number": 1})`，消费 `.timelines` / `.end` |
 | `capcut_draft_data` | `str_to_list` | partial | header 返回 `{result: array<string>}`；语料把单个 `bgm_url` 传进来，消费 `.result` 作为 urls 列表 |
+| `capcut_draft_data` | `get_audio_duration` | partial | 语料 `7539744063333105727:96,107` 把结果 yield 成 `array<int>` 并与 `100000`（100ms）相加；`7566078917871140864:62,79-97` 直接用于 `start/end` ⇒ 单位是微秒。只解码本地 WAV（data 字节数/byteRate）；http(s) 离线显式失败，测试用 mock 取数钩子验证 URL→字节→微秒 |
 | `capcut_draft_data` | `audio_timelines` | partial | 语料 `7537506233444663359:96-105`：`.timelines` 与 urls 1:1 配对（audio_infos/image_infos 同形），`.end` 被当整段时长（`timelines({duration: v13.end})`）；只解码本地 WAV，远程/MP3 显式报错 |
 | `capcut_draft_data` | `caption_splitter` | partial | header 返回 `{texts[], timelines[]}`；语料 `max_char_count=12`，输出直接进 `text_infos(texts, timelines)` |
 | `capcut_data` | `timeline_keyframe` | partial | header 返回 `{offsets: array<string>, values: array<string>}`；语料 `presetOffsets="0|100"`，输出 `json.stringify` 后进 `add_keyframe` |

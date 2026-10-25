@@ -116,21 +116,18 @@ libraries:
 - library: capcut_draft_data
   fidelity: stub
   functions:
-  - name: get_audio_duration
-    fidelity: stub
-    loss: 'env-missing: 返回单个 duration；缺的是音频解码（WAV 精确 / MP3 估算），远程 URL 本仓不联网'
   - name: keyframe_infos
     fidelity: stub
-    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images
-      infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
+    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / get_audio_duration / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的
+      add_audios/add_images infos 结构固定；get_audio_duration 只解码本地 WAV，单位微秒）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
   - name: text_infos
     fidelity: stub
-    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images
-      infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
+    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / get_audio_duration / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的
+      add_audios/add_images infos 结构固定；get_audio_duration 只解码本地 WAV，单位微秒）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
   - name: video_infos
     fidelity: stub
-    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images
-      infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
+    loss: 'schema-unknown: timelines / str_to_list / caption_splitter / get_audio_duration / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的
+      add_audios/add_images infos 结构固定；get_audio_duration 只解码本地 WAV，单位微秒）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实'
 - library: capcut_draft_folder
   fidelity: stub
   functions:
