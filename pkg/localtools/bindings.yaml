@@ -52,3 +52,127 @@ bindings:
     operation: resize
     capability: local_image_scale/resize
     implementation: real
+
+  # ── portable core（real）────────────────────────────────────────────────
+  # 纯函数/本地语义：不触网、时钟由 Options.Clock 注入、结果形状逐字来自
+  # libraries/*.ncoda。判据见 pkg/localtools/portable_test.go。
+  - provider: array_count
+    operation: array_count
+    capability: array_count.array_count
+    implementation: real
+  - provider: array_length
+    operation: Array_Count
+    capability: array_length.Array_Count
+    implementation: real
+  - provider: common_code_block
+    operation: get_one_by_num
+    capability: common_code_block.get_one_by_num
+    implementation: real
+  - provider: common_code_block
+    operation: is_list_trim
+    capability: common_code_block.is_list_trim
+    implementation: real
+  - provider: common_code_block
+    operation: list_sli_trim
+    capability: common_code_block.list_sli_trim
+    implementation: real
+  - provider: common_code_block
+    operation: remove_list_empty
+    capability: common_code_block.remove_list_empty
+    implementation: real
+  - provider: throw_error
+    operation: throw_error
+    capability: throw_error.throw_error
+    implementation: real
+  - provider: datetime
+    operation: datetime
+    capability: datetime.datetime
+    implementation: real
+
+  # ── partial：确定性近似，loss 必填（validateBindings 强制）────────────
+  - provider: timer_wait
+    operation: time_wait
+    capability: timer_wait.time_wait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断（默认 1s）；actual_delay 报告真实等待值"
+  # ── timer 家族（宿主环境：clock/sleep 由 Options.MaxSleep 注入）──────────
+  # 语料里这些库只用来“等一会”，结果多数不消费；统一 partial 并声明截断。
+  - provider: timer
+    operation: time_wait
+    capability: timer.time_wait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断（默认 1s）；actual_delay/success/message 形状按 header"
+  - provider: time_wait
+    operation: time_wait
+    capability: time_wait.time_wait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断；{value} 的语义未证实，返回实际等待秒数"
+  - provider: wait_cat_timer
+    operation: time_wait
+    capability: wait_cat_timer.time_wait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断；{value} 的语义未证实，返回实际等待秒数"
+  - provider: toolbox
+    operation: time_wait
+    capability: toolbox.time_wait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断；{result} 语义未证实，返回实际等待毫秒数"
+  - provider: timer_pro
+    operation: time_waiter
+    capability: timer_pro.time_waiter
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断；void 返回，delay_ms 单位按毫秒"
+  - provider: time_toolkit
+    operation: timewait
+    capability: time_toolkit.timewait
+    implementation: partial
+    loss: "等待被 Options.MaxSleep 截断；waitTime 单位未证实，按秒处理"
+
+  # ── 本地文件读取（宿主环境：文件系统；不联网）──────────────────────────
+  - provider: file_read
+    operation: read
+    capability: file_read.read
+    implementation: partial
+    loss: "只读本地路径/file:// 的文本文件；http(s) 报 REMOTE_URL_UNSUPPORTED，图片/PDF 报 UNSUPPORTED_FILE_TYPE（无 OCR）"
+  - provider: text_file_reader
+    operation: read_txt
+    capability: text_file_reader.read_txt
+    implementation: partial
+    loss: "只读本地路径/file:// 的文本文件；http(s) 报 REMOTE_URL_UNSUPPORTED"
+  - provider: document_to_text
+    operation: convert_file
+    capability: document_to_text.convert_file
+    implementation: partial
+    loss: "只做本地文本文件（txt/md）直读；docx/pdf 未实现（UNSUPPORTED_FILE_TYPE），http(s) 不联网"
+  - provider: document_reader
+    operation: xlsx_parse
+    capability: document_reader.xlsx_parse
+    implementation: partial
+    loss: "只读本地 .xlsx 的第一个 worksheet：首行表头 + 共享/内联字符串；合并单元格/公式/多 sheet 未实现；message 是 JSON 行数组字符串"
+
+  - provider: audio_duration
+    operation: get_audio_duration
+    capability: audio_duration.get_audio_duration
+    implementation: partial
+    loss: "WAV 精确；MP3 只做 CBR 估算；http(s) 不联网（REMOTE_URL_UNSUPPORTED）"
+  - provider: capcut_video_compose
+    operation: get_audio_duration
+    capability: capcut_video_compose.get_audio_duration
+    implementation: partial
+    loss: "WAV 精确；MP3 只做 CBR 估算；http(s) 不联网（REMOTE_URL_UNSUPPORTED）。同库其余 12 个函数是服务端草稿状态机（draft_url/draft_id 为服务句柄），保持未绑"
+
+  - provider: tts
+    operation: speech_synthesis
+    capability: tts.speech_synthesis
+    implementation: partial
+    loss: "不是人声模型：输出确定性正弦提示音 WAV；data.duration/link 形状满足，音色不可比"
+  - provider: jimeng_image_gen
+    operation: jimeng_generate_image
+    capability: jimeng_image_gen.jimeng_generate_image
+    implementation: partial
+    loss: "不调用图像模型：输出 prompt 哈希展陈 PNG；url/task_id 形状满足，画面不可比"
+  - provider: drawing_board
+    operation: render
+    capability: drawing_board.render
+    implementation: partial
+    loss: "只画几何/文本盒占位；不取外链图片、不做字体栅格化/滤镜/旋转"

@@ -21,13 +21,17 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nodecoda/ncoda/pkg/backend/flow"
 	"github.com/nodecoda/ncoda/pkg/ir"
 	"github.com/nodecoda/ncoda/pkg/localtools"
 	"github.com/nodecoda/ncoda/pkg/passes"
+	"github.com/nodecoda/ncoda/pkg/pluginhost"
 	rtcompile "github.com/nodecoda/ncoda/pkg/runtime/compile"
 	"github.com/nodecoda/ncoda/pkg/runtime/nodes"
 	"github.com/nodecoda/ncoda/pkg/runtime/plugin"
@@ -79,9 +83,27 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 	raw := fs.Bool("raw", false, `Print the raw value when the result is exactly one string "output" key`)
 	emitSpec := fs.String("emit-spec", "", "Do not run: write the compiled spec.v1 JSON to this path and exit")
 	modelFactory := fs.String("model-factory", "echo", "Model backend for llm/agent nodes (the open distribution ships echo)")
-	localPlugins := fs.Bool("local-plugins", false, "Register the built-in offline local libraries (deterministic; platform tools are bound by symbol)")
+	localPlugins := &localPluginsFlag{}
+	fs.Var(localPlugins, "local-plugins", "Register the built-in offline local libraries: bare flag = all, or =<lib>[,<lib>…] for a subset")
 	artifactDir := fs.String("artifact-dir", "", "Directory for artifacts written by --local-plugins (default: $TMPDIR/ncoda-local-artifacts)")
 	localDB := fs.String("local-db", "", "SQLite file backing the local database library (--local-plugins); empty = in-process :memory:")
+	var pluginManifests []string
+	fs.Func("plugin", "Out-of-process plugin manifest (ncoda-plugin.yaml; repeatable)", func(v string) error {
+		if v != "" {
+			pluginManifests = append(pluginManifests, v)
+		}
+		return nil
+	})
+	var pluginDirs []string
+	fs.Func("plugin-dir", "Directory to scan for */"+pluginhost.ManifestName+" (repeatable)", func(v string) error {
+		if v != "" {
+			pluginDirs = append(pluginDirs, v)
+		}
+		return nil
+	})
+	listSymbols := fs.Bool("list-symbols", false, "Print registered tool/symbol names as JSON and exit")
+	clockSpec := fs.String("clock", "", `Clock for datetime.datetime: ""/epoch (pinned, default), "now", or RFC3339`)
+	maxSleep := fs.Duration("max-sleep", time.Second, "Per-call cap for timer_wait (--local-plugins)")
 	var toolPaths []string
 	fs.Func("tool-path", "Search path for capability headers imported by the source (repeatable; default: <exe>/libraries, $NCLANG_TOOL_PATH, ~/.nodecoda/tools)", func(v string) error {
 		if v != "" {
@@ -109,23 +131,13 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		return 2
 	}
 
-	source, name, err := readRunSource(stdin, posArgs)
-	if err != nil {
-		fmt.Fprintln(stderr, "ncoda-run:", err)
-		return 2
-	}
-	input, err := runInput(*inputJSON, params)
-	if err != nil {
-		fmt.Fprintln(stderr, "ncoda-run:", err)
-		return 2
-	}
-
 	// Capability headers: the source's import declarations resolve against the
 	// same search-path model as nclang-compile (flag > env > <exe>/libraries >
 	// user default). Missing directories are skipped (CPATH semantics).
+	searchPaths := toolpath.Resolve(toolPaths, os.Getenv, os.UserHomeDir)
 	pipeline := passes.DefaultPipeline()
 	var semDefs []tool.Definition
-	capReg, cerr := tool.LoadCapabilitySearchPaths(toolpath.Resolve(toolPaths, os.Getenv, os.UserHomeDir))
+	capReg, cerr := tool.LoadCapabilitySearchPaths(searchPaths)
 	if cerr != nil {
 		fmt.Fprintln(stderr, "ncoda-run: capability tool paths:", cerr)
 		return 1
@@ -134,16 +146,79 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		semDefs = append(semDefs, capReg.Definitions()...)
 	}
 
-	// Local libraries: the open distribution's deterministic implementations
-	// (image/database/matting/scale). Platform physical ids are adapter facts
-	// and never registered here.
+	// Built-in + out-of-process libraries share one plugin.Manager. The tool
+	// node, IR and frontend never learn where an implementation came from.
 	var pm *plugin.Manager
-	if *localPlugins {
+	var hosts []*pluginhost.Host
+	defer func() {
+		for _, h := range hosts {
+			_ = h.Close()
+		}
+	}()
+	manifestPaths := append([]string(nil), pluginManifests...)
+	for _, dir := range pluginDirs {
+		found, derr := pluginhost.Discover(dir)
+		if derr != nil {
+			fmt.Fprintf(stderr, "ncoda-run: plugin dir %s: %v\n", dir, derr)
+			return 2
+		}
+		manifestPaths = append(manifestPaths, found...)
+	}
+	if localPlugins.enabled || len(manifestPaths) > 0 {
 		pm = plugin.New()
-		if _, lerr := localtools.Register(pm, localtools.Options{ArtifactDir: *artifactDir, DBPath: *localDB}); lerr != nil {
+	}
+	if localPlugins.enabled {
+		if verr := localtools.ValidateOnly(localPlugins.libs); verr != nil {
+			fmt.Fprintln(stderr, "ncoda-run: --local-plugins:", verr)
+			return 2
+		}
+		clock, clkErr := localtools.ParseClock(*clockSpec)
+		if clkErr != nil {
+			fmt.Fprintln(stderr, "ncoda-run:", clkErr)
+			return 2
+		}
+		if _, lerr := localtools.Register(pm, localtools.Options{
+			ArtifactDir: *artifactDir, DBPath: *localDB, Clock: clock,
+			MaxSleep: *maxSleep, Only: localPlugins.libs,
+		}); lerr != nil {
 			fmt.Fprintln(stderr, "ncoda-run: local plugins:", lerr)
 			return 1
 		}
+	}
+	if len(manifestPaths) > 0 {
+		headers, herr := pluginhost.LoadHeaders(searchPaths)
+		if herr != nil {
+			fmt.Fprintln(stderr, "ncoda-run:", herr)
+			return 2
+		}
+		pluginArtifacts := *artifactDir
+		if pluginArtifacts == "" {
+			pluginArtifacts = filepath.Join(os.TempDir(), "ncoda-plugin-artifacts")
+		}
+		if mkErr := os.MkdirAll(pluginArtifacts, 0o755); mkErr != nil {
+			fmt.Fprintln(stderr, "ncoda-run: plugin artifact dir:", mkErr)
+			return 2
+		}
+		for _, path := range manifestPaths {
+			mf, lerr := pluginhost.Load(path, headers)
+			if lerr != nil {
+				fmt.Fprintln(stderr, "ncoda-run:", lerr)
+				return 2
+			}
+			h := pluginhost.New(mf, pluginhost.Options{
+				ArtifactDir:    pluginArtifacts,
+				RuntimeName:    "ncoda-run",
+				RuntimeVersion: version.Version,
+			})
+			if rerr := h.Register(pm); rerr != nil {
+				fmt.Fprintln(stderr, "ncoda-run:", rerr)
+				_ = h.Close()
+				return 1
+			}
+			hosts = append(hosts, h)
+		}
+	}
+	if pm != nil {
 		tr, terr := toolbridge.FromPluginManager(pm)
 		if terr != nil {
 			fmt.Fprintln(stderr, "ncoda-run: semantic registry:", terr)
@@ -158,6 +233,33 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 			return 1
 		}
 		pipeline = pipeline.WithToolRegistry(merged)
+	}
+	if *listSymbols {
+		names := []string{}
+		if pm != nil {
+			names = pm.Names()
+		} else if capReg != nil {
+			for _, d := range capReg.Definitions() {
+				names = append(names, d.Provider+"."+d.Operation)
+			}
+		}
+		sort.Strings(names)
+		_ = json.NewEncoder(stdout).Encode(map[string]any{
+			"plugin_hosts": len(hosts),
+			"symbols":      names,
+		})
+		return 0
+	}
+
+	source, name, err := readRunSource(stdin, posArgs)
+	if err != nil {
+		fmt.Fprintln(stderr, "ncoda-run:", err)
+		return 2
+	}
+	input, err := runInput(*inputJSON, params)
+	if err != nil {
+		fmt.Fprintln(stderr, "ncoda-run:", err)
+		return 2
 	}
 
 	res := pipeline.Run(source, name, runtimeProfile())

@@ -113,10 +113,24 @@ func TestBindingsHaveImplementationAndNoDuplicates(t *testing.T) {
 	if err := validateBindings(f.Bindings); err != nil {
 		t.Fatalf("bindings schema: %v", err)
 	}
+	// v2：real 之外允许 partial/stub，但必须显式声明 loss —— 否则“近似实现”
+	// 会被下游当成 real 消费。real 绑定不需要 loss。
+	realCount, partialCount := 0, 0
 	for _, b := range f.Bindings {
-		if b.Implementation != "real" {
-			t.Fatalf("%s/%s implementation = %q, want real (M5 baseline)", b.Provider, b.Operation, b.Implementation)
+		switch b.Implementation {
+		case "real":
+			realCount++
+		case "partial", "stub":
+			partialCount++
+			if strings.TrimSpace(b.Loss) == "" {
+				t.Fatalf("%s/%s implementation = %q without loss declaration", b.Provider, b.Operation, b.Implementation)
+			}
+		default:
+			t.Fatalf("%s/%s implementation = %q, want real|partial|stub", b.Provider, b.Operation, b.Implementation)
 		}
+	}
+	if realCount == 0 || partialCount == 0 {
+		t.Fatalf("binding mix = %d real / %d partial+stub; want both classes represented", realCount, partialCount)
 	}
 	// L1' 兼容入口必须留在语言层：移走会让 complete 86 → 83。
 	found := false
@@ -134,6 +148,12 @@ func TestBindingsHaveImplementationAndNoDuplicates(t *testing.T) {
 	}
 	if err := validateBindings([]binding{{Provider: "x", Operation: "y", Capability: "z", Implementation: "fake"}}); err == nil {
 		t.Fatal("negative control: unknown implementation accepted")
+	}
+	if err := validateBindings([]binding{{Provider: "x", Operation: "y", Capability: "z", Implementation: "partial"}}); err == nil {
+		t.Fatal("negative control: partial binding without loss accepted")
+	}
+	if err := validateBindings([]binding{{Provider: "x", Operation: "y", Capability: "z", Implementation: "stub", Loss: "shape only"}}); err != nil {
+		t.Fatalf("stub with loss must be accepted: %v", err)
 	}
 	dup := []binding{
 		{Provider: "x", Operation: "y", Capability: "z", Implementation: "real"},

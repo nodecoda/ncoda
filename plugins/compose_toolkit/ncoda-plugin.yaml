@@ -1,0 +1,68 @@
+schema: ncoda.plugin/v1
+id: compose-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 剪映小助手：纯列表/文本/时间轴变换（不触网、不读写草稿）。
+  - library: capcut_helper
+    version: 0.1.0
+    fidelity: real
+    functions:
+      - audio_link_collector
+      - name: text_splitter
+        fidelity: partial
+        loss: "切分粒度未由语料证实：按空行分段、段内按句末标点切句；原实现的合并阈值可能不同"
+      - name: timeline_merge
+        fidelity: partial
+        loss: "skip_us 与 all_complete_timeline 的语义未由语料证实：这里把 main 整体后移 (max(pre.end)+gap_us)，pre 原样保留，all_timeline 取整体跨度"
+      - name: wenan_timeline_range
+        fidelity: partial
+        loss: "mergeCount/startIndex 的分组规则未由语料证实：按 wenan 条数均分 timelines，取每组首尾；越界输入截断"
+      - name: rolling_effect
+        fidelity: partial
+        loss: "滚动/重复策略未证实：duration_list 视为逐段时长做累加，str_list 不足时循环补齐"
+
+  # 速创视频合成：同族纯函数；草稿状态机与音频/视频探测保持 unbound。
+  - library: suchuang_video_compose
+    version: 0.1.0
+    fidelity: real
+    functions:
+      - audio_link_collector
+      - text_empty_removal
+      - name: add_list
+        fidelity: partial
+        loss: "item 与 list 的合并优先级未由语料证实（语料只传 add_list）：list 优先，否则 add_list + [item]"
+      - name: text_splitter
+        fidelity: partial
+        loss: "切分粒度未由语料证实：空行分段、段内按句末标点切句；outputList 与 segments 同值（原实现关系未证实）"
+      - name: timeline_merge
+        fidelity: partial
+        loss: "skip_us/all_complete_timeline 语义未由语料证实：main 后移 (max(pre.end)+gap_us)，pre 原样，all_timeline 取整体跨度"
+      - name: wenan_timeline_range
+        fidelity: partial
+        loss: "mergeCount/startIndex 分组规则未证实：按 wenan 条数均分 timelines"
+      - name: wenan_timeline_range_merge
+        fidelity: partial
+        loss: "同 wenan_timeline_range；输出时间戳为 float，合并相邻同 content 的策略未证实"
+      - name: timeline_align
+        fidelity: partial
+        loss: "align 的原始规则未由语料证实：仅两处调用且都是 align=end，这里解释为每段 end 对齐下一段 start（末段保留），all_timeline=[0,末段end]；其它 align 值原样返回"
+      - name: media_tile
+        fidelity: partial
+        loss: "缺省 duration 的平铺规则未证实：duration<=0 时不切分，否则按 duration 微秒切块，urls 按块数重复 media_url"
+      - name: timeline_generator
+        fidelity: partial
+        loss: "fps/unit/timelist 语义未证实：duration 按秒解析（unit=ms/us 时换算），items 逐个等长排布"
+      - name: dialog_split
+        fidelity: partial
+        loss: "角色前缀解析未证实：按 roles 的 `Q:`/`A:`（中英文冒号）解析，无法识别时归入首个角色"
+      - name: dialog_merge
+        fidelity: partial
+        loss: "audioLinks 按角色取链接、按 idx 重排；同角色链接不足时跳过该条（原实现的兜底未证实）"
+      - name: dialog_wenan_timeline
+        fidelity: partial
+        loss: "按 idx 顺序把 timelines 依次分配给各角色对话；与 dialog_merge 的严格对齐未证实"

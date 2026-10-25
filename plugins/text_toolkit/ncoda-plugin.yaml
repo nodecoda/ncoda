@@ -1,0 +1,43 @@
+schema: ncoda.plugin/v1
+id: text-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 纯文本/数组变换：不触网、不读文件、时钟无关。
+  # 语义证据见 README「证据」；未由语料证实的部分一律 partial + loss。
+  - library: string_to_array
+    version: 0.1.0
+    fidelity: partial
+    loss: "splitter 参数未在语料出现：缺省按换行切分，单行再按空白切分；自定义 splitter 按字面量切分，正则/多分隔符语义未证实"
+    functions: [string_2_array]
+  - library: link_extract
+    version: 0.1.0
+    fidelity: real
+    functions: [extract_all_links, extract_first_link]
+  - library: url_get
+    version: 0.1.0
+    fidelity: real
+    functions: [get_url]
+  - library: text_split_master
+    version: 0.1.0
+    fidelity: partial
+    loss: "原实现的切分阈值/段落合并策略未由语料证实：这里按空行分段、段内按句末标点切句，再按 200 字上限贪心合并；边界可能不同"
+    functions: [TextSplittingMaster]
+  - library: text_split_tool
+    version: 0.1.0
+    fidelity: real
+    functions: [Paragraph_splitting]
+  - library: null_fill
+    version: 0.1.0
+    fidelity: partial
+    loss: "语料只调用不消费结果（corpus/7624531644146729003:101）：填充值固定为 \"\"，是否原地修改/是否保留 None 未证实"
+    functions: [null_value_filling]
+  - library: array_split_merge
+    version: 0.1.0
+    fidelity: partial
+    loss: "num 按「每组字符串总长度上限」解释（语料 num=200）；分组固定保序、最多 10 组，contact 字段返回空串——原实现的取整/余数/contact 语义未证实"
+    functions: [Str_list, Str_merge]

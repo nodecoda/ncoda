@@ -1,0 +1,20 @@
+schema: ncoda.plugin/v1
+id: codel-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 纯列表变换；同库 keyframe_ani_scene_v1 收 api_token、返回 tip_url，保持 unbound。
+  - library: codel_video
+    version: 0.1.0
+    fidelity: partial
+    functions:
+      - name: split_list
+        fidelity: partial
+        loss: "size 的分组策略（连续/轮转/按长度均衡）未由语料证实（该函数无语料调用）；这里连续均分，最多 10 组，size<=0 时全部放入 text_list1"
+      - name: merge_list
+        fidelity: partial
+        loss: "split_list 的分组语义与 remark 未由语料证实（该函数无语料调用）；这里按 audio_list1..10 顺序拼接非空列表，每个非空输入一组，remark 为空"

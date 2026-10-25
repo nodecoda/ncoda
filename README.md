@@ -9,6 +9,9 @@ kernel and the language-level verdicts. Platform adapters are not here.
 - **Language CLI**: `cmd/nclang-compile` (stdin → `ncoda-ir/v1` on stdout)
 - **Public libraries / capability headers**: `libraries/` (174 headers,
   plus deterministic offline implementations in `pkg/localtools`)
+- **Out-of-process plugins**: `plugins/` — a library implementation can live in
+  its own process (any language, stdio JSON-RPC) and is loaded with
+  `--plugin-dir`; see `docs/PLUGIN-AUTHORING-SPEC.md`
 - **Runtime (L2)**: `pkg/runtime` — the target-free executor. It turns
   `spec.v1` into an executable graph (node semantics, loop state, error
   policy, trace) and ships as `cmd/ncoda-run`.
@@ -117,7 +120,9 @@ make dist      # 6-platform binaries + SBOM + checksums
 `make dist` writes to `DIST` (default `/tmp/ncoda-dist-<VERSION>`) and builds
 both lanes: `nclang` (language) and `ncoda-run` (runtime). It also ships
 `libraries/` next to the binaries, so `ncoda-run` resolves `import "<lib>"`
-from `<exe>/libraries` without any extra flag.
+from `<exe>/libraries` without any extra flag, and ships `plugins/`
+(source-only, needs a system `python3`) which `--plugin-dir <exe>/plugins`
+picks up.
 
 ## Repository layout
 
@@ -129,6 +134,7 @@ from `<exe>/libraries` without any extra flag.
 | `pkg/cli/` | `nclang-compile` language-lane CLI |
 | `cmd/nclang-compile/` | language-lane entry point |
 | `libraries/` | public capability headers (language-level symbols) |
+| `plugins/` | out-of-process library implementations (manifest + server) |
 | `pkg/runtime/` | L2 executor: spec.v1 → node graph (target-free) |
 | `pkg/localtools/` | deterministic offline implementations of the public libraries |
 | `pkg/toolbridge/` `pkg/toolpath/` | plugin→semantic projection; capability search path |

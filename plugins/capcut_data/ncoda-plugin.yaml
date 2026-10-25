@@ -1,0 +1,28 @@
+schema: ncoda.plugin/v1
+id: capcut-data
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 语义由语料调用点 + 消费面固定（见 README「证据」）。
+  # 函数级 fidelity：未标注的继承库级 real；partial 必须带 loss。
+  - library: capcut_data
+    version: 0.1.0
+    fidelity: real
+    functions:
+      - get_url
+      - objs_to_str_list
+      - str_to_list
+      - array_pair
+      - extract_first_end_frame
+      - timelines
+      - wenan_links_merge
+      - name: wenan_split
+        fidelity: partial
+        loss: "按连续等分切成 5 段；原实现的分配策略（连续/轮转/按长度均衡）未由语料证实，长文的分段边界可能不同"
+      - name: timelines_format
+        fidelity: partial
+        loss: "输入 timeline 的文本字段名（text/content/wenan/value/output）与原始格式化规则未由语料证实；这里取首个非空字符串并保留 start/end，不合并、不重排"

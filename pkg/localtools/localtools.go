@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -41,6 +42,84 @@ type Options struct {
 	// DBPath 本地数据库文件（空 = 进程内 :memory:，跑完即失）。
 	// 给路径 = 真实持久化：上一次 insert 的行走一次运行里的 select 能查到。
 	DBPath string
+	// Clock 是 datetime 的环境输入。nil = 钉在 Unix epoch（确定性默认）；
+	// 宿主可用 --clock now|<RFC3339> 显式注入。时钟不是库的私有状态，
+	// 必须从 Options 进来，否则同输入会给出不同输出。
+	Clock func() time.Time
+	// MaxSleep 是 timer_wait 单次等待上限。0 = 默认 1s。语料里有 180s 的
+	// 等待；离线账本要可复算，就必须把“真实等待”与“账本耗时”分开声明。
+	MaxSleep time.Duration
+	// Only 限定只注册这些库（空 = 全部）。用途：让进程外插件接管某个库时，
+	// 内建实现不再抢注同一符号（插件与内建同符号 = 注册冲突）。
+	Only []string
+}
+
+// BuiltinLibraries 是本包能注册的全部库名（= capability header 的 library 名）。
+// `--local-plugins=<lib,…>` 的取值必须落在这里。
+var BuiltinLibraries = []string{
+	"image_generate",
+	"database",
+	"matting",
+	"image_scale",
+	"array_count",
+	"array_length",
+	"common_code_block",
+	"throw_error",
+	"datetime",
+	"timer_wait",
+	"timer",
+	"time_wait",
+	"wait_cat_timer",
+	"toolbox",
+	"timer_pro",
+	"time_toolkit",
+	"file_read",
+	"text_file_reader",
+	"document_to_text",
+	"document_reader",
+	"tts",
+	"jimeng_image_gen",
+	"audio_duration",
+	"drawing_board",
+	"capcut_video_compose",
+}
+
+// allows 判断某个库是否在 Only 里（Only 为空 = 全开）。
+func (o Options) allows(lib string) bool {
+	if len(o.Only) == 0 {
+		return true
+	}
+	for _, l := range o.Only {
+		if l == lib {
+			return true
+		}
+	}
+	return false
+}
+
+// ValidateOnly 拒绝未知库名（`--local-plugins=<lib,…>` 的取值必须落在 BuiltinLibraries）。
+func ValidateOnly(libs []string) error { return Options{Only: libs}.validateOnly() }
+
+// validateOnly 拒绝未知库名：写错库名不能静默变成「什么都没注册」。
+func (o Options) validateOnly() error {
+	if len(o.Only) == 0 {
+		return nil
+	}
+	known := map[string]bool{}
+	for _, l := range BuiltinLibraries {
+		known[l] = true
+	}
+	var unknown []string
+	for _, l := range o.Only {
+		if !known[l] {
+			unknown = append(unknown, l)
+		}
+	}
+	if len(unknown) > 0 {
+		return fmt.Errorf("unknown library %v; builtin libraries: %s",
+			unknown, strings.Join(BuiltinLibraries, ", "))
+	}
+	return nil
 }
 
 type binding struct {
@@ -48,6 +127,9 @@ type binding struct {
 	Operation      string `yaml:"operation"`
 	Capability     string `yaml:"capability"`
 	Implementation string `yaml:"implementation"`
+	// Loss 声明 partial/stub 丢掉了什么。空 = 没有声明损失 ⇒ 不许注册：
+	// “近似实现”如果不写清近似在哪，就会被下游当成 real 消费。
+	Loss string `yaml:"loss,omitempty"`
 }
 
 type bindingFile struct {
@@ -70,6 +152,10 @@ func validateBindings(bs []binding) error {
 			return fmt.Errorf("localtools: binding %s/%s: implementation %q is not real|stub|partial",
 				b.Provider, b.Operation, b.Implementation)
 		}
+		if b.Implementation != "real" && strings.TrimSpace(b.Loss) == "" {
+			return fmt.Errorf("localtools: binding %s/%s: implementation %q requires a non-empty loss declaration",
+				b.Provider, b.Operation, b.Implementation)
+		}
 		name := b.Provider + "/" + b.Operation
 		if seen[name] {
 			return fmt.Errorf("localtools: duplicate binding %q", name)
@@ -85,6 +171,9 @@ func Register(m *plugin.Manager, opts Options) ([]string, error) {
 	if m == nil {
 		return nil, fmt.Errorf("localtools: nil plugin manager")
 	}
+	if err := opts.validateOnly(); err != nil {
+		return nil, fmt.Errorf("localtools: %w", err)
+	}
 	dir := opts.ArtifactDir
 	if dir == "" {
 		dir = filepath.Join(os.TempDir(), "ncoda-local-artifacts")
@@ -94,28 +183,48 @@ func Register(m *plugin.Manager, opts Options) ([]string, error) {
 	}
 
 	img := &imageGenerator{dir: dir}
-	p := &plugin.Plugin{
-		ID:      "local_image_generate",
-		Version: "0.1.0",
-		Type:    plugin.PluginCallable,
-		Tools: []plugin.Tool{{
-			Name:         "generate",
-			Desc:         "离线确定性图像生成：按 prompt 摘要绘制 PNG（本地实现，不调用外部模型）",
-			Capabilities: []string{"image_generate.generate"},
-			Call:         img.call,
-		}},
-	}
-	if err := m.Register(p); err != nil {
-		return nil, err
+	if opts.allows("image_generate") {
+		p := &plugin.Plugin{
+			ID:      "local_image_generate",
+			Version: "0.1.0",
+			Type:    plugin.PluginCallable,
+			Tools: []plugin.Tool{{
+				Name:         "generate",
+				Desc:         "离线确定性图像生成：按 prompt 摘要绘制 PNG（本地实现，不调用外部模型）",
+				Capabilities: []string{"image_generate.generate"},
+				Call:         img.call,
+			}},
+		}
+		if err := m.Register(p); err != nil {
+			return nil, err
+		}
 	}
 
-	if err := registerDatabase(m, opts.DBPath); err != nil {
+	if opts.allows("database") {
+		if err := registerDatabase(m, opts.DBPath); err != nil {
+			return nil, err
+		}
+	}
+	if opts.allows("matting") {
+		if err := registerMatting(m, dir); err != nil {
+			return nil, err
+		}
+	}
+	if opts.allows("image_scale") {
+		if err := registerImageScale(m, dir); err != nil {
+			return nil, err
+		}
+	}
+	if err := registerPortable(m, opts); err != nil {
 		return nil, err
 	}
-	if err := registerMatting(m, dir); err != nil {
+	if err := registerDocRead(m, opts); err != nil {
 		return nil, err
 	}
-	if err := registerImageScale(m, dir); err != nil {
+	if err := registerMedia(m, dir, opts); err != nil {
+		return nil, err
+	}
+	if err := registerCapcutVideoCompose(m, opts); err != nil {
 		return nil, err
 	}
 
@@ -128,6 +237,9 @@ func Register(m *plugin.Manager, opts Options) ([]string, error) {
 	}
 	var out []string
 	for _, b := range binds.Bindings {
+		if !opts.allows(b.Provider) {
+			continue
+		}
 		name := b.Provider + "/" + b.Operation
 		if err := m.Alias(name, b.Capability); err != nil {
 			return nil, err
