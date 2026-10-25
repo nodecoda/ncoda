@@ -9,8 +9,9 @@
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
 **新增未实现符号必须同时给出归因**，否则判红。
 `audio_align_free` / `audio_subtitle_align_alt` 已由 `plugins/align_toolkit` 以 partial 实现（只收 duration_list，无音频内容可对齐）。
-当前 `local-todo` 只剩 3 个符号（`audio_timeline_merge.timeline_merge`、
-`video_image_split` 的 2 个），缺口是 gap 插入位置/槽位顺序的证据，不是实现难度。
+当前 `local-todo` 有 4 个符号：`audio_timeline_merge.timeline_merge`、`video_image_split` 的 2 个，
+以及 `script_storyboard.Text_Shot`。缺口分别是 gap 插入位置/槽位顺序与分镜切分规则，
+都是证据缺口，不是实现难度。
 
 ## 归因闭集
 
@@ -267,8 +268,8 @@ libraries:
     class: remote-api
     evidence: "header desc「通义千问」表明需要远程服务"
   script_storyboard:
-    class: remote-api
-    evidence: "header desc「文案自动分镜」表明需要远程服务"
+    class: local-todo
+    evidence: "Text_Shot(num, text) 只做纯文本分镜、无 URL/凭证；num 的取值为 6/12/25/缺省（4 个调用点），切分规则无语料手写等价物，保持未实现"
   secondhand_goods:
     class: remote-api
     evidence: "header desc「二手物资」表明需要远程服务"

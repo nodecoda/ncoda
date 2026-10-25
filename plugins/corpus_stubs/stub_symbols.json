@@ -643,9 +643,9 @@
    "loss": "remote-api: header desc「通义千问」表明需要远程服务"
   },
   "script_storyboard.Text_Shot": {
-   "class": "remote-api",
-   "evidence": "header desc「文案自动分镜」表明需要远程服务",
-   "loss": "remote-api: header desc「文案自动分镜」表明需要远程服务"
+   "class": "local-todo",
+   "evidence": "Text_Shot(num, text) 只做纯文本分镜、无 URL/凭证；num 的取值为 6/12/25/缺省（4 个调用点），切分规则无语料手写等价物，保持未实现",
+   "loss": "local-todo: Text_Shot(num, text) 只做纯文本分镜、无 URL/凭证；num 的取值为 6/12/25/缺省（4 个调用点），切分规则无语料手写等价物，保持未实现"
   },
   "secondhand_goods.shop_search": {
    "class": "remote-api",

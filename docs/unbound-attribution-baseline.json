@@ -6,11 +6,11 @@
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 18,
-  "local-todo": 3,
-  "remote-api": 150,
+  "local-todo": 4,
+  "remote-api": 149,
   "schema-unknown": 4,
   "server-state": 36,
   "unclassified": 0
  },
- "reason": "suchuang_video_compose.get_audio_duration implemented partial; server-state 37->36, stub 212->211"
+ "reason": "reclassify script_storyboard.Text_Shot from remote-api to local-todo: pure text split, no URL/credentials, but num/absent rule lacks evidence; remote-api 150->149, local-todo 3->4, stub unchanged"
 }
