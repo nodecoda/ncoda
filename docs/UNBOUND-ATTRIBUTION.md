@@ -150,7 +150,7 @@ libraries:
     evidence: "header desc「豆包图生视频」表明需要远程服务"
   doubao_video_lite:
     class: remote-api
-    evidence: "header desc「(corpus fallback: DB 快照未收录)」表明需要远程服务"
+    evidence: "video(model / first_frame_url / resolution) 生成视频；语料 7595856252548448298 传 doubao-seedance-pro 并消费返回的视频 URL——远程视频生成服务"
   douyin_copy:
     class: remote-api
     evidence: "header desc「抖音文案」表明需要远程服务"
@@ -255,7 +255,7 @@ libraries:
     evidence: "header desc「资源素材」表明需要远程服务"
   mihewan3:
     class: remote-api
-    evidence: "header desc「(corpus fallback: DB 快照未收录)」表明需要远程服务"
+    evidence: "mihewan3(key, prompt, images, videos) 生成 + task_info(id) 轮询；key 是服务凭证，属远程视频生成"
   mivideo_fast:
     class: remote-api
     evidence: "header desc「MIVIDEO生成快速版」表明需要远程服务"
@@ -357,7 +357,7 @@ libraries:
     evidence: "header desc「头条搜索」表明需要远程服务"
   veo3_video:
     class: remote-api
-    evidence: "header desc「(corpus fallback: DB 快照未收录)」表明需要远程服务"
+    evidence: "add_veo3_video_task / get_veo3_video 带 api_key + task_id 轮询：远程视频生成服务"
   video2audio:
     class: env-missing
     evidence: "转码需要 ffmpeg"

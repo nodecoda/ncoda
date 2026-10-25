@@ -76,6 +76,20 @@ class AttributeGateTest(unittest.TestCase):
         with self.assertRaises(ua.BadTable):
             self.load(table("  b:\n    class: local-todo\n    evidence: ''\n"))
 
+    def test_template_evidence_is_rc2(self) -> None:
+        # 「DB 快照未收录」曾被当成 remote-api 的证据（kimi_chat_parser）。
+        with self.assertRaises(ua.BadTable):
+            self.load(table(
+                "  b:\n    class: remote-api\n"
+                "    evidence: \"header desc「(corpus fallback: DB 快照未收录)」表明需要远程服务\"\n"))
+
+    def test_symbol_template_evidence_is_rc2(self) -> None:
+        with self.assertRaises(ua.BadTable):
+            self.load(table(
+                "  b:\n    class: local-todo\n    evidence: lib\n"
+                "    symbols:\n      f1:\n        class: remote-api\n"
+                "        evidence: 快照未收录\n"))
+
     def test_symbol_override_wins_over_library_class(self) -> None:
         t = self.load(table(
             "  b:\n"

@@ -53,6 +53,19 @@ CLASSES = {
 UNCLASSIFIED = "unclassified"
 
 
+TEMPLATE_EVIDENCE = ("corpus fallback", "快照未收录")
+
+
+def require_real_evidence(where: str, ev: str) -> None:
+    """证据不能是模板占位符：那不是「凭什么这么判」，只是没判。"""
+    low = ev.lower()
+    for needle in TEMPLATE_EVIDENCE:
+        if needle in low:
+            raise BadTable(
+                f"{where}: evidence is a template placeholder ({needle!r}); "
+                f"cite an actual header/corpus fact")
+
+
 class BadTable(RuntimeError):
     """归因表非法（rc=2）。"""
 
@@ -93,6 +106,7 @@ def load_table(path: str = TABLE) -> dict[str, dict]:
         ev = str(row.get("evidence") or "").strip()
         if not ev:
             raise BadTable(f"{path}: {lib}: evidence is required")
+        require_real_evidence(f"{path}: {lib}", ev)
         overrides = {}
         raw = row.get("symbols")
         if raw is not None:
@@ -108,6 +122,7 @@ def load_table(path: str = TABLE) -> dict[str, dict]:
                 sev = str(sym.get("evidence") or "").strip()
                 if not sev:
                     raise BadTable(f"{path}: {lib}.{fn}: evidence is required")
+                require_real_evidence(f"{path}: {lib}.{fn}", sev)
                 overrides[str(fn)] = {"class": scls, "evidence": sev}
         out[str(lib)] = {"class": cls, "evidence": ev, "symbols": overrides}
     return out
