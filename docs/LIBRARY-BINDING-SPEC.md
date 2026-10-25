@@ -391,7 +391,7 @@ stub **不是**「消灭 unbound」的捷径，判据有三道：
 不计入 ok，也不写 stub 冒充。
 
 **唯一例外**：`get_audio_duration(mp3_url) -> {duration:int, message, outputList}`
-是纯本地解码，已实现为 `partial`（WAV 精确 / MP3 CBR 估算 / 不联网）。
+是纯本地解码，已实现为 `partial`（WAV/MP3/OGG-Vorbis 精确 / 不联网；M4A/FLAC 未实现）。
 单位是**微秒整数**：语料把它直接当时间线端点与关键帧 `offset` 用，没有 `×1e6` 换算；
 对照同一语料里 `audio_duration.get_audio_duration` 返回**秒**且显式 `× 1000000`。
 判据：`pkg/localtools/compose_test.go`（4 条）。

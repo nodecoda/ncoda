@@ -2,8 +2,9 @@
 //
 // 边界：
 //   - WAV 走 RIFF chunk，时长 = data 字节数 / byteRate，精确。
-//   - MP3 只做 CBR 估算（首个帧头 bitrate + 字节数），VBR/Xing 不解析
-//     ⇒ bindings.yaml 里 audio_duration 是 partial，loss 写明。
+//   - MP3 逐帧精确：Layer I/II/III、MPEG1/2/2.5、VBR 逐帧累加；首帧带
+//     Xing/Info 时以声明帧数为准；不足一帧的尾巴不计。
+//   - OGG Vorbis 用末页 granule / 采样率；非 Vorbis 的 Ogg 显式不支持。
 //   - http(s) 不联网：返回 REMOTE_URL_UNSUPPORTED，由调用方的 failure 分支处理。
 package localtools
 
@@ -125,8 +126,9 @@ func audioDuration(data []byte) (float64, string, error) {
 		d, err := wavDuration(data)
 		return d, "wav", err
 	}
-	if len(data) >= 4 && (string(data[0:4]) == "OggS") {
-		return 0, "ogg", fmt.Errorf("UNSUPPORTED_FORMAT: ogg duration not decoded")
+	if len(data) >= 4 && string(data[0:4]) == "OggS" {
+		d, err := oggDuration(data)
+		return d, "ogg", err
 	}
 	if len(data) >= 4 && (string(data[0:3]) == "ID3" || (data[0] == 0xFF && data[1]&0xE0 == 0xE0)) {
 		d, err := mp3Duration(data)
@@ -171,49 +173,194 @@ func wavDuration(data []byte) (float64, error) {
 	return float64(dataSize) / float64(byteRate), nil
 }
 
-// mp3Duration：跳过 ID3v2 与尾部 ID3v1，按首个帧头的 bitrate 估算 CBR 时长。
+// mp3Frame 描述一个 MP3 帧头解析结果。
+type mp3FrameInfo struct {
+	length  int
+	samples int
+	rate    int
+	mono    bool
+	version int
+}
+
+var (
+	mp3RatesV1      = [3]int{44100, 48000, 32000}
+	mp3RatesV2      = [3]int{22050, 24000, 16000}
+	mp3RatesV25     = [3]int{11025, 12000, 8000}
+	mp3BitrateV1L1  = [16]int{0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 0}
+	mp3BitrateV1L2  = [16]int{0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 0}
+	mp3BitrateV1L3  = [16]int{0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0}
+	mp3BitrateV2L1  = [16]int{0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256, 0}
+	mp3BitrateV2L23 = [16]int{0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0}
+)
+
+// parseMP3Frame 解析 pos 处的帧头；不是合法帧（含 free bitrate）返回 false。
+func parseMP3Frame(data []byte, pos int) (mp3FrameInfo, bool) {
+	if pos+4 > len(data) || data[pos] != 0xFF || data[pos+1]&0xE0 != 0xE0 {
+		return mp3FrameInfo{}, false
+	}
+	version := int(data[pos+1]>>3) & 0x3
+	layer := int(data[pos+1]>>1) & 0x3 // 1=III 2=II 3=I 0=reserved
+	brIdx := int(data[pos+2] >> 4)
+	rateIdx := int(data[pos+2]>>2) & 0x3
+	padding := int(data[pos+2]>>1) & 0x1
+	if version == 1 || layer == 0 || brIdx == 0 || brIdx == 15 || rateIdx == 3 {
+		return mp3FrameInfo{}, false
+	}
+	var bitrate int
+	switch {
+	case version == 3 && layer == 3:
+		bitrate = mp3BitrateV1L1[brIdx]
+	case version == 3 && layer == 2:
+		bitrate = mp3BitrateV1L2[brIdx]
+	case version == 3:
+		bitrate = mp3BitrateV1L3[brIdx]
+	case layer == 3:
+		bitrate = mp3BitrateV2L1[brIdx]
+	default:
+		bitrate = mp3BitrateV2L23[brIdx]
+	}
+	if bitrate == 0 {
+		return mp3FrameInfo{}, false
+	}
+	var rate int
+	switch version {
+	case 3:
+		rate = mp3RatesV1[rateIdx]
+	case 2:
+		rate = mp3RatesV2[rateIdx]
+	default:
+		rate = mp3RatesV25[rateIdx]
+	}
+	var length, samples int
+	if layer == 3 { // Layer I
+		length = (12*bitrate*1000/rate + padding) * 4
+		samples = 384
+	} else {
+		coef := 144
+		samples = 1152
+		if version != 3 {
+			coef = 72
+			if layer == 1 {
+				samples = 576
+			}
+		}
+		length = coef*bitrate*1000/rate + padding
+	}
+	if length < 4 {
+		return mp3FrameInfo{}, false
+	}
+	return mp3FrameInfo{length: length, samples: samples, rate: rate,
+		mono: (data[pos+3]>>6)&0x3 == 3, version: version}, true
+}
+
+// mp3Duration 逐帧累加采样数：VBR/CBR 同一条路径，Xing/Info 帧数优先。
 func mp3Duration(data []byte) (float64, error) {
-	off := 0
+	pos := 0
 	if len(data) >= 10 && string(data[0:3]) == "ID3" {
 		size := int(data[6]&0x7F)<<21 | int(data[7]&0x7F)<<14 | int(data[8]&0x7F)<<7 | int(data[9]&0x7F)
-		off = 10 + size
+		pos = 10 + size
+		if data[5]&0x10 != 0 { // ID3v2 footer present
+			pos += 10
+		}
 	}
-	for off+4 <= len(data) {
-		if data[off] == 0xFF && data[off+1]&0xE0 == 0xE0 {
+	first := -1
+	var head mp3FrameInfo
+	for ; pos+4 <= len(data); pos++ {
+		if f, ok := parseMP3Frame(data, pos); ok {
+			first, head = pos, f
 			break
 		}
-		off++
 	}
-	if off+4 > len(data) {
+	if first < 0 {
 		return 0, fmt.Errorf("INVALID_MP3: no frame sync")
 	}
-	h := data[off : off+4]
-	version := (h[1] >> 3) & 0x3
-	layer := (h[1] >> 1) & 0x3
-	bitrateIdx := int(h[2] >> 4)
-	sampleIdx := int((h[2] >> 2) & 0x3)
-	if bitrateIdx == 0 || bitrateIdx == 15 || sampleIdx == 3 {
-		return 0, fmt.Errorf("INVALID_MP3: bad frame header")
+	// Xing/Info：帧数声明优先（VBR 常把真实帧数写在这里）。
+	side := 32
+	if head.version != 3 {
+		side = 17
 	}
-	var bitrates [16]int
-	switch {
-	case version == 3 && layer == 1: // MPEG1 Layer III
-		bitrates = [16]int{0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0}
-	case version == 3: // MPEG1 Layer II
-		bitrates = [16]int{0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 0}
-	default: // MPEG2/2.5 Layer III
-		bitrates = [16]int{0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0}
+	if head.mono {
+		if head.version == 3 {
+			side = 17
+		} else {
+			side = 9
+		}
 	}
-	kbps := bitrates[bitrateIdx]
-	if kbps == 0 {
-		return 0, fmt.Errorf("INVALID_MP3: free bitrate")
+	if off := first + 4 + side; off+12 <= len(data) {
+		tag := string(data[off : off+4])
+		if tag == "Xing" || tag == "Info" {
+			if binary.BigEndian.Uint32(data[off+4:off+8])&1 != 0 {
+				frames := binary.BigEndian.Uint32(data[off+8 : off+12])
+				if frames > 0 {
+					return float64(frames) * float64(head.samples) / float64(head.rate), nil
+				}
+			}
+		}
 	}
-	size := len(data) - off
-	if size > 128 && string(data[len(data)-128:len(data)-125]) == "TAG" {
-		size -= 128
+	var seconds float64
+	p := first
+	for p+4 <= len(data) {
+		f, ok := parseMP3Frame(data, p)
+		if !ok || p+f.length > len(data) {
+			break
+		}
+		seconds += float64(f.samples) / float64(f.rate)
+		p += f.length
 	}
-	if size < 0 {
-		size = 0
+	if seconds <= 0 {
+		return 0, fmt.Errorf("INVALID_MP3: no complete frame")
 	}
-	return float64(size) * 8 / (float64(kbps) * 1000), nil
+	return seconds, nil
+}
+
+// oggDuration：Vorbis 识别头取采样率，末个有效 Ogg 页的 granule 取总采样数。
+func oggDuration(data []byte) (float64, error) {
+	const pageHeader = 27
+	if len(data) < pageHeader || string(data[0:4]) != "OggS" {
+		return 0, fmt.Errorf("INVALID_OGG: no page header")
+	}
+	nsegs := int(data[26])
+	if pageHeader+nsegs > len(data) {
+		return 0, fmt.Errorf("INVALID_OGG: truncated lacing table")
+	}
+	body := pageHeader + nsegs
+	packetLen := 0
+	for i := 0; i < nsegs; i++ {
+		packetLen += int(data[pageHeader+i])
+		if data[pageHeader+i] < 255 {
+			break
+		}
+	}
+	if body+packetLen > len(data) || packetLen < 16 {
+		return 0, fmt.Errorf("INVALID_OGG: truncated identification header")
+	}
+	id := data[body : body+packetLen]
+	if id[0] != 0x01 || string(id[1:7]) != "vorbis" {
+		return 0, fmt.Errorf("UNSUPPORTED_FORMAT: ogg codec is not vorbis")
+	}
+	rate := int(binary.LittleEndian.Uint32(id[12:16]))
+	if rate <= 0 {
+		return 0, fmt.Errorf("INVALID_OGG: bad sample rate")
+	}
+	var granule uint64
+	found := false
+	pos := 0
+	for pos+pageHeader <= len(data) && string(data[pos:pos+4]) == "OggS" {
+		n := int(data[pos+26])
+		if pos+pageHeader+n > len(data) {
+			break
+		}
+		size := 0
+		for i := 0; i < n; i++ {
+			size += int(data[pos+pageHeader+i])
+		}
+		if g := binary.LittleEndian.Uint64(data[pos+6 : pos+14]); g != ^uint64(0) {
+			granule, found = g, true
+		}
+		pos += pageHeader + n + size
+	}
+	if !found || granule == 0 {
+		return 0, fmt.Errorf("INVALID_OGG: no granule position")
+	}
+	return float64(granule) / float64(rate), nil
 }

@@ -30,7 +30,7 @@ func registerCapcutVideoCompose(m *plugin.Manager, opts Options) error {
 		ID: "local_capcut_video_compose", Version: "0.1.0", Type: plugin.PluginCallable,
 		Tools: []plugin.Tool{{
 			Name:         "get_audio_duration",
-			Desc:         "本地音频时长，**微秒整数**（WAV 精确 / MP3 CBR 估算 / 不联网）",
+			Desc:         "本地音频时长，**微秒整数**（WAV/MP3/OGG 精确 / 不联网）",
 			Capabilities: []string{"capcut_video_compose.get_audio_duration"},
 			Call:         composeAudioDuration,
 		}},

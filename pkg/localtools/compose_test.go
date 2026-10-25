@@ -7,7 +7,7 @@ package localtools
 // 5s 音频配 `duration: 4884897` 量级），没有 ×1e6 的换算；同一个语料里
 // `audio_duration.get_audio_duration` 返回秒并显式 `* 1000000`，两者不同单位。
 //
-// 保真度：partial（WAV 精确 / MP3 CBR 估算 / 不联网），loss 与 audio_duration 同源。
+// 保真度：partial（WAV/MP3/OGG 精确 / 不联网），loss 与 audio_duration 同源。
 
 import (
 	"context"

@@ -154,12 +154,12 @@ bindings:
     operation: get_audio_duration
     capability: audio_duration.get_audio_duration
     implementation: partial
-    loss: "WAV 精确；MP3 只做 CBR 估算；http(s) 不联网（REMOTE_URL_UNSUPPORTED）"
+    loss: "WAV / MP3 / OGG-Vorbis 精确（MP3 逐帧累加，Xing/Info 帧数优先，VBR 同路径）；http(s) 不联网（REMOTE_URL_UNSUPPORTED）；M4A/FLAC 等容器未实现（UNSUPPORTED_FORMAT）"
   - provider: capcut_video_compose
     operation: get_audio_duration
     capability: capcut_video_compose.get_audio_duration
     implementation: partial
-    loss: "WAV 精确；MP3 只做 CBR 估算；http(s) 不联网（REMOTE_URL_UNSUPPORTED）。同库其余 12 个函数是服务端草稿状态机（draft_url/draft_id 为服务句柄），保持未绑"
+    loss: "WAV / MP3 / OGG-Vorbis 精确（MP3 逐帧累加，Xing/Info 帧数优先，VBR 同路径）；http(s) 不联网（REMOTE_URL_UNSUPPORTED）；M4A/FLAC 等容器未实现（UNSUPPORTED_FORMAT）。同库其余 12 个函数是服务端草稿状态机（draft_url/draft_id 为服务句柄），保持未绑"
 
   - provider: tts
     operation: speech_synthesis
