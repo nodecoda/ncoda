@@ -34,6 +34,8 @@ LIBRARIES = [
     {"library": "capcut_data_fast",
      "functions": ["keyframes_infos", "audio_infos", "caption_infos", "imgs_infos",
                     "video_infos", "effect_infos"]},
+    {"library": "capcut", "functions": ["video_timelines"]},
+    {"library": "suchuang_video_compose", "functions": ["video_timelines"]},
 ]
 
 
@@ -598,24 +600,31 @@ def _audio_scalar(v):
     return ""
 
 
+class RemoteUnsupported(ValueError):
+    """离线实现的远程取数拒绝；由调用方补上 AUDIO/VIDEO 前缀。"""
+
+
 def _fetch_remote(url):
     """远程取数的默认策略：离线显式失败。
 
-    这是唯一的网络入口，测试用 monkeypatch 替换成合成 WAV（mock），
+    这是唯一的网络入口，测试用 monkeypatch 替换成合成媒体字节（mock），
     从而在不触网、不依赖 ffmpeg 的前提下验证「URL → 字节 → 微秒」这一段。
     """
-    raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % url)
+    raise RemoteUnsupported("offline implementation does not fetch %s" % url)
 
 
-def _audio_bytes(raw):
+def _media_bytes(raw, prefix="REMOTE_AUDIO_UNSUPPORTED"):
     s = raw.strip()
     low = s.lower()
     if low.startswith(("http://", "https://")):
-        return _fetch_remote(s)
+        try:
+            return _fetch_remote(s)
+        except RemoteUnsupported as exc:
+            raise ValueError("%s: %s" % (prefix, exc))
     if low.startswith("data:"):
         comma = s.find(",")
         if comma < 0 or ";base64" not in low[:comma]:
-            raise ValueError("bad data url (want data:audio/...;base64,)")
+            raise ValueError("bad data url (want data:<type>;base64,)")
         return base64.b64decode(s[comma + 1:])
     if low.startswith("file://"):
         path = urllib.request.url2pathname(urllib.parse.urlparse(s).path)
@@ -623,6 +632,10 @@ def _audio_bytes(raw):
         path = s
     with open(path, "rb") as fh:
         return fh.read()
+
+
+def _audio_bytes(raw):
+    return _media_bytes(raw, "REMOTE_AUDIO_UNSUPPORTED")
 
 
 def wav_duration_us(blob):
@@ -681,7 +694,191 @@ def fn_audio_timelines(args):
             "total_timelines": total}
 
 
+# ── 媒体容器时长（video_timelines）──────────────────────────────────────
+#
+# capcut.video_timelines / suchuang_video_compose.video_timelines 只收 links，
+# 返回逐链接相接的 timelines 与「整体单区间」all_timelines。
+# 证据：7531684846948007951:50 用 `all_timelines[0].end + all_timelines_1[0].end`
+# 求两组视频的总时长；7624531644146729003:242 用 all_timelines[0] 求单个视频
+# 时长；7577283712418152458:331 的手写 JS 也把 all_timelines 压成一个区间。
+# 时长探测不调用 ffprobe：容器头（MP4 mvhd / WebM EBML / WAV data）足够。
+
+def mp4_duration_us(blob):
+    """MP4/MOV：moov/mvhd；duration=0 时退回 mvex/mehd 或最长 trak/mdhd。"""
+
+    def children(start, end):
+        pos = start
+        while pos + 8 <= end:
+            size = struct.unpack(">I", blob[pos:pos + 4])[0]
+            typ = blob[pos + 4:pos + 8]
+            header = 8
+            if size == 1:
+                if pos + 16 > end:
+                    raise ValueError("truncated MP4 box header")
+                size = struct.unpack(">Q", blob[pos + 8:pos + 16])[0]
+                header = 16
+            elif size == 0:
+                size = end - pos
+            if size < header or pos + size > end:
+                raise ValueError("truncated MP4 box %r" % typ)
+            yield typ, pos + header, pos + size
+            pos += size
+
+    def time_header(body, end):
+        """mvhd/mdhd/mehd 的 (version, timescale, duration, duration_offset)。"""
+        if body + 4 > end:
+            raise ValueError("truncated MP4 time header")
+        version = blob[body]
+        if version == 1:
+            if body + 32 > end:
+                raise ValueError("truncated MP4 v1 time header")
+            timescale = struct.unpack(">I", blob[body + 20:body + 24])[0]
+            duration = struct.unpack(">Q", blob[body + 24:body + 32])[0]
+        elif version == 0:
+            if body + 20 > end:
+                raise ValueError("truncated MP4 v0 time header")
+            timescale = struct.unpack(">I", blob[body + 12:body + 16])[0]
+            duration = struct.unpack(">I", blob[body + 16:body + 20])[0]
+        else:
+            raise ValueError("unsupported MP4 time header version %d" % version)
+        return timescale, duration
+
+    mvhd = mehd = None
+    track_max = 0
+    for typ, start, end in children(0, len(blob)):
+        if typ != b"moov":
+            continue
+        for typ2, s2, e2 in children(start, end):
+            if typ2 == b"mvhd":
+                mvhd = time_header(s2, e2)
+            elif typ2 == b"mvex":
+                for typ3, s3, e3 in children(s2, e2):
+                    if typ3 == b"mehd":
+                        mehd = time_header(s3, e3)
+            elif typ2 == b"trak":
+                for typ3, s3, e3 in children(s2, e2):
+                    if typ3 != b"mdia":
+                        continue
+                    for typ4, s4, e4 in children(s3, e3):
+                        if typ4 == b"mdhd":
+                            ts, dur = time_header(s4, e4)
+                            if ts:
+                                track_max = max(track_max, dur * 1000000 // ts)
+    if mvhd and mvhd[0] and mvhd[1]:
+        return int(round(mvhd[1] * 1000000.0 / mvhd[0]))
+    if mehd and mehd[0] and mehd[1]:
+        return int(round(mehd[1] * 1000000.0 / mehd[0]))
+    if track_max:
+        return track_max
+    raise ValueError("MP4 has no usable mvhd/mehd/mdhd duration")
+
+
+def _ebml_id(blob, pos):
+    first = blob[pos]
+    length, mask = 1, 0x80
+    while length <= 4 and not first & mask:
+        mask >>= 1
+        length += 1
+    if not first & mask or pos + length > len(blob):
+        raise ValueError("bad EBML element id")
+    return blob[pos:pos + length], pos + length
+
+
+def _ebml_size(blob, pos):
+    first = blob[pos]
+    length, mask = 1, 0x80
+    while length <= 8 and not first & mask:
+        mask >>= 1
+        length += 1
+    if length > 8 or pos + length > len(blob):
+        raise ValueError("bad EBML element size")
+    value = first & (mask - 1)
+    for i in range(1, length):
+        value = (value << 8) | blob[pos + i]
+    unknown = value == mask - 1
+    return None if unknown else value, pos + length
+
+
+def webm_duration_us(blob):
+    """WebM/Matroska：Segment/Info 的 TimecodeScale × Duration。"""
+    scale, duration = 1000000, None
+
+    def walk(pos, end):
+        nonlocal scale, duration
+        while pos < end:
+            eid, pos = _ebml_id(blob, pos)
+            size, body = _ebml_size(blob, pos)
+            body_end = end if size is None else body + size
+            if body_end > end:
+                raise ValueError("truncated EBML element %r" % eid)
+            if eid in (b"\x18\x53\x80\x67", b"\x15\x49\xa9\x66"):
+                walk(body, body_end)
+            elif eid == b"\x2a\xd7\xb1":
+                scale = int.from_bytes(blob[body:body_end], "big")
+            elif eid == b"\x44\x89":
+                n = body_end - body
+                if n == 4:
+                    duration = struct.unpack(">f", blob[body:body_end])[0]
+                elif n == 8:
+                    duration = struct.unpack(">d", blob[body:body_end])[0]
+                else:
+                    raise ValueError("bad WebM Duration width %d" % n)
+            pos = body_end
+
+    walk(0, len(blob))
+    if duration is None:
+        raise ValueError("WebM has no Duration (unfinalized/live stream?)")
+    return int(round(duration * scale / 1000.0))
+
+
+def media_duration_us(blob):
+    if len(blob) >= 12 and blob[:4] == b"RIFF" and blob[8:12] == b"WAVE":
+        return wav_duration_us(blob)
+    if len(blob) >= 12 and blob[4:8] in (b"ftyp", b"moov", b"styp"):
+        return mp4_duration_us(blob)
+    if blob[:4] == b"\x1a\x45\xdf\xa3":
+        return webm_duration_us(blob)
+    raise ValueError("unsupported media container (want WAV/MP4/WebM)")
+
+
+def _video_links(args):
+    links = []
+    for item in as_items(arg(args, "links"), "links"):
+        link = _audio_scalar(item)
+        if not link:
+            raise ValueError("empty video link")
+        links.append(link)
+    return links
+
+
+def _build_video_timelines(links):
+    timelines, cursor = [], 0
+    for link in links:
+        dur = media_duration_us(_media_bytes(link, "REMOTE_VIDEO_UNSUPPORTED"))
+        if dur <= 0:
+            raise ValueError("non-positive video duration for %s" % link)
+        timelines.append({"start": cursor, "end": cursor + dur})
+        cursor += dur
+    all_timelines = [{"start": 0, "end": cursor}] if timelines else []
+    return timelines, all_timelines
+
+
+def fn_video_timelines(args):
+    """capcut.video_timelines：逐链接 timelines + 整体 all_timelines。"""
+    timelines, all_timelines = _build_video_timelines(_video_links(args))
+    return {"timelines": timelines, "all_timelines": all_timelines}
+
+
+def fn_suchuang_video_timelines(args):
+    """suchuang_video_compose.video_timelines：同上，并回显 links。"""
+    links = _video_links(args)
+    timelines, all_timelines = _build_video_timelines(links)
+    return {"links": links, "timelines": timelines, "all_timelines": all_timelines}
+
+
 HANDLERS = {
+    "capcut.video_timelines": fn_video_timelines,
+    "suchuang_video_compose.video_timelines": fn_suchuang_video_timelines,
     "capcut_draft_data.timelines": fn_timelines,
     "capcut_draft_data.str_to_list": fn_str_to_list,
     "capcut_draft_data.caption_splitter": fn_caption_splitter,

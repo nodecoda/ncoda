@@ -66,3 +66,21 @@ libraries:
         loss: "同 capcut_data.video_infos；header 无 error 字段"
       - name: effect_infos
         loss: "同 capcut_data.effect_infos"
+  # ── 媒体时长探测族 ────────────────────────────────────────────────────
+  # 证据：7531684846948007951:50 用 `all_timelines[0].end + all_timelines_1[0].end`
+  # 求两组视频总时长；7624531644146729003:242 用 all_timelines[0] 求单个视频时长；
+  # 7577283712418152458:331 的手写 JS 也把 all_timelines 压成一个整体区间。
+  - library: capcut
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：实现 video_timelines；easy_create_material 仍是 server-state，由 corpus_stubs 承载"
+    functions:
+      - name: video_timelines
+        loss: "容器头解析代替 ffprobe：MP4(moov/mvhd，duration=0 时退回 mvex/mehd 或最长 trak/mdhd)、WebM(EBML TimecodeScale×Duration)、WAV(data/byteRate)；MP3/MOV-fragmented 特例与 HLS 未覆盖。timelines 逐链接相接、all_timelines 是单个整体区间（证据见上）；http(s) 默认显式 REMOTE_VIDEO_UNSUPPORTED，远程分支由测试 mock 取数钩子验证，不代表生产会联网"
+  - library: suchuang_video_compose
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：本插件只接管 video_timelines（与 capcut.video_timelines 同一实现）；其余函数在 compose_toolkit / corpus_stubs"
+    functions:
+      - name: video_timelines
+        loss: "同 capcut.video_timelines；额外回显 links（header 声明）。时长单位微秒（header 的时间线字段是 int）"

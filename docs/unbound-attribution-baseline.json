@@ -1,16 +1,16 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
  "unbound_symbols": 0,
- "stub_symbols": 211,
- "not_implemented_symbols": 211,
+ "stub_symbols": 209,
+ "not_implemented_symbols": 209,
  "unclassified_symbols": 0,
  "by_class": {
-  "env-missing": 20,
+  "env-missing": 18,
   "local-todo": 5,
   "remote-api": 150,
   "schema-unknown": 4,
   "server-state": 32,
   "unclassified": 0
  },
- "reason": "correct four symbol attributions: capcut.video_timelines and suchuang.video_timelines -> env-missing (links-only video probe, no ffprobe), suchuang.audio_timelines -> remote-api (api_key server-side silence trimming), capcut_keyframes.keyFrames -> local-todo (pure arrays, unproven rule); server-state 36->32, env-missing 18->20, remote-api 149->150, local-todo 4->5"
+ "reason": "video_timelines env-missing → 实现（MP4/WebM/WAV 容器头）"
 }

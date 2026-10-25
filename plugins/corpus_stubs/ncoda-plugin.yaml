@@ -103,10 +103,7 @@ libraries:
   functions:
   - name: easy_create_material
     fidelity: stub
-    loss: 'server-state: 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft'
-  - name: video_timelines
-    fidelity: stub
-    loss: 'env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失，不是服务端草稿状态'
+    loss: 'server-state: easy_create_material 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft；video_timelines 已由 plugins/timeline_toolkit 以容器头解析实现（partial，不依赖 ffprobe），不随库级归因'
 - library: capcut_data
   fidelity: stub
   functions:
@@ -725,9 +722,6 @@ libraries:
   - name: audio_timelines
     fidelity: stub
     loss: 'remote-api: 收 api_key + silence_duration/trim_breath/silence_threshold：语音静音裁剪在平台服务端完成，不是本地算术'
-  - name: video_timelines
-    fidelity: stub
-    loss: 'env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失'
 - library: suno_api
   fidelity: stub
   functions:

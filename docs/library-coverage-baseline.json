@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 211,
+ "symbols_bound_stub": 209,
  "complete_stub": 698,
- "reason": "compose_toolkit implements suchuang_video_compose.get_audio_duration (stub 212->211; WAV + unit conversion + mockable remote hook)"
+ "reason": "video_timelines: capcut + suchuang_video_compose 以容器头解析实现（partial），stub 211→209"
 }

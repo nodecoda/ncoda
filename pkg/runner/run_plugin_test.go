@@ -1661,3 +1661,82 @@ function main() -> any {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
+
+// mp4Fixture 生成最小 MP4（ftyp + moov/mvhd），时长 = seconds。
+// 判据跑的是「容器头 → 微秒」这一段，不需要真实编码/ffmpeg。
+func mp4Fixture(t *testing.T, seconds float64) string {
+	t.Helper()
+	box := func(typ string, payload []byte) []byte {
+		out := make([]byte, 0, 8+len(payload))
+		out = binary.BigEndian.AppendUint32(out, uint32(8+len(payload)))
+		out = append(out, typ...)
+		return append(out, payload...)
+	}
+	mvhd := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	mvhd = binary.BigEndian.AppendUint32(mvhd, 1000)                 // timescale
+	mvhd = binary.BigEndian.AppendUint32(mvhd, uint32(seconds*1000)) // duration
+	mvhd = append(mvhd, make([]byte, 80)...)
+	blob := append(box("ftyp", []byte("isom\x00\x00\x02\x00isomiso2mp41")),
+		box("moov", box("mvhd", mvhd))...)
+	p := filepath.Join(t.TempDir(), fmt.Sprintf("v%03d.mp4", int(seconds*1000)))
+	if err := os.WriteFile(p, blob, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+// video_timelines：capcut / suchuang_video_compose 的容器头探测必须能从 CLI 驱动，
+// 且 all_timelines 是整体单区间（负控见 test_server 的同名判据）。
+func TestVideoTimelinesPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	five := mp4Fixture(t, 5.0)
+	four := mp4Fixture(t, 4.5)
+	one := mp4Fixture(t, 1.0)
+	src := fmt.Sprintf(`@language nodecoda/1
+@mode workflow
+import "capcut";
+import "suchuang_video_compose";
+
+function main() -> any {
+    let a = capcut.video_timelines({ "links": ["%s", "%s"] });
+    let b = suchuang_video_compose.video_timelines({ "links": ["%s"] });
+    return { "timelines": a.timelines, "all": a.all_timelines,
+             "links": b.links, "b_timelines": b.timelines };
+}
+`, five, four, one)
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Timelines []struct{ Start, End float64 } `json:"timelines"`
+		All       []struct{ Start, End float64 } `json:"all"`
+		Links     []string                       `json:"links"`
+		BTimeline []struct{ Start, End float64 } `json:"b_timelines"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Timelines) != 2 {
+		t.Fatalf("timelines = %+v", got.Timelines)
+	}
+	if got.Timelines[0].Start != 0 || got.Timelines[0].End != 5000000 ||
+		got.Timelines[1].Start != 5000000 || got.Timelines[1].End != 9500000 {
+		t.Fatalf("timelines = %+v", got.Timelines)
+	}
+	if len(got.All) != 1 || got.All[0].Start != 0 || got.All[0].End != 9500000 {
+		t.Fatalf("all_timelines = %+v", got.All)
+	}
+	if len(got.Links) != 1 || got.Links[0] != one {
+		t.Fatalf("links = %v", got.Links)
+	}
+	if len(got.BTimeline) != 1 || got.BTimeline[0].End != 1000000 {
+		t.Fatalf("suchuang timelines = %+v", got.BTimeline)
+	}
+}

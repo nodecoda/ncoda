@@ -79,13 +79,8 @@
   },
   "capcut.easy_create_material": {
    "class": "server-state",
-   "evidence": "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft",
-   "loss": "server-state: 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
-  },
-  "capcut.video_timelines": {
-   "class": "env-missing",
-   "evidence": "只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失，不是服务端草稿状态",
-   "loss": "env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失，不是服务端草稿状态"
+   "evidence": "easy_create_material 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft；video_timelines 已由 plugins/timeline_toolkit 以容器头解析实现（partial，不依赖 ffprobe），不随库级归因",
+   "loss": "server-state: easy_create_material 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft；video_timelines 已由 plugins/timeline_toolkit 以容器头解析实现（partial，不依赖 ffprobe），不随库级归因"
   },
   "capcut_data.search_sticker": {
    "class": "remote-api",
@@ -741,11 +736,6 @@
    "class": "remote-api",
    "evidence": "收 api_key + silence_duration/trim_breath/silence_threshold：语音静音裁剪在平台服务端完成，不是本地算术",
    "loss": "remote-api: 收 api_key + silence_duration/trim_breath/silence_threshold：语音静音裁剪在平台服务端完成，不是本地算术"
-  },
-  "suchuang_video_compose.video_timelines": {
-   "class": "env-missing",
-   "evidence": "只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失",
-   "loss": "env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失"
   },
   "suno_api.suno_fetch": {
    "class": "remote-api",

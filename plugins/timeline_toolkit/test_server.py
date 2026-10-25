@@ -5,6 +5,7 @@ run: python3 plugins/timeline_toolkit/test_server.py
 """
 import json
 import os
+import struct
 import sys
 import unittest
 
@@ -529,6 +530,137 @@ class DraftGetAudioDurationTest(unittest.TestCase):
             server.fn_get_audio_duration({"url": ""})
 
 
+
+
+def _box(typ, payload):
+    return struct.pack(">I", 8 + len(payload)) + typ + payload
+
+
+def mp4_blob(seconds, timescale=1000):
+    """最小 MP4：ftyp + moov/mvhd（version 0）。"""
+    dur = int(round(seconds * timescale))
+    mvhd = (b"\x00" + b"\x00\x00\x00"
+            + struct.pack(">II", 0, 0)
+            + struct.pack(">II", timescale, dur)
+            + b"\x00" * 80)
+    return (_box(b"ftyp", b"isom" + struct.pack(">I", 512) + b"isomiso2mp41")
+            + _box(b"moov", _box(b"mvhd", mvhd)))
+
+
+def _ebml_vint(n):
+    for length in range(1, 9):
+        if n < (1 << (7 * length)) - 1:
+            return bytes([(1 << (8 - length)) | (n >> (8 * (length - 1)))]) + \
+                n.to_bytes(length, "big")[1:]
+    raise ValueError("too large")
+
+
+def _ebml(eid, payload):
+    return eid + _ebml_vint(len(payload)) + payload
+
+
+def webm_blob(seconds, timecode_scale=1000000):
+    """最小 WebM：EBML 头 + Segment/Info(TimecodeScale, Duration=ms)。"""
+    header = _ebml(b"\x1a\x45\xdf\xa3", _ebml(b"\x42\x82", b"webm"))
+    info = _ebml(b"\x15\x49\xa9\x66",
+                 _ebml(b"\x2a\xd7\xb1", timecode_scale.to_bytes(3, "big"))
+                 + _ebml(b"\x44\x89", struct.pack(">d", seconds * 1000.0)))
+    return header + _ebml(b"\x18\x53\x80\x67", info)
+
+
+class VideoTimelinesTest(unittest.TestCase):
+    """capcut.video_timelines / suchuang_video_compose.video_timelines。
+
+    证据：
+      - `timelines` 与 links 1:1、从 0 起相接；
+      - `all_timelines` 是**单个整体区间**：7531684846948007951:50 用
+        `all_timelines[0].end + all_timelines_1[0].end` 求两组视频总时长，
+        7624531644146729003:242 用 `all_timelines[0]` 求单个视频时长，
+        7577283712418152458:331 的手写 JS 也把 all_timelines 压成一个区间。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def path(self, blob, name):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def wav(self, seconds, rate=16000):
+        import io
+        import wave
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(rate)
+            w.writeframes(b"\x00\x00" * int(seconds * rate))
+        return buf.getvalue()
+
+    def test_mp4_mvhd_duration_in_microseconds(self):
+        p = self.path(mp4_blob(5.0), "a.mp4")
+        out = server.fn_video_timelines({"links": [p]})
+        self.assertEqual(out["timelines"], [{"start": 0, "end": 5000000}])
+        self.assertEqual(out["all_timelines"], [{"start": 0, "end": 5000000}])
+
+    def test_two_mp4_links_concatenate_and_all_is_single_span(self):
+        a = self.path(mp4_blob(5.0), "a.mp4")
+        b = self.path(mp4_blob(4.5), "b.mp4")
+        out = server.fn_video_timelines({"links": [a, b]})
+        self.assertEqual(out["timelines"], [
+            {"start": 0, "end": 5000000},
+            {"start": 5000000, "end": 9500000},
+        ])
+        # 负控：若 all_timelines 退化成 timelines 的别名，这里会得到 2 段而变红。
+        self.assertEqual(out["all_timelines"], [{"start": 0, "end": 9500000}])
+
+    def test_webm_duration(self):
+        p = self.path(webm_blob(2.5), "a.webm")
+        out = server.fn_video_timelines({"links": [p]})
+        self.assertEqual(out["timelines"], [{"start": 0, "end": 2500000}])
+
+    def test_wav_link_is_supported(self):
+        p = self.path(self.wav(0.75), "a.wav")
+        self.assertEqual(server.fn_video_timelines({"links": [p]})["timelines"],
+                         [{"start": 0, "end": 750000}])
+
+    def test_suchuang_variant_echoes_links(self):
+        p = self.path(mp4_blob(1.0), "a.mp4")
+        out = server.fn_suchuang_video_timelines({"links": [p]})
+        self.assertEqual(out["links"], [p])
+        self.assertEqual(out["timelines"], [{"start": 0, "end": 1000000}])
+        self.assertEqual(out["all_timelines"], [{"start": 0, "end": 1000000}])
+
+    def test_empty_links(self):
+        self.assertEqual(server.fn_video_timelines({"links": []}),
+                         {"timelines": [], "all_timelines": []})
+
+    def test_remote_default_is_explicit_offline_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_video_timelines({"links": ["https://example.com/a.mp4"]})
+        self.assertIn("REMOTE_VIDEO_UNSUPPORTED", str(ctx.exception))
+
+    def test_remote_branch_can_be_mocked_without_network(self):
+        old = server._fetch_remote
+        seen = []
+        server._fetch_remote = lambda url: (seen.append(url), mp4_blob(3.0))[1]
+        try:
+            out = server.fn_video_timelines({"links": ["https://example.com/a.mp4"]})
+        finally:
+            server._fetch_remote = old
+        self.assertEqual(out["timelines"], [{"start": 0, "end": 3000000}])
+        self.assertEqual(seen, ["https://example.com/a.mp4"])
+
+    def test_unknown_container_is_explicit_error(self):
+        p = self.path(b"not a media container at all", "a.bin")
+        with self.assertRaises(ValueError):
+            server.fn_video_timelines({"links": [p]})
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
