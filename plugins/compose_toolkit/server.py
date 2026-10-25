@@ -201,29 +201,33 @@ def fn_add_list(args):
 # ── 时间轴 ───────────────────────────────────────────────────────────────
 
 def merge_timelines(main, pre, gap_us, skip_us):
+    """[pre][gap][main] 拼接；skip_us 是整块的时间平移量。
+
+    证据：7551643866874150912:313 / 7577698754514960419:330 /
+    7572110422062383146:310 都把 `skip_us` 传成上一轮 merge 的 `last_end_us`
+    （即「接在前一段之后」）；7577251869463134243:229 用常量 skip=2.5s + gap=1.5s。
+    pre 与 main 一起平移（否则 pre 会落到前一段上）；gap 只拉开 pre 与 main。
+    """
     gap = max(0, as_int(gap_us, 0, "gap_us"))
     skip = max(0, as_int(skip_us, 0, "skip_us"))
     pre_segs = segments(pre, "pre_timeline")
     main_segs = segments(main, "main_timeline")
+    pre_shifted = [{"start": s["start"] + skip, "end": s["end"] + skip} for s in pre_segs]
     pre_end = max((s["end"] for s in pre_segs), default=0)
-    shift = (pre_end + gap) if pre_segs else 0
-    main_shifted = [{"start": s["start"] + shift, "end": s["end"] + shift} for s in main_segs]
-    merged = pre_segs + main_shifted
-    if skip > 0:
-        # 已知偏差：skip_us 只作为段间空隙压缩，具体规则未证实（见 loss）。
-        merged = [{"start": (s["start"] if i == 0 else s["start"] - skip * i),
-                   "end": s["end"] - skip * i} for i, s in enumerate(merged)]
+    base = skip + (pre_end + gap if pre_segs else 0)
+    main_shifted = [{"start": s["start"] + base, "end": s["end"] + base} for s in main_segs]
+    merged = pre_shifted + main_shifted
     last_end = max((s["end"] for s in merged), default=0)
-    all_tl = [] if not merged else [{"start": min(s["start"] for s in merged), "end": last_end}]
+    all_tl = [] if not merged else [{"start": 0, "end": last_end}]
     return {
         "all_complete_timeline": list(merged),
         "all_main_timeline": list(main_shifted),
-        "all_pre_timeline": list(pre_segs),
+        "all_pre_timeline": list(pre_shifted),
         "all_timeline": all_tl,
         "error": "",
         "last_end_us": last_end,
         "main_timelines": list(main_shifted),
-        "pre_timelines": list(pre_segs),
+        "pre_timelines": list(pre_shifted),
         "timelines": list(merged),
     }
 

@@ -15,14 +15,14 @@ python3 plugins/compose_toolkit/test_server.py
 |---|---|---|---|---|
 | `capcut_helper` | `audio_link_collector` | real | 摊平 TTS 结果里的 `link`，保序去空 | `corpus/7580659724749865001:94,106` → `audio_timelines({links})` |
 | `capcut_helper` | `text_splitter` | partial | 空行分段 → 句末标点切句 | `corpus/7580659724749865001:46` → `segments` 逐段 TTS |
-| `capcut_helper` | `timeline_merge` | partial | `main` 后移 `max(pre.end)+gap_us`，输出 8 个时间轴字段 | `corpus/7580659724749865001:113,129` → `.timelines/.main_timelines/.all_*` |
+| `capcut_helper` | `timeline_merge` | partial | `skip_us` 是整块平移（pre+main 一起后移），`main` 再后移 `max(pre.end)+gap_us`；`all_timeline=[0,last_end_us]`，`all_complete_timeline=timelines` | `corpus/7580659724749865001:113,129`（gap）；`7551643866874150912:313`、`7577698754514960419:330`（skip=上一轮 last_end_us） |
 | `capcut_helper` | `wenan_timeline_range` | partial | 文案 → 时间范围（按 wenan 条数均分 timelines） | `corpus/7580659724749865001:285` → LLM 的 `wenanTimeline` |
 | `capcut_helper` | `rolling_effect` | partial | `duration_list` 累加成段，`str_list` 循环补齐 | `corpus/7580659724749865001:202` → `subject_timeline` |
 | `suchuang_video_compose` | `audio_link_collector` | real | 同上 | `corpus/7576926169774653449:75` |
 | `suchuang_video_compose` | `text_empty_removal` | real | 去空串/空值，保序 | `corpus/7571743700611629107:55` → `.wenan` |
 | `suchuang_video_compose` | `add_list` | partial | `list` 优先；否则 `add_list + [item]` | `corpus/7599126239110774822:46` → `.list` 作 image_urls |
 | `suchuang_video_compose` | `text_splitter` | partial | 同 capcut；`outputList == segments` | `corpus/7576926169774653449:66` → `.segments` |
-| `suchuang_video_compose` | `timeline_merge` | partial | 同 capcut | `corpus/7577593277740089370:209` |
+| `suchuang_video_compose` | `timeline_merge` | partial | 同 capcut（skip/gap 同一实现） | `corpus/7577593277740089370:209`；`7577251869463134243:229`（skip=2.5s + gap=1.5s） |
 | `suchuang_video_compose` | `wenan_timeline_range` | partial | 同 capcut | `corpus/7576926169774653449:86` |
 | `suchuang_video_compose` | `wenan_timeline_range_merge` | partial | 同 range，时间戳为 float | `corpus/7576926169774653449:86` |
 | `suchuang_video_compose` | `media_tile` | partial | 按 `duration` 微秒切块，`urls` 按块数重复 | `corpus/7576926169774653449:82,143` → `add_audios(urls,timelines)` |

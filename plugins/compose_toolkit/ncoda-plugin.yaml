@@ -18,7 +18,7 @@ libraries:
         loss: "切分粒度未由语料证实：按空行分段、段内按句末标点切句；原实现的合并阈值可能不同"
       - name: timeline_merge
         fidelity: partial
-        loss: "skip_us 与 all_complete_timeline 的语义未由语料证实：这里把 main 整体后移 (max(pre.end)+gap_us)，pre 原样保留，all_timeline 取整体跨度"
+        loss: "skip_us = 整块平移量（语料把上一轮 last_end_us 传进来：7551643866874150912:313、7577698754514960419:330、7572110422062383146:310；常量配对 skip=2.5s/gap=1.5s 见 7577251869463134243:229）：pre 与 main 一起后移，main 再额外后移 max(pre.end)+gap_us；all_timeline 取 [0, last_end_us]，all_complete_timeline 目前等于 timelines（gap 是否要补占位段、all_timeline 是否应从 skip 起算，均无消费面证据）"
       - name: wenan_timeline_range
         fidelity: partial
         loss: "mergeCount/startIndex 的分组规则未由语料证实：按 wenan 条数均分 timelines，取每组首尾；越界输入截断"
@@ -41,7 +41,7 @@ libraries:
         loss: "切分粒度未由语料证实：空行分段、段内按句末标点切句；outputList 与 segments 同值（原实现关系未证实）"
       - name: timeline_merge
         fidelity: partial
-        loss: "skip_us/all_complete_timeline 语义未由语料证实：main 后移 (max(pre.end)+gap_us)，pre 原样，all_timeline 取整体跨度"
+        loss: "同 capcut_helper.timeline_merge：skip_us 是整块平移量，main 再后移 max(pre.end)+gap_us；all_timeline=[0,last_end_us]，all_complete_timeline=timelines（gap 占位段无证据）"
       - name: wenan_timeline_range
         fidelity: partial
         loss: "mergeCount/startIndex 分组规则未证实：按 wenan 条数均分 timelines"

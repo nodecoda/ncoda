@@ -85,6 +85,42 @@ class TimelineMergeTest(unittest.TestCase):
         got = server.fn_timeline_merge({})
         self.assertEqual(got["timelines"], [])
         self.assertEqual(got["last_end_us"], 0)
+    def test_skip_offsets_whole_block(self):
+        # 证据：7551643866874150912:313 用 `skip_us = v35.last_end_us`（前一段总长）
+        # 把「pre_subject + 正文」整块放到前一段之后；7577251869463134243:229 用
+        # 常量 skip=2.5s + gap=1.5s。skip 是整体平移量，不是段间压缩。
+        got = server.fn_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 1000}],
+            "main_timeline": [{"start": 0, "end": 500}],
+            "gap_us": 200,
+            "skip_us": 2500,
+        })
+        self.assertEqual(got["pre_timelines"], [{"start": 2500, "end": 3500}])
+        self.assertEqual(got["main_timelines"], [{"start": 3700, "end": 4200}])
+        self.assertEqual(got["all_pre_timeline"], got["pre_timelines"])
+        self.assertEqual(got["last_end_us"], 4200)
+        self.assertEqual(got["all_timeline"], [{"start": 0, "end": 4200}])
+
+    def test_skip_without_pre_offsets_main(self):
+        got = server.fn_timeline_merge({
+            "main_timeline": [{"start": 0, "end": 500}],
+            "skip_us": 1000,
+        })
+        self.assertEqual(got["main_timelines"], [{"start": 1000, "end": 1500}])
+        self.assertEqual(got["last_end_us"], 1500)
+
+    def test_negative_control_skip_does_not_compress(self):
+        # 若 skip 被当成逐段减去，第二段会落到负时间或段数变化。
+        got = server.fn_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 100}, {"start": 100, "end": 200}],
+            "main_timeline": [{"start": 0, "end": 50}, {"start": 50, "end": 90}],
+            "skip_us": 30000,
+        })
+        self.assertEqual(len(got["timelines"]), 4)
+        self.assertTrue(all(seg["start"] >= 30000 for seg in got["timelines"]))
+        for prev, cur in zip(got["timelines"], got["timelines"][1:]):
+            self.assertGreaterEqual(cur["start"], prev["end"])
+
 
 
 class WenanRangeTest(unittest.TestCase):
