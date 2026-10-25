@@ -23,6 +23,9 @@ libraries:
       - name: wenan_split
         fidelity: partial
         loss: "按连续等分切成 5 段；原实现的分配策略（连续/轮转/按长度均衡）未由语料证实，长文的分段边界可能不同"
+      - name: audio_timelines
+        fidelity: partial
+        loss: "只解码本地 WAV（路径/file:///data:audio/wav;base64）：duration = data 字节数/byteRate；http(s) 或 MP3 需下载+解码，显式报 REMOTE_AUDIO_UNSUPPORTED/非 WAV；timelines 自 0 起首尾相接，all_timelines 取整段 [0,total]（同库 timelines() 的约定 + 语料 all_timelines 只配单个 BGM/图片）；outputList 无语料消费点，返回空数组"
       - name: timelines_format
         fidelity: partial
         loss: "输入 timeline 的文本字段名（text/content/wenan/value/output）与原始格式化规则未由语料证实；这里取首个非空字符串并保留 start/end，不合并、不重排"

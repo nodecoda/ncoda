@@ -231,9 +231,9 @@ func TestCapcutDataUnboundFunctionStaysRed(t *testing.T) {
 @mode workflow
 import "capcut_data";
 
-function main() -> array<any> {
-    let v = capcut_data.audio_timelines({ "links": ["https://example.com/a.mp3"] });
-    return v.outputList;
+function main() -> any {
+    let v = capcut_data.search_sticker({ "keyword": "猫" });
+    return { "ok": v.message };
 }
 `
 	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
@@ -247,7 +247,7 @@ function main() -> array<any> {
 	// 口径迁移：以前是 RBINDING_MISSING（没接线），现在由 corpus_stubs 显式占位，
 	// 失败串必须点名符号并带上归因 class —— 仍然红，但可区分「没实现」与「实现错」。
 	if !strings.Contains(errs, "not-implemented") ||
-		!strings.Contains(errs, "NOT_IMPLEMENTED capcut_data.audio_timelines") {
+		!strings.Contains(errs, "NOT_IMPLEMENTED capcut_data.search_sticker") {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
@@ -1315,5 +1315,88 @@ function main() -> any {
 		if w != u.w || h != u.h {
 			t.Fatalf("%s is %dx%d, want %dx%d", u.url, w, h, u.w, u.h)
 		}
+	}
+}
+
+// capcut_data.audio_timelines：本地 TTS 的 WAV → 时间线。这是本地管线
+// 「tts → timelines → infos」的关键一环；远程 URL/MP3 必须显式失败（见负控）。
+func TestCapcutAudioTimelinesFromLocalTTS(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "tts";
+import "capcut_data";
+
+function main() -> any {
+    let v = tts.speech_synthesis({ "text": "你好世界你好世界你好世界" }) with timeout(60s);
+    let links = [v.data.link];
+    let t = capcut_data.audio_timelines({ "links": links }) with timeout(60s);
+    return { "duration": v.data.duration, "timelines": t.timelines, "all": t.all_timelines };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "audio_timelines.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifacts := t.TempDir()
+	rc, out, errs := runCLI(t, "", "--local-plugins=tts", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", "--artifact-dir", artifacts, srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Duration  float64 `json:"duration"`
+		Timelines []struct {
+			Start int64 `json:"start"`
+			End   int64 `json:"end"`
+		} `json:"timelines"`
+		All []struct {
+			Start int64 `json:"start"`
+			End   int64 `json:"end"`
+		} `json:"all"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Timelines) != 1 || got.Timelines[0].Start != 0 {
+		t.Fatalf("timelines = %+v", got.Timelines)
+	}
+	// WAV 时长按 data 字节数精确换算；与 tts 报告值最多差 1 个采样点。
+	want := int64(got.Duration * 1e6)
+	if d := got.Timelines[0].End - want; d < -100 || d > 100 {
+		t.Fatalf("timeline end = %d, want ≈%d", got.Timelines[0].End, want)
+	}
+	if len(got.All) != 1 || got.All[0].Start != 0 || got.All[0].End != got.Timelines[0].End {
+		t.Fatalf("all_timelines = %+v (want one full span)", got.All)
+	}
+}
+
+// 负控：远程音频链接不许被当成 0 时长静默通过。
+func TestCapcutAudioTimelinesRemoteIsExplicitError(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_data";
+
+function main() -> any {
+    let links = ["https://example.com/a.mp3"];
+    let t = capcut_data.audio_timelines({ "links": links }) with timeout(60s);
+    return { "timelines": t.timelines };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "audio_remote.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, _, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 1 {
+		t.Fatalf("rc=%d, want 1; stderr=%s", rc, errs)
+	}
+	if !strings.Contains(errs, "REMOTE_AUDIO_UNSUPPORTED") {
+		t.Fatalf("stderr = %s", errs)
 	}
 }

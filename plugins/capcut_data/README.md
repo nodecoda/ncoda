@@ -25,22 +25,27 @@ python3 plugins/capcut_data/test_server.py
 > wire 契约：结果键是 header 的**端口名**（`$output` → `output`）。返回 `"$output"`
 > 会让语言侧 `v.$output` 读到整条 record（已用 `TestCapcutDataPluginEndToEnd` 锁住）。
 
-## partial（2 个）
+## partial（3 个）
 
 | 函数 | 实现 | loss |
 |---|---|---|
+| `audio_timelines` | 解析本地 WAV（路径/`file://`/`data:audio/wav;base64`）的 `data/byteRate` 得微秒时长；`timelines` 自 0 起首尾相接，`all_timelines` 取整段 `[0,total]` | 远程 URL/MP3 需下载+解码，显式报 `REMOTE_AUDIO_UNSUPPORTED`/非 WAV；`outputList` 无语料消费点，返回空数组；单位取整到微秒 |
 | `wenan_split` | 按连续等分切 5 段（保序） | 原实现的分配策略（连续/轮转/按长度均衡）未由语料证实，长文分段边界可能不同 |
 | `timelines_format` | 取 timeline 的 text/content/wenan/value/output 首个非空串，start/end 归一为整数微秒 | 文本字段名与原始格式化规则未由语料证实（`corpus/7566695004548612130:520,804` 只证明消费面） |
 
 清单用**函数级 fidelity** 声明（`- name: wenan_split / fidelity: partial / loss: …`），
 同库其余函数仍是 `real`；账本按函数记账，`partial` 不会冒充 `real`。
 
-## 故意保持 unbound
+## 故意保持 stub
 
 | 函数 | 原因 |
 |---|---|
-| `audio_timelines` | 需要音频时长来源，`links` 参数里没有时长（远程 URL 需下载 + 解码） |
 | `search_sticker` | 需要剪映素材库网络接口（网络/凭证） |
+
+`audio_timelines` 于第二轮落地：本地管线里 `tts` 产出 `file://` WAV，`links`
+里没有时长但文件可读，duration = `data` 字节数 / `byteRate`（精确）。
+语料证据：`timelines` 与 mp3_urls 逐条配对、`all_timelines` 只配单个 BGM/图片/字幕
+（X52:50/52，X65:165/248），同库 `timelines()` 的 `all_timelines` 也是整段。
 
 `*_infos` / `keyframes_infos` / `timeline_keyframe` / `asr_timelines` 不在本插件实现：
 `<lib>.<fn>` 全仓唯一，这些符号已由 `plugins/timeline_toolkit` 接管

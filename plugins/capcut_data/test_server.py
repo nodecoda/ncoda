@@ -201,6 +201,87 @@ class ManifestDeclarationTest(unittest.TestCase):
             self.assertEqual(entries[fn]["fidelity"], "real")
 
 
+class AudioTimelinesTest(unittest.TestCase):
+    """audio_timelines：本地 WAV 的时长 → 首尾相接的时间线。
+
+    证据：语料把 timelines 与 mp3_urls 逐条配对、把 all_timelines 与单个
+    BGM 配对（X52/X65）；同库 timelines() 的 all_timelines 也是整段。
+    """
+
+    def wav(self, seconds, rate=16000):
+        import io
+        import struct as st
+        import wave
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(rate)
+            w.writeframes(b"\x00\x00" * int(seconds * rate))
+        return buf.getvalue()
+
+    def path(self, blob, name="a.wav"):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_two_wavs_are_sequential_from_zero(self):
+        a = self.path(self.wav(1.0), "a.wav")
+        b = self.path(self.wav(0.5), "b.wav")
+        out = server.fn_audio_timelines({"links": [a, b]})
+        self.assertEqual(out["timelines"], [
+            {"start": 0, "end": 1000000},
+            {"start": 1000000, "end": 1500000},
+        ])
+        # all_timelines 是整段（语料只拿它配单个 BGM）
+        self.assertEqual(out["all_timelines"], [{"start": 0, "end": 1500000}])
+        self.assertEqual(out["outputList"], [])
+
+    def test_file_url_and_data_url_are_accepted(self):
+        blob = self.wav(0.25)
+        p = self.path(blob, "c.wav")
+        out1 = server.fn_audio_timelines({"links": ["file://" + p]})
+        import base64
+        out2 = server.fn_audio_timelines(
+            {"links": ["data:audio/wav;base64," + base64.b64encode(blob).decode()]})
+        self.assertEqual(out1, out2)
+        self.assertEqual(out1["timelines"], [{"start": 0, "end": 250000}])
+
+    def test_records_are_unwrapped(self):
+        p = self.path(self.wav(0.5), "d.wav")
+        out = server.fn_audio_timelines({"links": [{"link": "file://" + p}]})
+        self.assertEqual(out["timelines"], [{"start": 0, "end": 500000}])
+
+    def test_empty_links_yield_empty_arrays(self):
+        self.assertEqual(server.fn_audio_timelines({"links": []}),
+                         {"timelines": [], "all_timelines": [], "outputList": []})
+
+    def test_remote_url_is_an_explicit_error(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_audio_timelines({"links": ["https://example.com/a.mp3"]})
+        self.assertIn("REMOTE_AUDIO_UNSUPPORTED", str(ctx.exception))
+
+    def test_mp3_bytes_are_rejected_not_guessed(self):
+        p = self.path(b"ID3\x04\x00\x00\x00", "e.mp3")
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_audio_timelines({"links": [p]})
+        self.assertIn("WAV", str(ctx.exception))
+
+    def test_negative_control_wrong_duration_is_red(self):
+        # 负控：把 1s 的 WAV 报成 0.5s 会立刻破坏“时间线总长 == 音频总长”。
+        p = self.path(self.wav(1.0), "f.wav")
+        out = server.fn_audio_timelines({"links": [p]})
+        self.assertEqual(out["timelines"][-1]["end"], 1000000)
+
+
 class ProtocolTest(unittest.TestCase):
     def test_handshake_matches_manifest_functions(self):
         proc = subprocess.run(
@@ -222,7 +303,7 @@ class ProtocolTest(unittest.TestCase):
             [sys.executable, os.path.join(HERE, "server.py")],
             input="\n".join([
                 json.dumps({"jsonrpc": "2.0", "id": 1, "method": "invoke",
-                            "params": {"symbol": "capcut_data.audio_timelines",
+                            "params": {"symbol": "capcut_data.search_sticker",
                                        "args": {}, "deadline_ms": 1000}}),
             ]) + "\n",
             capture_output=True, text=True, timeout=10, check=True)

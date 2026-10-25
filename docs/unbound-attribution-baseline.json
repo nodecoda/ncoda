@@ -1,16 +1,16 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
  "unbound_symbols": 0,
- "stub_symbols": 217,
- "not_implemented_symbols": 217,
+ "stub_symbols": 216,
+ "not_implemented_symbols": 216,
  "unclassified_symbols": 0,
  "by_class": {
-  "env-missing": 21,
+  "env-missing": 20,
   "local-todo": 3,
   "remote-api": 152,
   "schema-unknown": 4,
   "server-state": 37,
   "unclassified": 0
  },
- "reason": "html2img/htmlcode_to_img 退出 env-missing（本机 Chrome 已实测可用）：env-missing 23→21，stub 219→217，其余类不变"
+ "reason": "capcut_data.audio_timelines 已由 plugins/capcut_data 实现（本地 WAV，远程/MP3 显式报错）：env-missing 21→20，stub 217→216"
 }

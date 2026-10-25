@@ -83,11 +83,8 @@ libraries:
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
   capcut_data:
     class: schema-unknown
-    evidence: "语料调用的 *_infos / keyframes_infos / timeline_keyframe / asr_timelines 已全部由 plugins/timeline_toolkit 实现（partial，loss 见清单）；剩余两个符号语义不同，见符号级覆盖"
+    evidence: "语料调用的 *_infos / keyframes_infos / timeline_keyframe / asr_timelines 已全部由 plugins/timeline_toolkit 实现（partial，loss 见清单）；audio_timelines 已由 plugins/capcut_data 实现（本地 WAV，partial）；剩余符号见符号级覆盖"
     symbols:
-      audio_timelines:
-        class: env-missing
-        evidence: "输出结构在 header 里是具体的（timelines/outputList），不是 schema 问题；缺的是音频时长（远程 URL 需下载+解码）"
       search_sticker:
         class: remote-api
         evidence: "贴纸搜索走平台素材服务（网络/凭证）；原库级归因为 schema-unknown，已纠正"

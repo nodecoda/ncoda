@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """capcut_data 进程外插件 —— ncoda-plugin/1 参考实现（非 stub）。
 
-只实现能由语料调用点与消费面证实的函数；`*_infos` / `audio_timelines` /
-`asr_timelines` / `keyframes_infos` / `search_sticker` 依赖 CapCut 草稿 JSON
-或网络，本仓没有证据，故意保持 unbound（见 README）。
+只实现能由语料调用点与消费面证实的函数；`*_infos` / `asr_timelines` /
+`keyframes_infos` / `search_sticker` 依赖 CapCut 草稿 JSON 或网络，本仓没有
+证据，故意保持 stub（见 README）。`audio_timelines` 只支持**本地 WAV**
+（file:// 或路径）；远程 URL/MP3 需要下载与解码，显式报错而不是猜时长。
 
 协议：stdin/stdout 一行一条 JSON-RPC 2.0。日志一律走 stderr。
 """
+import base64
 import json
 import os
+import struct
 import sys
+import urllib.parse
+import urllib.request
 
 PROTOCOL = "ncoda-plugin/1"
 PLUGIN_ID = "capcut-data"
@@ -24,7 +29,7 @@ REAL_FUNCTIONS = [
     "timelines",
     "wenan_links_merge",
 ]
-PARTIAL_FUNCTIONS = ["wenan_split", "timelines_format"]
+PARTIAL_FUNCTIONS = ["wenan_split", "timelines_format", "audio_timelines"]
 FUNCTIONS = REAL_FUNCTIONS + PARTIAL_FUNCTIONS
 
 
@@ -190,6 +195,86 @@ def fn_timelines(args):
     return {"timelines": segments, "all_timelines": all_timelines}
 
 
+def _scalar(v):
+    """links 元素 → 字符串；记录取 url/link/output 类字段。"""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, dict):
+        for k in ("link", "url", "$output", "output", "value", "data", "src", "path"):
+            inner = v.get(k)
+            if isinstance(inner, str) and inner.strip():
+                return inner.strip()
+    return ""
+
+
+def _read_wav_bytes(raw):
+    """返回 WAV 字节；只接受本地路径 / file:// / data:audio/wav;base64。"""
+    s = raw.strip()
+    low = s.lower()
+    if low.startswith(("http://", "https://")):
+        raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % s)
+    if low.startswith("data:"):
+        comma = s.find(",")
+        if comma < 0 or ";base64" not in low[:comma]:
+            raise ValueError("bad data url (want data:audio/...;base64,)")
+        return base64.b64decode(s[comma + 1:])
+    if low.startswith("file://"):
+        path = urllib.request.url2pathname(urllib.parse.urlparse(s).path)
+    else:
+        path = s
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def wav_duration_us(blob):
+    """RIFF/WAVE chunk 解析：duration = data 字节数 / byteRate（精确）。"""
+    if len(blob) < 12 or blob[:4] != b"RIFF" or blob[8:12] != b"WAVE":
+        raise ValueError("not a WAV container (only local WAV is supported; MP3 needs decoding)")
+    pos, byte_rate, data_size, fmt = 12, 0, None, None
+    while pos + 8 <= len(blob):
+        cid = blob[pos:pos + 4]
+        size = struct.unpack("<I", blob[pos + 4:pos + 8])[0]
+        body = blob[pos + 8:pos + 8 + size]
+        if cid == b"fmt " and len(body) >= 16:
+            fmt, channels, rate, byte_rate = struct.unpack("<HHII", body[:12])
+        elif cid == b"data":
+            data_size = len(body)
+            break
+        pos += 8 + size + (size & 1)
+    if fmt is None or not byte_rate or data_size is None:
+        raise ValueError("WAV is missing fmt/data chunks")
+    if fmt not in (1, 3):
+        raise ValueError("unsupported WAV format tag %d (want PCM/IEEE float)" % fmt)
+    return int(round(data_size * 1000000.0 / byte_rate))
+
+
+def fn_audio_timelines(args):
+    """audio_timelines(links) -> {timelines, all_timelines, outputList}
+
+    证据：语料把 `timelines` 与 mp3_urls/图片**逐条**配对（X52、X65），
+    把 `all_timelines` 与**单个** BGM/图片/字幕配对（`audio_infos(mp3_urls:
+    bgm[1], timelines: all_timelines)`）；同库 `timelines()` 的约定也是
+    `all_timelines` = 整段 [start, start+duration]。因此这里：
+      timelines     = 每个 link 一段，自 0 起首尾相接；
+      all_timelines = 整段 [0, total]（无 link 时为空）。
+    outputList 无语料消费点，返回 []（见 loss）。
+    """
+    links = as_seq(arg(args, "links", []))
+    timelines = []
+    cursor = 0
+    for item in links:
+        s = _scalar(item)
+        if not s:
+            raise ValueError("empty audio link")
+        dur = wav_duration_us(_read_wav_bytes(s))
+        if dur <= 0:
+            raise ValueError("non-positive audio duration for %s" % s)
+        timelines.append({"start": cursor, "end": cursor + dur})
+        cursor += dur
+    all_timelines = [{"start": 0, "end": cursor}] if timelines else []
+    return {"timelines": timelines, "all_timelines": all_timelines, "outputList": []}
+
+
 def fn_wenan_links_merge(args):
     """wenan_links_merge(link1..5) -> {links_list:[{links:[...]}]}
 
@@ -271,6 +356,7 @@ HANDLERS = {
     "capcut_data.wenan_links_merge": fn_wenan_links_merge,
     "capcut_data.wenan_split": fn_wenan_split,
     "capcut_data.timelines_format": fn_timelines_format,
+    "capcut_data.audio_timelines": fn_audio_timelines,
 }
 
 

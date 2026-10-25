@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 217,
+ "symbols_bound_stub": 216,
  "complete_stub": 698,
- "reason": "html2img.gen_img / htmlcode_to_img.html_img 落地为本机 headless Chrome 渲染（partial，返回 file://）；stub 219→217，complete_exec/real 不变（171/86）"
+ "reason": "capcut_data.audio_timelines 落地为本地 WAV 时长→时间线（partial）；stub 217→216，env-missing 21→20，complete_exec/real 不变（171/86）"
 }
