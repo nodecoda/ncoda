@@ -18,7 +18,7 @@ LDFLAGS   = -s -w \
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist dist-check release-smoke sbom audit contracts-check notices-check clean fmt fmt-check test library-coverage library-coverage-check unbound-attribution-check plugin-selftest
+.PHONY: check push nightly release dist dist-check release-smoke sbom audit contracts-check notices-check clean fmt fmt-check test library-coverage library-coverage-check unbound-attribution-check remote-audit remote-audit-check plugin-selftest
 
 # Library coverage is corpus-dependent; keep it out of `check` (a missing corpus
 # is rc=3, not a pass). Run it explicitly or in the corpus CI lane.
@@ -32,6 +32,13 @@ library-coverage-check:
 # Unbound attribution is corpus-dependent too; keep it out of `check`.
 unbound-attribution-check:
 	python3 scripts/unbound_attribution.py --check
+	python3 scripts/remote_audit.py --check
+
+remote-audit:
+	python3 scripts/remote_audit.py
+
+remote-audit-check:
+	python3 scripts/remote_audit.py --check
 
 # Out-of-process plugin host: Go judgements plus one end-to-end call through a
 # real subprocess (Python reference implementation in testdata/).
@@ -49,6 +56,7 @@ plugin-selftest:
 check: fmt-check audit contracts-check notices-check
 	python3 scripts/test_library_coverage.py
 	python3 scripts/test_unbound_attribution.py
+	python3 scripts/test_remote_audit.py
 	$(GO) build ./...
 	$(GO) vet ./...
 	$(GO) test ./...

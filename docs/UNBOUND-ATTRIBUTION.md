@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未实现符号所在的库**一个闭集归因。口径包含两类：真正没绑定的
-（当前 0 个）和以 `stub` 绑定的（211 个，见 `plugins/corpus_stubs/`）。stub 只让
+（当前 0 个）和以 `stub` 绑定的（208 个，见 `plugins/corpus_stubs/`）。stub 只让
 语料「能链接、能加载、调用即显式失败」，不是实现，因此仍然必须归因、仍然计入
 本表。目的不是「消灭 unbound 数字」，而是让每个缺口变成可排序的工单：哪些是
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
@@ -13,6 +13,12 @@
 与 `capcut_keyframes.keyFrames`。缺口是槽位顺序、分镜切分与关键帧分配规则，都是证据缺口，
 不是实现难度。（`audio_timeline_merge.timeline_merge` 已按「单个 gap 段」落成 partial，
 未证实的三种可能写在 plugins/compose_toolkit 的 loss 里。）
+
+远端 / 服务端两类的**逐符号证据**在 `docs/REMOTE-API-DOSSIER.md`（生成物，判据
+`scripts/remote_audit.py --check`）：每个未实现符号都钉到语料真实调用点（file:line +
+实参键 + 头文件返回类型），结论只有 `keep-remote` / `keep-state`。当前覆盖 114 个库 /
+182 个符号，全部证据指针命中；复核未发现可本地实现的漏网符号——一旦发现，按
+`capcut.video_timelines` 的先例由插件接走并从本表降级，而不是继续留在 stub 里。
 
 ## 归因闭集
 
