@@ -640,7 +640,7 @@ def _audio_bytes(raw):
 
 def wav_duration_us(blob):
     if len(blob) < 12 or blob[:4] != b"RIFF" or blob[8:12] != b"WAVE":
-        raise ValueError("not a WAV container (only local WAV is supported; MP3 needs decoding)")
+        raise ValueError("not a WAV container")
     pos, byte_rate, data_size, fmt = 12, 0, None, None
     while pos + 8 <= len(blob):
         cid = blob[pos:pos + 4]
@@ -659,6 +659,73 @@ def wav_duration_us(blob):
     return int(round(data_size * 1000000.0 / byte_rate))
 
 
+_MP3_V1_L3_BITRATES = (0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320)
+_MP3_V2_L3_BITRATES = (0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160)
+_MP3_RATES = {3: (44100, 48000, 32000), 2: (22050, 24000, 16000), 0: (11025, 12000, 8000)}
+
+
+def _mp3_header(blob, pos):
+    """MPEG Layer III 帧头 → (帧长, 采样率, 每帧采样数, 版本, 是否单声道)。"""
+    if pos + 4 > len(blob) or blob[pos] != 0xFF or (blob[pos + 1] & 0xE0) != 0xE0:
+        return None
+    version = (blob[pos + 1] >> 3) & 0x3
+    layer = (blob[pos + 1] >> 1) & 0x3
+    if version == 1 or layer != 1:
+        return None
+    br_idx, sr_idx = blob[pos + 2] >> 4, (blob[pos + 2] >> 2) & 0x3
+    if br_idx in (0, 15) or sr_idx == 3:
+        return None
+    table = _MP3_V1_L3_BITRATES if version == 3 else _MP3_V2_L3_BITRATES
+    bitrate = table[br_idx] * 1000
+    rate = _MP3_RATES[version][sr_idx]
+    samples = 1152 if version == 3 else 576
+    length = (144 if version == 3 else 72) * bitrate // rate + ((blob[pos + 2] >> 1) & 1)
+    if length < 4:
+        return None
+    return length, rate, samples, version, (blob[pos + 3] >> 6) == 3
+
+
+def mp3_duration_us(blob):
+    """MP3 时长：跳过 ID3v2，优先 Xing/Info 帧数，否则逐帧累计采样数。
+
+    TTS 产物普遍是 mp3（语料 get_audio_duration 229 处），容器头足够定时长，
+    不需要解码器；只支持 Layer III（语音/音乐的常见形态）。
+    """
+    pos = 0
+    if blob[:3] == b"ID3":
+        if len(blob) < 10:
+            raise ValueError("truncated ID3v2 header")
+        size = ((blob[6] & 0x7F) << 21) | ((blob[7] & 0x7F) << 14) | \
+               ((blob[8] & 0x7F) << 7) | (blob[9] & 0x7F)
+        pos = 10 + size + (10 if blob[5] & 0x10 else 0)
+    header = None
+    while pos < len(blob):
+        header = _mp3_header(blob, pos)
+        if header:
+            break
+        pos += 1
+    if not header:
+        raise ValueError("not an MP3 Layer III stream (no frame sync)")
+    length, rate, samples, version, mono = header
+    side = (17 if mono else 32) if version == 3 else (9 if mono else 17)
+    off = pos + 4 + side
+    if blob[off:off + 4] in (b"Xing", b"Info") and off + 12 <= len(blob):
+        if int.from_bytes(blob[off + 4:off + 8], "big") & 1:
+            frames = int.from_bytes(blob[off + 8:off + 12], "big")
+            if frames > 0:
+                return int(round(frames * samples * 1000000.0 / rate))
+    total, p = 0, pos
+    while p + 4 <= len(blob):
+        hdr = _mp3_header(blob, p)
+        if not hdr or p + hdr[0] > len(blob):
+            break  # 只计完整帧：尾部截断/ID3v1 标签不算时长
+        total += samples
+        p += hdr[0]
+    if not total:
+        raise ValueError("not an MP3 Layer III stream (no complete frame)")
+    return int(round(total * 1000000.0 / rate))
+
+
 def fn_get_audio_duration(args):
     """capcut_draft_data.get_audio_duration：url → {duration}（微秒整数）。
 
@@ -669,7 +736,7 @@ def fn_get_audio_duration(args):
     url = _audio_scalar(arg(args, "url", ""))
     if not url:
         raise ValueError("empty audio url")
-    dur = wav_duration_us(_audio_bytes(url))
+    dur = media_duration_us(_audio_bytes(url))
     if dur <= 0:
         raise ValueError("non-positive audio duration for %s" % url)
     return {"duration": dur}
@@ -684,7 +751,7 @@ def fn_audio_timelines(args):
         s = _audio_scalar(item)
         if not s:
             raise ValueError("empty audio url")
-        dur = wav_duration_us(_audio_bytes(s))
+        dur = media_duration_us(_audio_bytes(s))
         if dur <= 0:
             raise ValueError("non-positive audio duration for %s" % s)
         timelines.append({"start": cursor, "end": cursor + dur})
@@ -834,11 +901,13 @@ def webm_duration_us(blob):
 def media_duration_us(blob):
     if len(blob) >= 12 and blob[:4] == b"RIFF" and blob[8:12] == b"WAVE":
         return wav_duration_us(blob)
+    if blob[:3] == b"ID3" or (len(blob) >= 2 and blob[0] == 0xFF and blob[1] & 0xE0 == 0xE0):
+        return mp3_duration_us(blob)
     if len(blob) >= 12 and blob[4:8] in (b"ftyp", b"moov", b"styp"):
         return mp4_duration_us(blob)
     if blob[:4] == b"\x1a\x45\xdf\xa3":
         return webm_duration_us(blob)
-    raise ValueError("unsupported media container (want WAV/MP4/WebM)")
+    raise ValueError("unsupported media container (want WAV/MP3/MP4/WebM)")
 
 
 def _video_links(args):

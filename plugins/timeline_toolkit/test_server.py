@@ -427,7 +427,7 @@ class DraftAudioTimelinesTest(unittest.TestCase):
         self.assertEqual(server.fn_audio_timelines({"urls": []}),
                          {"start": 0, "end": 0, "timelines": [], "total_timelines": []})
 
-    def test_remote_and_mp3_are_explicit_errors(self):
+    def test_remote_and_truncated_mp3_are_explicit_errors(self):
         with self.assertRaises(ValueError) as ctx:
             server.fn_audio_timelines({"urls": ["https://example.com/a.mp3"]})
         self.assertIn("REMOTE_AUDIO_UNSUPPORTED", str(ctx.exception))
@@ -661,6 +661,78 @@ class VideoTimelinesTest(unittest.TestCase):
         p = self.path(b"not a media container at all", "a.bin")
         with self.assertRaises(ValueError):
             server.fn_video_timelines({"links": [p]})
+
+def mp3_frame(bitrate_kbps=128, rate=44100):
+    """MPEG1 Layer III 单帧（无 CRC、立体声），返回原始字节。"""
+    idx = {32: 1, 40: 2, 48: 3, 56: 4, 64: 5, 80: 6, 96: 7, 112: 8,
+           128: 9, 160: 10, 192: 11, 224: 12, 256: 13, 320: 14}[bitrate_kbps]
+    srate = {44100: 0, 48000: 1, 32000: 2}[rate]
+    length = 144 * bitrate_kbps * 1000 // rate
+    return bytes([0xFF, 0xFB, (idx << 4) | (srate << 2), 0x00]) + b"\x00" * (length - 4)
+
+
+def mp3_blob(frames, bitrate_kbps=128, rate=44100):
+    frame = mp3_frame(bitrate_kbps, rate)
+    return frame * frames
+
+
+def mp3_blob_with_xing(frames, bitrate_kbps=128, rate=44100):
+    """首帧带 Xing/Info 帧数（VBR 的常见形态）；帧体本身只有 1 帧。"""
+    f = bytearray(mp3_frame(bitrate_kbps, rate))
+    off = 4 + 32  # MPEG1 立体声 side info
+    f[off:off + 4] = b"Info"
+    f[off + 4:off + 8] = (1).to_bytes(4, "big")
+    f[off + 8:off + 12] = frames.to_bytes(4, "big")
+    return bytes(f)
+
+
+class Mp3DurationTest(unittest.TestCase):
+    """MP3 时长：TTS 产物是 mp3（语料 229 处 get_audio_duration）。
+
+    不引入解码器：按 MPEG1 Layer III 帧头累计采样数；带 Xing/Info 时用其帧数。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def path(self, blob, name):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def test_cbr_frame_count_to_microseconds(self):
+        p = self.path(mp3_blob(100), "a.mp3")
+        self.assertEqual(server.fn_get_audio_duration({"url": p}), {"duration": 2612245})
+
+    def test_xing_frame_count_is_preferred(self):
+        p = self.path(mp3_blob_with_xing(200), "b.mp3")
+        self.assertEqual(server.fn_get_audio_duration({"url": p})["duration"], 5224490)
+
+    def test_id3v2_header_is_skipped(self):
+        id3 = b"ID3\x03\x00\x00\x00\x00\x00\x14" + b"\x00" * 20
+        p = self.path(id3 + mp3_blob(50), "c.mp3")
+        self.assertEqual(server.fn_get_audio_duration({"url": p})["duration"], 1306122)
+
+    def test_audio_timelines_accepts_mp3(self):
+        p = self.path(mp3_blob(100), "d.mp3")
+        got = server.fn_audio_timelines({"urls": [p]})
+        self.assertEqual(got["timelines"], [{"start": 0, "end": 2612245}])
+
+    def test_video_timelines_accepts_mp3(self):
+        p = self.path(mp3_blob(100), "e.mp3")
+        self.assertEqual(server.fn_video_timelines({"links": [p]})["timelines"],
+                         [{"start": 0, "end": 2612245}])
+
+    def test_truncated_mp3_is_explicit_error(self):
+        p = self.path(b"\xff\xfb\x90\x00", "f.mp3")
+        with self.assertRaises(ValueError):
+            server.fn_get_audio_duration({"url": p})
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

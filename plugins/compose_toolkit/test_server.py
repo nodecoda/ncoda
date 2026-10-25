@@ -221,6 +221,18 @@ class TimelineAlignTest(unittest.TestCase):
 
 
 
+def mp3_frame(bitrate_kbps=128, rate=44100):
+    idx = {32: 1, 40: 2, 48: 3, 56: 4, 64: 5, 80: 6, 96: 7, 112: 8,
+           128: 9, 160: 10, 192: 11, 224: 12, 256: 13, 320: 14}[bitrate_kbps]
+    srate = {44100: 0, 48000: 1, 32000: 2}[rate]
+    length = 144 * bitrate_kbps * 1000 // rate
+    return bytes([0xFF, 0xFB, (idx << 4) | (srate << 2), 0x00]) + b"\x00" * (length - 4)
+
+
+def mp3_blob(frames, bitrate_kbps=128, rate=44100):
+    return mp3_frame(bitrate_kbps, rate) * frames
+
+
 class SuchuangAudioDurationTest(unittest.TestCase):
     """suchuang_video_compose.get_audio_duration：本地 WAV → unit 决定的数值。
 
@@ -285,6 +297,23 @@ class SuchuangAudioDurationTest(unittest.TestCase):
         got = server.fn_suchuang_get_audio_duration(
             {"mp3_url": {"link": "file://" + p}, "unit": "微秒"})
         self.assertEqual(got["duration"], 500000)
+
+    def test_mp3_uses_frame_count_in_microseconds(self):
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(mp3_blob(100), "m.mp3"), "unit": "微秒"})
+        self.assertEqual(got["duration"], 2612245)
+
+    def test_mp3_seconds_unit(self):
+        # 负控：若 mp3 分支忘记换单位，这里会是 2612244.9 而不是 2.61。
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(mp3_blob(100), "m2.mp3"), "unit": "秒"})
+        self.assertAlmostEqual(got["duration"], 2.6122449, places=5)
+
+    def test_mp3_with_id3v2_header(self):
+        id3 = b"ID3\x03\x00\x00\x00\x00\x00\x14" + b"\x00" * 20
+        got = server.fn_suchuang_get_audio_duration(
+            {"mp3_url": self.path(id3 + mp3_blob(50), "m3.mp3"), "unit": "微秒"})
+        self.assertEqual(got["duration"], 1306122)
 
     def test_remote_branch_can_be_mocked_without_network(self):
         old = server._fetch_remote
