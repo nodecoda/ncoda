@@ -23,9 +23,38 @@ libraries:
   - library: capcut_data
     version: 0.1.0
     fidelity: partial
-    loss: "库级：只补 timeline_keyframe 一个纯函数；其余 *_infos / audio_timelines 需要草稿 schema 或音频解码，仍不实现"
+    loss: "库级：补 timeline_keyframe / asr_timelines / keyframes_infos / *_infos（逐函数 loss 见下）；audio_timelines 缺音频时长来源、search_sticker 需要网络，仍不实现"
     functions:
       - name: timeline_keyframe
         loss: "偏移按每条时间线内的百分比线性插值（0%→start，100%→end），多段时间线顺序拼接；原实现的绝对/相对基准与去重策略未证实"
       - name: asr_timelines
         loss: "start_time/end_time 按「秒」×1e6 转微秒（语料把结果赋给 int 时间线）；all_timelines 暂为 timelines 的别名（无语料证据表明两者不同）；chunk 顺序按输入顺序，index 字段不参与排序"
+      - name: keyframes_infos
+        loss: "offset 按「段内百分比 × (end-start)」生成（语料 JS 的手写等价实现如此）；位置型 KFTypePositionX/Y 是否要按 width/height 归一化无语料证据，value 原样使用；不写 easing 字段"
+      - name: audio_infos
+        loss: "字段按语料手写结构 {audio_url,duration,start,end(,volume,audio_effect)}；volume/audio_effect 仅在调用方显式传入时写入（不把 header 的 0/\"\" 默认当限制值）；单 URL + 多时间段时铺满整体"
+      - name: caption_infos
+        loss: "字段按 {text,start,end(,in_animation,out_animation,loop_animation,…)}；font_size/keywords 等样式参数不写入 infos（语料里 680/707 个 add_captions 另行传样式），依赖 infos 内样式的调用点会有差异"
+      - name: imgs_infos
+        loss: "字段按语料手写结构 {image_url,start,end,width,height,transition,…}；width/height/动画只在显式传入时写入；transition 的叠化语义由下游实现"
+      - name: video_infos
+        loss: "字段按语料手写结构 {video_url,duration,start,end,width,height,transition,transition_duration(,volume,mask)}；play_timelines/speeds/transitions 多路参数无语料证据，忽略"
+      - name: effect_infos
+        loss: "字段按语料手写结构 {effect_title,start,end}；按索引与 timelines 配对，长度不等时截断"
+  - library: capcut_data_fast
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：header 的 6 个函数全部实现，但均为 partial（逐函数 loss 见下）"
+    functions:
+      - name: keyframes_infos
+        loss: "同 capcut_data.keyframes_infos；pattern 参数无语料出现，忽略；位置型不按 width/height 归一化"
+      - name: audio_infos
+        loss: "同 capcut_data.audio_infos；额外带 error 字段（header 声明）"
+      - name: caption_infos
+        loss: "同 capcut_data.caption_infos；额外带 error 字段（header 声明）"
+      - name: imgs_infos
+        loss: "同 capcut_data.imgs_infos；额外带 error 字段（header 声明）"
+      - name: video_infos
+        loss: "同 capcut_data.video_infos；header 无 error 字段"
+      - name: effect_infos
+        loss: "同 capcut_data.effect_infos"

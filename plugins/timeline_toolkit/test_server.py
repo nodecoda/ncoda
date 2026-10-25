@@ -3,6 +3,7 @@
 
 run: python3 plugins/timeline_toolkit/test_server.py
 """
+import json
 import os
 import sys
 import unittest
@@ -180,6 +181,135 @@ class AsrTimelinesTest(unittest.TestCase):
     def test_empty(self):
         self.assertEqual(server.fn_asr_timelines({}),
                          {"texts": [], "timelines": [], "all_timelines": []})
+
+
+class KeyframesInfosTest(unittest.TestCase):
+    def test_offsets_are_relative_to_each_segment(self):
+        got = server.fn_keyframes_infos({
+            "ctype": "UNIFORM_SCALE", "offsets": "0|100", "values": "1|1.5",
+            "segment_infos": [{"id": "s1", "start": 1000000, "end": 3000000}],
+        })
+        self.assertTrue(got["isSuccess"])
+        entries = json.loads(got["keyframes_infos"])
+        self.assertEqual([e["offset"] for e in entries], [0, 2000000])
+        self.assertEqual([e["value"] for e in entries], [1, 1.5])
+        self.assertEqual(entries[0]["property"], "UNIFORM_SCALE")
+        self.assertEqual(entries[0]["segment_id"], "s1")
+        self.assertEqual(got["outputList"], [{"keyframes_infos": got["keyframes_infos"]}])
+
+    def test_each_segment_gets_its_own_offsets(self):
+        got = server.fn_keyframes_infos({
+            "ctype": "KFTypeAlpha", "offsets": "0|80|100", "values": "0.9|0.5|0",
+            "segment_infos": [
+                {"id": "a", "start": 0, "end": 1000000},
+                {"id": "b", "start": 1000000, "end": 1500000},
+            ],
+        })
+        entries = json.loads(got["keyframes_infos"])
+        self.assertEqual([(e["segment_id"], e["offset"]) for e in entries], [
+            ("a", 0), ("a", 800000), ("a", 1000000),
+            ("b", 0), ("b", 400000), ("b", 500000),
+        ])
+
+    def test_short_values_reuse_last(self):
+        got = server.fn_keyframes_infos({
+            "ctype": "KFTypePositionY", "offsets": "0|50|100", "values": "7",
+            "segment_infos": [{"id": "s", "start": 0, "end": 100}],
+        })
+        self.assertEqual([e["value"] for e in json.loads(got["keyframes_infos"])], [7, 7, 7])
+
+    def test_fast_variant_declares_error_fields(self):
+        got = server.fn_keyframes_infos_fast({
+            "ctype": "UNIFORM_SCALE", "offsets": "0|100", "values": "1|1.2",
+            "segment_infos": [{"id": "s", "start": 0, "end": 10}],
+        })
+        self.assertEqual(got["error"], "")
+        self.assertEqual(got["outputList"][0]["error"], "")
+        self.assertTrue(got["outputList"][0]["keyframes_infos"].startswith("["))
+
+    def test_empty_segments_is_empty_list_not_error(self):
+        got = server.fn_keyframes_infos({"ctype": "X", "offsets": "0|100", "values": "1|2"})
+        self.assertEqual(got["keyframes_infos"], "[]")
+        self.assertTrue(got["isSuccess"])
+
+    def test_negative_control_bad_offsets_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_keyframes_infos({"ctype": "X", "offsets": "a|b", "values": "1|2",
+                                       "segment_infos": [{"id": "s", "start": 0, "end": 1}]})
+
+    def test_negative_control_non_object_segment_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_keyframes_infos({"ctype": "X", "offsets": "0", "values": "1",
+                                       "segment_infos": ["s"]})
+
+
+class InfosBuildersTest(unittest.TestCase):
+    SEGS = [{"start": 0, "end": 1000000}, {"start": 1000000, "end": 3000000}]
+
+    def test_audio_single_url_spans_all_timelines(self):
+        got = server.fn_audio_infos({"mp3_urls": ["u"], "timelines": self.SEGS})
+        entries = json.loads(got["infos"])
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0], {"audio_url": "u", "duration": 3000000,
+                                      "start": 0, "end": 3000000})
+
+    def test_audio_writes_volume_and_effect_only_when_given(self):
+        got = server.fn_audio_infos({"mp3_urls": ["u"], "timelines": self.SEGS,
+                                     "volume": 0.5, "audio_effect": "人声增强3"})
+        ent = json.loads(got["infos"])[0]
+        self.assertEqual(ent["volume"], 0.5)
+        self.assertEqual(ent["audio_effect"], "人声增强3")
+        bare = json.loads(server.fn_audio_infos(
+            {"mp3_urls": ["u"], "timelines": self.SEGS})["infos"])[0]
+        self.assertNotIn("volume", bare)
+        self.assertNotIn("audio_effect", bare)
+
+    def test_caption_pairs_by_index_and_omits_styling(self):
+        got = server.fn_caption_infos({"texts": ["a", "b"], "timelines": self.SEGS,
+                                       "font_size": 8, "in_animation": "飞入"})
+        entries = json.loads(got["infos"])
+        self.assertEqual([e["text"] for e in entries], ["a", "b"])
+        self.assertEqual([e["start"] for e in entries], [0, 1000000])
+        self.assertEqual(entries[0]["in_animation"], "飞入")
+        # 样式参数不写入 infos（loss 已声明）
+        self.assertNotIn("font_size", entries[0])
+
+    def test_images_carry_size_and_animation(self):
+        got = server.fn_imgs_infos({"imgs": ["i1", "i2"], "timelines": self.SEGS,
+                                    "width": 1920, "height": 1080,
+                                    "in_animation": "向右滑动",
+                                    "in_animation_duration": 500000})
+        entries = json.loads(got["infos"])
+        self.assertEqual(entries[0]["image_url"], "i1")
+        self.assertEqual(entries[0]["width"], 1920)
+        self.assertEqual(entries[0]["height"], 1080)
+        self.assertEqual(entries[0]["in_animation_duration"], 500000)
+
+    def test_videos_carry_duration_and_transition(self):
+        got = server.fn_video_infos({"video_urls": ["v1"], "timelines": [self.SEGS[0]],
+                                     "transition": "叠化", "transition_duration": 1000000,
+                                     "width": 576, "height": 1024})
+        ent = json.loads(got["infos"])[0]
+        self.assertEqual(ent["video_url"], "v1")
+        self.assertEqual(ent["duration"], 1000000)
+        self.assertEqual(ent["transition"], "叠化")
+        self.assertEqual(ent["transition_duration"], 1000000)
+
+    def test_effects_are_titles_with_spans(self):
+        got = server.fn_effect_infos({"effects": ["金粉闪闪"], "timelines": [self.SEGS[1]]})
+        self.assertEqual(json.loads(got["infos"]),
+                         [{"effect_title": "金粉闪闪", "start": 1000000, "end": 3000000}])
+
+    def test_fast_variants_declare_error_only_where_header_does(self):
+        self.assertIn("error", server.fn_audio_infos_fast({"mp3_urls": ["u"], "timelines": self.SEGS}))
+        self.assertIn("error", server.fn_caption_infos_fast({"texts": ["a"], "timelines": self.SEGS}))
+        self.assertIn("error", server.fn_imgs_infos_fast({"imgs": ["i"], "timelines": self.SEGS}))
+        self.assertNotIn("error", server.fn_video_infos_fast({"video_urls": ["v"], "timelines": self.SEGS}))
+        self.assertNotIn("error", server.fn_effect_infos_fast({"effects": ["e"], "timelines": self.SEGS}))
+
+    def test_negative_control_bad_timeline_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_audio_infos({"mp3_urls": ["u"], "timelines": ["x"]})
 
 
 if __name__ == "__main__":

@@ -246,6 +246,16 @@ def main(argv: list[str]) -> int:
         return 2 if cls is BadTable else 3
 
     if args.write_baseline:
+        # 闸门：未归因符号存在时拒绝写基线。否则一次误删归因行就会把
+        # 「判不了」钉成新基线（等于放宽判据），之后 --check 永远绿。
+        if report["unclassified"]["symbols"]:
+            syms = ", ".join(
+                f"{s['library']}.{s['symbol']}"
+                for s in report["unclassified"]["symbol_rows"])
+            print(f"[unbound-attribution] 拒绝写基线：仍有 "
+                  f"{report['unclassified']['symbols']} 个未归因符号（{syms}）",
+                  file=sys.stderr)
+            return 2
         base = {
             "schema": report["schema"],
             "unbound_symbols": report["unbound_symbols"],

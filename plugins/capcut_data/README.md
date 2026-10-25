@@ -39,11 +39,12 @@ python3 plugins/capcut_data/test_server.py
 
 | 函数 | 原因 |
 |---|---|
-| `audio_infos` `caption_infos` `effect_infos` `imgs_infos` `video_infos` `keyframes_infos` | 输出是 CapCut 草稿 JSON 片段；本仓无语料可证其 schema，写出来就是假绿 |
-| `audio_timelines` | 需要音频时长来源，`links` 参数里没有时长 |
-| `asr_timelines` | `content_chunks` 的时间单位（秒/毫秒）未证实 |
-| `search_sticker` | 需要剪映素材库网络接口 |
-| `timeline_keyframe` | 需要按时间轴生成关键帧曲线，预设曲线语义未由语料证实 |
+| `audio_timelines` | 需要音频时长来源，`links` 参数里没有时长（远程 URL 需下载 + 解码） |
+| `search_sticker` | 需要剪映素材库网络接口（网络/凭证） |
+
+`*_infos` / `keyframes_infos` / `timeline_keyframe` / `asr_timelines` 不在本插件实现：
+`<lib>.<fn>` 全仓唯一，这些符号已由 `plugins/timeline_toolkit` 接管
+（partial，loss 见该清单）。
 
 这些函数在 `libraries/capcut_data.ncoda` 里仍有声明（L1 完整），只是 L2 未绑：
 调用会得到 `RBINDING_MISSING`，账本里计为覆盖缺口，不计为失败。

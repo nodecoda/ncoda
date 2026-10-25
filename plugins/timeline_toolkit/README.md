@@ -12,6 +12,9 @@
 | `capcut_draft_data` | `caption_splitter` | partial | header 返回 `{texts[], timelines[]}`；语料 `max_char_count=12`，输出直接进 `text_infos(texts, timelines)` |
 | `capcut_data` | `timeline_keyframe` | partial | header 返回 `{offsets: array<string>, values: array<string>}`；语料 `presetOffsets="0|100"`，输出 `json.stringify` 后进 `add_keyframe` |
 | `capcut_data` | `asr_timelines` | partial | 语料 `7599126239110774822` 声明 chunk 形状 `{end_time:float, index:string, start_time:float, text:string}`，结果赋给 `array<{start:int,end:int}>`（µs） |
+| `capcut_data` | `keyframes_infos` | partial | 语料手写等价结构（`7531641052663529518`/`7560352905955033130`）：`{offset:段内µs, property, segment_id, value}`，`offset=百分比×(end-start)`；`segment_infos={id,start,end}` 由 `add_captions` 输出 |
+| `capcut_data_fast` | `keyframes_infos` | partial | 同构（额外 `error` 字段）；`pattern` 无语料出现，忽略 |
+| `capcut_data` / `capcut_data_fast` | `audio_infos` `caption_infos` `imgs_infos` `video_infos` `effect_infos` | partial | 输出 schema 由语料手写结构固定（`7598545768181841960`、`7551635971227664399`）：audio `{audio_url,duration,start,end,volume?}`、caption `{text,start,end,动画?}`、imgs `{image_url,start,end,width?,height?,动画?}`、video `{video_url,duration,start,end,width?,height?,transition?}`、effect `{effect_title,start,end}` |
 
 ## 取舍（loss）
 
@@ -23,6 +26,8 @@
   也可能传入标题文本，切分会让单值变多值。
 - `caption_splitter`：硬切到 `max_char_count`，按字符数比例分摊该条文本的时间段。
   原实现是否按标点断句、`texts`/`timelines` 数量不等时如何对齐，均未证实。
+- `keyframes_infos`：`offset` 是**段内**微秒（不是绝对时间）；位置型 `KFTypePositionX/Y`
+  是否按 `width/height` 归一化无证据，`value` 原样使用；不写 `easing`。
 - `timeline_keyframe`：按每条时间线的百分比插值；返回字符串数组（header 是
   `array<string>`，语料随后还会 `json.stringify` 一次）。
 

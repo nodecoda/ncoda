@@ -3,9 +3,10 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未绑定符号所在的库**一个闭集归因。目的不是「消灭 unbound」，
-而是让 242 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
-schema 缺口、哪些是本仓环境没有的能力。**新增未绑库必须同时给出归因**，否则判红。当前 `local-todo` 已清零，剩余
-全部是网络/服务端状态/schema/环境能力缺口。
+而是让 224 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
+schema 缺口、哪些是本仓环境没有的能力。**新增未绑库必须同时给出归因**，否则判红。
+当前 `local-todo` 只剩 3 个符号（`audio_timeline_merge.timeline_merge`、
+`video_image_split` 的 2 个），缺口是 gap 插入位置/槽位顺序的证据，不是实现难度。
 
 ## 归因闭集
 
@@ -79,7 +80,7 @@ libraries:
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
   capcut_data:
     class: schema-unknown
-    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos 无语料可证 schema；timeline_keyframe / asr_timelines 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
+    evidence: "语料调用的 *_infos / keyframes_infos / timeline_keyframe / asr_timelines 已全部由 plugins/timeline_toolkit 实现（partial，loss 见清单）；剩余两个符号语义不同，见符号级覆盖"
     symbols:
       audio_timelines:
         class: env-missing
@@ -87,9 +88,6 @@ libraries:
       search_sticker:
         class: remote-api
         evidence: "贴纸搜索走平台素材服务（网络/凭证）；原库级归因为 schema-unknown，已纠正"
-  capcut_data_fast:
-    class: schema-unknown
-    evidence: "与 capcut_data 同族的 *_infos 生成器：草稿 JSON 片段，无 schema 证据"
   capcut_draft:
     class: server-state
     evidence: "与 D-1 同族：草稿创建/保存"

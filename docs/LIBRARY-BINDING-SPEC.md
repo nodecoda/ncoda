@@ -46,9 +46,9 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号        76（内建 32 + 进程外 44）
-未绑定符号       236（remote-api 154 / server-state 38 / schema-unknown 18 / env-missing 23 / local-todo 3）
-local-todo         1（audio_timeline_merge.timeline_merge：纯算术，输出字段语义待证）
+已绑定符号        88（内建 32 + 进程外 56）
+未绑定符号       224（remote-api 154 / server-state 38 / schema-unknown 6 / env-missing 23 / local-todo 3）
+local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
 结论：**「缺失的库-函数」全部是 L2 实现缺口，不是语言声明缺口。**
@@ -225,8 +225,9 @@ after(local):complete_exec 168 · complete_real 86 · symbols_bound 21 · unboun
 after(plugin):plugin_bound 8（capcut_data 7 real + 1 partial）        · unbound 281
 after(D-1):  local 22（+ capcut_video_compose.get_audio_duration）    · unbound 280
 after(fill): local 32 · plugin 38（4 个插件 / 38 符号）               · unbound 242
-after(timeline): plugin 44（5 个插件 / 44 符号）                      · unbound 236
-             complete_exec 171 · complete_real 86 · local-todo 1
+after(text): plugin 44（5 个插件 / 44 符号）                          · unbound 236
+after(timeline): plugin 56（5 个插件 / 56 符号）                      · unbound 224
+             complete_exec 171 · complete_real 86 · local-todo 3
 ```
 
 - `complete_exec` 在插件/D-1 两步**没有变化**：这些文件同时依赖仍未绑的
@@ -257,7 +258,7 @@ after(timeline): plugin 44（5 个插件 / 44 符号）                      · 
 
 | 类别 | 含义 | 例子 |
 |---|---|---|
-| `binding-missing` | 调用了未绑符号 | 242 个未绑符号（原 289） |
+| `binding-missing` | 调用了未绑符号 | 224 个未绑符号（原 289） |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /
@@ -334,7 +335,7 @@ after(timeline): plugin 44（5 个插件 / 44 符号）                      · 
 > `plugins/compose_toolkit/`（2 库 18 符号）、`plugins/codel_toolkit/`（1 库 2 符号）；
 > 内建 timer 家族 + 本地文档读取（`file_read` / `text_file_reader` /
 > `document_to_text` / `document_reader`）共 10 个符号；`plugins/timeline_toolkit/`
-> （2 库 5 符号，全部 partial）补时间线/字幕纯函数。插件符号合计 44，全部
+> （3 库 17 符号，全部 partial）补时间线/字幕/关键帧/草稿片段函数。插件符号合计 56，全部
 > 登记在 `plugins/*/ncoda-plugin.yaml`。
 
 

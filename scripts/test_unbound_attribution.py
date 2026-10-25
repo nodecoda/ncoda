@@ -156,6 +156,72 @@ class AttributeGateTest(unittest.TestCase):
             ua.BASELINE = old
         self.assertTrue(any("local-todo" in p for p in problems))
 
+    def test_write_baseline_refuses_while_unclassified(self) -> None:
+        """归因行被删时，--write-baseline 必须拒写（rc=2），基线文件保持原样。
+
+        否则一次误删行会把「判不了」钉成新基线，之后 --check 永远绿。
+        """
+        tpath = os.path.join(self.root, "empty.md")
+        write(tpath, table())
+        base = os.path.join(self.root, "base.json")
+        write(base, '{"unclassified_symbols": 0, "by_class": {}}')
+        drift = {
+            "schema": "ncoda.unbound-attribution-report/v1",
+            "unbound_symbols": 2,
+            "libraries_with_unbound": 1,
+            "by_class": {c: {"libraries": 0, "symbols": 0} for c in ua.CLASSES},
+            "unclassified": {
+                "libraries": ["b"],
+                "symbols": 2,
+                "symbol_rows": [
+                    {"library": "b", "symbol": "f1", "class": "unclassified",
+                     "evidence": ""},
+                    {"library": "b", "symbol": "f2", "class": "unclassified",
+                     "evidence": ""},
+                ],
+            },
+            "rows": [],
+            "symbol_rows": [],
+        }
+        old_base, old_analyze = ua.BASELINE, ua.analyze
+        ua.BASELINE = base
+        ua.analyze = lambda *a, **k: drift
+        try:
+            rc = ua.main(["--table", tpath, "--corpus", self.root,
+                          "--write-baseline", "--reason", "test"])
+            self.assertEqual(rc, 2)
+            with open(base, encoding="utf-8") as fh:
+                self.assertEqual(json.load(fh)["unclassified_symbols"], 0,
+                                 "baseline must not be rewritten")
+        finally:
+            ua.BASELINE, ua.analyze = old_base, old_analyze
+
+    def test_write_baseline_succeeds_when_classified(self) -> None:
+        """正控：unclassified=0 时闸门放行，基线被写入。"""
+        tpath = os.path.join(self.root, "empty.md")
+        write(tpath, table())
+        base = os.path.join(self.root, "base2.json")
+        clean = {
+            "schema": "ncoda.unbound-attribution-report/v1",
+            "unbound_symbols": 1,
+            "libraries_with_unbound": 1,
+            "by_class": {"local-todo": {"libraries": 1, "symbols": 1}},
+            "unclassified": {"libraries": [], "symbols": 0, "symbol_rows": []},
+            "rows": [],
+            "symbol_rows": [],
+        }
+        old_base, old_analyze = ua.BASELINE, ua.analyze
+        ua.BASELINE = base
+        ua.analyze = lambda *a, **k: clean
+        try:
+            rc = ua.main(["--table", tpath, "--corpus", self.root,
+                          "--write-baseline", "--reason", "test"])
+            self.assertEqual(rc, 0)
+            with open(base, encoding="utf-8") as fh:
+                self.assertEqual(json.load(fh)["unbound_symbols"], 1)
+        finally:
+            ua.BASELINE, ua.analyze = old_base, old_analyze
+
     def test_main_rejects_write_baseline_without_reason(self) -> None:
         tpath = os.path.join(self.root, "ok.md")
         write(tpath, table())

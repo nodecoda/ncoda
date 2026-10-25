@@ -24,7 +24,11 @@ LIBRARIES = [
     {"library": "capcut_draft_data",
      "functions": ["timelines", "str_to_list", "caption_splitter"]},
     {"library": "capcut_data",
-     "functions": ["timeline_keyframe", "asr_timelines"]},
+     "functions": ["timeline_keyframe", "asr_timelines", "keyframes_infos",
+                    "audio_infos", "caption_infos", "imgs_infos", "video_infos", "effect_infos"]},
+    {"library": "capcut_data_fast",
+     "functions": ["keyframes_infos", "audio_infos", "caption_infos", "imgs_infos",
+                    "video_infos", "effect_infos"]},
 ]
 
 
@@ -278,12 +282,269 @@ def fn_asr_timelines(args):
             "all_timelines": [dict(t) for t in timelines]}
 
 
+# ── keyframes_infos ──────────────────────────────────────────────────────
+
+def number_out(v):
+    """整数不带小数点（JSON 里 1 不是 1.0）。"""
+    if isinstance(v, float) and v.is_integer():
+        return int(v)
+    return v
+
+
+def keyframes_payload(ctype, offsets, values, segments):
+    """段内百分比 → 关键帧条目。
+
+    证据：语料 7531641052663529518 / 7560352905955033130 手写同类结构
+      {"offset": 段内µs, "property": ctype, "segment_id": id, "value": n}
+    且 offset 以 end-start 计算（不是绝对时间）。
+    """
+    entries = []
+    for seg in segments:
+        if not isinstance(seg, dict):
+            raise ValueError("segment_infos: want object, got %s" % type(seg).__name__)
+        sid = as_text(seg.get("id", seg.get("segment_id", "")), "segment id")
+        start = as_int(seg.get("start"), name="segment start")
+        end = as_int(seg.get("end"), name="segment end")
+        dur = end - start if end > start else 0
+        for i, pct in enumerate(offsets):
+            off = int(round(dur * pct / 100.0))
+            if i < len(values):
+                val = values[i]
+            elif values:
+                val = values[-1]
+            else:
+                val = 0.0
+            entries.append({
+                "offset": off,
+                "property": ctype,
+                "segment_id": sid,
+                "value": number_out(val),
+            })
+    return json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+
+
+def fn_keyframes_infos(args):
+    """capcut_data.keyframes_infos：offsets 是百分比，offset 落成段内微秒。"""
+    ctype = as_text(arg(args, "ctype"), "ctype")
+    offsets = pipe_numbers(arg(args, "presetOffsets") or arg(args, "offsets"), "offsets")
+    values = pipe_numbers(arg(args, "presetValues") or arg(args, "values"), "values")
+    segments = as_items(arg(args, "segment_infos"), "segment_infos")
+    payload = keyframes_payload(ctype, offsets, values, segments)
+    body = {"errorCode": "", "errorMessage": ""}
+    return {
+        "errorBody": body,
+        "isSuccess": True,
+        "keyframes_infos": payload,
+        "outputList": [{"keyframes_infos": payload}],
+    }
+
+
+def fn_keyframes_infos_fast(args):
+    """capcut_data_fast.keyframes_infos：同构，额外带 error 字段；pattern 忽略。"""
+    got = fn_keyframes_infos(args)
+    got["error"] = ""
+    got["outputList"] = [{"error": "", "keyframes_infos": got["keyframes_infos"]}]
+    return got
+
+
+# ── *_infos（草稿片段 JSON）─────────────────────────────────────────────
+#
+# schema 证据：语料 JS/Python 手写的同类结构，喂给与 *_infos 完全相同的消费参数：
+#   7598545768181841960: texts {text,start,end,in_animation,out_animation}
+#                        audios {audio_url,duration,volume,start,end}
+#                        images {image_url,width,height,start,end,in/out/loop_animation,…}
+#                        effect_infos {effect_title,start,end}
+#   7551635971227664399: videos {video_url,duration,start,end,width,height,transition,transition_duration}
+#   7531641052663529518: segment_infos {id,start,end}（add_captions 的输出）
+
+def text_of(v):
+    if isinstance(v, dict):
+        for k in ("text", "content", "wenan", "value", "caption"):
+            if v.get(k) not in (None, ""):
+                return as_text(v[k], k)
+        return ""
+    return as_text(v)
+
+
+def norm_list(v, coerce):
+    if v in (None, "", 0):
+        return []
+    if isinstance(v, list):
+        return [coerce(x) for x in v]
+    return [coerce(v)]
+
+
+def pair_spans(items, timelines, broadcast=True):
+    """按索引配对；单元素 + 多时间段时铺满整体（bgm/整段素材的常见语义）。"""
+    ts = [span(t) for t in as_items(timelines, "timelines")]
+    if not items:
+        return []
+    if broadcast and len(items) == 1 and len(ts) != 1:
+        if not ts:
+            return []
+        ts = [(min(s for s, _ in ts), max(e for _, e in ts))]
+    out = []
+    for i, it in enumerate(items):
+        if i >= len(ts):
+            break
+        out.append((it, ts[i][0], ts[i][1]))
+    return out
+
+
+def opt_field(ent, args, name, kind="text"):
+    """只在调用方真的传了该参数时写入；避免把 header 的 0/"" 默认写成限制值。"""
+    raw = arg(args, name)
+    if raw is None:
+        return
+    if kind == "text":
+        val = as_text(raw, name)
+        if val:
+            ent[name] = val
+    elif kind == "int":
+        val = as_int(raw, name=name)
+        if val:
+            ent[name] = val
+    elif kind == "float":
+        val = as_float(raw, name=name)
+        if val:
+            ent[name] = number_out(val)
+
+
+ANIM_FIELDS = ("in_animation", "out_animation", "loop_animation")
+ANIM_DURATIONS = ("in_animation_duration", "out_animation_duration", "loop_animation_duration")
+
+
+def build_audio(args):
+    urls = norm_list(arg(args, "mp3_urls") if arg(args, "mp3_urls") is not None
+                     else arg(args, "urls"), scalar_text)
+    entries = []
+    for url, s, e in pair_spans(urls, arg(args, "timelines")):
+        ent = {"audio_url": url, "duration": e - s, "start": s, "end": e}
+        opt_field(ent, args, "volume", "float")
+        opt_field(ent, args, "audio_effect")
+        entries.append(ent)
+    return entries
+
+
+def build_caption(args):
+    texts = norm_list(arg(args, "texts"), text_of)
+    entries = []
+    for text, s, e in pair_spans(texts, arg(args, "timelines")):
+        ent = {"text": text, "start": s, "end": e}
+        for f in ANIM_FIELDS:
+            opt_field(ent, args, f)
+        for f in ANIM_DURATIONS:
+            opt_field(ent, args, f, "int")
+        entries.append(ent)
+    return entries
+
+
+def build_images(args):
+    urls = norm_list(arg(args, "imgs"), scalar_text)
+    entries = []
+    for url, s, e in pair_spans(urls, arg(args, "timelines")):
+        ent = {"image_url": url, "start": s, "end": e}
+        opt_field(ent, args, "width", "int")
+        opt_field(ent, args, "height", "int")
+        for f in ANIM_FIELDS:
+            opt_field(ent, args, f)
+        for f in ANIM_DURATIONS:
+            opt_field(ent, args, f, "int")
+        opt_field(ent, args, "transition")
+        opt_field(ent, args, "transition_duration", "int")
+        entries.append(ent)
+    return entries
+
+
+def build_videos(args):
+    urls = norm_list(arg(args, "video_urls"), scalar_text)
+    entries = []
+    for url, s, e in pair_spans(urls, arg(args, "timelines")):
+        ent = {"video_url": url, "duration": e - s, "start": s, "end": e}
+        opt_field(ent, args, "width", "int")
+        opt_field(ent, args, "height", "int")
+        opt_field(ent, args, "transition")
+        opt_field(ent, args, "transition_duration", "int")
+        opt_field(ent, args, "volume", "float")
+        opt_field(ent, args, "mask")
+        entries.append(ent)
+    return entries
+
+
+def build_effects(args):
+    names = norm_list(arg(args, "effects"), text_of)
+    entries = []
+    for name, s, e in pair_spans(names, arg(args, "timelines")):
+        entries.append({"effect_title": name, "start": s, "end": e})
+    return entries
+
+
+def infos_result(entries, with_error):
+    payload = json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+    out = {"infos": payload}
+    if with_error:
+        out["error"] = ""
+    return out
+
+
+def fn_audio_infos(args):
+    return infos_result(build_audio(args), False)
+
+
+def fn_caption_infos(args):
+    return infos_result(build_caption(args), False)
+
+
+def fn_imgs_infos(args):
+    return infos_result(build_images(args), False)
+
+
+def fn_video_infos(args):
+    return infos_result(build_videos(args), False)
+
+
+def fn_effect_infos(args):
+    return infos_result(build_effects(args), False)
+
+
+def fn_audio_infos_fast(args):
+    return infos_result(build_audio(args), True)
+
+
+def fn_caption_infos_fast(args):
+    return infos_result(build_caption(args), True)
+
+
+def fn_imgs_infos_fast(args):
+    return infos_result(build_images(args), True)
+
+
+def fn_video_infos_fast(args):
+    return infos_result(build_videos(args), False)
+
+
+def fn_effect_infos_fast(args):
+    return infos_result(build_effects(args), False)
+
+
 HANDLERS = {
     "capcut_draft_data.timelines": fn_timelines,
     "capcut_draft_data.str_to_list": fn_str_to_list,
     "capcut_draft_data.caption_splitter": fn_caption_splitter,
     "capcut_data.timeline_keyframe": fn_timeline_keyframe,
     "capcut_data.asr_timelines": fn_asr_timelines,
+    "capcut_data.keyframes_infos": fn_keyframes_infos,
+    "capcut_data_fast.keyframes_infos": fn_keyframes_infos_fast,
+    "capcut_data.audio_infos": fn_audio_infos,
+    "capcut_data.caption_infos": fn_caption_infos,
+    "capcut_data.imgs_infos": fn_imgs_infos,
+    "capcut_data.video_infos": fn_video_infos,
+    "capcut_data.effect_infos": fn_effect_infos,
+    "capcut_data_fast.audio_infos": fn_audio_infos_fast,
+    "capcut_data_fast.caption_infos": fn_caption_infos_fast,
+    "capcut_data_fast.imgs_infos": fn_imgs_infos_fast,
+    "capcut_data_fast.video_infos": fn_video_infos_fast,
+    "capcut_data_fast.effect_infos": fn_effect_infos_fast,
 }
 
 

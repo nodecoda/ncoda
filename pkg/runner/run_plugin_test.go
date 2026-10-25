@@ -218,6 +218,10 @@ function main() -> any {
 	}
 }
 
+// 负控：真正没有实现的符号必须以 rc=1 暴露，不能被插件悄悄吞成空值。
+// 用 audio_timelines（env-missing：缺音频时长来源，需要下载+解码）而不是
+// 任一 *_infos——后者已由 plugins/timeline_toolkit 绑定；本测试在绑定
+// `*_infos` 时确实变红过，证明断言有牙。
 func TestCapcutDataUnboundFunctionStaysRed(t *testing.T) {
 	if _, err := exec.LookPath("python3"); err != nil {
 		t.Skip("python3 not available")
@@ -226,9 +230,9 @@ func TestCapcutDataUnboundFunctionStaysRed(t *testing.T) {
 @mode workflow
 import "capcut_data";
 
-function main() -> string {
-    let v = capcut_data.caption_infos({ "texts": ["a"], "font_size": 8 });
-    return v.infos;
+function main() -> array<any> {
+    let v = capcut_data.audio_timelines({ "links": ["https://example.com/a.mp3"] });
+    return v.outputList;
 }
 `
 	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
@@ -860,5 +864,182 @@ function main() -> any {
 	}
 	if len(got.Chunks) != 1 || got.Chunks[0].Question != "问" || got.Chunks[0].Answer != "答" {
 		t.Fatalf("chunks = %+v", got.Chunks)
+	}
+}
+
+// keyframes_infos：语料手写过等价结构（7531641052663529518 / 7560352905955033130）
+//
+//	{"offset":段内µs,"property":ctype,"segment_id":id,"value":n}
+//
+// 且 offset 以 end-start 计算。这里断言两个库的实现都按段内百分比落点。
+func TestKeyframesInfosPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_data";
+import "capcut_data_fast";
+
+type Seg = {
+  int start;
+  int end;
+  string id;
+};
+
+function main() -> any {
+    let segs = json.parse<array<Seg>>("[{\"start\":1000000,\"end\":3000000,\"id\":\"s1\"}]");
+    let k = capcut_data.keyframes_infos({ "ctype": "UNIFORM_SCALE", "offsets": "0|100", "values": "1|1.5", "segment_infos": segs });
+    let f = capcut_data_fast.keyframes_infos({ "ctype": "KFTypeAlpha", "offsets": "0|100", "values": "0.9|0", "segment_infos": segs });
+    return { "infos": k.keyframes_infos, "ok": k.isSuccess, "fast": f.keyframes_infos };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Infos string `json:"infos"`
+		OK    bool   `json:"ok"`
+		Fast  string `json:"fast"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if !got.OK {
+		t.Fatal("isSuccess = false")
+	}
+	var entries []struct {
+		Offset    int64   `json:"offset"`
+		Property  string  `json:"property"`
+		SegmentID string  `json:"segment_id"`
+		Value     float64 `json:"value"`
+	}
+	if err := json.Unmarshal([]byte(got.Infos), &entries); err != nil {
+		t.Fatalf("keyframes_infos is not a JSON list: %v (%s)", err, got.Infos)
+	}
+	if len(entries) != 2 || entries[0].Offset != 0 || entries[1].Offset != 2000000 {
+		t.Fatalf("offsets must be segment-relative: %+v", entries)
+	}
+	if entries[0].Property != "UNIFORM_SCALE" || entries[0].SegmentID != "s1" {
+		t.Fatalf("entry = %+v", entries[0])
+	}
+	if entries[0].Value != 1 || entries[1].Value != 1.5 {
+		t.Fatalf("values = %v/%v", entries[0].Value, entries[1].Value)
+	}
+	var fast []struct {
+		Offset int64 `json:"offset"`
+	}
+	if err := json.Unmarshal([]byte(got.Fast), &fast); err != nil || len(fast) != 2 || fast[1].Offset != 2000000 {
+		t.Fatalf("fast variant = %s (err=%v)", got.Fast, err)
+	}
+}
+
+// *_infos：输出 schema 由语料手写结构固定（与 add_* 的消费参数同形）。
+// 这里覆盖 audio/caption/imgs/effect（capcut_data）与 video（capcut_data_fast）。
+func TestInfosBuildersPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_data";
+import "capcut_data_fast";
+
+type Span = {
+  int start;
+  int end;
+};
+
+function main() -> any {
+    let segs = json.parse<array<Span>>("[{\"start\":0,\"end\":1000000},{\"start\":1000000,\"end\":3000000}]");
+    let a = capcut_data.audio_infos({ "mp3_urls": ["u"], "timelines": segs, "volume": 0.5 });
+    let c = capcut_data.caption_infos({ "texts": ["a", "b"], "timelines": segs });
+    let i = capcut_data.imgs_infos({ "imgs": ["i1", "i2"], "timelines": segs, "width": 1920 });
+    let e = capcut_data.effect_infos({ "effects": ["金粉闪闪"], "timelines": segs });
+    let v = capcut_data_fast.video_infos({ "video_urls": ["v1"], "timelines": segs, "transition": "叠化" });
+    return { "audio": a.infos, "caption": c.infos, "images": i.infos,
+             "effects": e.infos, "video": v.infos };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got map[string]string
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	for key, want := range map[string]int{"audio": 1, "caption": 2, "images": 2, "effects": 1, "video": 1} {
+		var entries []map[string]any
+		if err := json.Unmarshal([]byte(got[key]), &entries); err != nil {
+			t.Fatalf("%s is not a JSON list: %v (%s)", key, err, got[key])
+		}
+		if len(entries) != want {
+			t.Fatalf("%s: %d entries, want %d (%s)", key, len(entries), want, got[key])
+		}
+	}
+	var audio []struct {
+		URL      string  `json:"audio_url"`
+		Duration int64   `json:"duration"`
+		Volume   float64 `json:"volume"`
+		Start    int64   `json:"start"`
+		End      int64   `json:"end"`
+	}
+	if err := json.Unmarshal([]byte(got["audio"]), &audio); err != nil {
+		t.Fatal(err)
+	}
+	if audio[0].URL != "u" || audio[0].Duration != 3000000 || audio[0].Volume != 0.5 {
+		t.Fatalf("audio = %+v (single URL must span all timelines)", audio[0])
+	}
+	var captions []struct {
+		Text  string `json:"text"`
+		Start int64  `json:"start"`
+	}
+	if err := json.Unmarshal([]byte(got["caption"]), &captions); err != nil {
+		t.Fatal(err)
+	}
+	if captions[0].Text != "a" || captions[1].Start != 1000000 {
+		t.Fatalf("captions = %+v", captions)
+	}
+	var images []struct {
+		URL   string `json:"image_url"`
+		Width int    `json:"width"`
+	}
+	if err := json.Unmarshal([]byte(got["images"]), &images); err != nil {
+		t.Fatal(err)
+	}
+	if images[0].URL != "i1" || images[0].Width != 1920 {
+		t.Fatalf("images = %+v", images[0])
+	}
+	var effects []struct {
+		Title string `json:"effect_title"`
+		Start int64  `json:"start"`
+		End   int64  `json:"end"`
+	}
+	if err := json.Unmarshal([]byte(got["effects"]), &effects); err != nil {
+		t.Fatal(err)
+	}
+	if effects[0].Title != "金粉闪闪" || effects[0].Start != 0 || effects[0].End != 3000000 {
+		t.Fatalf("effects = %+v", effects[0])
+	}
+	var videos []struct {
+		URL        string `json:"video_url"`
+		Duration   int64  `json:"duration"`
+		Transition string `json:"transition"`
+	}
+	if err := json.Unmarshal([]byte(got["video"]), &videos); err != nil {
+		t.Fatal(err)
+	}
+	if videos[0].URL != "v1" || videos[0].Duration != 3000000 || videos[0].Transition != "叠化" {
+		t.Fatalf("video = %+v", videos[0])
 	}
 }

@@ -222,7 +222,7 @@ class ProtocolTest(unittest.TestCase):
             [sys.executable, os.path.join(HERE, "server.py")],
             input="\n".join([
                 json.dumps({"jsonrpc": "2.0", "id": 1, "method": "invoke",
-                            "params": {"symbol": "capcut_data.caption_infos",
+                            "params": {"symbol": "capcut_data.audio_timelines",
                                        "args": {}, "deadline_ms": 1000}}),
             ]) + "\n",
             capture_output=True, text=True, timeout=10, check=True)
