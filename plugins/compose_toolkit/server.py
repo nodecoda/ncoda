@@ -27,6 +27,7 @@ SUCHUANG = ["add_list", "audio_link_collector", "dialog_merge", "dialog_split",
             "wenan_timeline_range", "wenan_timeline_range_merge",
             "get_audio_duration"]
 LIBRARIES = [
+    {"library": "audio_timeline_merge", "functions": ["timeline_merge"]},
     {"library": "capcut_helper", "functions": CAPCUT_HELPER},
     {"library": "suchuang_video_compose", "functions": SUCHUANG},
 ]
@@ -200,6 +201,29 @@ def fn_add_list(args):
 
 # ── 时间轴 ───────────────────────────────────────────────────────────────
 
+def _merge_core(main, pre, gap_us, skip_us):
+    """[pre][gap][main] 的拼接结果（含 gap 段），供两族 timeline_merge 复用。"""
+    gap = max(0, as_int(gap_us, 0, "gap_us"))
+    skip = max(0, as_int(skip_us, 0, "skip_us"))
+    pre_segs = segments(pre, "pre_timeline")
+    main_segs = segments(main, "main_timeline")
+    pre_shifted = [{"start": s["start"] + skip, "end": s["end"] + skip} for s in pre_segs]
+    pre_end = max((s["end"] for s in pre_segs), default=0)
+    gap_start = skip + pre_end
+    base = (gap_start + gap) if pre_segs else skip
+    main_shifted = [{"start": s["start"] + base, "end": s["end"] + base} for s in main_segs]
+    merged = pre_shifted + main_shifted
+    last_end = max((s["end"] for s in merged), default=0)
+    gap_segs = [{"start": gap_start, "end": gap_start + gap}] if pre_segs and gap else []
+    return {
+        "pre": pre_shifted,
+        "main": main_shifted,
+        "merged": merged,
+        "last_end": last_end,
+        "gap": gap_segs,
+    }
+
+
 def merge_timelines(main, pre, gap_us, skip_us):
     """[pre][gap][main] 拼接；skip_us 是整块的时间平移量。
 
@@ -208,27 +232,43 @@ def merge_timelines(main, pre, gap_us, skip_us):
     （即「接在前一段之后」）；7577251869463134243:229 用常量 skip=2.5s + gap=1.5s。
     pre 与 main 一起平移（否则 pre 会落到前一段上）；gap 只拉开 pre 与 main。
     """
-    gap = max(0, as_int(gap_us, 0, "gap_us"))
-    skip = max(0, as_int(skip_us, 0, "skip_us"))
-    pre_segs = segments(pre, "pre_timeline")
-    main_segs = segments(main, "main_timeline")
-    pre_shifted = [{"start": s["start"] + skip, "end": s["end"] + skip} for s in pre_segs]
-    pre_end = max((s["end"] for s in pre_segs), default=0)
-    base = skip + (pre_end + gap if pre_segs else 0)
-    main_shifted = [{"start": s["start"] + base, "end": s["end"] + base} for s in main_segs]
-    merged = pre_shifted + main_shifted
-    last_end = max((s["end"] for s in merged), default=0)
-    all_tl = [] if not merged else [{"start": 0, "end": last_end}]
+    core = _merge_core(main, pre, gap_us, skip_us)
+    all_tl = [] if not core["merged"] else [{"start": 0, "end": core["last_end"]}]
     return {
-        "all_complete_timeline": list(merged),
-        "all_main_timeline": list(main_shifted),
-        "all_pre_timeline": list(pre_shifted),
+        "all_complete_timeline": list(core["merged"]),
+        "all_main_timeline": list(core["main"]),
+        "all_pre_timeline": list(core["pre"]),
         "all_timeline": all_tl,
         "error": "",
-        "last_end_us": last_end,
-        "main_timelines": list(main_shifted),
-        "pre_timelines": list(pre_shifted),
-        "timelines": list(merged),
+        "last_end_us": core["last_end"],
+        "main_timelines": list(core["main"]),
+        "pre_timelines": list(core["pre"]),
+        "timelines": list(core["merged"]),
+    }
+
+
+def fn_audio_timeline_merge(args):
+    """audio_timeline_merge.timeline_merge：同类拼接 + gap 段与 contact。
+
+    证据：7572879904859111459:186,189 传 gap_us=int(TTS 时长)；`gap_us_timeline`
+    同时喂 1 个 mp3（v20.infos）、1 条标题文案（v40.processedText=[title]）与
+    add_videos 的 scene_timelines；v34 的 JS 以最后一段的 end 作为视频起点。
+    ⇒ 取「单个 gap 段」，位于 pre 与 main 之间。contact 全语料 0 消费 ⇒ 空串。
+    """
+    core = _merge_core(arg(args, "main_timeline"), arg(args, "pre_timeline"),
+                       arg(args, "gap_us"), arg(args, "skip_us"))
+    all_tl = [] if not core["merged"] else [{"start": 0, "end": core["last_end"]}]
+    return {
+        "all_complete_timeline": list(core["merged"]),
+        "all_main_timeline": list(core["main"]),
+        "all_pre_timeline": list(core["pre"]),
+        "all_timeline": all_tl,
+        "contact": "",
+        "gap_us_timeline": list(core["gap"]),
+        "last_end_us": core["last_end"],
+        "main_timelines": list(core["main"]),
+        "pre_timelines": list(core["pre"]),
+        "timelines": list(core["merged"]),
     }
 
 
@@ -607,6 +647,7 @@ def fn_suchuang_get_audio_duration(args):
     return {"duration": value, "outputList": [{"duration": value}]}
 
 HANDLERS = {
+    "audio_timeline_merge.timeline_merge": fn_audio_timeline_merge,
     "capcut_helper.audio_link_collector": fn_audio_link_collector,
     "capcut_helper.rolling_effect": fn_rolling_effect,
     "capcut_helper.text_splitter": fn_capcut_text_splitter,

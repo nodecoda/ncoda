@@ -1,16 +1,16 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
  "unbound_symbols": 0,
- "stub_symbols": 209,
- "not_implemented_symbols": 209,
+ "stub_symbols": 208,
+ "not_implemented_symbols": 208,
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 18,
-  "local-todo": 5,
+  "local-todo": 4,
   "remote-api": 150,
   "schema-unknown": 4,
   "server-state": 32,
   "unclassified": 0
  },
- "reason": "video_timelines env-missing → 实现（MP4/WebM/WAV 容器头）"
+ "reason": "audio_timeline_merge local-todo → 实现（partial）"
 }

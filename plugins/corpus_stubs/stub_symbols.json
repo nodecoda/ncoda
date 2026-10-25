@@ -37,11 +37,6 @@
    "evidence": "header desc「字幕音频对齐」表明需要远程服务",
    "loss": "remote-api: header desc「字幕音频对齐」表明需要远程服务"
   },
-  "audio_timeline_merge.timeline_merge": {
-   "class": "local-todo",
-   "evidence": "纯时间线算术已确认；语料 JS（7535503584906215458:247）以 all_timeline[0].start 为基准，要求 pre 是 all 的前缀；gap_us_timeline 与 mp3_urls 一一对应（每个 gap 一段）。仍未证实 gap 的插入位置（pre/main 之间 还是 main 段之间）与 all_* 的包含关系，猜错会静默污染下游时间线，故暂不实现",
-   "loss": "local-todo: 纯时间线算术已确认；语料 JS（7535503584906215458:247）以 all_timeline[0].start 为基准，要求 pre 是 all 的前缀；gap_us_timeline 与 mp3_urls 一一对应（每个 gap 一段）。仍未证实 gap 的插入位置（pre/main 之间 还是 main 段之间）与 all_* 的包含关系，猜错会静默污染下游时间线，故暂不实现"
-  },
   "audio_toolkit.merge_audios": {
    "class": "env-missing",
    "evidence": "需要真实音频编解码（ffmpeg 级）；本仓只做 WAV 生成/时长读取",

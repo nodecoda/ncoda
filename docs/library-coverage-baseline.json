@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 209,
+ "symbols_bound_stub": 208,
  "complete_stub": 698,
- "reason": "video_timelines: capcut + suchuang_video_compose 以容器头解析实现（partial），stub 211→209"
+ "reason": "audio_timeline_merge.timeline_merge 落地（partial，单 gap 段）"
 }

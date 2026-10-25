@@ -7,6 +7,17 @@ command: ["python3", "server.py"]
 timeout_ms: 30000
 max_restarts: 3
 libraries:
+  # 音频时间线合并：唯一函数 timeline_merge，按「单个 gap 段」实现。
+  # 证据：7572879904859111459:186,189 传 gap_us=int(TTS 时长)，gap_us_timeline
+  # 同时喂 1 个 mp3、1 条标题文案与 add_videos 的 scene_timelines；v34 以最后一段
+  # 的 end 作为视频起点。
+  - library: audio_timeline_merge
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：timeline_merge 采用 [pre][gap][main] 拼接 + 单个 gap 段；gap 是否为「每段一个」、all_complete_timeline 是否要包含 gap 占位段未证实"
+    functions:
+      - name: timeline_merge
+        loss: "skip_us 为整块平移（同 suchuang_video_compose.timeline_merge）；gap_us_timeline 取 pre 与 main 之间的单个 gap 段，gap_us=0 时为空。未证实：① gap 是否应为每段一个（若如此，1 条文案仍只配第一段）② all_complete_timeline 是否要包含 gap 占位段（目前等于 timelines）③ main 是否反而应从 gap 起点算（v24 用 v4 作视频起点，与 pre_end+gap 模型不一致）。contact 全语料 0 消费 ⇒ 空串"
   # 剪映小助手：纯列表/文本/时间轴变换（不触网、不读写草稿）。
   - library: capcut_helper
     version: 0.1.0

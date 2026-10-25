@@ -15,6 +15,7 @@ python3 plugins/compose_toolkit/test_server.py
 |---|---|---|---|---|
 | `capcut_helper` | `audio_link_collector` | real | 摊平 TTS 结果里的 `link`，保序去空 | `corpus/7580659724749865001:94,106` → `audio_timelines({links})` |
 | `capcut_helper` | `text_splitter` | partial | 空行分段 → 句末标点切句 | `corpus/7580659724749865001:46` → `segments` 逐段 TTS |
+| `audio_timeline_merge` | `timeline_merge` | partial | `[pre][gap][main]` 拼接 + **单个 gap 段**（`gap_us_timeline`），`skip_us` 整块平移；`contact` 空串 | `corpus/7572879904859111459:186,189`（gap=TTS 时长；gap 段喂 1 个 mp3 + 1 条标题文案）；未证实的三种可能见清单 loss |
 | `capcut_helper` | `timeline_merge` | partial | `skip_us` 是整块平移（pre+main 一起后移），`main` 再后移 `max(pre.end)+gap_us`；`all_timeline=[0,last_end_us]`，`all_complete_timeline=timelines` | `corpus/7580659724749865001:113,129`（gap）；`7551643866874150912:313`、`7577698754514960419:330`（skip=上一轮 last_end_us） |
 | `capcut_helper` | `wenan_timeline_range` | partial | 文案 → 时间范围（按 wenan 条数均分 timelines） | `corpus/7580659724749865001:285` → LLM 的 `wenanTimeline` |
 | `capcut_helper` | `rolling_effect` | partial | `duration_list` 累加成段，`str_list` 循环补齐 | `corpus/7580659724749865001:202` → `subject_timeline` |

@@ -123,6 +123,64 @@ class TimelineMergeTest(unittest.TestCase):
 
 
 
+class AudioTimelineMergeTest(unittest.TestCase):
+    """audio_timeline_merge.timeline_merge：在 suchuang 版本上多出 gap_us_timeline/contact。
+
+    证据：7572879904859111459:186,189 传 gap_us=int(TTS 时长)，随后
+    `gap_us_timeline` 分别喂给 1 个 mp3（v20.infos）、1 条标题文案
+    （v40.processedText = [title]）和 add_videos 的 scene_timelines；
+    v34 的 JS 用 `timelines[last].end` 作为视频起点 ⇒ 取「单个 gap 段」。
+    """
+
+    def test_gap_sits_between_pre_and_main(self):
+        got = server.fn_audio_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 1000}],
+            "main_timeline": [{"start": 0, "end": 500}],
+            "gap_us": 200,
+        })
+        self.assertEqual(got["pre_timelines"], [{"start": 0, "end": 1000}])
+        self.assertEqual(got["gap_us_timeline"], [{"start": 1000, "end": 1200}])
+        self.assertEqual(got["main_timelines"], [{"start": 1200, "end": 1700}])
+        self.assertEqual(got["contact"], "")
+        self.assertEqual(got["last_end_us"], 1700)
+
+    def test_gap_and_skip_offsets_compose(self):
+        got = server.fn_audio_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 1000}],
+            "main_timeline": [{"start": 0, "end": 500}],
+            "gap_us": 200,
+            "skip_us": 2500,
+        })
+        self.assertEqual(got["gap_us_timeline"], [{"start": 3500, "end": 3700}])
+        self.assertEqual(got["main_timelines"], [{"start": 3700, "end": 4200}])
+        self.assertEqual(got["all_timeline"], [{"start": 0, "end": 4200}])
+
+    def test_no_gap_is_empty_list(self):
+        got = server.fn_audio_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 1000}],
+            "main_timeline": [{"start": 0, "end": 500}],
+        })
+        self.assertEqual(got["gap_us_timeline"], [])
+        self.assertEqual(got["main_timelines"], [{"start": 1000, "end": 1500}])
+
+    def test_negative_control_gap_touches_both_neighbours(self):
+        got = server.fn_audio_timeline_merge({
+            "pre_timeline": [{"start": 0, "end": 700}],
+            "main_timeline": [{"start": 0, "end": 100}],
+            "gap_us": 300,
+        })
+        gap = got["gap_us_timeline"][0]
+        self.assertEqual(gap["start"], got["pre_timelines"][-1]["end"])
+        self.assertEqual(gap["end"], got["main_timelines"][0]["start"])
+
+    def test_header_keys_only(self):
+        got = server.fn_audio_timeline_merge({"main_timeline": [{"start": 0, "end": 10}]})
+        self.assertEqual(set(got), {
+            "main_timelines", "pre_timelines", "timelines", "all_main_timeline",
+            "last_end_us", "all_timeline", "contact", "all_complete_timeline",
+            "all_pre_timeline", "gap_us_timeline"})
+
+
 class WenanRangeTest(unittest.TestCase):
     TL = [{"start": 0, "end": 100}, {"start": 100, "end": 200},
           {"start": 200, "end": 300}, {"start": 300, "end": 400}]

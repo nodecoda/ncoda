@@ -53,12 +53,6 @@ libraries:
   - name: align_text_to_audio
     fidelity: stub
     loss: 'remote-api: header desc「字幕音频对齐」表明需要远程服务'
-- library: audio_timeline_merge
-  fidelity: stub
-  functions:
-  - name: timeline_merge
-    fidelity: stub
-    loss: 'local-todo: 纯时间线算术已确认；语料 JS（7535503584906215458:247）以 all_timeline[0].start 为基准，要求 pre 是 all 的前缀；gap_us_timeline 与 mp3_urls 一一对应（每个 gap 一段）。仍未证实 gap 的插入位置（pre/main 之间 还是 main 段之间）与 all_* 的包含关系，猜错会静默污染下游时间线，故暂不实现'
 - library: audio_toolkit
   fidelity: stub
   functions:

@@ -9,9 +9,10 @@
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
 **新增未实现符号必须同时给出归因**，否则判红。
 `audio_align_free` / `audio_subtitle_align_alt` 已由 `plugins/align_toolkit` 以 partial 实现（只收 duration_list，无音频内容可对齐）。
-当前 `local-todo` 有 5 个符号：`audio_timeline_merge.timeline_merge`、`video_image_split` 的 2 个、
-`script_storyboard.Text_Shot` 与 `capcut_keyframes.keyFrames`。缺口分别是 gap 插入位置/
-槽位顺序、分镜切分与关键帧分配规则，都是证据缺口，不是实现难度。
+当前 `local-todo` 有 4 个符号：`video_image_split` 的 2 个、`script_storyboard.Text_Shot`
+与 `capcut_keyframes.keyFrames`。缺口是槽位顺序、分镜切分与关键帧分配规则，都是证据缺口，
+不是实现难度。（`audio_timeline_merge.timeline_merge` 已按「单个 gap 段」落成 partial，
+未证实的三种可能写在 plugins/compose_toolkit 的 loss 里。）
 
 ## 归因闭集
 
@@ -55,7 +56,7 @@ libraries:
     evidence: "header desc「字幕音频对齐」表明需要远程服务"
   audio_timeline_merge:
     class: local-todo
-    evidence: "纯时间线算术已确认；语料 JS（7535503584906215458:247）以 all_timeline[0].start 为基准，要求 pre 是 all 的前缀；gap_us_timeline 与 mp3_urls 一一对应（每个 gap 一段）。仍未证实 gap 的插入位置（pre/main 之间 还是 main 段之间）与 all_* 的包含关系，猜错会静默污染下游时间线，故暂不实现"
+    evidence: "timeline_merge 已由 plugins/compose_toolkit 以 [pre][gap][main] + 单个 gap 段实现（partial）；gap 是否应每段一个、all_complete_timeline 是否要含 gap 占位段、main 的起点是否应为 gap 起点（v24 用 v4）仍未证实，逐项写在清单 loss 里"
   audio_toolkit:
     class: env-missing
     evidence: "需要真实音频编解码（ffmpeg 级）；本仓只做 WAV 生成/时长读取"
