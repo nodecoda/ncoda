@@ -79,7 +79,14 @@ libraries:
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
   capcut_data:
     class: schema-unknown
-    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos/search_sticker 无语料可证 schema；timeline_keyframe / asr_timelines 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
+    evidence: "输出 CapCut 草稿 JSON 片段；9 个纯函数已由 plugins/capcut_data 实现（get_url/objs_to_str_list/str_to_list/array_pair/extract_first_end_frame/timelines/wenan_links_merge/wenan_split/timelines_format），其余 *_infos/keyframes_infos 无语料可证 schema；timeline_keyframe / asr_timelines 已由 plugins/timeline_toolkit 实现（partial，loss 见清单）"
+    symbols:
+      audio_timelines:
+        class: env-missing
+        evidence: "输出结构在 header 里是具体的（timelines/outputList），不是 schema 问题；缺的是音频时长（远程 URL 需下载+解码）"
+      search_sticker:
+        class: remote-api
+        evidence: "贴纸搜索走平台素材服务（网络/凭证）；原库级归因为 schema-unknown，已纠正"
   capcut_data_fast:
     class: schema-unknown
     evidence: "与 capcut_data 同族的 *_infos 生成器：草稿 JSON 片段，无 schema 证据"
@@ -89,6 +96,13 @@ libraries:
   capcut_draft_data:
     class: schema-unknown
     evidence: "timelines / str_to_list / caption_splitter 已由 plugins/timeline_toolkit 实现（partial，分配/断句规则 loss 见清单）；audio_infos / text_infos / image_infos / keyframe_infos / video_infos 返回草稿 JSON 片段，无 schema 证据"
+    symbols:
+      audio_timelines:
+        class: env-missing
+        evidence: "输出结构在 header 里是具体的（start/end/timelines），不是 schema 问题；缺的是音频时长（远程 URL 需下载+解码）"
+      get_audio_duration:
+        class: env-missing
+        evidence: "返回单个 duration；缺的是音频解码（WAV 精确 / MP3 估算），远程 URL 本仓不联网"
   capcut_draft_folder:
     class: server-state
     evidence: "与 D-1 同族：草稿文件夹（add_* 以 draft id 串联）"
@@ -159,8 +173,8 @@ libraries:
     class: remote-api
     evidence: "header desc「视频搜索」表明需要远程服务"
   edit_material_lib:
-    class: env-missing
-    evidence: "素材库操作依赖平台素材服务"
+    class: remote-api
+    evidence: "素材库检索走平台素材服务（网络/凭证）；原归因写「环境缺失」，实为 remote-api，已纠正"
   face_swap:
     class: remote-api
     evidence: "header desc「智能换脸」表明需要远程服务"
@@ -224,9 +238,6 @@ libraries:
   jimeng_video_gen:
     class: remote-api
     evidence: "header desc「即梦视频生成」表明需要远程服务"
-  kimi_chat_parser:
-    class: remote-api
-    evidence: "header desc「(corpus fallback: DB 快照未收录)」表明需要远程服务"
   kling_img2video:
     class: remote-api
     evidence: "header desc「可灵图生视频」表明需要远程服务"
@@ -327,8 +338,8 @@ libraries:
     class: remote-api
     evidence: "header desc「文本音频对齐」表明需要远程服务"
   text_image_compose:
-    class: schema-unknown
-    evidence: "图文合成，产物是草稿片段/草稿 id（同 D-1 族）"
+    class: remote-api
+    evidence: "html_to_image(api_key, html_str) 带 api_key，渲染在平台服务端完成；原库级归因为 schema-unknown，已纠正"
   tianyancha:
     class: remote-api
     evidence: "header desc「天眼查」表明需要远程服务"
@@ -378,8 +389,8 @@ libraries:
     class: remote-api
     evidence: "header desc「视频生成（内置节点 doubao-seedance;动态输入 + 静态配置透传,输出 video）」表明需要远程服务"
   video_image_split:
-    class: env-missing
-    evidence: "视频/图片拆分需要真实媒体处理"
+    class: local-todo
+    evidence: "header 输入只有 texts / image_num / video_num / timelines，不涉及媒体解码；真正未知的是 image_Arr_String / video_Arr_String 的内容与槽位分配规则（无语料证据）。可实现但语义待证；原归因「需要真实媒体处理」与 header 不符，已纠正"
   video_montage:
     class: env-missing
     evidence: "混剪需要真实媒体处理"

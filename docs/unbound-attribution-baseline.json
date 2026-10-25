@@ -1,14 +1,14 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
- "unbound_symbols": 237,
+ "unbound_symbols": 236,
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 23,
-  "local-todo": 1,
-  "remote-api": 152,
-  "schema-unknown": 23,
+  "local-todo": 3,
+  "remote-api": 154,
+  "schema-unknown": 18,
   "server-state": 38,
   "unclassified": 0
  },
- "reason": "capcut_data.asr_timelines 转为已绑定（partial）；schema-unknown 24→23，unbound 总账 237"
+ "reason": "kimi_chat_parser 归因纠正并转为已绑定：原 remote-api 证据是「DB 快照未收录」模板残留，与 header（纯解析器）矛盾；remote-api 155→154，总 236"
 }

@@ -27,6 +27,7 @@ LIBRARIES = [
     {"library": "text_split_tool", "functions": ["Paragraph_splitting"]},
     {"library": "null_fill", "functions": ["null_value_filling"]},
     {"library": "array_split_merge", "functions": ["Str_list", "Str_merge"]},
+    {"library": "kimi_chat_parser", "functions": ["kimi_chat_parser"]},
 ]
 
 
@@ -220,6 +221,113 @@ def fn_Str_merge(args):
     return {"All_Str_list": all_items, "Split_str": split, "contact": ""}
 
 
+# ── kimi_chat_parser ────────────────────────────────────────────────────
+
+QUESTION_KEYS = ("用户", "user", "human", "我", "q", "问")
+ANSWER_KEYS = ("kimi", "助手", "assistant", "ai", "a", "答")
+
+SPEAKER_RE = re.compile(
+    r"^[*\s]*(用户|user|human|我|q|问|kimi|助手|assistant|ai|a|答)[*\s]*[:：]\s*(.*)$",
+    re.I,
+)
+
+
+def role_of(name):
+    low = name.strip().lower()
+    if low in QUESTION_KEYS:
+        return "question"
+    return "answer"
+
+
+def messages_from_records(items):
+    out = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        role = it.get("role") or it.get("from") or it.get("speaker") or ""
+        text = ""
+        for key in ("content", "text", "message", "value"):
+            if it.get(key) not in (None, ""):
+                text = as_text(it[key], key)
+                break
+        if not role:
+            # 兼容 {question, answer} 直出形态
+            if it.get("question") is not None or it.get("answer") is not None:
+                out.append(("question", as_text(it.get("question", ""), "question")))
+                out.append(("answer", as_text(it.get("answer", ""), "answer")))
+                continue
+            role = "user"
+        out.append((role_of(str(role)), text))
+    return out
+
+
+def messages_from_text(text):
+    out, cur_role, cur_lines = [], None, []
+
+    def flush():
+        if cur_role is not None:
+            out.append((cur_role, "\n".join(cur_lines).strip()))
+
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        m = SPEAKER_RE.match(line)
+        if m:
+            flush()
+            cur_role, cur_lines = role_of(m.group(1)), [m.group(2)]
+        elif cur_role is not None:
+            cur_lines.append(line)
+    flush()
+    return out
+
+
+def pair_messages(messages):
+    questions, answers, chunks = [], [], []
+    cur = None
+    for role, text in messages:
+        if role == "question":
+            if cur is not None:
+                chunks.append(cur)
+            cur = {"question": text, "answer": ""}
+        else:
+            if cur is None:
+                cur = {"question": "", "answer": text}
+            else:
+                cur["answer"] = text
+    if cur is not None:
+        chunks.append(cur)
+    for ch in chunks:
+        questions.append(ch["question"])
+        answers.append(ch["answer"])
+    return {"questions": questions, "answers": answers, "chunks": chunks}
+
+
+def fn_kimi_chat_parser(args):
+    """Kimi 聊天记录 → 成对的 questions/answers/chunks。
+
+    语料只有一个字符串入口（corpus/7593650941091184692），输入格式未由语料证实：
+    接受 JSON 消息数组（role/content）与「用户：/Kimi：」文本前缀两种形态。
+    """
+    raw = arg(args, "kimi_chathistory")
+    if raw in (None, "", 0):
+        return {"questions": [], "answers": [], "chunks": []}
+    if isinstance(raw, list):
+        return pair_messages(messages_from_records(raw))
+    if not isinstance(raw, str):
+        raise ValueError("kimi_chathistory: want string or array, got %s" % type(raw).__name__)
+    text = raw.strip()
+    if not text:
+        return {"questions": [], "answers": [], "chunks": []}
+    if text.startswith("{") or text.startswith("["):
+        try:
+            parsed = json.loads(text)
+        except ValueError:
+            parsed = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("messages"), list):
+            return pair_messages(messages_from_records(parsed["messages"]))
+        if isinstance(parsed, list):
+            return pair_messages(messages_from_records(parsed))
+    return pair_messages(messages_from_text(text))
+
+
 HANDLERS = {
     "string_to_array.string_2_array": fn_string_2_array,
     "link_extract.extract_all_links": fn_extract_all_links,
@@ -230,6 +338,7 @@ HANDLERS = {
     "null_fill.null_value_filling": fn_null_value_filling,
     "array_split_merge.Str_list": fn_Str_list,
     "array_split_merge.Str_merge": fn_Str_merge,
+    "kimi_chat_parser.kimi_chat_parser": fn_kimi_chat_parser,
 }
 
 

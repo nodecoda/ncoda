@@ -173,5 +173,43 @@ class ProtocolTest(unittest.TestCase):
         self.assertEqual(lines[1]["result"], {})
 
 
+class KimiChatParserTest(unittest.TestCase):
+    def test_json_messages(self):
+        raw = json.dumps([
+            {"role": "user", "content": "你好"},
+            {"role": "assistant", "content": "你好呀"},
+        ])
+        got = server.fn_kimi_chat_parser({"kimi_chathistory": raw})
+        self.assertEqual(got["questions"], ["你好"])
+        self.assertEqual(got["answers"], ["你好呀"])
+        self.assertEqual(got["chunks"], [{"question": "你好", "answer": "你好呀"}])
+
+    def test_text_prefixes_multiline(self):
+        raw = "用户：问一\nKimi：答一第一行\n答一第二行\n用户：问二\nKimi：答二"
+        got = server.fn_kimi_chat_parser({"kimi_chathistory": raw})
+        self.assertEqual(got["questions"], ["问一", "问二"])
+        self.assertEqual(got["answers"], ["答一第一行\n答一第二行", "答二"])
+
+    def test_answer_without_question(self):
+        got = server.fn_kimi_chat_parser({"kimi_chathistory": "Kimi：只有回答"})
+        self.assertEqual(got["chunks"], [{"question": "", "answer": "只有回答"}])
+
+    def test_records_with_question_answer_keys(self):
+        got = server.fn_kimi_chat_parser({"kimi_chathistory": [{"question": "q", "answer": "a"}]})
+        self.assertEqual(got["questions"], ["q"])
+        self.assertEqual(got["answers"], ["a"])
+
+    def test_unknown_text_yields_empty_not_garbage(self):
+        got = server.fn_kimi_chat_parser({"kimi_chathistory": "没有说话人前缀的一段话"})
+        self.assertEqual(got, {"questions": [], "answers": [], "chunks": []})
+
+    def test_negative_control_non_text_input_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_kimi_chat_parser({"kimi_chathistory": 5})
+
+    def test_empty(self):
+        self.assertEqual(server.fn_kimi_chat_parser({})["chunks"], [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

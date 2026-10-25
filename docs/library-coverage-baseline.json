@@ -3,7 +3,7 @@
  "corpus_size": 869,
  "complete_exec": 171,
  "complete_real": 86,
- "symbols_unbound": 237,
- "symbols_bound_plugin": 43,
- "reason": "timeline_toolkit 增绑 capcut_data.asr_timelines（语料 7599126239110774822 声明 content_chunks 形状 + 结果赋给 int 时间线）；plugin_bound 42→43，unbound 238→237，complete_real 不变"
+ "symbols_unbound": 236,
+ "symbols_bound_plugin": 44,
+ "reason": "text_toolkit 增绑 kimi_chat_parser.kimi_chat_parser（纯解析：JSON 消息数组/说话人前缀 → questions/answers/chunks）；plugin_bound 43→44，unbound 237→236，complete_real 不变"
 }

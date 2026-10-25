@@ -317,12 +317,12 @@ make plugin-selftest
 
 ---
 
-## 12. 试点记录（已发布 5 个插件 / 43 个符号）
+## 12. 试点记录（已发布 5 个插件 / 44 个符号）
 
 | 插件 | 实现的库 | 符号 | `real` | `partial` | 关键证据 |
 |---|---|---:|---:|---:|---|
 | `plugins/capcut_data` | `capcut_data` | 9 | 7 | 2 | 语料调用点 + 消费面（`get_url` 的 `outputList` 被 `yield` 成 batch 记录） |
-| `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` | 9 | 4 | 5 | 12～5 个调用文件；纯文本/数组变换，不触网 |
+| `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` `kimi_chat_parser` | 10 | 4 | 6 | 纯文本/数组/解析变换，不触网；`kimi_chat_parser` 输入格式见 loss |
 | `plugins/compose_toolkit` | `capcut_helper` `suchuang_video_compose` | 18 | 3 | 15 | `corpus/7580659724749865001`、`7576926169774653449` 等；纯列表/时间轴变换 |
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
 | `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` | 5 | 0 | 5 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |

@@ -41,3 +41,8 @@ libraries:
     fidelity: partial
     loss: "num 按「每组字符串总长度上限」解释（语料 num=200）；分组固定保序、最多 10 组，contact 字段返回空串——原实现的取整/余数/contact 语义未证实"
     functions: [Str_list, Str_merge]
+  - library: kimi_chat_parser
+    version: 0.1.0
+    fidelity: partial
+    loss: "输入格式未由语料证实（唯一的调用点传入字符串）。只识别 JSON 消息数组（role/content）与「用户：/Kimi：」文本前缀；时间戳、引用块、多轮嵌套与转写标记不解析，无法识别的行忽略"
+    functions: [kimi_chat_parser]

@@ -817,3 +817,48 @@ function main() -> any {
 		t.Fatalf("all_timelines = %+v", got.All)
 	}
 }
+
+// kimi_chat_parser：字符串聊天记录 → 成对的 questions/answers/chunks。
+// 归因原先写成 remote-api（证据是「DB 快照未收录」模板残留），header 是纯解析器。
+func TestKimiChatParserPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "kimi_chat_parser";
+
+function main() -> any {
+    let v = kimi_chat_parser.kimi_chat_parser({ "kimi_chathistory": "[{\"role\":\"user\",\"content\":\"问\"},{\"role\":\"assistant\",\"content\":\"答\"}]" });
+    return { "questions": v.questions, "answers": v.answers, "chunks": v.chunks };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Questions []string `json:"questions"`
+		Answers   []string `json:"answers"`
+		Chunks    []struct {
+			Question string `json:"question"`
+			Answer   string `json:"answer"`
+		} `json:"chunks"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if len(got.Questions) != 1 || got.Questions[0] != "问" {
+		t.Fatalf("questions = %v", got.Questions)
+	}
+	if len(got.Answers) != 1 || got.Answers[0] != "答" {
+		t.Fatalf("answers = %v", got.Answers)
+	}
+	if len(got.Chunks) != 1 || got.Chunks[0].Question != "问" || got.Chunks[0].Answer != "答" {
+		t.Fatalf("chunks = %+v", got.Chunks)
+	}
+}
