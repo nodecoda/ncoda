@@ -18,7 +18,7 @@ LDFLAGS   = -s -w \
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist dist-check sbom audit contracts-check notices-check clean fmt fmt-check test
+.PHONY: check push nightly release dist dist-check release-smoke sbom audit contracts-check notices-check clean fmt fmt-check test
 
 check: fmt-check audit contracts-check notices-check
 	$(GO) build ./...
@@ -97,6 +97,23 @@ dist-check: dist
 	@cd $(DIST) && sha256sum -c SHA256SUMS >/dev/null || { echo "dist-check: SHA256SUMS does not verify"; exit 1; }
 	@cd $(DIST) && sha256sum -c SHA256SUMS --quiet
 	@echo "dist-check: ok ($(DIST))"
+
+# Release-day smoke: exactly the assertions the release workflow makes, runnable
+# locally and on every main push. Why a target instead of inline YAML — the
+# workflow only runs on a tag, so an assertion that drifts from the dist layout
+# stays invisible until release day. v0.7.0 hit both halves of that: it asserted
+# a `"status":"COMPILE_ERROR"` JSON envelope the open CLI never prints (it writes
+# `nclang-compile: COMPILE_ERROR` to stderr, rc=1) and a singular
+# `sbom.cdx.json` the two-binary split no longer produces.
+release-smoke: dist-check
+	@B=$(DIST)/nclang-$(VERSION)-linux-amd64; \
+	  printf '' | $$B >/dev/null 2>&1; test $$? -eq 1 || { echo "release-smoke: empty stdin must be rc=1"; exit 1; }; \
+	  printf '' | $$B 2>&1 >/dev/null | grep -q 'COMPILE_ERROR' || { echo "release-smoke: empty stdin must report COMPILE_ERROR"; exit 1; }; \
+	  $$B < examples/nodecoda/00_minimal_start_llm_end.ncoda | grep -q '"schema": "ncoda-ir/v1"' || { echo "release-smoke: example must emit ncoda-ir/v1"; exit 1; }; \
+	  printf '' | $$B --target acme-1.0 >/dev/null 2>&1; test $$? -eq 2 || { echo "release-smoke: platform target must be rc=2"; exit 1; }
+	@R=$(DIST)/ncoda-run-$(VERSION)-linux-amd64; \
+	  $$R --local-plugins --tool-path $(DIST)/libraries examples/nodecoda/62_local_library_roundtrip.ncoda | grep -q '"k":"hello"' || { echo "release-smoke: distributed libraries/ must run offline"; exit 1; }
+	@echo "release-smoke: ok ($(DIST))"
 
 # CycloneDX SBOM only (the artifact needed when publishing an existing build).
 sbom:

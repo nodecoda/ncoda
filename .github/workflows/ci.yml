@@ -30,6 +30,24 @@ jobs:
       - name: push (uncached tests + CLI smoke)
         run: make push
 
+  # The release workflow only fires on a tag, so its assertions rot silently
+  # (v0.7.0 shipped a tag with no artifacts because of exactly that). Build the
+  # dist and run the same smoke here, on every push to main.
+  release-tooling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: dist + release smoke (6 platforms)
+        run: make release-smoke VERSION=ci-${{ github.run_id }}
+
   nightly:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

@@ -44,20 +44,11 @@ jobs:
           echo "tag=$V" >> "$GITHUB_OUTPUT"
       - name: Build 6 platforms
         run: make dist VERSION="${{ steps.ver.outputs.tag }}"
-      - name: Smoke (linux amd64)
-        run: |
-          BIN=/tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/nclang-${{ steps.ver.outputs.tag }}-linux-amd64
-          printf '' | "$BIN" | grep -q '"status":"COMPILE_ERROR"'
-      - name: Validate SBOM
-        run: |
-          python3 scripts/gen_sbom.py --check             /tmp/ncoda-dist-${{ steps.ver.outputs.tag }}/sbom.cdx.json
-      - name: Validate artifacts (license manifest)
-        run: |
-          D=/tmp/ncoda-dist-${{ steps.ver.outputs.tag }}
-          for f in LICENSE NOTICE THIRD-PARTY-NOTICES.md sbom.cdx.json SBOM.txt SHA256SUMS; do
-            test -s "$D/$f" || { echo "missing $f"; exit 1; }
-          done
-          cd "$D" && sha256sum -c SHA256SUMS --quiet
+      # The same gate developers run (`make release-smoke`), not an inline copy:
+      # v0.7.0 failed here because the inline assertions described a CLI and a
+      # dist layout that had both changed during the split.
+      - name: Release smoke (dist layout + CLI contract, linux amd64)
+        run: make release-smoke VERSION="${{ steps.ver.outputs.tag }}"
       - name: Install cosign (opt-in)
         if: ${{ vars.NCODA_SIGN == 'true' }}
         uses: sigstore/cosign-installer@v3
