@@ -317,7 +317,7 @@ make plugin-selftest
 
 ---
 
-## 12. 试点记录（已发布 5 个插件 / 56 个符号）
+## 12. 试点记录（已发布 5 个插件 / 58 个符号）
 
 | 插件 | 实现的库 | 符号 | `real` | `partial` | 关键证据 |
 |---|---|---:|---:|---:|---|
@@ -325,7 +325,7 @@ make plugin-selftest
 | `plugins/text_toolkit` | `string_to_array` `link_extract` `url_get` `text_split_master` `text_split_tool` `null_fill` `array_split_merge` `kimi_chat_parser` | 10 | 4 | 6 | 纯文本/数组/解析变换，不触网；`kimi_chat_parser` 输入格式见 loss |
 | `plugins/compose_toolkit` | `capcut_helper` `suchuang_video_compose` | 18 | 3 | 15 | `corpus/7580659724749865001`、`7576926169774653449` 等；纯列表/时间轴变换 |
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
-| `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` `capcut_data_fast` | 17 | 0 | 17 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |
+| `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` `capcut_data_fast` | 19 | 0 | 19 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |
 
 **共享实现、独立契约**：`capcut_helper` / `suchuang_video_compose` 的同名函数
 （`text_splitter` / `timeline_merge` / `wenan_timeline_range` / `audio_link_collector`）
@@ -337,6 +337,9 @@ make plugin-selftest
 - `capcut_data` / `capcut_data_fast`：语料调用的符号已全部绑定（`*_infos` 的 schema
   由语料手写结构固定；样式字段不写入 infos，见 loss）；`search_sticker` 无语料调用，
   仍是网络服务；
+- `capcut_draft_data` 的 `text_infos` / `video_infos` / `keyframe_infos`：消费面
+  （`add_texts/add_videos/add_keyframes({infos})`）没有语料手写等价结构，键名未证实；
+  `audio_infos` / `image_infos` 有，已绑定；
 - `suchuang_video_compose` 的 `audio_timelines` / `video_timelines` /
   `get_audio_duration`：依赖服务端音频/视频探测；
 - `codel_video.keyframe_ani_scene_v1`：收 `api_token`、返回 `tip_url`，远程服务。

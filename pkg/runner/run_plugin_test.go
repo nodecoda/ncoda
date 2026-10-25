@@ -1043,3 +1043,73 @@ function main() -> any {
 		t.Fatalf("video = %+v", videos[0])
 	}
 }
+
+// capcut_draft_data.{audio,image}_infos：消费面是
+// `capcut_draft_folder.add_audios/add_images({infos})`。语料把同一个 infos
+// 参数用 JS 手写结构喂过（7571389179980955699 的 audioData/bgImageData、
+// 7568679628961955850 的 bgm），键是 `url`，不是 capcut_data 族的
+// `audio_url`/`image_url`；单条素材铺满整条时间线（bgm/背景图）。
+func TestDraftDataInfosPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "capcut_draft_data";
+
+type Span = {
+  int start;
+  int end;
+};
+
+function main() -> any {
+    let segs = json.parse<array<Span>>("[{\"start\":0,\"end\":1000000},{\"start\":1000000,\"end\":3000000}]");
+    let a = capcut_draft_data.audio_infos({ "urls": ["u1", "u2"], "timelines": segs, "volume": 0.4 });
+    let i = capcut_draft_data.image_infos({ "urls": ["i1"], "timelines": segs, "in_animation": "轻微放大", "in_animation_duration": 100000, "transform_y": -515, "scale_x": 0.33 });
+    return { "audio": a.infos, "images": i.infos };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got map[string]string
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	var audio []struct {
+		URL      string  `json:"url"`
+		Duration int64   `json:"duration"`
+		Start    int64   `json:"start"`
+		End      int64   `json:"end"`
+		Volume   float64 `json:"volume"`
+	}
+	if err := json.Unmarshal([]byte(got["audio"]), &audio); err != nil {
+		t.Fatalf("audio infos is not a JSON list: %v (%s)", err, got["audio"])
+	}
+	if len(audio) != 2 || audio[0].URL != "u1" || audio[0].Duration != 1000000 ||
+		audio[1].Start != 1000000 || audio[1].End != 3000000 || audio[0].Volume != 0.4 {
+		t.Fatalf("audio = %+v", audio)
+	}
+	var images []struct {
+		URL        string  `json:"url"`
+		Start      int64   `json:"start"`
+		End        int64   `json:"end"`
+		TransformY int64   `json:"transform_y"`
+		ScaleX     float64 `json:"scale_x"`
+		Anim       string  `json:"in_animation"`
+		AnimDur    int64   `json:"in_animation_duration"`
+	}
+	if err := json.Unmarshal([]byte(got["images"]), &images); err != nil {
+		t.Fatalf("image infos is not a JSON list: %v (%s)", err, got["images"])
+	}
+	if len(images) != 1 || images[0].URL != "i1" || images[0].Start != 0 ||
+		images[0].End != 3000000 || images[0].TransformY != -515 || images[0].ScaleX != 0.33 ||
+		images[0].Anim != "轻微放大" || images[0].AnimDur != 100000 {
+		t.Fatalf("images = %+v", images)
+	}
+}

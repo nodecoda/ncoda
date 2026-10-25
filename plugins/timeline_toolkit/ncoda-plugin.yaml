@@ -12,7 +12,7 @@ libraries:
   - library: capcut_draft_data
     version: 0.1.0
     fidelity: partial
-    loss: "库级：仅实现 timelines / str_to_list / caption_splitter 三个纯函数；*_infos 依赖 CapCut 草稿 JSON schema，仍不实现"
+    loss: "库级：实现 timelines / str_to_list / caption_splitter / audio_infos / image_infos；text_infos / video_infos / keyframe_infos 的消费面结构无语料证据，仍不实现"
     functions:
       - name: timelines
         loss: "语料只出现 number=1；number>1 时按整数等分且余数并入末段。原实现的分配规则与 $type 语义未证实"
@@ -20,6 +20,10 @@ libraries:
         loss: "只做 JSON 数组字符串解析与按行拆分；逗号/分号/空格等分隔符规则未由语料证实（单行输入原样作为单元素）"
       - name: caption_splitter
         loss: "按 max_char_count 硬切（不按标点断句），再按各段字符数比例分摊该条文本的 [start,end]；texts 与 timelines 数量不等时缺省时间段记 [0,0]"
+      - name: audio_infos
+        loss: "键是 url/duration/start/end（消费者是 capcut_draft_folder.add_audios 的 infos 参数，由语料手写 audioData 证明）；volume/audio_effect 仅在显式传入时写入；单 URL + 多时间段时铺满整体（bgm 语义）"
+      - name: image_infos
+        loss: "键是 url/start/end（消费者是 add_images 的 infos 参数）；transform_x/y、scale_x/y、进出动画及动画时长仅在显式传入且非零时写入；单 URL + 多时间段时铺满整体（背景图语义）"
   - library: capcut_data
     version: 0.1.0
     fidelity: partial

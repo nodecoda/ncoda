@@ -312,5 +312,68 @@ class InfosBuildersTest(unittest.TestCase):
             server.fn_audio_infos({"mp3_urls": ["u"], "timelines": ["x"]})
 
 
+class DraftDataInfosTest(unittest.TestCase):
+    """capcut_draft_data.{audio,image}_infos。
+
+    消费面是 `capcut_draft_folder.add_audios/add_images({infos})`；语料里同一
+    infos 参数被手写结构喂过（7571389179980955699 的 audioData / bgImageData /
+    iconImageData、7568679628961955850 的 audioData，均为 add_* 的直接入参），
+    所以这一族用 `url`（不是 capcut_data 族的 audio_url/image_url）。
+    """
+
+    SEGS = [{"start": 0, "end": 1000000}, {"start": 1000000, "end": 3000000}]
+
+    def test_audio_entries_use_url_and_duration(self):
+        got = server.fn_draft_audio_infos({"urls": ["u1", "u2"], "timelines": self.SEGS})
+        self.assertEqual(json.loads(got["infos"]), [
+            {"url": "u1", "duration": 1000000, "start": 0, "end": 1000000},
+            {"url": "u2", "duration": 2000000, "start": 1000000, "end": 3000000},
+        ])
+
+    def test_audio_single_url_covers_whole_timeline(self):
+        # 语料 7568679628961955850 的 bgm 手写项：单曲 start=0、end=总时长
+        got = server.fn_draft_audio_infos({"urls": ["bgm"], "timelines": self.SEGS})
+        self.assertEqual(json.loads(got["infos"]),
+                         [{"url": "bgm", "duration": 3000000, "start": 0, "end": 3000000}])
+
+    def test_audio_volume_only_when_given(self):
+        # 语料手写项带 volume: 0.4；没传就不要写默认值
+        got = server.fn_draft_audio_infos({"urls": ["u"], "timelines": self.SEGS,
+                                           "volume": 0.4})
+        self.assertEqual(json.loads(got["infos"])[0]["volume"], 0.4)
+        bare = json.loads(server.fn_draft_audio_infos(
+            {"urls": ["u"], "timelines": self.SEGS})["infos"])[0]
+        self.assertNotIn("volume", bare)
+
+    def test_images_carry_transform_scale_and_animation(self):
+        got = server.fn_draft_image_infos({
+            "urls": ["i1", "i2"], "timelines": self.SEGS,
+            "transform_x": -771, "transform_y": -515, "scale_x": 0.33, "scale_y": 0.33,
+            "in_animation": "向上滑动", "in_animation_duration": 500000,
+            "out_animation": "向下滑动", "out_animation_duration": 500000})
+        entries = json.loads(got["infos"])
+        self.assertEqual(entries[0], {
+            "url": "i1", "start": 0, "end": 1000000,
+            "transform_x": -771, "transform_y": -515, "scale_x": 0.33, "scale_y": 0.33,
+            "in_animation": "向上滑动", "in_animation_duration": 500000,
+            "out_animation": "向下滑动", "out_animation_duration": 500000})
+        self.assertEqual(entries[1]["start"], 1000000)
+
+    def test_image_single_url_covers_whole_timeline(self):
+        # 语料 bgImageData.push({url: bg_image, start: 0, end: 总时长})
+        got = server.fn_draft_image_infos({"urls": ["bg"], "timelines": self.SEGS,
+                                           "in_animation": "轻微放大",
+                                           "in_animation_duration": 100000})
+        self.assertEqual(json.loads(got["infos"]),
+                         [{"url": "bg", "start": 0, "end": 3000000,
+                           "in_animation": "轻微放大", "in_animation_duration": 100000}])
+
+    def test_negative_control_bad_timeline_is_invalid_args(self):
+        with self.assertRaises(ValueError):
+            server.fn_draft_audio_infos({"urls": ["u"], "timelines": ["x"]})
+        with self.assertRaises(ValueError):
+            server.fn_draft_image_infos({"urls": ["u"], "timelines": ["x"]})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

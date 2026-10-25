@@ -14,6 +14,7 @@
 | `capcut_data` | `asr_timelines` | partial | 语料 `7599126239110774822` 声明 chunk 形状 `{end_time:float, index:string, start_time:float, text:string}`，结果赋给 `array<{start:int,end:int}>`（µs） |
 | `capcut_data` | `keyframes_infos` | partial | 语料手写等价结构（`7531641052663529518`/`7560352905955033130`）：`{offset:段内µs, property, segment_id, value}`，`offset=百分比×(end-start)`；`segment_infos={id,start,end}` 由 `add_captions` 输出 |
 | `capcut_data_fast` | `keyframes_infos` | partial | 同构（额外 `error` 字段）；`pattern` 无语料出现，忽略 |
+| `capcut_draft_data` | `audio_infos` `image_infos` | partial | 消费面是 `capcut_draft_folder.add_audios/add_images({infos})`；语料 `7571389179980955699` / `7568679628961955850` 手写同参数结构：audio `{url,duration,start,end(,volume)}`、image `{url,start,end,transform_x/y,scale_x/y,动画}`；单素材铺满整体 |
 | `capcut_data` / `capcut_data_fast` | `audio_infos` `caption_infos` `imgs_infos` `video_infos` `effect_infos` | partial | 输出 schema 由语料手写结构固定（`7598545768181841960`、`7551635971227664399`）：audio `{audio_url,duration,start,end,volume?}`、caption `{text,start,end,动画?}`、imgs `{image_url,start,end,width?,height?,动画?}`、video `{video_url,duration,start,end,width?,height?,transition?}`、effect `{effect_title,start,end}` |
 
 ## 取舍（loss）
@@ -28,6 +29,7 @@
   原实现是否按标点断句、`texts`/`timelines` 数量不等时如何对齐，均未证实。
 - `keyframes_infos`：`offset` 是**段内**微秒（不是绝对时间）；位置型 `KFTypePositionX/Y`
   是否按 `width/height` 归一化无证据，`value` 原样使用；不写 `easing`。
+- `capcut_draft_data.audio_infos` / `image_infos`：键是 `url`（`capcut_draft_folder` 族），不是 `capcut_data` 族的 `audio_url`/`image_url`；样式/变换只在显式传入且非零时写入。
 - `timeline_keyframe`：按每条时间线的百分比插值；返回字符串数组（header 是
   `array<string>`，语料随后还会 `json.stringify` 一次）。
 

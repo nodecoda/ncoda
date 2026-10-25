@@ -22,7 +22,8 @@ PLUGIN_VERSION = "0.1.0"
 
 LIBRARIES = [
     {"library": "capcut_draft_data",
-     "functions": ["timelines", "str_to_list", "caption_splitter"]},
+     "functions": ["timelines", "str_to_list", "caption_splitter",
+                    "audio_infos", "image_infos"]},
     {"library": "capcut_data",
      "functions": ["timeline_keyframe", "asr_timelines", "keyframes_infos",
                     "audio_infos", "caption_infos", "imgs_infos", "video_infos", "effect_infos"]},
@@ -527,10 +528,59 @@ def fn_effect_infos_fast(args):
     return infos_result(build_effects(args), False)
 
 
+# ── capcut_draft_data.*_infos（另一族：键是 url）────────────────────────
+#
+# 证据：同一 infos 参数在语料里被 JS 手写结构喂给
+# `capcut_draft_folder.add_audios/add_images`：
+#   7571389179980955699 audioData {url,duration,start,end}
+#                      bgImageData/iconImageData {url,start,end,transform_x,
+#                      transform_y,scale_x,scale_y,in/out_animation(+duration)}
+#   7568679628961955850 audioData {url,duration,start,end,volume}
+#                      contentImageData {url,start,end}
+# 与 capcut_data 族不同：消费者不同（draft_folder），键是 url 而非 *_url。
+
+def build_draft_audio(args):
+    urls = norm_list(arg(args, "urls"), scalar_text)
+    entries = []
+    for url, s, e in pair_spans(urls, arg(args, "timelines")):
+        ent = {"url": url, "duration": e - s, "start": s, "end": e}
+        opt_field(ent, args, "volume", "float")
+        opt_field(ent, args, "audio_effect")
+        entries.append(ent)
+    return entries
+
+
+def build_draft_images(args):
+    urls = norm_list(arg(args, "urls"), scalar_text)
+    entries = []
+    for url, s, e in pair_spans(urls, arg(args, "timelines")):
+        ent = {"url": url, "start": s, "end": e}
+        opt_field(ent, args, "transform_x", "int")
+        opt_field(ent, args, "transform_y", "int")
+        opt_field(ent, args, "scale_x", "float")
+        opt_field(ent, args, "scale_y", "float")
+        opt_field(ent, args, "in_animation")
+        opt_field(ent, args, "out_animation")
+        opt_field(ent, args, "in_animation_duration", "int")
+        opt_field(ent, args, "out_animation_duration", "int")
+        entries.append(ent)
+    return entries
+
+
+def fn_draft_audio_infos(args):
+    return infos_result(build_draft_audio(args), False)
+
+
+def fn_draft_image_infos(args):
+    return infos_result(build_draft_images(args), False)
+
+
 HANDLERS = {
     "capcut_draft_data.timelines": fn_timelines,
     "capcut_draft_data.str_to_list": fn_str_to_list,
     "capcut_draft_data.caption_splitter": fn_caption_splitter,
+    "capcut_draft_data.audio_infos": fn_draft_audio_infos,
+    "capcut_draft_data.image_infos": fn_draft_image_infos,
     "capcut_data.timeline_keyframe": fn_timeline_keyframe,
     "capcut_data.asr_timelines": fn_asr_timelines,
     "capcut_data.keyframes_infos": fn_keyframes_infos,

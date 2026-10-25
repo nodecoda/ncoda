@@ -1,14 +1,14 @@
 {
  "schema": "ncoda.unbound-attribution-report/v1",
- "unbound_symbols": 224,
+ "unbound_symbols": 222,
  "unclassified_symbols": 0,
  "by_class": {
   "env-missing": 23,
   "local-todo": 3,
   "remote-api": 154,
-  "schema-unknown": 6,
+  "schema-unknown": 4,
   "server-state": 38,
   "unclassified": 0
  },
- "reason": "capcut_data 归因行恢复（audio_timelines=env-missing，search_sticker=remote-api）；schema-unknown 16→6（capcut_draft_data 5 + caption_animation 1）；总 224"
+ "reason": "capcut_draft_data.audio_infos / image_infos 已绑定；schema-unknown 6→4（capcut_draft_data text/video/keyframe_infos + caption_animation.animation_change），总 224→222"
 }

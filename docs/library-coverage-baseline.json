@@ -3,7 +3,7 @@
  "corpus_size": 869,
  "complete_exec": 171,
  "complete_real": 86,
- "symbols_unbound": 224,
- "symbols_bound_plugin": 56,
- "reason": "timeline_toolkit 增绑 capcut_data / capcut_data_fast 的 *_infos 共 10 个符号（schema 由语料手写结构固定，样式字段不写入 infos）；plugin_bound 46→56，unbound 234→224，complete_real 不变"
+ "symbols_unbound": 222,
+ "symbols_bound_plugin": 58,
+ "reason": "timeline_toolkit 增绑 capcut_draft_data.audio_infos / image_infos（键 url/duration/start/end 由语料手写 add_audios/add_images 的 infos 结构固定）；plugin_bound 56→58，unbound 224→222，complete_exec/complete_real 不变"
 }
