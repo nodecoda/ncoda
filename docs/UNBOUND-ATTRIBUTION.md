@@ -9,9 +9,9 @@
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
 **新增未实现符号必须同时给出归因**，否则判红。
 `audio_align_free` / `audio_subtitle_align_alt` 已由 `plugins/align_toolkit` 以 partial 实现（只收 duration_list，无音频内容可对齐）。
-当前 `local-todo` 有 4 个符号：`audio_timeline_merge.timeline_merge`、`video_image_split` 的 2 个，
-以及 `script_storyboard.Text_Shot`。缺口分别是 gap 插入位置/槽位顺序与分镜切分规则，
-都是证据缺口，不是实现难度。
+当前 `local-todo` 有 5 个符号：`audio_timeline_merge.timeline_merge`、`video_image_split` 的 2 个、
+`script_storyboard.Text_Shot` 与 `capcut_keyframes.keyFrames`。缺口分别是 gap 插入位置/
+槽位顺序、分镜切分与关键帧分配规则，都是证据缺口，不是实现难度。
 
 ## 归因闭集
 
@@ -77,6 +77,10 @@ libraries:
   capcut:
     class: server-state
     evidence: "与 D-1 同族：剪映小助手 create_draft/add_*/save_draft"
+    symbols:
+      video_timelines:
+        class: env-missing
+        evidence: "只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失，不是服务端草稿状态"
   capcut_data:
     class: schema-unknown
     evidence: "语料调用的 *_infos / keyframes_infos / timeline_keyframe / asr_timelines 已全部由 plugins/timeline_toolkit 实现（partial，loss 见清单）；audio_timelines 已由 plugins/capcut_data 实现（本地 WAV，partial）；剩余符号见符号级覆盖"
@@ -99,6 +103,10 @@ libraries:
   capcut_keyframes:
     class: server-state
     evidence: "与 D-1 同族：关键帧写入已有草稿"
+    symbols:
+      keyFrames:
+        class: local-todo
+        evidence: "参数全是数组（duration_list/image_num/segment_image/segment_video/video_num）、无 URL/凭证/草稿句柄，是纯计算；但关键帧分配规则无语料手写等价物（唯一调用 7572879904859111459:449），保持未实现"
   capcut_resources:
     class: remote-api
     evidence: "header desc「剪映资源」表明需要远程服务"
@@ -305,7 +313,14 @@ libraries:
     evidence: "header desc「字幕获取」表明需要远程服务"
   suchuang_video_compose:
     class: server-state
-    evidence: "剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定"
+    evidence: "get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定"
+    symbols:
+      audio_timelines:
+        class: remote-api
+        evidence: "收 api_key + silence_duration/trim_breath/silence_threshold：语音静音裁剪在平台服务端完成，不是本地算术"
+      video_timelines:
+        class: env-missing
+        evidence: "只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失"
   suno_api:
     class: remote-api
     evidence: "header desc「suno_api」表明需要远程服务"

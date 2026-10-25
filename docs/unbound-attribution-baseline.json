@@ -5,12 +5,12 @@
  "not_implemented_symbols": 211,
  "unclassified_symbols": 0,
  "by_class": {
-  "env-missing": 18,
-  "local-todo": 4,
-  "remote-api": 149,
+  "env-missing": 20,
+  "local-todo": 5,
+  "remote-api": 150,
   "schema-unknown": 4,
-  "server-state": 36,
+  "server-state": 32,
   "unclassified": 0
  },
- "reason": "reclassify script_storyboard.Text_Shot from remote-api to local-todo: pure text split, no URL/credentials, but num/absent rule lacks evidence; remote-api 150->149, local-todo 3->4, stub unchanged"
+ "reason": "correct four symbol attributions: capcut.video_timelines and suchuang.video_timelines -> env-missing (links-only video probe, no ffprobe), suchuang.audio_timelines -> remote-api (api_key server-side silence trimming), capcut_keyframes.keyFrames -> local-todo (pure arrays, unproven rule); server-state 36->32, env-missing 18->20, remote-api 149->150, local-todo 4->5"
 }

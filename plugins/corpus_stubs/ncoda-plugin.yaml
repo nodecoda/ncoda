@@ -106,7 +106,7 @@ libraries:
     loss: 'server-state: 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft'
   - name: video_timelines
     fidelity: stub
-    loss: 'server-state: 与 D-1 同族：剪映小助手 create_draft/add_*/save_draft'
+    loss: 'env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失，不是服务端草稿状态'
 - library: capcut_data
   fidelity: stub
   functions:
@@ -163,7 +163,7 @@ libraries:
   functions:
   - name: keyFrames
     fidelity: stub
-    loss: 'server-state: 与 D-1 同族：关键帧写入已有草稿'
+    loss: 'local-todo: 参数全是数组（duration_list/image_num/segment_image/segment_video/video_num）、无 URL/凭证/草稿句柄，是纯计算；但关键帧分配规则无语料手写等价物（唯一调用 7572879904859111459:449），保持未实现'
 - library: capcut_resources
   fidelity: stub
   functions:
@@ -724,10 +724,10 @@ libraries:
   functions:
   - name: audio_timelines
     fidelity: stub
-    loss: 'server-state: 剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定'
+    loss: 'remote-api: 收 api_key + silence_duration/trim_breath/silence_threshold：语音静音裁剪在平台服务端完成，不是本地算术'
   - name: video_timelines
     fidelity: stub
-    loss: 'server-state: 剩余 audio_timelines/video_timelines 需要服务端音频/视频探测；get_audio_duration 已由 plugins/compose_toolkit 以本地 WAV + unit 换算实现（partial）；其余纯函数（含 timeline_align）同插件绑定'
+    loss: 'env-missing: 只收 links（视频链接）、无草稿句柄；需要视频容器/时长探测（ffprobe），本机无 ffprobe ⇒ 环境输入缺失'
 - library: suno_api
   fidelity: stub
   functions:
