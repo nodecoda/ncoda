@@ -46,6 +46,8 @@ CLASSES = ("remote-api", "server-state")
 KEY_RE = re.compile(r'([A-Za-z_][A-Za-z0-9_]*)|"((?:[^"\\]|\\.)*)"')
 SIG_RE = re.compile(r"^function\s+([A-Za-z_]\w*)\s*\((.*)\)\s*->\s*([^;{]+)", re.M)
 DESC_RE = re.compile(r"^// desc:\s*(.+)$", re.M)
+TYPE_RE = re.compile(r"^type\s+([A-Za-z_]\w*)\s*=\s*\{(.*?)\};", re.M | re.S)
+FIELD_RE = re.compile(r"^\s*[A-Za-z_][\w<>,\s]*?\s+([A-Za-z_]\w*)\s*;", re.M)
 
 CRED = re.compile(r"(^|_)key$|token$|secret$|^cookie(st|str)?$|credential|authorization|^appid$|^appsecret$|^openid$", re.I)
 URLISH = re.compile(r"url|uri|link|file|path|html_str|src", re.I)
@@ -162,7 +164,7 @@ def call_sites(corpus: str, symbols: set[tuple[str, str]]) -> dict[tuple[str, st
     return sites
 
 
-def header_facts(lib: str) -> tuple[str, dict[str, tuple[str, str]]]:
+def header_facts(lib: str) -> tuple[str, dict[str, tuple[str, str]], dict[str, list[str]]]:
     path = os.path.join(lc.HEADERS, lib + ".ncoda")
     with open(path, encoding="utf-8", errors="replace") as fh:
         body = fh.read()
@@ -172,7 +174,8 @@ def header_facts(lib: str) -> tuple[str, dict[str, tuple[str, str]]]:
         m = SIG_RE.match(line)
         if m:
             sigs[m.group(1)] = (m.group(2).strip(), m.group(3).strip())
-    return (desc.group(1).strip() if desc else ""), sigs
+    types = {m.group(1): FIELD_RE.findall(m.group(2)) for m in TYPE_RE.finditer(body)}
+    return (desc.group(1).strip() if desc else ""), sigs, types
 
 
 def verdict(cls: str, keys: set[str]) -> str:
@@ -200,7 +203,7 @@ def build(corpus: str | None = None) -> list[dict]:
     sites = call_sites(corpus or lc.DEFAULT_CORPUS, symbols)
     rows = []
     for lib in sorted({lib for lib, _ in symbols}):
-        desc, sigs = header_facts(lib)
+        desc, sigs, types = header_facts(lib)
         syms = []
         keyset: set[str] = set()
         for fn in sorted(fn for l, fn in symbols if l == lib):
@@ -216,6 +219,8 @@ def build(corpus: str | None = None) -> list[dict]:
                 "first": (f'{seen[0]["file"]}:{seen[0]["line"]}' if seen else ""),
                 "sig": sig,
                 "ret": ret,
+                "ret_handles": [f for f in types.get(ret, [])
+                                if re.search(r"^(draft_url|draft_id|task_id|table_id)$", f)],
                 "class": stub[lib][fn]["class"],
             })
         cls = "server-state" if any(s["class"] == "server-state" for s in syms) else "remote-api"
@@ -249,7 +254,10 @@ def render(rows: list[dict]) -> str:
         parts = []
         for s in r["symbols"]:
             keys = ",".join(s["keys"]) if s["keys"] else ("(positional)" if s["positional"] else "{}")
-            parts.append(f'`{s["fn"]}`({s["calls"]}; {keys} @ {s["first"]}) -> `{s["ret"]}`')
+            ret = s["ret"]
+            if s.get("ret_handles"):
+                ret += "{" + ",".join(s["ret_handles"]) + "}"
+            parts.append(f'`{s["fn"]}`({s["calls"]}; {keys} @ {s["first"]}) -> `{ret}`')
         out.append(f'| `{r["lib"]}` | {r["class"]} | {r["desc"]} | '
                    + "<br>".join(parts) + f' | {r["verdict"]} |')
     out.append("")
