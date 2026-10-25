@@ -41,24 +41,12 @@ libraries:
   - name: align_text_to_audio
     fidelity: stub
     loss: 'remote-api: header desc「字幕音频对齐」表明需要远程服务'
-- library: audio_align_free
-  fidelity: stub
-  functions:
-  - name: align_text_to_audio
-    fidelity: stub
-    loss: 'remote-api: header desc「字幕音频对齐_免费版」表明需要远程服务'
 - library: audio_subtitle_align
   fidelity: stub
   functions:
   - name: align_text_to_audio_v2
     fidelity: stub
     loss: 'remote-api: header desc「字幕音频自动对齐」表明需要远程服务'
-- library: audio_subtitle_align_alt
-  fidelity: stub
-  functions:
-  - name: align_text_to_audio
-    fidelity: stub
-    loss: 'remote-api: header desc「音频字幕对齐」表明需要远程服务'
 - library: audio_subtitle_align_pro
   fidelity: stub
   functions:

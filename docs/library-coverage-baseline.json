@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 215,
+ "symbols_bound_stub": 213,
  "complete_stub": 698,
- "reason": "capcut_draft_data.audio_timelines 落地（本地 WAV，timelines 与 urls 1:1、end 为总时长）；stub 216→215、env-missing 20→19；complete_exec/real 不变（171/86）"
+ "reason": "align_toolkit binds audio_align_free/audio_subtitle_align_alt as partial (stub 215->213; complete unchanged)"
 }

@@ -1,0 +1,19 @@
+schema: ncoda.plugin/v1
+id: align-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  - library: audio_align_free
+    version: 0.1.0
+    fidelity: partial
+    loss: "按 duration_list 与 texts 1:1 分摊（语义取自语料手写 processSubtitles）：每条文本按标点优先级/汉字边界切到 text_max 码元，删标点后按字数比例分时长；text_max=0 按 25（取自语料 SUB_CONFIG.MAX_LINE_LENGTH，平台缺省值未独立取证）；非 BMP 字符不跨代理对切分；texts 多于 duration_list 显式报错，多余 duration 忽略"
+    functions: [align_text_to_audio]
+  - library: audio_subtitle_align_alt
+    version: 0.1.0
+    fidelity: partial
+    loss: "同 audio_align_free（输出键按 header 是 text_timelines）：切分/清洗/比例分摊取自语料手写 splitLongPhrase/processSubtitles；text_max=0 按 25，平台缺省值未独立取证；非 BMP 字符不跨代理对切分"
+    functions: [align_text_to_audio]

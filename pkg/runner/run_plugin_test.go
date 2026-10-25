@@ -1420,3 +1420,101 @@ function main() -> any {
 		t.Fatalf("stderr = %s", errs)
 	}
 }
+
+// audio_align_free / audio_subtitle_align_alt：只收 duration_list + texts，
+// 没有音频 URL/凭证；按语料手写 splitLongPhrase/processSubtitles 的规则在本地分摊。
+func TestAudioAlignFromDurations(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "audio_align_free";
+import "audio_subtitle_align_alt";
+
+function main() -> any {
+    let texts = ["一二三四五六七八九十，后面还有很长的一段文字没有标点", "第二段"];
+    let ds = [1000, 500];
+    let a = audio_align_free.align_text_to_audio({ "texts": texts, "duration_list": ds }) with timeout(60s);
+    let b = audio_subtitle_align_alt.align_text_to_audio({ "texts": texts, "duration_list": ds }) with timeout(60s);
+    return { "aCaps": a.text_captions, "aTl": a.text_timielines,
+             "bCaps": b.text_captions, "bTl": b.text_timelines };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "audio_align.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	type span struct {
+		Start int64 `json:"start"`
+		End   int64 `json:"end"`
+	}
+	var got struct {
+		ACaps []string `json:"aCaps"`
+		ATl   []span   `json:"aTl"`
+		BCaps []string `json:"bCaps"`
+		BTl   []span   `json:"bTl"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	wantCaps := []string{
+		"一二三四五六七八九十",
+		"后面还有很长的一段文字没有标点",
+		"第二段",
+	}
+	wantTl := []span{{0, 400}, {400, 1000}, {1000, 1500}}
+	for name, caps := range map[string][]string{"aCaps": got.ACaps, "bCaps": got.BCaps} {
+		if len(caps) != len(wantCaps) {
+			t.Fatalf("%s = %v", name, caps)
+		}
+		for i := range wantCaps {
+			if caps[i] != wantCaps[i] {
+				t.Fatalf("%s[%d] = %q, want %q", name, i, caps[i], wantCaps[i])
+			}
+		}
+	}
+	for name, tl := range map[string][]span{"aTl": got.ATl, "bTl": got.BTl} {
+		if len(tl) != len(wantTl) {
+			t.Fatalf("%s = %+v", name, tl)
+		}
+		for i := range wantTl {
+			if tl[i] != wantTl[i] {
+				t.Fatalf("%s[%d] = %+v, want %+v", name, i, tl[i], wantTl[i])
+			}
+		}
+	}
+}
+
+// 负控：texts 比 duration_list 多时不许静默产出 0 时长字幕。
+func TestAudioAlignMismatchedDurationIsExplicitError(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "audio_align_free";
+
+function main() -> any {
+    let a = audio_align_free.align_text_to_audio({ "texts": ["甲", "乙"], "duration_list": [10] }) with timeout(60s);
+    return { "caps": a.text_captions };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "audio_align_bad.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, _, errs := runCLI(t, "", "--plugin-dir", "../../plugins",
+		"--tool-path", "../../libraries", srcPath)
+	if rc != 1 {
+		t.Fatalf("rc=%d, want 1; stderr=%s", rc, errs)
+	}
+	if !strings.Contains(errs, "duration_list has 1 entries but texts has 2") {
+		t.Fatalf("stderr = %s", errs)
+	}
+}

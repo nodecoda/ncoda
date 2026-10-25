@@ -27,20 +27,10 @@
    "evidence": "header desc「字幕音频对齐」表明需要远程服务",
    "loss": "remote-api: header desc「字幕音频对齐」表明需要远程服务"
   },
-  "audio_align_free.align_text_to_audio": {
-   "class": "remote-api",
-   "evidence": "header desc「字幕音频对齐_免费版」表明需要远程服务",
-   "loss": "remote-api: header desc「字幕音频对齐_免费版」表明需要远程服务"
-  },
   "audio_subtitle_align.align_text_to_audio_v2": {
    "class": "remote-api",
    "evidence": "header desc「字幕音频自动对齐」表明需要远程服务",
    "loss": "remote-api: header desc「字幕音频自动对齐」表明需要远程服务"
-  },
-  "audio_subtitle_align_alt.align_text_to_audio": {
-   "class": "remote-api",
-   "evidence": "header desc「音频字幕对齐」表明需要远程服务",
-   "loss": "remote-api: header desc「音频字幕对齐」表明需要远程服务"
   },
   "audio_subtitle_align_pro.align_text_to_audio": {
    "class": "remote-api",
