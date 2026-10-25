@@ -12,7 +12,7 @@ libraries:
   - library: capcut_draft_data
     version: 0.1.0
     fidelity: partial
-    loss: "库级：实现 timelines / str_to_list / caption_splitter / audio_infos / image_infos；text_infos / video_infos / keyframe_infos 的消费面结构无语料证据，仍不实现"
+    loss: "库级：实现 timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos；text_infos / video_infos / keyframe_infos 的消费面结构无语料证据，仍不实现"
     functions:
       - name: timelines
         loss: "语料只出现 number=1；number>1 时按整数等分且余数并入末段。原实现的分配规则与 $type 语义未证实"
@@ -20,6 +20,8 @@ libraries:
         loss: "只做 JSON 数组字符串解析与按行拆分；逗号/分号/空格等分隔符规则未由语料证实（单行输入原样作为单元素）"
       - name: caption_splitter
         loss: "按 max_char_count 硬切（不按标点断句），再按各段字符数比例分摊该条文本的 [start,end]；texts 与 timelines 数量不等时缺省时间段记 [0,0]"
+      - name: audio_timelines
+        loss: "只解码本地 WAV（路径/file:///data:audio/wav;base64）：duration = data 字节数/byteRate；http(s)/MP3 需下载+解码，显式报 REMOTE_AUDIO_UNSUPPORTED/非 WAV；timelines 与 urls 1:1、自 0 起相接，end 为总时长（语料 7537506233444663359:101,105 证明 end 被当整段时长）；total_timelines 无语料消费点，返回整段 [0,total]"
       - name: audio_infos
         loss: "键是 url/duration/start/end（消费者是 capcut_draft_folder.add_audios 的 infos 参数，由语料手写 audioData 证明）；volume/audio_effect 仅在显式传入时写入；单 URL + 多时间段时铺满整体（bgm 语义）"
       - name: image_infos
@@ -27,7 +29,7 @@ libraries:
   - library: capcut_data
     version: 0.1.0
     fidelity: partial
-    loss: "库级：补 timeline_keyframe / asr_timelines / keyframes_infos / *_infos（逐函数 loss 见下）；audio_timelines 缺音频时长来源、search_sticker 需要网络，仍不实现"
+    loss: "库级：补 timeline_keyframe / asr_timelines / keyframes_infos / *_infos（逐函数 loss 见下）；audio_timelines 已由 plugins/capcut_data 实现，search_sticker 需要网络，仍不实现"
     functions:
       - name: timeline_keyframe
         loss: "偏移按每条时间线内的百分比线性插值（0%→start，100%→end），多段时间线顺序拼接；原实现的绝对/相对基准与去重策略未证实"

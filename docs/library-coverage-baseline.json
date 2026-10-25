@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 216,
+ "symbols_bound_stub": 215,
  "complete_stub": 698,
- "reason": "capcut_data.audio_timelines 落地为本地 WAV 时长→时间线（partial）；stub 217→216，env-missing 21→20，complete_exec/real 不变（171/86）"
+ "reason": "capcut_draft_data.audio_timelines 落地（本地 WAV，timelines 与 urls 1:1、end 为总时长）；stub 216→215、env-missing 20→19；complete_exec/real 不变（171/86）"
 }

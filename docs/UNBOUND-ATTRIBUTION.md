@@ -93,11 +93,8 @@ libraries:
     evidence: "与 D-1 同族：草稿创建/保存；string_to_list 是纯字符串助手，已由 plugins/text_toolkit 实现（partial），不随库级归因"
   capcut_draft_data:
     class: schema-unknown
-    evidence: "timelines / str_to_list / caption_splitter / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实"
+    evidence: "timelines / str_to_list / caption_splitter / audio_timelines / audio_infos / image_infos 已由 plugins/timeline_toolkit 实现（partial，loss 见清单；audio/image 的键由语料手写的 add_audios/add_images infos 结构固定）；text_infos / video_infos / keyframe_infos 的消费面无手写结构，schema 未证实"
     symbols:
-      audio_timelines:
-        class: env-missing
-        evidence: "输出结构在 header 里是具体的（start/end/timelines），不是 schema 问题；缺的是音频时长（远程 URL 需下载+解码）"
       get_audio_duration:
         class: env-missing
         evidence: "返回单个 duration；缺的是音频解码（WAV 精确 / MP3 估算），远程 URL 本仓不联网"

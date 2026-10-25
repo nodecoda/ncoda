@@ -319,8 +319,8 @@ make plugin-selftest
 
 ## 12. 试点记录（已发布 8 个插件 / 312 个符号）
 
-其中 7 个是**真实现**插件（64 个 real/partial 符号），第 8 个 `corpus_stubs` 是
-**显式未实现层**（216 个 stub 符号）：让语料能 import、能列出符号，调用时以
+其中 7 个是**真实现**插件（65 个 real/partial 符号），第 8 个 `corpus_stubs` 是
+**显式未实现层**（215 个 stub 符号）：让语料能 import、能列出符号，调用时以
 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` 失败。它不是实现，账本单列
 `symbols_bound_stub`，且只许降。
 
@@ -331,9 +331,9 @@ make plugin-selftest
 | `plugins/compose_toolkit` | `capcut_helper` `suchuang_video_compose` | 18 | 3 | 15 | `corpus/7580659724749865001`、`7576926169774653449` 等；纯列表/时间轴变换 |
 | `plugins/codel_toolkit` | `codel_video` | 2 | 0 | 2 | 语料无调用；形状来自 header（纯列表变换） |
 | `plugins/table_toolkit` | `super_table` | 2 | 1 | 1 | 语料把 `get_url` 用在纯文本/ID 上（`7531679871563989002:48,58`），紧跟 `str_list` 展平喂 `save_list`/`tts` ⇒ 纯 wire 助手，不是远程服务 |
-| `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` `capcut_data_fast` | 19 | 0 | 19 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |
+| `plugins/timeline_toolkit` | `capcut_draft_data` `capcut_data` `capcut_data_fast` | 20 | 0 | 20 | header 返回具体结构 + 语料调用点；`timelines` / `str_to_list` / `caption_splitter` / `timeline_keyframe` / `asr_timelines`，分配/断句规则未证实 |
 | `plugins/html_render` | `html2img` `htmlcode_to_img` | 2 | 0 | 2 | 本机 headless Chrome 渲染成 PNG（`--window-size` 实测尺寸/像素）；返回 `file://`，远程素材需联网 |
-| `plugins/corpus_stubs` | 131 个尚未实现的库（共 133 个库 / 216 符号） | 216 | 0 | 216（全部 `stub`） | 由 `scripts/gen_stub_plugin.py` 从 `docs/UNBOUND-ATTRIBUTION.md` 生成；每个符号带 `<class>: <证据>`，调用只报错不返值 |
+| `plugins/corpus_stubs` | 131 个尚未实现的库（共 133 个库 / 215 符号） | 215 | 0 | 215（全部 `stub`） | 由 `scripts/gen_stub_plugin.py` 从 `docs/UNBOUND-ATTRIBUTION.md` 生成；每个符号带 `<class>: <证据>`，调用只报错不返值 |
 
 **共享实现、独立契约**：`capcut_helper` / `suchuang_video_compose` 的同名函数
 （`text_splitter` / `timeline_merge` / `wenan_timeline_range` / `audio_link_collector`）

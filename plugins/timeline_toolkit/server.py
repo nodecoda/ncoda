@@ -13,8 +13,12 @@
 
 协议：stdin/stdout 一行一条 JSON-RPC 2.0；日志一律走 stderr。
 """
+import base64
 import json
+import struct
 import sys
+import urllib.parse
+import urllib.request
 
 PROTOCOL = "ncoda-plugin/1"
 PLUGIN_ID = "timeline-toolkit"
@@ -23,7 +27,7 @@ PLUGIN_VERSION = "0.1.0"
 LIBRARIES = [
     {"library": "capcut_draft_data",
      "functions": ["timelines", "str_to_list", "caption_splitter",
-                    "audio_infos", "image_infos"]},
+                    "audio_timelines", "audio_infos", "image_infos"]},
     {"library": "capcut_data",
      "functions": ["timeline_keyframe", "asr_timelines", "keyframes_infos",
                     "audio_infos", "caption_infos", "imgs_infos", "video_infos", "effect_infos"]},
@@ -575,12 +579,90 @@ def fn_draft_image_infos(args):
     return infos_result(build_draft_images(args), False)
 
 
+# ── capcut_draft_data.audio_timelines（本地 WAV）─────────────────────────
+#
+# 证据（7537506233444663359:96,101,105）：`timelines` 与 urls 1:1 配对
+# （audio_infos / image_infos 同形），`end` 被当作整段时长
+# （`timelines({duration: v13.end, number: 1})`）。与 capcut_data 族的差别：
+# 顶层有 start/end，另有一个无语料消费点的 total_timelines。
+# WAV 解析与 plugins/capcut_data/server.py 同构（各自独立进程，保持插件边界）。
+
+def _audio_scalar(v):
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, dict):
+        for k in ("link", "url", "$output", "output", "value", "data", "src", "path"):
+            inner = v.get(k)
+            if isinstance(inner, str) and inner.strip():
+                return inner.strip()
+    return ""
+
+
+def _audio_bytes(raw):
+    s = raw.strip()
+    low = s.lower()
+    if low.startswith(("http://", "https://")):
+        raise ValueError("REMOTE_AUDIO_UNSUPPORTED: offline implementation does not fetch %s" % s)
+    if low.startswith("data:"):
+        comma = s.find(",")
+        if comma < 0 or ";base64" not in low[:comma]:
+            raise ValueError("bad data url (want data:audio/...;base64,)")
+        return base64.b64decode(s[comma + 1:])
+    if low.startswith("file://"):
+        path = urllib.request.url2pathname(urllib.parse.urlparse(s).path)
+    else:
+        path = s
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def wav_duration_us(blob):
+    if len(blob) < 12 or blob[:4] != b"RIFF" or blob[8:12] != b"WAVE":
+        raise ValueError("not a WAV container (only local WAV is supported; MP3 needs decoding)")
+    pos, byte_rate, data_size, fmt = 12, 0, None, None
+    while pos + 8 <= len(blob):
+        cid = blob[pos:pos + 4]
+        size = struct.unpack("<I", blob[pos + 4:pos + 8])[0]
+        body = blob[pos + 8:pos + 8 + size]
+        if cid == b"fmt " and len(body) >= 16:
+            fmt, _channels, _rate, byte_rate = struct.unpack("<HHII", body[:12])
+        elif cid == b"data":
+            data_size = len(body)
+            break
+        pos += 8 + size + (size & 1)
+    if fmt is None or not byte_rate or data_size is None:
+        raise ValueError("WAV is missing fmt/data chunks")
+    if fmt not in (1, 3):
+        raise ValueError("unsupported WAV format tag %d (want PCM/IEEE float)" % fmt)
+    return int(round(data_size * 1000000.0 / byte_rate))
+
+
+def fn_audio_timelines(args):
+    urls = arg(args, "urls", []) or []
+    if not isinstance(urls, list):
+        urls = [urls]
+    timelines, cursor = [], 0
+    for item in urls:
+        s = _audio_scalar(item)
+        if not s:
+            raise ValueError("empty audio url")
+        dur = wav_duration_us(_audio_bytes(s))
+        if dur <= 0:
+            raise ValueError("non-positive audio duration for %s" % s)
+        timelines.append({"start": cursor, "end": cursor + dur})
+        cursor += dur
+    total = [{"start": 0, "end": cursor}] if timelines else []
+    return {"start": 0, "end": cursor, "timelines": timelines,
+            "total_timelines": total}
+
+
 HANDLERS = {
     "capcut_draft_data.timelines": fn_timelines,
     "capcut_draft_data.str_to_list": fn_str_to_list,
     "capcut_draft_data.caption_splitter": fn_caption_splitter,
     "capcut_draft_data.audio_infos": fn_draft_audio_infos,
     "capcut_draft_data.image_infos": fn_draft_image_infos,
+    "capcut_draft_data.audio_timelines": fn_audio_timelines,
     "capcut_data.timeline_keyframe": fn_timeline_keyframe,
     "capcut_data.asr_timelines": fn_asr_timelines,
     "capcut_data.keyframes_infos": fn_keyframes_infos,

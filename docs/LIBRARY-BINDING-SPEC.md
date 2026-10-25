@@ -46,9 +46,9 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号       312（内建 32 + 进程外 64 real/partial + 216 stub）
+已绑定符号       312（内建 32 + 进程外 65 real/partial + 215 stub）
 未绑定符号         0
-未实现符号       216（stub：remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 20 / local-todo 3）
+未实现符号       215（stub：remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 19 / local-todo 3）
 local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
@@ -266,7 +266,7 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 | 类别 | 含义 | 例子 |
 |---|---|---|
 | `binding-missing` | 调用了未绑符号 | 当前 0（原 289）；出现即说明 stub 清单漂移 |
-| `binding-not-implemented` | 调用了 stub（能加载、无实现） | 216 个 stub；错误串 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` |
+| `binding-not-implemented` | 调用了 stub（能加载、无实现） | 215 个 stub；错误串 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /

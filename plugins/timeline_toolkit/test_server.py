@@ -375,5 +375,70 @@ class DraftDataInfosTest(unittest.TestCase):
             server.fn_draft_image_infos({"urls": ["u"], "timelines": ["x"]})
 
 
+class DraftAudioTimelinesTest(unittest.TestCase):
+    """capcut_draft_data.audio_timelines：本地 WAV → {start,end,timelines,total_timelines}。
+
+    证据：7537506233444663359:96-105 —— `timelines` 与 urls 1:1 配对，
+    `end` 被当作整段时长（timelines({duration: v13.end})）。
+    """
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def wav(self, seconds, rate=16000):
+        import io
+        import wave
+        buf = io.BytesIO()
+        with wave.open(buf, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(rate)
+            w.writeframes(b"\x00\x00" * int(seconds * rate))
+        return buf.getvalue()
+
+    def path(self, blob, name):
+        p = os.path.join(self.tmp.name, name)
+        with open(p, "wb") as fh:
+            fh.write(blob)
+        return p
+
+    def test_sequential_spans_and_total(self):
+        a = self.path(self.wav(1.0), "a.wav")
+        b = self.path(self.wav(0.5), "b.wav")
+        out = server.fn_audio_timelines({"urls": [a, b]})
+        self.assertEqual(out["timelines"], [
+            {"start": 0, "end": 1000000},
+            {"start": 1000000, "end": 1500000},
+        ])
+        self.assertEqual((out["start"], out["end"]), (0, 1500000))
+        self.assertEqual(out["total_timelines"], [{"start": 0, "end": 1500000}])
+
+    def test_file_url_and_record_are_unwrapped(self):
+        p = self.path(self.wav(0.25), "c.wav")
+        out = server.fn_audio_timelines({"urls": [{"link": "file://" + p}]})
+        self.assertEqual(out["end"], 250000)
+
+    def test_empty_urls(self):
+        self.assertEqual(server.fn_audio_timelines({"urls": []}),
+                         {"start": 0, "end": 0, "timelines": [], "total_timelines": []})
+
+    def test_remote_and_mp3_are_explicit_errors(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.fn_audio_timelines({"urls": ["https://example.com/a.mp3"]})
+        self.assertIn("REMOTE_AUDIO_UNSUPPORTED", str(ctx.exception))
+        bad = self.path(b"ID3\x04\x00", "d.mp3")
+        with self.assertRaises(ValueError):
+            server.fn_audio_timelines({"urls": [bad]})
+
+    def test_negative_control_end_must_match_last_segment(self):
+        p = self.path(self.wav(0.75), "e.wav")
+        out = server.fn_audio_timelines({"urls": [p]})
+        self.assertEqual(out["end"], out["timelines"][-1]["end"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1328,12 +1328,15 @@ func TestCapcutAudioTimelinesFromLocalTTS(t *testing.T) {
 @mode workflow
 import "tts";
 import "capcut_data";
+import "capcut_draft_data";
 
 function main() -> any {
     let v = tts.speech_synthesis({ "text": "你好世界你好世界你好世界" }) with timeout(60s);
     let links = [v.data.link];
     let t = capcut_data.audio_timelines({ "links": links }) with timeout(60s);
-    return { "duration": v.data.duration, "timelines": t.timelines, "all": t.all_timelines };
+    let d = capcut_draft_data.audio_timelines({ "urls": links }) with timeout(60s);
+    return { "duration": v.data.duration, "timelines": t.timelines, "all": t.all_timelines,
+             "draftEnd": d.end, "draftTimelines": d.timelines, "draftTotal": d.total_timelines };
 }
 `
 	srcPath := filepath.Join(t.TempDir(), "audio_timelines.ncoda")
@@ -1356,6 +1359,15 @@ function main() -> any {
 			Start int64 `json:"start"`
 			End   int64 `json:"end"`
 		} `json:"all"`
+		DraftEnd       int64 `json:"draftEnd"`
+		DraftTimelines []struct {
+			Start int64 `json:"start"`
+			End   int64 `json:"end"`
+		} `json:"draftTimelines"`
+		DraftTotal []struct {
+			Start int64 `json:"start"`
+			End   int64 `json:"end"`
+		} `json:"draftTotal"`
 	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("json: %v (%s)", err, out)
@@ -1370,6 +1382,14 @@ function main() -> any {
 	}
 	if len(got.All) != 1 || got.All[0].Start != 0 || got.All[0].End != got.Timelines[0].End {
 		t.Fatalf("all_timelines = %+v (want one full span)", got.All)
+	}
+	// capcut_draft_data 族：顶层 end 是整段时长，total_timelines 是整段。
+	if got.DraftEnd != got.Timelines[0].End || len(got.DraftTimelines) != 1 ||
+		got.DraftTimelines[0].End != got.DraftEnd {
+		t.Fatalf("draft timelines = %+v end=%d", got.DraftTimelines, got.DraftEnd)
+	}
+	if len(got.DraftTotal) != 1 || got.DraftTotal[0].Start != 0 || got.DraftTotal[0].End != got.DraftEnd {
+		t.Fatalf("total_timelines = %+v", got.DraftTotal)
 	}
 }
 
