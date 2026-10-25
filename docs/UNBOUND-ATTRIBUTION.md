@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未绑定符号所在的库**一个闭集归因。目的不是「消灭 unbound」，
-而是让 222 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
+而是让 220 个未绑符号变成可排序的工单：哪些是本地能做的、哪些是网络/服务端/
 schema 缺口、哪些是本仓环境没有的能力。**新增未绑库必须同时给出归因**，否则判红。
 当前 `local-todo` 只剩 3 个符号（`audio_timeline_merge.timeline_merge`、
 `video_image_split` 的 2 个），缺口是 gap 插入位置/槽位顺序的证据，不是实现难度。
@@ -328,7 +328,7 @@ libraries:
     evidence: "header desc「suno_api」表明需要远程服务"
   super_table:
     class: remote-api
-    evidence: "header desc「超级多维表格」表明需要远程服务"
+    evidence: "get_url / str_list 是纯 wire 助手，已由 plugins/table_toolkit 实现（语料把 get_url 用在 prompt/text/ID 等标量上，说明不是远程取链）；get_table / save_list / super_table 需要表格服务（网络/凭证）"
   taobao_product:
     class: remote-api
     evidence: "header desc「淘宝商品数据」表明需要远程服务"

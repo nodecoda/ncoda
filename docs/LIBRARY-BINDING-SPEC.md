@@ -46,8 +46,8 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号        90（内建 32 + 进程外 58）
-未绑定符号       222（remote-api 154 / server-state 38 / schema-unknown 4 / env-missing 23 / local-todo 3）
+已绑定符号        92（内建 32 + 进程外 60）
+未绑定符号       220（remote-api 152 / server-state 38 / schema-unknown 4 / env-missing 23 / local-todo 3）
 local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
@@ -228,6 +228,7 @@ after(fill): local 32 · plugin 38（4 个插件 / 38 符号）               ·
 after(text): plugin 44（5 个插件 / 44 符号）                          · unbound 236
 after(timeline): plugin 56（5 个插件 / 56 符号）                      · unbound 224
 after(draft-infos): plugin 58（5 个插件 / 58 符号）                   · unbound 222
+after(table): plugin 60（6 个插件 / 60 符号）                        · unbound 220
              complete_exec 171 · complete_real 86 · local-todo 3
 ```
 
@@ -259,7 +260,7 @@ after(draft-infos): plugin 58（5 个插件 / 58 符号）                   · 
 
 | 类别 | 含义 | 例子 |
 |---|---|---|
-| `binding-missing` | 调用了未绑符号 | 222 个未绑符号（原 289） |
+| `binding-missing` | 调用了未绑符号 | 220 个未绑符号（原 289） |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /
@@ -336,7 +337,8 @@ after(draft-infos): plugin 58（5 个插件 / 58 符号）                   · 
 > `plugins/compose_toolkit/`（2 库 18 符号）、`plugins/codel_toolkit/`（1 库 2 符号）；
 > 内建 timer 家族 + 本地文档读取（`file_read` / `text_file_reader` /
 > `document_to_text` / `document_reader`）共 10 个符号；`plugins/timeline_toolkit/`
-> （3 库 19 符号，全部 partial）补时间线/字幕/关键帧/草稿片段函数。插件符号合计 58，全部
+> （3 库 19 符号，全部 partial）补时间线/字幕/关键帧/草稿片段函数；`plugins/table_toolkit/`
+> （1 库 2 符号）补 `super_table` 的纯 wire 助手。插件符号合计 60，全部
 > 登记在 `plugins/*/ncoda-plugin.yaml`。
 
 

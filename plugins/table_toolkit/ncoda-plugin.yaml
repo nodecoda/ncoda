@@ -1,0 +1,19 @@
+schema: ncoda.plugin/v1
+id: table-toolkit
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 30000
+max_restarts: 3
+libraries:
+  # 只实现 super_table 的纯 wire 助手。表格服务本体（get_table / save_list /
+  # super_table）走平台状态，仍 unbound（归因 server-state / remote-api）。
+  - library: super_table
+    version: 0.1.0
+    fidelity: partial
+    loss: "库级：只补 get_url / str_list 两个纯 wire 助手；get_table / save_list / super_table 需要表格服务"
+    functions:
+      - name: get_url
+      - name: str_list
+        loss: "展平规则只对语料形态取证（get_url 结果 / 标量字符串，1:1 保序）；其它记录形态未证实，未知结构按空串占位（语料用空串判定「未就绪」）"

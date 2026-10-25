@@ -23,7 +23,7 @@ import (
 	"github.com/nodecoda/ncoda/pkg/runtime/plugin"
 )
 
-const minShippedPlugins = 5
+const minShippedPlugins = 6
 
 func shippedRoot(t *testing.T) string {
 	t.Helper()

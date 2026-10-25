@@ -1113,3 +1113,51 @@ function main() -> any {
 		t.Fatalf("images = %+v", images)
 	}
 }
+
+// super_table.get_url / str_list：纯 wire 助手（表格服务本身仍是 server-state，
+// 保持 unbound）。语料把 get_url 用在标量文本/ID 上（item1.prompt、item1.text、
+// task_id、downloadURL），紧跟 str_list({outputs}) 展平成 array<string>，
+// 再喂 save_list(datas) / tts(text) / 空串就绪检测。
+func TestTableToolkitPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "super_table";
+
+type Wrap = {
+  array<any> outputList;
+};
+
+function main() -> any {
+    let a = super_table.get_url({ "output": "https://x/a.mp4" });
+    let arr = json.parse<array<Wrap>>("[{\"outputList\":[{\"output\":\"https://x/a.mp4\"}]},{\"outputList\":[{\"output\":\"p1\"}]},{\"outputList\":[{\"output\":\"\"}]}]");
+    let l = super_table.str_list({ "outputs": arr });
+    return { "infos": l.infos, "wrapped": a.outputList };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "app.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries", srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		Infos   []string         `json:"infos"`
+		Wrapped []map[string]any `json:"wrapped"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	// 空串占位必须保留：语料用它判断「任务未就绪」
+	if len(got.Infos) != 3 || got.Infos[0] != "https://x/a.mp4" ||
+		got.Infos[1] != "p1" || got.Infos[2] != "" {
+		t.Fatalf("infos = %#v", got.Infos)
+	}
+	if len(got.Wrapped) != 1 || got.Wrapped[0]["output"] != "https://x/a.mp4" {
+		t.Fatalf("wrapped = %#v", got.Wrapped)
+	}
+}

@@ -3,7 +3,7 @@
  "corpus_size": 869,
  "complete_exec": 171,
  "complete_real": 86,
- "symbols_unbound": 222,
- "symbols_bound_plugin": 58,
- "reason": "timeline_toolkit 增绑 capcut_draft_data.audio_infos / image_infos（键 url/duration/start/end 由语料手写 add_audios/add_images 的 infos 结构固定）；plugin_bound 56→58，unbound 224→222，complete_exec/complete_real 不变"
+ "symbols_unbound": 220,
+ "symbols_bound_plugin": 60,
+ "reason": "新增 plugins/table_toolkit：绑定 super_table.get_url / str_list（纯 wire 助手，语料把 get_url 用在 prompt/text/ID 上）；plugin_bound 58→60，unbound 222→220，complete_exec/complete_real 不变"
 }
