@@ -17,11 +17,13 @@ sys.path.insert(0, HERE)
 import remote_audit as ra  # noqa: E402
 
 
-def row(lib="demo", fn="run", first="a.ncoda:2", keys=("api_key",)):
-    return {"lib": lib, "class": "remote-api", "desc": "demo",
-            "verdict": "keep-remote(凭据)",
+def row(lib="demo", fn="run", first="a.ncoda:2", keys=("api_key",),
+        cls="remote-api", verdict=None, ret_handles=()):
+    return {"lib": lib, "class": cls, "desc": "demo",
+            "verdict": verdict or ("keep-state" if cls == "server-state" else "keep-remote(凭据)"),
             "symbols": [{"fn": fn, "calls": 1, "keys": list(keys), "positional": False,
-                         "first": first, "sig": "", "ret": "R", "class": "remote-api"}]}
+                         "first": first, "sig": "", "ret": "R", "class": cls,
+                         "ret_handles": list(ret_handles)}]}
 
 
 class ScanArgs(unittest.TestCase):
@@ -71,6 +73,20 @@ class Verify(unittest.TestCase):
     def test_empty_pointer_is_red(self):
         problems = ra.verify([row(first="")], self.dir)
         self.assertTrue(problems and "没有语料调用点" in problems[0])
+
+    def test_server_state_needs_handle(self):
+        problems = ra.verify([row(cls="server-state", keys=("height", "width"))], self.dir)
+        self.assertTrue(problems and "无句柄证据" in problems[0])
+
+    def test_server_state_with_returned_handle_passes(self):
+        problems = ra.verify(
+            [row(cls="server-state", keys=("height", "width"), ret_handles=("draft_url",))],
+            self.dir)
+        self.assertEqual(problems, [])
+
+    def test_verdict_must_match_class(self):
+        problems = ra.verify([row(verdict="keep-state")], self.dir)
+        self.assertTrue(problems and "不自洽" in problems[0])
 
 
 class CheckGate(unittest.TestCase):

@@ -10,8 +10,9 @@
 判据（可红）：
   R1 文档覆盖的库 == 当前以 remote-api/server-state 归因、且有 stub 符号的库
   R2 每个证据指针（file:line）必须在语料里真实命中该符号的调用
-  R3 行内 class 必须与归因表一致（符号级覆盖优先）
-  R4 每个库至少要有一个符号能被调用面证明（有实参键或头文件签名），否则判不了
+  R3 server-state 符号必须有句柄证据：实参传 draft_url/draft_id/task_id，
+     或返回类型里带这些字段；否则「服务端状态」只是猜测，判红
+  R4 verdict 必须与 class 自洽：server-state => keep-state，remote-api => keep-remote
 读不到语料/头文件/归因表 => rc=3；参数错 => rc=2。
 
 用法：
@@ -290,6 +291,18 @@ def verify(rows: list[dict], corpus: str | None = None) -> list[str]:
             if not re.search(re.escape(r["lib"]) + r"\." + re.escape(s["fn"]) + r"\s*\(", text):
                 problems.append(
                     f'{r["lib"]}.{s["fn"]}: 证据指针 {s["first"]} 不含该调用（行号漂移？）')
+        for s in r["symbols"]:
+            if s["class"] == "server-state":
+                has_arg = any(HANDLE.search(k) for k in (s["keys"] or []))
+                if not (has_arg or s.get("ret_handles")):
+                    problems.append(
+                        f'{r["lib"]}.{s["fn"]}: 无句柄证据（实参无 draft/task 句柄，'
+                        f'返回类型也无），server-state 判不了')
+            want = "keep-state" if s["class"] == "server-state" else "keep-remote"
+            if not r["verdict"].startswith(want):
+                problems.append(
+                    f'{r["lib"]}.{s["fn"]}: verdict {r["verdict"]!r} 与 class '
+                    f'{s["class"]!r} 不自洽')
     return problems
 
 
