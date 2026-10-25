@@ -1,0 +1,14 @@
+{
+ "schema": "ncoda.unbound-attribution-report/v1",
+ "unbound_symbols": 242,
+ "unclassified_symbols": 0,
+ "by_class": {
+  "env-missing": 24,
+  "local-todo": 0,
+  "remote-api": 152,
+  "schema-unknown": 28,
+  "server-state": 38,
+  "unclassified": 0
+ },
+ "reason": "随第二刀更新：capcut_data schema-unknown 29→28（timelines_format 已绑），suchuang_video_compose server-state 39→38（timeline_align 已绑）；codel_video split_list/merge_list 已由 codel_toolkit 实现但语料无调用，unbound 仍只计 keyframe_ani_scene_v1；unbound 242，unclassified 0，local-todo 0"
+}

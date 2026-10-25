@@ -18,9 +18,36 @@ LDFLAGS   = -s -w \
 DIST     ?= /tmp/ncoda-dist-$(VERSION)
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: check push nightly release dist dist-check release-smoke sbom audit contracts-check notices-check clean fmt fmt-check test
+.PHONY: check push nightly release dist dist-check release-smoke sbom audit contracts-check notices-check clean fmt fmt-check test library-coverage library-coverage-check unbound-attribution-check plugin-selftest
+
+# Library coverage is corpus-dependent; keep it out of `check` (a missing corpus
+# is rc=3, not a pass). Run it explicitly or in the corpus CI lane.
+library-coverage:
+	python3 scripts/library_coverage.py
+
+library-coverage-check:
+	python3 scripts/library_coverage.py --check
+
+# Unbound attribution is corpus-dependent too; keep it out of `check`.
+unbound-attribution-check:
+	python3 scripts/unbound_attribution.py --check
+
+# Out-of-process plugin host: Go judgements plus one end-to-end call through a
+# real subprocess (Python reference implementation in testdata/).
+plugin-selftest:
+	$(GO) test -count=1 ./pkg/pluginhost/ ./pkg/runner/
+	@command -v python3 >/dev/null || { echo "plugin-selftest: python3 not found (skipped python lane)"; exit 0; }
+	@for t in plugins/*/test_server.py; do [ -f "$$t" ] && python3 "$$t" || exit $$?; done
+	$(GO) build -o $(CURDIR)/.tmp-ncoda-run ./cmd/ncoda-run
+	@set -e; d=$$(mktemp -d); cp pkg/pluginhost/testdata/server.py $$d/; \
+	 printf 'schema: ncoda.plugin/v1\nid: test-python\nversion: 0.1.0\nprotocol: ncoda-plugin/1\ncommand: ["python3","server.py"]\nlibraries:\n  - library: array_count\n    fidelity: real\n    functions: [array_count]\n  - library: common_code_block\n    fidelity: real\n    functions: [list_sli_trim, get_one_by_num]\n' > $$d/ncoda-plugin.yaml; \
+	 out=$$(./.tmp-ncoda-run --plugin $$d/ncoda-plugin.yaml --tool-path ./libraries --list-symbols); \
+	 echo "$$out" | grep -q '"plugin_hosts":1' || { echo "plugin-selftest: symbol listing missing plugin host: $$out"; exit 1; }; \
+	 echo "plugin-selftest: ok"; rm -rf $$d .tmp-ncoda-run
 
 check: fmt-check audit contracts-check notices-check
+	python3 scripts/test_library_coverage.py
+	python3 scripts/test_unbound_attribution.py
 	$(GO) build ./...
 	$(GO) vet ./...
 	$(GO) test ./...
@@ -78,12 +105,22 @@ dist:
 	@# that imports a public library.
 	@install -d $(DIST)/libraries
 	@install -m 0644 libraries/*.ncoda $(DIST)/libraries/
+	@# Out-of-process plugins: source-only (manifest + reference server). They are
+	@# resolved by --plugin-dir <exe>/plugins, so a distribution that omits them
+	@# cannot run a source whose library is implemented out of process.
+	@set -e; for d in plugins/*/; do \
+	  [ -d "$$d" ] || continue; \
+	  name=$$(basename "$$d"); \
+	  install -d "$(DIST)/plugins/$$name"; \
+	  find "$$d" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.py' -o -name '*.md' \) \
+	    -exec install -m 0644 {} "$(DIST)/plugins/$$name/" \;; \
+	done
 	@install -m 0644 LICENSE NOTICE THIRD-PARTY-NOTICES.md $(DIST)/
 	@python3 scripts/gen_sbom.py --version $(VERSION) --package ./cmd/nclang-compile --out $(DIST)/sbom-nclang.cdx.json
 	@python3 scripts/gen_sbom.py --version $(VERSION) --package ./cmd/ncoda-run --out $(DIST)/sbom-ncoda-run.cdx.json
 	@$(GO) version -m $(DIST)/nclang-$(VERSION)-linux-amd64 > $(DIST)/SBOM.txt
 	@$(GO) version -m $(DIST)/ncoda-run-$(VERSION)-linux-amd64 >> $(DIST)/SBOM.txt
-	@cd $(DIST) && sha256sum nclang-* ncoda-run-* sbom-*.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md libraries/*.ncoda > SHA256SUMS
+	@cd $(DIST) && sha256sum nclang-* ncoda-run-* sbom-*.cdx.json SBOM.txt LICENSE NOTICE THIRD-PARTY-NOTICES.md libraries/*.ncoda plugins/*/* > SHA256SUMS
 	@echo "artifacts in $(DIST)"
 
 # A release directory is only publishable if every stated artifact is present
@@ -94,6 +131,12 @@ dist-check: dist
 	  test -s "$$f" || { echo "dist-check: missing $$f"; exit 1; }; done
 	@test -d $(DIST)/libraries || { echo "dist-check: missing libraries/"; exit 1; }
 	@n=$$(ls $(DIST)/libraries/*.ncoda | wc -l); test "$$n" -eq 174 || { echo "dist-check: libraries/ has $$n headers, want 174"; exit 1; }
+	@set -e; for d in plugins/*/; do \
+	  [ -d "$$d" ] || continue; \
+	  name=$$(basename "$$d"); \
+	  test -s "$(DIST)/plugins/$$name/ncoda-plugin.yaml" || { echo "dist-check: missing plugins/$$name/ncoda-plugin.yaml"; exit 1; }; \
+	  test -s "$(DIST)/plugins/$$name/server.py" || { echo "dist-check: missing plugins/$$name/server.py"; exit 1; }; \
+	done
 	@cd $(DIST) && sha256sum -c SHA256SUMS >/dev/null || { echo "dist-check: SHA256SUMS does not verify"; exit 1; }
 	@cd $(DIST) && sha256sum -c SHA256SUMS --quiet
 	@echo "dist-check: ok ($(DIST))"
@@ -113,6 +156,20 @@ release-smoke: dist-check
 	  printf '' | $$B --target acme-1.0 >/dev/null 2>&1; test $$? -eq 2 || { echo "release-smoke: platform target must be rc=2"; exit 1; }
 	@R=$(DIST)/ncoda-run-$(VERSION)-linux-amd64; \
 	  $$R --local-plugins --tool-path $(DIST)/libraries examples/nodecoda/62_local_library_roundtrip.ncoda | grep -q '"k":"hello"' || { echo "release-smoke: distributed libraries/ must run offline"; exit 1; }
+	@# Out-of-process lane: shipped manifest + reference server must run from the dist.
+	@# Requires a system python3; without it the assertion is skipped (not failed), and
+	@# the lyrics must still be reported so the gap is visible in CI logs.
+	@R=$(DIST)/ncoda-run-$(VERSION)-linux-amd64; \
+	  if command -v python3 >/dev/null 2>&1; then \
+	    n=$$($$R --plugin-dir $(DIST)/plugins --tool-path $(DIST)/libraries --list-symbols | tee /tmp/ncoda-plugin-symbols.json | grep -o '"plugin_hosts":[0-9]*' | cut -d: -f2); \
+	    want=$$(find plugins -maxdepth 2 -name ncoda-plugin.yaml | wc -l); \
+	    test "$$n" -eq "$$want" || { echo "release-smoke: want $$want plugin hosts from dist, got $$n"; exit 1; }; \
+	    printf '@language nodecoda/1\n@mode workflow\nimport "capcut_data";\nfunction main() -> any { let t = capcut_data.timelines({ "duration": 1000000, "num": 2 }); return t; }\n' > $(DIST)/plugin-smoke.ncoda; \
+	    $$R --plugin-dir $(DIST)/plugins --tool-path $(DIST)/libraries $(DIST)/plugin-smoke.ncoda | grep -q '"end":1000000' || { echo "release-smoke: distributed plugins/ must run"; exit 1; }; \
+	    echo "release-smoke: plugin lane ok ($$n hosts)"; \
+	  else \
+	    echo "release-smoke: python3 not found — plugin lane skipped"; \
+	  fi
 	@echo "release-smoke: ok ($(DIST))"
 
 # CycloneDX SBOM only (the artifact needed when publishing an existing build).

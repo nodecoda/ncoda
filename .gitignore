@@ -19,3 +19,6 @@ go.work.sum
 # Python bytecode (never commit judge artifacts)
 __pycache__/
 *.pyc
+
+# plugin-selftest build artifact
+.tmp-ncoda-run
