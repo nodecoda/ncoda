@@ -46,9 +46,9 @@
 插件补齐后（同一语料，工作树）：
 
 ```
-已绑定符号       312（内建 32 + 进程外 61 real/partial + 219 stub）
+已绑定符号       312（内建 32 + 进程外 63 real/partial + 217 stub）
 未绑定符号         0
-未实现符号       219（stub：remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 23 / local-todo 3）
+未实现符号       217（stub：remote-api 152 / server-state 37 / schema-unknown 4 / env-missing 21 / local-todo 3）
 local-todo         3（audio_timeline_merge.timeline_merge + video_image_split 的 2 个：纯算术，gap 插入位置/槽位顺序待证）
 ```
 
@@ -266,7 +266,7 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 | 类别 | 含义 | 例子 |
 |---|---|---|
 | `binding-missing` | 调用了未绑符号 | 当前 0（原 289）；出现即说明 stub 清单漂移 |
-| `binding-not-implemented` | 调用了 stub（能加载、无实现） | 219 个 stub；错误串 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` |
+| `binding-not-implemented` | 调用了 stub（能加载、无实现） | 217 个 stub；错误串 `NOT_IMPLEMENTED <lib>.<fn>: <class>: <证据>` |
 | `binding-partial` | 已绑但近似实现的输出不足以满足下游 | TTS 时长/音色下游断言 |
 
 原有 `code-runtime` / `code-syntax` / `deps-missing` / `external-http` /
@@ -356,7 +356,7 @@ after(draft-str): plugin 61（6 个插件 / 61 符号）                     · 
 | P1 | TTS 族（manbo/zh/fish/dubbingx…） | partial | 复用正弦 WAV；时长公式统一 |
 | P1 | `prompt_optimize.sd_better_prompt` | partial | echo 模型；loss = 无提示词优化 |
 | P2 | ~~`string_to_array` / `null_fill` / `array_split_merge`~~ | partial（已落地） | `plugins/text_toolkit/`；loss 已声明，`complete_real` 不涨 |
-| P2 | `document_to_text` / `file_read`（已落地 partial）· `html2img`（env-missing） | partial | 只读本地 txt/md/xlsx；远程 URL 明确 `REMOTE_URL_UNSUPPORTED`；html2img 需 headless 浏览器 |
+| P2 | `document_to_text` / `file_read`（已落地 partial）· `html2img` / `htmlcode_to_img`（已落地 partial） | partial | 只读本地 txt/md/xlsx；远程 URL 明确 `REMOTE_URL_UNSUPPORTED`；HTML→PNG 用本机 headless Chrome，返回 `file://`（远程素材需联网） |
 | P3 | 搜索/SaaS（feishu/super_table/toutiao/xhs/link_reader…） | stub | 需要网络/凭证；进 `plugins/corpus_stubs/`，调用即 `not-implemented` |
 
 **unsupported 的记账约定**：不写进 `bindings.yaml`（那是内建真实现）。它们以

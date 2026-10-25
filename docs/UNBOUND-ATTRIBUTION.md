@@ -3,7 +3,7 @@
 状态：**active** · 机器判据：`scripts/unbound_attribution.py`（rc 0/1/2/3）
 
 本表给**每一个未实现符号所在的库**一个闭集归因。口径包含两类：真正没绑定的
-（当前 0 个）和以 `stub` 绑定的（219 个，见 `plugins/corpus_stubs/`）。stub 只让
+（当前 0 个）和以 `stub` 绑定的（217 个，见 `plugins/corpus_stubs/`）。stub 只让
 语料「能链接、能加载、调用即显式失败」，不是实现，因此仍然必须归因、仍然计入
 本表。目的不是「消灭 unbound 数字」，而是让每个缺口变成可排序的工单：哪些是
 本地能做的、哪些是网络/服务端/schema 缺口、哪些是本仓环境没有的能力。
@@ -209,15 +209,9 @@ libraries:
   hotlist_aggregate:
     class: remote-api
     evidence: "header desc「热搜榜聚合」表明需要远程服务"
-  html2img:
-    class: env-missing
-    evidence: "HTML→图片需要 headless 浏览器"
   html_upload:
     class: remote-api
     evidence: "header desc「发布网页」表明需要远程服务"
-  htmlcode_to_img:
-    class: env-missing
-    evidence: "HTML 代码→图片需要 headless 浏览器"
   image_enhance:
     class: remote-api
     evidence: "header desc「画质提升」表明需要远程服务"

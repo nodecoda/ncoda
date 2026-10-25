@@ -90,7 +90,7 @@ def load_bindings(bindings_path: str = BINDINGS) -> dict[tuple[str, str], dict]:
     return out
 
 
-def load_plugins(plugin_root: str = PLUGINS) -> dict[tuple[str, str], dict]:
+def load_plugins(plugin_root: str = PLUGINS, skip_ids: tuple[str, ...] = ()) -> dict[tuple[str, str], dict]:
     """进程外插件（plugins/<id>/ncoda-plugin.yaml）声明的符号。
 
     只读清单，不启动进程：清单是加载期校验过的输入，符号面由它唯一决定。
@@ -102,6 +102,10 @@ def load_plugins(plugin_root: str = PLUGINS) -> dict[tuple[str, str], dict]:
     for manifest in sorted(glob.glob(os.path.join(plugin_root, "*", "ncoda-plugin.yaml"))):
         doc = yaml.safe_load(read(manifest)) or {}
         pid = str(doc.get("id") or os.path.basename(os.path.dirname(manifest)))
+        if pid in skip_ids:
+            # 生成器重算时要忽略**自己上一版**的声明，否则「实现一个、退一个 stub」
+            # 会在两个声明并存的那一刻卡死（重复符号判红是对的，但要能先重算）。
+            continue
         for lib in doc.get("libraries") or []:
             name = str(lib.get("library") or "")
             base_fid = str(lib.get("fidelity") or "real")
@@ -165,10 +169,10 @@ def worst(values: list[str]) -> str:
 
 
 def analyze(corpus: str, headers_dir: str = HEADERS, bindings_path: str = BINDINGS,
-            plugin_root: str = PLUGINS) -> dict:
+            plugin_root: str = PLUGINS, skip_plugin_ids: tuple[str, ...] = ()) -> dict:
     headers = load_headers(headers_dir)
     bindings = load_bindings(bindings_path)
-    plugins = load_plugins(plugin_root)
+    plugins = load_plugins(plugin_root, skip_ids=skip_plugin_ids)
     shadowed = sorted(set(bindings) & set(plugins))
     files = load_corpus(corpus)
 

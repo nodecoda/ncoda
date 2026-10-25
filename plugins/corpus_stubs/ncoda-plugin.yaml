@@ -473,12 +473,6 @@ libraries:
   - name: hot_list
     fidelity: stub
     loss: 'remote-api: header desc「热搜榜聚合」表明需要远程服务'
-- library: html2img
-  fidelity: stub
-  functions:
-  - name: gen_img
-    fidelity: stub
-    loss: 'env-missing: HTML→图片需要 headless 浏览器'
 - library: html_upload
   fidelity: stub
   functions:
@@ -488,12 +482,6 @@ libraries:
   - name: html2url
     fidelity: stub
     loss: 'remote-api: header desc「发布网页」表明需要远程服务'
-- library: htmlcode_to_img
-  fidelity: stub
-  functions:
-  - name: html_img
-    fidelity: stub
-    loss: 'env-missing: HTML 代码→图片需要 headless 浏览器'
 - library: image_enhance
   fidelity: stub
   functions:

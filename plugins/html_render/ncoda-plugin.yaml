@@ -1,0 +1,18 @@
+schema: ncoda.plugin/v1
+id: html-render
+version: 0.1.0
+protocol: ncoda-plugin/1
+type: stdio
+command: ["python3", "server.py"]
+timeout_ms: 90000
+max_restarts: 3
+libraries:
+  # 本机 headless Chrome 渲染；返回 file:// 而不是公网 URL（见 loss）。
+  - library: html2img
+    fidelity: partial
+    loss: "用本机 headless Chrome 渲染并返回 file:// 路径（原服务返回 OSS URL）；HTML 里的远程图片/字体需联网，离线时渲染为空白；width/height 缺省取 800×600（原服务默认尺寸未取证）；字体/抗锯齿随本机 Chrome 版本，像素结果不保证与线上一致"
+    functions: [gen_img]
+  - library: htmlcode_to_img
+    fidelity: partial
+    loss: "同 html2img：本机 Chrome + file:// 路径；viewport 只解释 width/height/deviceScaleFactor，原服务的 viewport 字段集未取证；远程素材需联网；status/$code 固定 0"
+    functions: [html_img]

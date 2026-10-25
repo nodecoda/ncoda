@@ -497,11 +497,6 @@
    "evidence": "header desc「热搜榜聚合」表明需要远程服务",
    "loss": "remote-api: header desc「热搜榜聚合」表明需要远程服务"
   },
-  "html2img.gen_img": {
-   "class": "env-missing",
-   "evidence": "HTML→图片需要 headless 浏览器",
-   "loss": "env-missing: HTML→图片需要 headless 浏览器"
-  },
   "html_upload.data2url": {
    "class": "remote-api",
    "evidence": "header desc「发布网页」表明需要远程服务",
@@ -511,11 +506,6 @@
    "class": "remote-api",
    "evidence": "header desc「发布网页」表明需要远程服务",
    "loss": "remote-api: header desc「发布网页」表明需要远程服务"
-  },
-  "htmlcode_to_img.html_img": {
-   "class": "env-missing",
-   "evidence": "HTML 代码→图片需要 headless 浏览器",
-   "loss": "env-missing: HTML 代码→图片需要 headless 浏览器"
   },
   "image_enhance.image_quality_improve": {
    "class": "remote-api",

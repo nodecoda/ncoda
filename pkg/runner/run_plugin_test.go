@@ -2,6 +2,7 @@ package runner
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -1248,5 +1249,71 @@ function main() -> any {
 	}
 	if out != "" {
 		t.Fatalf("stub must not emit a result value, got %q", out)
+	}
+}
+
+// html_render：用本机 headless Chrome 真实渲染（不是桩），验证 file:// 产物
+// 存在且尺寸正确。没有 Chrome 的机器跳过，但不会把「跳过」当成通过。
+func TestHTMLRenderPluginEndToEnd(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 not available")
+	}
+	if _, err := os.Stat("/usr/bin/google-chrome"); err != nil {
+		if _, lerr := exec.LookPath("google-chrome"); lerr != nil {
+			t.Skip("headless chrome not available")
+		}
+	}
+	src := `@language nodecoda/1
+@mode workflow
+import "html2img";
+import "htmlcode_to_img";
+
+function main() -> any {
+    let a = html2img.gen_img({ "html": "<!doctype html><html><body style=\"margin:0;background:#00ff00\"></body></html>", "width": 40, "height": 30 }) with timeout(60s);
+    let b = htmlcode_to_img.html_img({ "htmlContent": "<html><body>x</body></html>", "viewport": { "width": 24, "height": 18 } }) with timeout(60s);
+    return { "image_url": a.image_url, "message": a.message, "imageUrl": b.data.imageUrl, "status": b.status };
+}
+`
+	srcPath := filepath.Join(t.TempDir(), "render.ncoda")
+	if err := os.WriteFile(srcPath, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifacts := t.TempDir()
+	rc, out, errs := runCLI(t, "", "--plugin-dir", "../../plugins", "--tool-path", "../../libraries",
+		"--artifact-dir", artifacts, srcPath)
+	if rc != 0 {
+		t.Fatalf("rc=%d, stderr=%s", rc, errs)
+	}
+	var got struct {
+		ImageURL  string  `json:"image_url"`
+		Message   string  `json:"message"`
+		ImageURL2 string  `json:"imageUrl"`
+		Status    float64 `json:"status"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("json: %v (%s)", err, out)
+	}
+	if got.Message != "ok" || got.Status != 0 {
+		t.Fatalf("envelope = %+v", got)
+	}
+	for _, u := range []struct {
+		url  string
+		w, h uint32
+	}{{got.ImageURL, 40, 30}, {got.ImageURL2, 24, 18}} {
+		if !strings.HasPrefix(u.url, "file://") {
+			t.Fatalf("image url must be file://, got %q", u.url)
+		}
+		raw, err := os.ReadFile(strings.TrimPrefix(u.url, "file://"))
+		if err != nil {
+			t.Fatalf("artifact unreadable: %v", err)
+		}
+		if !bytes.HasPrefix(raw, []byte("\x89PNG\r\n\x1a\n")) {
+			t.Fatalf("%s is not a PNG", u.url)
+		}
+		w := binary.BigEndian.Uint32(raw[16:20])
+		h := binary.BigEndian.Uint32(raw[20:24])
+		if w != u.w || h != u.h {
+			t.Fatalf("%s is %dx%d, want %dx%d", u.url, w, h, u.w, u.h)
+		}
 	}
 }

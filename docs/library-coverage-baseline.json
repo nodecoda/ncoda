@@ -5,7 +5,7 @@
  "complete_real": 86,
  "symbols_unbound": 0,
  "symbols_bound_plugin": 280,
- "symbols_bound_stub": 219,
+ "symbols_bound_stub": 217,
  "complete_stub": 698,
- "reason": "219 个未实现符号以 corpus_stubs stub 绑定：能链接/能加载/调用即 not-implemented；unbound 219→0，complete_exec 171 与 complete_real 86 不变，stub 单列 219"
+ "reason": "html2img.gen_img / htmlcode_to_img.html_img 落地为本机 headless Chrome 渲染（partial，返回 file://）；stub 219→217，complete_exec/real 不变（171/86）"
 }

@@ -23,9 +23,9 @@ import (
 	"github.com/nodecoda/ncoda/pkg/runtime/plugin"
 )
 
-// 6 个真实工具插件 + corpus_stubs（未实现符号的可加载占位）。
+// 7 个真实工具插件 + corpus_stubs（未实现符号的可加载占位）。
 // 只升不降：删掉一个插件会让此判据变红。
-const minShippedPlugins = 7
+const minShippedPlugins = 8
 
 func shippedRoot(t *testing.T) string {
 	t.Helper()
